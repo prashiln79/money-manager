@@ -1,68 +1,86 @@
-<h1 class="text-blue-500 text-2xl ">Money Manager...</h1>
 
-<section class="flex gap-3 px-5">
-
-  <mat-card class="example-card" appearance="outlined">
-    <mat-card-header>
-      <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>Shiba Inu</mat-card-title>
-      <mat-card-subtitle>Dog Breed</mat-card-subtitle>
-    </mat-card-header>
-    <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu">
-    <mat-card-content>
-      <p>
-        The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-        A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-        bred for hunting.
-      </p>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
-    </mat-card-actions>
-  </mat-card>
-
-  <mat-card class="example-card" appearance="outlined">
-    <mat-card-header>
-      <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>Shiba Inu</mat-card-title>
-      <mat-card-subtitle>Dog Breed</mat-card-subtitle>
-    </mat-card-header>
-    <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu">
-    <mat-card-content>
-      <p>
-        The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-        A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-        bred for hunting.
-      </p>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
-    </mat-card-actions>
-  </mat-card>
-
-  <mat-card class="example-card" appearance="outlined">
-    <mat-card-header>
-      <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>Shiba Inu</mat-card-title>
-      <mat-card-subtitle>Dog Breed</mat-card-subtitle>
-    </mat-card-header>
-    <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu">
-    <mat-card-content>
-      <p>
-        The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-        A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-        bred for hunting.
-      </p>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
-    </mat-card-actions>
-  </mat-card>
-
-</section>
-
-
-<router-outlet />
+<div class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-md p-6 w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl min-h-[97vh]">
+      <div class="text-center mb-6 h-[22rem]">
+          <div class="text-gray-500">You saved</div>
+          <div class="text-4xl font-bold text-green-500">$83,400</div>
+      </div>
+      <div>
+          <div class="bg-green-100 rounded-lg p-4 mb-4 flex items-center">
+              <div class="flex-shrink-0">
+                  <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 9l9-7 9 7-9 7-9-7z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 22V12H5v10M19 22V12h-4v10" />
+                  </svg>
+              </div>
+              <div class="ml-4 flex-grow">
+                  <div class="font-semibold">New House</div>
+                  <div class="text-gray-500">5 years</div>
+                  <div class="font-bold text-lg">$80,000</div>
+              </div>
+              <div class="text-green-500">
+                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M5 13l4 4L19 7" />
+                  </svg>
+              </div>
+          </div>
+          <div class="bg-green-100 rounded-lg p-4 mb-4 flex items-center">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 9l9-7 9 7-9 7-9-7z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 22V12H5v10M19 22V12h-4v10" />
+                </svg>
+            </div>
+            <div class="ml-4 flex-grow">
+                <div class="font-semibold">New House</div>
+                <div class="text-gray-500">5 years</div>
+                <div class="font-bold text-lg">$80,000</div>
+            </div>
+            <div class="text-green-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+        </div>
+          <div class="bg-green-100 rounded-lg p-4 flex items-center">
+              <div class="flex-shrink-0">
+                  <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 9l9-7 9 7-9 7-9-7z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 22V12H5v10M19 22V12h-4v10" />
+                  </svg>
+              </div>
+              <div class="ml-4 flex-grow">
+                  <div class="font-semibold">Hawaii Vacation</div>
+                  <div class="text-gray-500">4 months left</div>
+                  <div class="font-bold text-lg">$3,400 of $10,000</div>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-2">
+                      <div class="bg-green-500 h-2.5 rounded-full" style="width: 34%"></div>
+                  </div>
+              </div>
+              <div class="text-green-500">
+                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8c-1.38 0-2.5 1.12-2.5 2.5S10.62 13 12 13s2.5-1.12 2.5-2.5S13.38 8 12 8zM12 3v4M8.75 4.75L9.25 6M4.75 8.75L6 9.25M3 12h4M8.75 15.25L9.25 14M15.25 15.25L14.75 14M19 12h-4M15.25 8.75L14.75 9.25" />
+                  </svg>
+              </div>
+          </div>
+      </div>
+      <div class="flex justify-center mt-6">
+          <button
+              class="bg-pink-500 text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-105">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 4v16m8-8H4" />
+              </svg>
+          </button>
+      </div>
+  </div>
+</div>
