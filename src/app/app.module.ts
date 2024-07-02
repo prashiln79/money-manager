@@ -10,6 +10,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 
 @NgModule({
@@ -24,10 +26,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule 
   ],
   providers: [
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    MatDatepickerModule
   ],
   bootstrap: [AppComponent]
 })

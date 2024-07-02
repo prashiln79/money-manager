@@ -3,5 +3,23 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-calendar-body-label {
+  display: none;
+}
+
+.mat-calendar-header {
+  padding: 0 !important;
+}
+
+.mat-calendar-controls {
+    margin: 2% calc(4.7142857143% - 16px) !important;
+}
