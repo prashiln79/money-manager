@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { IconModule } from './icon.module';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -28,7 +30,9 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatButtonModule,
     MatProgressBarModule,
     MatDatepickerModule,
-    MatNativeDateModule 
+    MatNativeDateModule,
+    HttpClientModule,
+    IconModule
   ],
   providers: [
     provideAnimationsAsync(),
