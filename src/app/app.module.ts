@@ -13,13 +13,16 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { IconModule } from './util/icon.module';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, provideHttpClient } from '@angular/common/http';
 import { TotalBalanceComponent } from './component/total-balance/total-balance.component';
 import { CalendarViewComponent } from './component/calendar-view/calendar-view.component';
 import { TransactionListComponent } from './component/transaction-list/transaction-list.component';
 import { AddTransactionComponent } from './component/add-transaction/add-transaction.component';
 import { HeaderComponent } from './component/header/header.component';
-
+import { SideBarComponent } from './component/side-bar/side-bar.component';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -28,7 +31,8 @@ import { HeaderComponent } from './component/header/header.component';
     CalendarViewComponent,
     TransactionListComponent,
     AddTransactionComponent,
-    HeaderComponent
+    HeaderComponent,
+    SideBarComponent
   ],
   imports: [
     BrowserModule,
@@ -41,12 +45,15 @@ import { HeaderComponent } from './component/header/header.component';
     MatProgressBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    HttpClientModule,
-    IconModule
+    IconModule,
+    MatSidenavModule,
+    MatFormFieldModule,
+    MatSelectModule,
   ],
   providers: [
     provideAnimationsAsync(),
-    MatDatepickerModule
+    MatDatepickerModule,
+    provideHttpClient()
   ],
   bootstrap: [AppComponent]
 })
