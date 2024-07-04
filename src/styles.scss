@@ -21,5 +21,43 @@ body {
 }
 
 .mat-calendar-controls {
-    margin: 2% calc(4.7142857143% - 16px) !important;
+  margin: 2% calc(4.7142857143% - 16px) !important;
+}
+
+.header-content {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.header-title {
+  font-size: 1.2em;
+  color: gray;
+}
+
+.header-amount {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.item-content {
+  flex: 1;
+  padding-left: 16px;
+}
+
+.item-title {
+  font-weight: bold;
+}
+
+.item-subtitle {
+  color: gray;
+}
+
+.item-amount {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+mat-progress-bar {
+  margin-top: 8px;
 }
