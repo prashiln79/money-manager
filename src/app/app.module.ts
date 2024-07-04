@@ -17,12 +17,13 @@ import { HttpClientModule, provideHttpClient } from '@angular/common/http';
 import { TotalBalanceComponent } from './component/total-balance/total-balance.component';
 import { CalendarViewComponent } from './component/calendar-view/calendar-view.component';
 import { TransactionListComponent } from './component/transaction-list/transaction-list.component';
-import { AddTransactionComponent } from './component/add-transaction/add-transaction.component';
+import { AddTransactionComponent } from './component/transaction-list/add-transaction/add-transaction.component';
 import { HeaderComponent } from './component/header/header.component';
 import { SideBarComponent } from './component/side-bar/side-bar.component';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
+import { TransactionComponent } from './component/transaction-list/add-transaction/transaction/transaction.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import {MatSelectModule} from '@angular/material/select';
     TransactionListComponent,
     AddTransactionComponent,
     HeaderComponent,
-    SideBarComponent
+    SideBarComponent,
+    TransactionComponent
   ],
   imports: [
     BrowserModule,
