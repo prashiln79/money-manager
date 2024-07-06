@@ -13,6 +13,6 @@ export class AppComponent {
     { icon: 'flight', name: 'Hawaii Vacation', duration: '4 months left', amount: '$3,400 of $10,000', progress: 34 },
   ];
 
-  currentTheme = 'light-theme';
+  currentTheme = 'dark-theme';
 
 }

@@ -44,7 +44,6 @@
               "src/styles/light-theme.scss",
               "src/styles/dark-theme.scss",
               "src/styles.scss"
-            
             ],
             "scripts": []
           },

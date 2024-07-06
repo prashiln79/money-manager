@@ -1,28 +1,10 @@
-<div class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white rounded-2xl shadow-md p-6 w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl min-h-[97vh]">
-
-        <app-header></app-header>
-        <total-balance></total-balance>
-        <calendar-view></calendar-view>
-        <transaction-list></transaction-list>
-        <add-transaction></add-transaction>
-
-    </div>
+<div class="bg-gray-100 flex items-center justify-center min-h-screen" [ngClass]="currentTheme">
+  <div class="bg-white rounded-2xl shadow-md p-6 w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl min-h-[97vh]">
+    <app-header></app-header>
+    <total-balance></total-balance>
+    <calendar-view></calendar-view>
+    <transaction-list></transaction-list>
+    <add-transaction></add-transaction>
+  </div>
 </div>
 
-<div [ngClass]="currentTheme">
-    <mat-toolbar>
-      <span>Budget App</span>
-      <span class="spacer"></span>
-      <mat-button-toggle-group [(ngModel)]="currentTheme" aria-label="Theme switcher">
-        <mat-button-toggle value="light-theme">Light</mat-button-toggle>
-        <mat-button-toggle value="dark-theme">Dark</mat-button-toggle>
-        <mat-button-toggle value="custom-theme">Custom</mat-button-toggle>
-      </mat-button-toggle-group>
-    </mat-toolbar>
-  
-    <div class="content">
-      <!-- Your app content goes here -->
-    </div>
-  </div>
-  
