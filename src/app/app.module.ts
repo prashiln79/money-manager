@@ -4,26 +4,29 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import {MatCardModule} from '@angular/material/card';
+import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import {MatDatepickerModule} from '@angular/material/datepicker';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { IconModule } from './util/icon.module';
-import { HttpClientModule, provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { TotalBalanceComponent } from './component/total-balance/total-balance.component';
 import { CalendarViewComponent } from './component/calendar-view/calendar-view.component';
 import { TransactionListComponent } from './component/transaction-list/transaction-list.component';
 import { AddTransactionComponent } from './component/transaction-list/add-transaction/add-transaction.component';
 import { HeaderComponent } from './component/header/header.component';
 import { SideBarComponent } from './component/side-bar/side-bar.component';
-import {MatSidenavModule} from '@angular/material/sidenav';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatSelectModule} from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { TransactionComponent } from './component/transaction-list/add-transaction/transaction/transaction.component';
+import { FormsModule } from '@angular/forms';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @NgModule({
   declarations: [
@@ -51,6 +54,9 @@ import { TransactionComponent } from './component/transaction-list/add-transacti
     MatSidenavModule,
     MatFormFieldModule,
     MatSelectModule,
+    FormsModule,
+    MatToolbarModule,
+    MatButtonToggleModule
   ],
   providers: [
     provideAnimationsAsync(),

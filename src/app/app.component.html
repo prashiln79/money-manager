@@ -9,3 +9,20 @@
 
     </div>
 </div>
+
+<div [ngClass]="currentTheme">
+    <mat-toolbar>
+      <span>Budget App</span>
+      <span class="spacer"></span>
+      <mat-button-toggle-group [(ngModel)]="currentTheme" aria-label="Theme switcher">
+        <mat-button-toggle value="light-theme">Light</mat-button-toggle>
+        <mat-button-toggle value="dark-theme">Dark</mat-button-toggle>
+        <mat-button-toggle value="custom-theme">Custom</mat-button-toggle>
+      </mat-button-toggle-group>
+    </mat-toolbar>
+  
+    <div class="content">
+      <!-- Your app content goes here -->
+    </div>
+  </div>
+  
