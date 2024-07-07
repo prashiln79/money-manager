@@ -7,22 +7,22 @@
 // Note: Color palettes are generated from primary: #000000
 $_palettes: (
   primary: (
-    0: #000000,
-    10: #3e001d,
-    20: #5e1133,
-    25: #6c1d3e,
-    30: #7b2949,
-    35: #893455,
-    40: #984061,
-    50: #b6587a,
-    60: #d57193,
-    70: #f48bae,
-    80: #ffb1c8,
-    90: #ffd9e2,
-    95: #ffecf0,
-    98: #fff8f8,
-    99: #fffbff,
-    100: #ffffff,
+    0: #000000,// Black
+    10: #262626,// Very dark gray
+    20: #434343, // Dark gray
+    25: #555555,// Slightly lighter dark gray
+    30: #7b7b7b, // Medium-dark gray
+    35: #aeadad,// Slightly lighter medium-dark gray
+    40: #b7b7b7,// Medium gray
+    50: #d2cfcf,// Medium-light gray
+    60: #d2d2d2,// Light gray
+    70: #d5d2d3, // Lighter gray
+    80: #e2dbdd,// Very light gray
+    90: #efe9eb,// Almost white gray
+    95: #e1dcdd, // Very pale gray
+    98: #f1eded,// Nearly white
+    99: #ecebec, // Almost completely white
+    100: #f5f5f5,// White
   ),
   secondary: (
     0: #000000,

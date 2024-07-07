@@ -143,20 +143,23 @@ $light-theme: mat.define-theme(
       tertiary: $_tertiary,
     ),
     typography: (
-      use-system-variables: true,
+      //The font family to use for plain text, such as body text.
+        plain-family: "Roboto, 'sans-serif'",
+      //The font family to use for brand text, such as headlines.
+        brand-family: "cursive",
+      //The font weight to use for bold text.
+        bold-weight: 500,
+      //The font weight to use for medium text.
+        medium-weight: 200,
+      // The font weight to use for regular text.,
+        regular-weight: 500,
+    ),
+    density: (
+      scale: 0,
     ),
   )
 );
 
-// html {
-//   // Apply the light theme only when the user prefers light themes.
-//   @media (prefers-color-scheme: light) {
-//     // Use the `-color` mixins to only apply color styles without reapplying the same
-//     // typography and density styles.
-//
-//     @include mat.button-color($light-theme);
-//   }
-// }
 .light-theme {
   @include mat.all-component-themes($light-theme);
 }
