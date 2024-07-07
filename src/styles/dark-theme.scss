@@ -146,4 +146,14 @@ $dark-theme: mat.define-theme((
 
 .dark-theme {
   @include mat.all-component-themes($dark-theme);
+  
+  // custom component
+  .text-brand {
+    color: mat.get-theme-color($dark-theme, primary, 50);
+  }
+
+  .main{
+    background-color: mat.get-theme-color($dark-theme, primary, 0);
+  }
 }
+

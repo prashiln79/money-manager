@@ -162,4 +162,17 @@ $light-theme: mat.define-theme(
 
 .light-theme {
   @include mat.all-component-themes($light-theme);
+  
+  .text-brand {
+    color: mat.get-theme-color($light-theme, primary, 50);
+  }
+
+  .main{
+    background-color: mat.get-theme-color($light-theme, primary, 100);
+  }
+ 
 }
+
+
+
+

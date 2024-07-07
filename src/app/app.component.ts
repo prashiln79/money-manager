@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ThemeSwitchingService } from './util/service/theme-switching.service';
 
 @Component({
   selector: 'app-root',
@@ -6,13 +7,14 @@ import { Component } from '@angular/core';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'money-manager';
+  public title = 'money-manager';
+  public currentTheme:string = '';
 
-  savings = [
-    { icon: 'home', name: 'New House', duration: '5 years', amount: '$80,000', progress: 100 },
-    { icon: 'flight', name: 'Hawaii Vacation', duration: '4 months left', amount: '$3,400 of $10,000', progress: 34 },
-  ];
+  constructor(private _themeSwitchingService: ThemeSwitchingService) {
+    this._themeSwitchingService.currentTheme.subscribe((resp) => {
+      this.currentTheme = resp;
+    });
 
-  currentTheme = 'light-theme';
+  }
 
 }

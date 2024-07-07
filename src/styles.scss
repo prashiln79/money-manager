@@ -3,6 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.mat-drawer-container{
+  background-color: transparent !important;
+}
+
+// Remove Later *****
 html,
 body {
   height: 100%;
@@ -12,17 +17,6 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-.mat-calendar-body-label {
-  display: none;
-}
-
-.mat-calendar-header {
-  padding: 0 !important;
-}
-
-.mat-calendar-controls {
-  margin: 2% calc(4.7142857143% - 16px) !important;
-}
 
 .header-content {
   text-align: center;
@@ -58,6 +52,4 @@ body {
   margin-bottom: 8px;
 }
 
-mat-progress-bar {
-  margin-top: 8px;
-}
+
