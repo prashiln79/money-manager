@@ -161,18 +161,17 @@ $light-theme: mat.define-theme(
 );
 
 .light-theme {
+  /* ----------------------------------------------------------------------------------------------------- */
+  /*  @ Write Common code for light Theme
+  /* ----------------------------------------------------------------------------------------------------- */
+
   @include mat.all-component-themes($light-theme);
-  
+
   .text-brand {
     color: mat.get-theme-color($light-theme, primary, 50);
   }
 
-  .main{
+  .main {
     background-color: mat.get-theme-color($light-theme, primary, 100);
   }
- 
 }
-
-
-
-

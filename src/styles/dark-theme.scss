@@ -7,22 +7,38 @@
 // Note: Color palettes are generated from primary: #000000
 $_palettes: (
   primary: (
-    0: #000000,// Black
-    10: #262626,// Very dark gray
-    20: #434343, // Dark gray
-    25: #555555,// Slightly lighter dark gray
-    30: #7b7b7b, // Medium-dark gray
-    35: #aeadad,// Slightly lighter medium-dark gray
-    40: #b7b7b7,// Medium gray
-    50: #d2cfcf,// Medium-light gray
-    60: #d2d2d2,// Light gray
-    70: #d5d2d3, // Lighter gray
-    80: #e2dbdd,// Very light gray
-    90: #efe9eb,// Almost white gray
-    95: #e1dcdd, // Very pale gray
-    98: #f1eded,// Nearly white
-    99: #ecebec, // Almost completely white
-    100: #f5f5f5,// White
+    0: #000000,
+    // Black
+      10: #262626,
+    // Very dark gray
+      20: #434343,
+    // Dark gray
+      25: #555555,
+    // Slightly lighter dark gray
+      30: #7b7b7b,
+    // Medium-dark gray
+      35: #aeadad,
+    // Slightly lighter medium-dark gray
+      40: #b7b7b7,
+    // Medium gray
+      50: #d2cfcf,
+    // Medium-light gray
+      60: #d2d2d2,
+    // Light gray
+      70: #d5d2d3,
+    // Lighter gray
+      80: #e2dbdd,
+    // Very light gray
+      90: #efe9eb,
+    // Almost white gray
+      95: #e1dcdd,
+    // Very pale gray
+      98: #f1eded,
+    // Nearly white
+      99: #ecebec,
+    // Almost completely white
+      100: #f5f5f5,
+    // White
   ),
   secondary: (
     0: #000000,
@@ -129,31 +145,34 @@ $_palettes: (
 $_rest: (
   secondary: map.get($_palettes, secondary),
   neutral: map.get($_palettes, neutral),
-  neutral-variant: map.get($_palettes,  neutral-variant),
+  neutral-variant: map.get($_palettes, neutral-variant),
   error: map.get($_palettes, error),
 );
 $_primary: map.merge(map.get($_palettes, primary), $_rest);
 $_tertiary: map.merge(map.get($_palettes, tertiary), $_rest);
 
-$dark-theme: mat.define-theme((
-  color: (
-    theme-type: dark,
-    primary: $_primary,
-    tertiary: $_tertiary,
-  ),
-));
-
+$dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: $_primary,
+      tertiary: $_tertiary,
+    ),
+  )
+);
 
 .dark-theme {
-  @include mat.all-component-themes($dark-theme);
+  /* ----------------------------------------------------------------------------------------------------- */
+  /*  @ Write Common code for Dark Theme
+  /* ----------------------------------------------------------------------------------------------------- */
   
-  // custom component
+  @include mat.all-component-themes($dark-theme);
+
   .text-brand {
     color: mat.get-theme-color($dark-theme, primary, 50);
   }
 
-  .main{
+  .main {
     background-color: mat.get-theme-color($dark-theme, primary, 0);
   }
 }
-
