@@ -8,20 +8,20 @@
 $_palettes: (
   primary: (
     0: #000000,
-    10: #002113,
-    20: #003823,
-    25: #00452c,
-    30: #005235,
-    35: #005f3e,
-    40: #026c00,
-    50: #03885b,
-    60: #34a374,
-    70: #53be8d,
-    80: #71dba7,
-    90: #8df7c2,
-    95: #bfffda,
-    98: #e8ffef,
-    99: #f4fff6,
+    10: #051f23,
+    20: #1c3438,
+    25: #273f43,
+    30: #334b4f,
+    35: #3e565b,
+    40: #4a6267,
+    50: #637b80,
+    60: #7c959a,
+    70: #96b0b4,
+    80: #b1cbd0,
+    90: #cde7ec,
+    95: #dbf6fa,
+    98: #edfcff,
+    99: #f6feff,
     100: #ffffff,
   ),
   secondary: (
@@ -165,7 +165,7 @@ $light-theme: mat.define-theme(
   /*  @ Write Common code for light Theme
   /* ----------------------------------------------------------------------------------------------------- */
   @include mat.all-component-themes($light-theme);
-  
+
   background-color: mat.get-theme-color($light-theme, primary, 100);
   color: mat.get-theme-color($light-theme, primary, 0);
 
