@@ -8,12 +8,9 @@ import { ThemeSwitchingService } from './util/service/theme-switching.service';
 })
 export class AppComponent {
   public title = 'money-manager';
-  public currentTheme:string = '';
 
-  constructor(private _themeSwitchingService: ThemeSwitchingService) {
-    this._themeSwitchingService.currentTheme.subscribe((resp) => {
-      this.currentTheme = resp;
-    });
+  constructor() {
+ 
 
   }
 
