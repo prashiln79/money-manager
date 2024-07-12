@@ -1,7 +1,7 @@
 {
   "configVersion": 1,
-  "timestamp": 1720811547567,
-  "index": "https://prashiln79.github.io/money-manager/index.html",
+  "timestamp": 1720811771831,
+  "index": "/index.html",
   "assetGroups": [
     {
       "name": "app",
@@ -11,14 +11,14 @@
         "ignoreVary": true
       },
       "urls": [
-        "https://prashiln79.github.io/money-manager/chunk-EI7ZQHWF.js",
-        "https://prashiln79.github.io/money-manager/chunk-YFZGDGTO.js",
-        "https://prashiln79.github.io/money-manager/favicon.ico",
-        "https://prashiln79.github.io/money-manager/index.html",
-        "https://prashiln79.github.io/money-manager/main-HESM6MNO.js",
-        "https://prashiln79.github.io/money-manager/manifest.webmanifest",
-        "https://prashiln79.github.io/money-manager/polyfills-7GJDLKRV.js",
-        "https://prashiln79.github.io/money-manager/styles-XZAKRM5X.css"
+        "/chunk-EI7ZQHWF.js",
+        "/chunk-YFZGDGTO.js",
+        "/favicon.ico",
+        "/index.html",
+        "/main-HESM6MNO.js",
+        "/manifest.webmanifest",
+        "/polyfills-7GJDLKRV.js",
+        "/styles-XZAKRM5X.css"
       ],
       "patterns": []
     },
@@ -30,40 +30,40 @@
         "ignoreVary": true
       },
       "urls": [
-        "https://prashiln79.github.io/money-manager/assets/icon/system-uicons.svg",
-        "https://prashiln79.github.io/money-manager/assets/icon/test.svg",
-        "https://prashiln79.github.io/money-manager/icons/icon-128x128.png",
-        "https://prashiln79.github.io/money-manager/icons/icon-144x144.png",
-        "https://prashiln79.github.io/money-manager/icons/icon-152x152.png",
-        "https://prashiln79.github.io/money-manager/icons/icon-192x192.png",
-        "https://prashiln79.github.io/money-manager/icons/icon-384x384.png",
-        "https://prashiln79.github.io/money-manager/icons/icon-512x512.png",
-        "https://prashiln79.github.io/money-manager/icons/icon-72x72.png",
-        "https://prashiln79.github.io/money-manager/icons/icon-96x96.png"
+        "/assets/icon/system-uicons.svg",
+        "/assets/icon/test.svg",
+        "/icons/icon-128x128.png",
+        "/icons/icon-144x144.png",
+        "/icons/icon-152x152.png",
+        "/icons/icon-192x192.png",
+        "/icons/icon-384x384.png",
+        "/icons/icon-512x512.png",
+        "/icons/icon-72x72.png",
+        "/icons/icon-96x96.png"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
-    "https://prashiln79.github.io/money-manager/assets/icon/system-uicons.svg": "c3a33e237031853fd016b36a8c3d04766e5b1709",
-    "https://prashiln79.github.io/money-manager/assets/icon/test.svg": "71f9dbbf00b4febc9dc44f7b9349eb61f7707b36",
-    "https://prashiln79.github.io/money-manager/chunk-EI7ZQHWF.js": "4b7696dd1340eea4d7e6ab6f3eea84efa4c24371",
-    "https://prashiln79.github.io/money-manager/chunk-YFZGDGTO.js": "2a9e3e8cc00586442536e4882c9c52ac9df89a69",
-    "https://prashiln79.github.io/money-manager/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
-    "https://prashiln79.github.io/money-manager/icons/icon-128x128.png": "f912963bdc6d5a38d8f1dd0afbaab2ce8d657acb",
-    "https://prashiln79.github.io/money-manager/icons/icon-144x144.png": "b155fd5f2fd5d2ea7760721063003c4cd95fd783",
-    "https://prashiln79.github.io/money-manager/icons/icon-152x152.png": "eae6e0f0c8afb8aaae339e2a569b43e9238e5e6c",
-    "https://prashiln79.github.io/money-manager/icons/icon-192x192.png": "15c4180454633880d98674aa7394656196c91584",
-    "https://prashiln79.github.io/money-manager/icons/icon-384x384.png": "94a915751ef6c9282df9aea405ad679230631814",
-    "https://prashiln79.github.io/money-manager/icons/icon-512x512.png": "1de182f76f7329dfa8f9fcdd1fdcdd695bea6a99",
-    "https://prashiln79.github.io/money-manager/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
-    "https://prashiln79.github.io/money-manager/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
-    "https://prashiln79.github.io/money-manager/index.html": "15829fe00ae48f9503b68cfa2d43f7efe414120b",
-    "https://prashiln79.github.io/money-manager/main-HESM6MNO.js": "90806ba5a90543d8e185c52aada4f0487252cef8",
-    "https://prashiln79.github.io/money-manager/manifest.webmanifest": "afb77c698e7d8913207047a65001570e7888f5d7",
-    "https://prashiln79.github.io/money-manager/polyfills-7GJDLKRV.js": "c0ffed56fdd0aae538663d8a376bbeeb78762696",
-    "https://prashiln79.github.io/money-manager/styles-XZAKRM5X.css": "073b5e756e7ffc7858da2aa3550f71893dd6c529"
+    "/assets/icon/system-uicons.svg": "c3a33e237031853fd016b36a8c3d04766e5b1709",
+    "/assets/icon/test.svg": "71f9dbbf00b4febc9dc44f7b9349eb61f7707b36",
+    "/chunk-EI7ZQHWF.js": "4b7696dd1340eea4d7e6ab6f3eea84efa4c24371",
+    "/chunk-YFZGDGTO.js": "2a9e3e8cc00586442536e4882c9c52ac9df89a69",
+    "/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
+    "/icons/icon-128x128.png": "f912963bdc6d5a38d8f1dd0afbaab2ce8d657acb",
+    "/icons/icon-144x144.png": "b155fd5f2fd5d2ea7760721063003c4cd95fd783",
+    "/icons/icon-152x152.png": "eae6e0f0c8afb8aaae339e2a569b43e9238e5e6c",
+    "/icons/icon-192x192.png": "15c4180454633880d98674aa7394656196c91584",
+    "/icons/icon-384x384.png": "94a915751ef6c9282df9aea405ad679230631814",
+    "/icons/icon-512x512.png": "1de182f76f7329dfa8f9fcdd1fdcdd695bea6a99",
+    "/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
+    "/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
+    "/index.html": "0f9589783ae23e7256ab024375988bd3bc65463e",
+    "/main-HESM6MNO.js": "90806ba5a90543d8e185c52aada4f0487252cef8",
+    "/manifest.webmanifest": "afb77c698e7d8913207047a65001570e7888f5d7",
+    "/polyfills-7GJDLKRV.js": "c0ffed56fdd0aae538663d8a376bbeeb78762696",
+    "/styles-XZAKRM5X.css": "073b5e756e7ffc7858da2aa3550f71893dd6c529"
   },
   "navigationUrls": [
     {
