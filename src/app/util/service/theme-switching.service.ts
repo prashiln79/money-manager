@@ -11,8 +11,8 @@ export type ThemeType = 'light-theme' | 'dark-theme';
 export class ThemeSwitchingService {
 
   private renderer: Renderer2;
-  public currentTheme: BehaviorSubject<ThemeType> = new BehaviorSubject<ThemeType>('light-theme');
-  private previousClass: ThemeType ='light-theme';
+  public currentTheme: BehaviorSubject<ThemeType> = new BehaviorSubject<ThemeType>('dark-theme');
+  private previousClass: ThemeType ='dark-theme';
   public body = this.document.body;
 
   constructor(rendererFactory: RendererFactory2,
