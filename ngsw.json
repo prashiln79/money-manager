@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1720810017126,
+  "timestamp": 1720811547567,
   "index": "https://prashiln79.github.io/money-manager/index.html",
   "assetGroups": [
     {
@@ -15,7 +15,7 @@
         "https://prashiln79.github.io/money-manager/chunk-YFZGDGTO.js",
         "https://prashiln79.github.io/money-manager/favicon.ico",
         "https://prashiln79.github.io/money-manager/index.html",
-        "https://prashiln79.github.io/money-manager/main-3ETVTA42.js",
+        "https://prashiln79.github.io/money-manager/main-HESM6MNO.js",
         "https://prashiln79.github.io/money-manager/manifest.webmanifest",
         "https://prashiln79.github.io/money-manager/polyfills-7GJDLKRV.js",
         "https://prashiln79.github.io/money-manager/styles-XZAKRM5X.css"
@@ -59,9 +59,9 @@
     "https://prashiln79.github.io/money-manager/icons/icon-512x512.png": "1de182f76f7329dfa8f9fcdd1fdcdd695bea6a99",
     "https://prashiln79.github.io/money-manager/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
     "https://prashiln79.github.io/money-manager/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
-    "https://prashiln79.github.io/money-manager/index.html": "2f1d48367977acfa22c77f506aa0378443ad9684",
-    "https://prashiln79.github.io/money-manager/main-3ETVTA42.js": "4c94f10533bbe16eb7a59229e82c42adf7fd85f0",
-    "https://prashiln79.github.io/money-manager/manifest.webmanifest": "7cdb58d32e39280738628e9ace31deb198abae9a",
+    "https://prashiln79.github.io/money-manager/index.html": "15829fe00ae48f9503b68cfa2d43f7efe414120b",
+    "https://prashiln79.github.io/money-manager/main-HESM6MNO.js": "90806ba5a90543d8e185c52aada4f0487252cef8",
+    "https://prashiln79.github.io/money-manager/manifest.webmanifest": "afb77c698e7d8913207047a65001570e7888f5d7",
     "https://prashiln79.github.io/money-manager/polyfills-7GJDLKRV.js": "c0ffed56fdd0aae538663d8a376bbeeb78762696",
     "https://prashiln79.github.io/money-manager/styles-XZAKRM5X.css": "073b5e756e7ffc7858da2aa3550f71893dd6c529"
   },
