@@ -24,7 +24,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "baseHref":"https://prashiln79.github.io/money-manager/",
             "outputPath": "dist/money-manager",
             "index": "src/index.html",
             "browser": "src/main.ts",
