@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1720844738867,
+  "timestamp": 1720845966773,
   "index": "https://prashiln79.github.io/money-manager/index.html",
   "assetGroups": [
     {
@@ -61,7 +61,7 @@
     "https://prashiln79.github.io/money-manager/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
     "https://prashiln79.github.io/money-manager/index.html": "2445938f1e16315a4c194a0f08b0f6d0c568ed5c",
     "https://prashiln79.github.io/money-manager/main-RJRMPD3F.js": "e68a89a7f45d8c9efba5afb6e0002fe044c76826",
-    "https://prashiln79.github.io/money-manager/manifest.webmanifest": "afb77c698e7d8913207047a65001570e7888f5d7",
+    "https://prashiln79.github.io/money-manager/manifest.webmanifest": "37bf8f0f2621e54a34edbc4070c58ee75e308fa8",
     "https://prashiln79.github.io/money-manager/polyfills-7GJDLKRV.js": "c0ffed56fdd0aae538663d8a376bbeeb78762696",
     "https://prashiln79.github.io/money-manager/styles-WZMVDGOM.css": "c3484244163e62f0b78c1bb50afa3a381f871e82"
   },
