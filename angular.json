@@ -62,7 +62,8 @@
                 }
               ],
               "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json",
+              "baseHref":"https://prashiln79.github.io/money-manager/"
             },
             "development": {
               "optimization": false,
