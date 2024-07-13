@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development --baseHref https://prashiln79.github.io/money-manager/",
+    "build": "ng build  --baseHref https://prashiln79.github.io/money-manager/",
+    "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
   "private": true,
