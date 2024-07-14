@@ -6,25 +6,25 @@ on:
       - main # Change this to the branch you want to trigger the action on
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  # build:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Private Repo
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #     - name: Checkout Private Repo
+  #       uses: actions/checkout@v2
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20.11.0' # Specify the Node.js version you are using
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: '20.11.0' # Specify the Node.js version you are using
 
-      - name: Install Dependencies
-        run: npm install --force
+  #     - name: Install Dependencies
+  #       run: npm install --force
 
-      - name: Build Angular Application
-        run: npm run build --prod
+  #     - name: Build Angular Application
+  #       run: npm run build --prod
 
   copy-to-public:
     runs-on: ubuntu-latest
