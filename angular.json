@@ -63,7 +63,7 @@
               ],
               "outputHashing": "all",
               "serviceWorker": "ngsw-config.json",
-              "baseHref":"https://prashiln79.github.io/money-manager/"
+              "baseHref":"https://prashiln79.github.io/wallet/"
             },
             "development": {
               "optimization": false,
