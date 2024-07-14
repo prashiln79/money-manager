@@ -21,7 +21,7 @@ jobs:
           node-version: '20.11.0' # Specify the Node.js version you are using
 
       - name: Install Dependencies
-        run: npm install 
+        run: npm install --force
 
       - name: Build Angular Application
         run: npm run build --prod
