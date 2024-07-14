@@ -1,31 +1,40 @@
-name: Deploy Angular Project to GitHub Pages
+name: Copy to Public Repo
 
 on:
   push:
     branches:
-      - main
+      - main # Change this to the branch you want to trigger the action on
 
 jobs:
-  build:
+  copy-to-public:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout Private Repo
+        uses: actions/checkout@v2
+        with:
+          # This checks out the private repo
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20.11.0'
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Install dependencies
-      run: npm install --force
+      - name: Checkout Public Repo
+        run: |
+          git clone https://github.com/your-public-username/your-public-repo.git public-repo
+          cd public-repo
+          git remote set-url origin https://your-public-username:${{ secrets.PUBLIC_REPO_PAT }}@github.com/your-public-username/your-public-repo.git
 
-    - name: Build Angular project
-      run: npm run build --prod
+      - name: Copy Files
+        run: |
+          rsync -av --exclude='.git' ./ public-repo/
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist/money-manager/browser
+      - name: Commit and Push
+        run: |
+          cd public-repo
+          git add .
+          git commit -m "Update from private repo"
+          git push origin main # Change this if the default branch is not main
