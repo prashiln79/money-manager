@@ -24,9 +24,9 @@ jobs:
 
       - name: Checkout Public Repo
         run: |
-          git clone https://github.com/your-public-username/your-public-repo.git public-repo
+          git clone https://github.com/prashiln79/wallet.git public-repo
           cd public-repo
-          git remote set-url origin https://your-public-username:${{ secrets.PUBLIC_REPO_PAT }}@github.com/your-public-username/your-public-repo.git
+          git remote set-url origin https://prashiln79:${{ secrets.PUBLIC_REPO_PAT }}@github.com/prashiln79/wallet.git
 
       - name: Copy Files
         run: |
