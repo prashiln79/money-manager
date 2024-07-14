@@ -30,7 +30,7 @@ jobs:
 
       - name: Copy Files
         run: |
-          rsync -av --exclude='.git'  dist/money-manager/browser public-repo/
+          rsync -av --exclude='.git'  dist/money-manager/browser/ public-repo/
 
       - name: Commit and Push
         run: |
