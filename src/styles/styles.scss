@@ -50,3 +50,17 @@ body {
   margin-top: 8px;
   margin-bottom: 8px;
 }
+
+// Material theme common changes 
+
+.mat-mdc-dialog-surface{
+  border-radius: 10px !important;
+}
+
+.mat-drawer-container{
+  position: absolute !important;
+}
+
+.mat-drawer {
+  left: 0;
+}
