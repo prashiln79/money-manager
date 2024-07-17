@@ -1,5 +1,4 @@
-<mat-drawer-container class="example-container  !z-[999]" 
-    [hasBackdrop]="true">
+<mat-drawer-container class="example-container  !z-[999]" [hasBackdrop]="true">
     <mat-drawer #drawer [mode]="'over'" class="!fixed">
         <section class="h-full w-full p-4">
             <!-- Toggle -->
@@ -22,7 +21,10 @@
         </section>
 
     </mat-drawer>
-    <mat-drawer-content>
-        <mat-icon svgIcon="menu-hamburger" (click)="drawer.toggle()"></mat-icon>
+    <mat-drawer-content class="!overflow-hidden">
+        <button mat-mini-fab color="primary"  aria-label="Example icon button with a menu icon"
+            (click)="drawer.toggle()">
+            <mat-icon>menu</mat-icon>
+        </button>
     </mat-drawer-content>
 </mat-drawer-container>
