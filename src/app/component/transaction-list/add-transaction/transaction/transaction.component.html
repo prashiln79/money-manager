@@ -1,9 +1,9 @@
-<mat-card class="p-5 mat-accent"  appearance="raised" >
+<mat-card class="p-5 mat-accent" appearance="raised">
     <mat-card-title class="!flex justify-between">Add Transaction
         <button mat-icon-button mat-dialog-close class="top-[-10px] left-[10px]"><mat-icon>close</mat-icon></button>
     </mat-card-title>
 
-    <mat-card-content >
+    <mat-card-content>
         <section class="p-5 pt-10">
             <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
                 <!-- 
@@ -12,30 +12,30 @@
                 <input matInput formControlName="name" required>
             </mat-form-field> -->
 
-                <mat-form-field  floatLabel="always" class="w-full mb-5">
+                <mat-form-field floatLabel="always" class="w-full mb-5">
                     <mat-label>Amount</mat-label>
                     <input matInput type="number" class="example-right-align" placeholder="0" />
                     <span matTextPrefix>$&nbsp;</span>
                     <span matTextSuffix>.00</span>
                 </mat-form-field>
 
-                <div class="flex gap-2 mb-5">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Category</mat-label>
-                        <mat-select formControlName="category" required>
-                            <mat-option *ngFor="let category of categories" [value]="category">
-                                {{category}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
 
-                    <mat-form-field appearance="fill">
-                        <mat-label>Date</mat-label>
-                        <input matInput [matDatepicker]="picker" formControlName="date" required>
-                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
-                    </mat-form-field>
-                </div>
+                <mat-form-field appearance="fill" class="w-full mb-5">
+                    <mat-label>Category</mat-label>
+                    <mat-select formControlName="category" required>
+                        <mat-option *ngFor="let category of categories" [value]="category">
+                            {{category}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill" class="w-full mb-5">
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="picker" formControlName="date" required>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+
 
                 <mat-form-field appearance="fill" class="w-full">
                     <mat-label>Notes</mat-label>
@@ -43,7 +43,8 @@
                 </mat-form-field>
 
                 <div class="button-container">
-                    <button mat-stroked-button color="primary" mat-dialog-close type="submit"><mat-icon>add</mat-icon>Add
+                    <button mat-stroked-button color="primary" mat-dialog-close
+                        type="submit"><mat-icon>add</mat-icon>Add
                         Transaction</button>
                 </div>
             </form>
