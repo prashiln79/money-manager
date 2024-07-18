@@ -1,10 +1,10 @@
-<mat-card class="p-5 mat-accent" appearance="raised">
-    <mat-card-title class="!flex justify-between border-b-2 pb-2 px-2">Add Transaction
-        <button mat-icon-button mat-dialog-close class="top-[-10px] left-[10px]"><mat-icon>close</mat-icon></button>
+<mat-card class="p-1 mat-accent shadow" appearance="raised">
+    <mat-card-title class="!flex justify-end pb-2 px-2">
+        <button mat-icon-button mat-dialog-close class="top-[-10px] left-[19px]"><mat-icon>close</mat-icon></button>
     </mat-card-title>
 
     <mat-card-content>
-        <section class="p-5 pt-10">
+        <section class=" pt-2">
             <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
                 <!-- 
             <mat-form-field appearance="fill">
@@ -12,14 +12,23 @@
                 <input matInput formControlName="name" required>
             </mat-form-field> -->
 
-                <mat-form-field floatLabel="always" class="w-full mb-5">
+                <mat-form-field floatLabel="always" class="w-full ">
                     <mat-label>Amount</mat-label>
-                    <input matInput type="number" class="example-right-align" placeholder="0" />
+                    <input matInput type="text" formControlName="amount" class="example-right-align" placeholder="0" />
                     <span matTextPrefix>$&nbsp;</span>
                     <span matTextSuffix>.00</span>
                 </mat-form-field>
 
 
+                <section class="grid grid-cols-4 gap-2  scale-95">
+                  
+                        <button mat-stroked-button class="w-10 !h-[58px] scale-90"  *ngFor="let button of buttons"
+                            (click)="appendExpression(button)">
+                            {{ button }}
+                        </button>
+                
+                </section>
+                <!-- 
                 <mat-form-field appearance="fill" class="w-full mb-5">
                     <mat-label>Category</mat-label>
                     <mat-select formControlName="category" required>
@@ -41,12 +50,13 @@
                     <mat-label>Notes</mat-label>
                     <textarea matInput formControlName="notes" [rows]="3"></textarea>
                 </mat-form-field>
+                -->
 
-                <div class="button-container">
+                <div class="button-container pt-5">
                     <button mat-stroked-button color="primary" mat-dialog-close
                         type="submit"><mat-icon>add</mat-icon>Add
                         Transaction</button>
-                </div>
+                </div> 
             </form>
         </section>
     </mat-card-content>
