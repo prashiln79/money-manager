@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { ThemeSwitchingService, ThemeType } from '../../util/service/theme-switching.service';
+import { ThemeSwitchingService } from '../../util/service/theme-switching.service';
+import { ThemeType } from 'src/app/util/models/theme.model';
 
 @Component({
   selector: 'side-bar',

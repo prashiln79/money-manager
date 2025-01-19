@@ -10,7 +10,7 @@ import { TransactionComponent } from './transaction/transaction.component';
 export class AddTransactionComponent {
 
     constructor(private _dialog:MatDialog){
-      this.openDialog();
+     // this.openDialog();
     }
 
     openDialog() {
