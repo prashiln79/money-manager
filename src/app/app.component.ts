@@ -10,7 +10,7 @@ export class AppComponent {
   public title = 'money-manager';
 
   constructor() {
- 
+
 
   }
 

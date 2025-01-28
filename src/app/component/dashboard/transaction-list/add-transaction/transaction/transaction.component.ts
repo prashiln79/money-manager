@@ -46,7 +46,7 @@ export class TransactionComponent {
 
   calculate(): void {
     try {
-      this.transactionForm.get("amount")?.setValue(eval(this.transactionForm.get("amount")?.value).toString());
+      this.transactionForm.get("amount")?.setValue(this.transactionForm.get("amount")?.value);
     } catch (e) {
       this.transactionForm.get('amount')?.setValue('Error');
     }

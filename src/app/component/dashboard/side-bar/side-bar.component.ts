@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ThemeSwitchingService } from '../../util/service/theme-switching.service';
+import { ThemeSwitchingService } from '../../../util/service/theme-switching.service';
 import { ThemeType } from 'src/app/util/models/theme.model';
 
 @Component({
@@ -8,6 +8,7 @@ import { ThemeType } from 'src/app/util/models/theme.model';
   styleUrl: './side-bar.component.scss'
 })
 export class SideBarComponent {
+  
 
   constructor(private _themeSwitchingService:ThemeSwitchingService){
 

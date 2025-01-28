@@ -14,22 +14,29 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { IconModule } from './util/icon.module';
 import { provideHttpClient } from '@angular/common/http';
-import { TotalBalanceComponent } from './component/total-balance/total-balance.component';
-import { CalendarViewComponent } from './component/calendar-view/calendar-view.component';
-import { TransactionListComponent } from './component/transaction-list/transaction-list.component';
-import { AddTransactionComponent } from './component/transaction-list/add-transaction/add-transaction.component';
-import { HeaderComponent } from './component/header/header.component';
-import { SideBarComponent } from './component/side-bar/side-bar.component';
+import { TotalBalanceComponent } from './component/dashboard/total-balance/total-balance.component';
+import { CalendarViewComponent } from './component/dashboard/calendar-view/calendar-view.component';
+import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
+import { AddTransactionComponent } from './component/dashboard/transaction-list/add-transaction/add-transaction.component';
+import { HeaderComponent } from './component/dashboard/header/header.component';
+import { SideBarComponent } from './component/dashboard/side-bar/side-bar.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { TransactionComponent } from './component/transaction-list/add-transaction/transaction/transaction.component';
+import { TransactionComponent } from './component/dashboard/transaction-list/add-transaction/transaction/transaction.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import {MatInputModule} from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
+import { environment } from '@env/environment';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
+import { SignInComponent } from './component/auth/sign-in/sign-in.component';
+import { SignUpComponent } from './component/auth/sign-up/sign-up.component';
+import { DashboardComponent } from './component/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +47,10 @@ import { MatDialogModule } from '@angular/material/dialog';
     AddTransactionComponent,
     HeaderComponent,
     SideBarComponent,
-    TransactionComponent
+    TransactionComponent,
+    SignInComponent,
+    SignUpComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -63,6 +73,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatButtonToggleModule,
     MatInputModule,
     MatDialogModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAuthModule, // Firebase Authentication
+    AngularFireDatabaseModule, // Firebase Realtime Database
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable
