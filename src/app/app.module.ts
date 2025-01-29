@@ -38,7 +38,8 @@ import { SignInComponent } from './component/auth/sign-in/sign-in.component';
 import { SignUpComponent } from './component/auth/sign-up/sign-up.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
 import { MatTableModule } from '@angular/material/table';
-import {MatPaginatorModule} from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -74,6 +75,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
     MatToolbarModule,
     MatTableModule,
     MatPaginatorModule,
+    MatTabsModule,
     MatButtonToggleModule,
     MatInputModule,
     MatDialogModule,
