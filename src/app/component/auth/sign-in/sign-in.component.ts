@@ -79,4 +79,12 @@ export class SignInComponent {
     }
   }
 
+  public signInWithGoogle() {
+    this.userService.signInWithGoogle().then(() => {
+      this.router.navigate(['/dashboard']);
+    }).catch((error) => {
+      this.notificationService.error(error.message);
+    });
+  }
+
 }

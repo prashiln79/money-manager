@@ -13,11 +13,20 @@ export class UserComponent {
 
 
   toggle() {
+    console.log('toggling');
     this.isOpen = !this.isOpen;
   }
 
-  signOut() {
-    this.userService.signOut();
+  close() {
+    setTimeout(() => {
+      this.isOpen = false;
+    }, 10);
+  }
+
+  async signOut(e:any) {
+    console.log('signing out');
+    await this.userService.signOut();
+    e.stopPropagation();
   }
 
 }

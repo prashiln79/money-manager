@@ -83,9 +83,9 @@ import { UserComponent } from './component/dashboard/header/user/user.component'
     MatInputModule,
     MatDialogModule,
     MatMenuModule,
-    // AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireModule.initializeApp(environment.firebaseConfig),
 
-    // AngularFireAuthModule, // Firebase Authentication
+     AngularFireAuthModule, // Firebase Authentication
     // AngularFireDatabaseModule, // Firebase Realtime Database
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
