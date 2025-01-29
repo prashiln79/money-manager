@@ -56,8 +56,17 @@ export class UserService {
   }
 
   public signInWithGoogle() {
-    const provider = new GoogleAuthProvider();  // Create a Google Auth Provider
+    const provider = new GoogleAuthProvider();  // Create a Google Auth provider
     return this.afAuth.signInWithPopup(provider)  // Open the Google sign-in popup
-  }
+      .then((result) => {
+        // On successful sign-in, you can access user info here
+        console.log('User signed in:', result.user);
 
+        // Navigate to a different route after successful sign-in
+        this.router.navigate(['/dashboard']);  // Replace '/dashboard' with your desired route
+      })
+      .catch((error) => {
+        console.error('Error during Google sign-in:', error);
+      });
+  }
 }
