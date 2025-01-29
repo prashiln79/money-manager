@@ -10,7 +10,7 @@
         <calendar-view class="lg:col-span-2"></calendar-view>
         <transaction-list class="lg:col-span-5"></transaction-list>
       </section>
-      <add-transaction></add-transaction>
+      <add-transaction *ngIf="isMobile"></add-transaction>
     </section>
   </div>
   

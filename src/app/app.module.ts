@@ -28,7 +28,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import {MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 import { environment } from '@env/environment';
 import { AngularFireModule } from '@angular/fire/compat';
@@ -37,6 +37,8 @@ import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
 import { SignInComponent } from './component/auth/sign-in/sign-in.component';
 import { SignUpComponent } from './component/auth/sign-up/sign-up.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
+import { MatTableModule } from '@angular/material/table';
+import {MatPaginatorModule} from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
@@ -70,6 +72,8 @@ import { DashboardComponent } from './component/dashboard/dashboard.component';
     MatFormFieldModule,
     MatSelectModule,
     MatToolbarModule,
+    MatTableModule,
+    MatPaginatorModule,
     MatButtonToggleModule,
     MatInputModule,
     MatDialogModule,

@@ -1,19 +1,22 @@
 .add-button {
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
-    background-color: #ff4081;
-    color: white;
-  }
-  
-  .add-btn {
-    bottom: 2vh;
-    right: 1rem;
-    z-index: 99;
-    position: fixed;
-    -webkit-backdrop-filter: blur(2.5px);
-    backdrop-filter: blur(2.5px);
-  
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background-color: #ff4081;
+  color: white;
+}
 
-  }
-  
+.add-btn-mobile {
+  bottom: 2vh !important;
+  right: 1rem !important;
+  z-index: 99;
+  position: fixed;
+  -webkit-backdrop-filter: blur(2.5px);
+  backdrop-filter: blur(2.5px);
+}
+
+.add-btn{
+  bottom: 1.3rem;
+  right: 1.8rem;
+}
+
