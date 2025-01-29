@@ -23,6 +23,7 @@ import { SideBarComponent } from './component/dashboard/side-bar/side-bar.compon
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
 import { TransactionComponent } from './component/dashboard/transaction-list/add-transaction/transaction/transaction.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -35,11 +36,13 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
 import { SignInComponent } from './component/auth/sign-in/sign-in.component';
-import { SignUpComponent } from './component/auth/sign-up/sign-up.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { UserComponent } from './component/dashboard/header/user/user.component';
 
 @NgModule({
   declarations: [
@@ -52,8 +55,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     SideBarComponent,
     TransactionComponent,
     SignInComponent,
-    SignUpComponent,
-    DashboardComponent
+    DashboardComponent,
+    UserComponent
   ],
   imports: [
     BrowserModule,
@@ -79,9 +82,11 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatButtonToggleModule,
     MatInputModule,
     MatDialogModule,
-    AngularFireModule.initializeApp(environment.firebaseConfig),
-    AngularFireAuthModule, // Firebase Authentication
-    AngularFireDatabaseModule, // Firebase Realtime Database
+    MatMenuModule,
+    // AngularFireModule.initializeApp(environment.firebaseConfig),
+
+    // AngularFireAuthModule, // Firebase Authentication
+    // AngularFireDatabaseModule, // Firebase Realtime Database
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable
@@ -92,7 +97,9 @@ import { MatTabsModule } from '@angular/material/tabs';
   providers: [
     provideAnimationsAsync(),
     MatDatepickerModule,
-    provideHttpClient()
+    provideHttpClient(),
+    provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
+    provideAuth(() => getAuth()),
   ],
   bootstrap: [AppComponent]
 })
