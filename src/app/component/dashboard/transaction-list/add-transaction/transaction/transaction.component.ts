@@ -1,3 +1,4 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -8,21 +9,24 @@ import { MatDialogRef } from '@angular/material/dialog';
   styleUrl: './transaction.component.scss'
 })
 export class TransactionComponent {
-
+  isMobile = false;
   transactionForm: FormGroup;
   categories: string[] = ['Food', 'Travel', 'Entertainment', 'Health', 'Other'];
   buttons: string[] = ['7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', '=', '+'];
 
 
-  constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<TransactionComponent>) {
+  constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<TransactionComponent>, private breakpointObserver: BreakpointObserver) {
     this.transactionForm = this.fb.group({
       name: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       expression: [''],
-
       category: ['', Validators.required],
       date: ['', Validators.required],
       notes: ['']
+    });
+
+    this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
+      this.isMobile = result.matches;
     });
   }
 

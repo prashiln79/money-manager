@@ -16,6 +16,7 @@ export class TransactionListComponent {
 
   isMobile = false;
   displayedColumns: string[] = ['Date', 'Type', 'Payee', 'Amount', 'Status'];
+  public pageSizeOptions: number[] = [10, 25, 100];
 
 
   constructor(private breakpointObserver: BreakpointObserver) {
@@ -108,7 +109,7 @@ export class TransactionListComponent {
       amount: 100,
       status: 'Completed'
     },
-    ]
+    ];
   }
 
   ngAfterViewInit() {
@@ -119,6 +120,7 @@ export class TransactionListComponent {
 
   ngOnInit() {
   }
+
 
 
 }

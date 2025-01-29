@@ -104,12 +104,8 @@
         <h6 class="font-bold !text-lg"> <i class="fa fa-exchange" aria-hidden="true"></i> Transactions</h6>
       </ng-template>
 
-      <section class="w-full relative !min-h-[672px]">
-        <div class="flex justify-end  items-center h-10">
-
-          <span class="text-sm mb-1"><a class="hover:underline cursor-pointer">Import bank transactions</a> | <a
-              class="hover:underline cursor-pointer">Export CSV Transactions</a></span>
-        </div>
+      <section class="w-full relative min-h-[64vh] max-h-[64vh]">
+    
 
 
         <table mat-table [dataSource]="dataSource" matSort>
@@ -141,10 +137,13 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-        <div class="flex justify-start w-full bg-white">
-          <mat-paginator #Paginator [pageSizeOptions]="[10, 25, 100]" aria-label="Select page of users"></mat-paginator>
-        </div>
+
       </section>
+      <div class="flex justify-start  w-full  bottom-0 absolute bg-white h-[50px]">
+        <mat-paginator #Paginator [pageSizeOptions]="pageSizeOptions" aria-label="Select page of users"></mat-paginator>
+        <!-- <span class="text-sm flex align-bottom items-end"><a class="hover:underline cursor-pointer">Import bank transactions</a> | <a
+          class="hover:underline cursor-pointer">Export CSV Transactions</a></span> -->
+      </div>
       <add-transaction *ngIf="!isMobile"></add-transaction>
     </mat-tab>
     <mat-tab>
