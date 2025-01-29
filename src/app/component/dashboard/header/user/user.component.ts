@@ -20,7 +20,7 @@ export class UserComponent {
   close() {
     setTimeout(() => {
       this.isOpen = false;
-    }, 10);
+    }, 100);
   }
 
   async signOut(e:any) {
