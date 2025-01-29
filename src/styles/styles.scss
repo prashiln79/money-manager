@@ -3,6 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 .mat-drawer-container {
   background-color: transparent !important;
 }
@@ -51,13 +52,13 @@ body {
   margin-bottom: 8px;
 }
 
-// Material theme common changes 
+// Material theme common changes
 
-.mat-mdc-dialog-surface{
+.mat-mdc-dialog-surface {
   border-radius: 10px !important;
 }
 
-.mat-drawer-container{
+.mat-drawer-container {
   position: absolute !important;
 }
 

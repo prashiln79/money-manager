@@ -203,5 +203,8 @@ $light-theme: mat.define-theme(
     color: mat.get-theme-color($light-theme, primary, 50);
   }
 
+  .mat-mdc-card {
+    background-color: white !important;
+  }
 
 }
