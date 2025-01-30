@@ -50,7 +50,7 @@ export class SignInComponent {
 
     if (this.signInForm.valid) {
       this.isLoading = true;
-      this.userService.signUp(this.signInForm.get('email')?.value, this.signInForm.get('password')?.value).then(() => {
+      this.userService.signUp(this.signInForm.get('email')?.value, this.signInForm.get('password')?.value,'UserName').then(() => {
         this.isLoading = false;
         this.notificationService.success('User registered successfully');
         this._setIsSignInPage(true);
@@ -80,11 +80,7 @@ export class SignInComponent {
   }
 
   public signInWithGoogle() {
-    this.userService.signInWithGoogle().then(() => {
-      this.router.navigate(['/dashboard']);
-    }).catch((error) => {
-      this.notificationService.error(error.message);
-    });
+    this.userService.signInWithGoogle();
   }
 
 }

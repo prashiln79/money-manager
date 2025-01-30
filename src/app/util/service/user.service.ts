@@ -1,8 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, UserCredential, onAuthStateChanged, getAuth, GoogleAuthProvider } from '@angular/fire/auth';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, UserCredential, onAuthStateChanged, getAuth, GoogleAuthProvider, updateProfile, signInWithPopup } from '@angular/fire/auth';
+import { Firestore, doc, setDoc, getDoc, updateDoc } from '@angular/fire/firestore';
+
+
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+
+export interface User {
+  uid: string;
+  name: string;
+  email: string;
+  role: 'free' | 'premium' | 'admin';
+  createdAt: Date;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -12,16 +23,33 @@ export class UserService {
   private userSubject = new BehaviorSubject<any>(null);
   user$ = this.userSubject.asObservable();
 
-  constructor(private auth: Auth, private router: Router, private afAuth: AngularFireAuth) {
+  constructor(private auth: Auth, private router: Router, private afAuth: Auth, private firestore: Firestore) {
     onAuthStateChanged(getAuth(), (user) => {
       this.userSubject.next(user); // Update the user observable with the current user
     });
   }
 
   // Sign Up
-  async signUp(email: string, password: string): Promise<UserCredential> {
+  async signUp(email: string, password: string, name: string): Promise<UserCredential> {
     try {
-      return await createUserWithEmailAndPassword(this.auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, { displayName: name });
+
+        // Create user in Firestore
+        const userRef = doc(this.firestore, `users/${userCredential.user.uid}`);
+        const newUser: User = {
+          uid: userCredential.user.uid,
+          name,
+          email,
+          role: 'free', // Default role
+          createdAt: new Date(),
+        };
+        await setDoc(userRef, newUser);
+      }
+
+      return userCredential;
     } catch (error) {
       console.error("Error signing up:", error);
       throw error;
@@ -57,7 +85,9 @@ export class UserService {
 
   public signInWithGoogle() {
     const provider = new GoogleAuthProvider();  // Create a Google Auth provider
-    return this.afAuth.signInWithPopup(provider)  // Open the Google sign-in popup
+
+    // Use the modern approach with signInWithPopup from the Auth API
+    signInWithPopup(this.auth, provider)  // Open the Google sign-in popup
       .then((result) => {
         // On successful sign-in, you can access user info here
         console.log('User signed in:', result.user);
@@ -68,5 +98,20 @@ export class UserService {
       .catch((error) => {
         console.error('Error during Google sign-in:', error);
       });
+  }
+
+  //Create or update a user
+  async createOrUpdateUser(user: User): Promise<void> {
+    const userRef = doc(this.firestore, `users/${user.uid}`);
+    await setDoc(userRef, user, { merge: true });
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    const currentUser = this.auth.currentUser;
+    if (!currentUser) return null;
+
+    const userRef = doc(this.firestore, `users/${currentUser.uid}`);
+    const userSnap = await getDoc(userRef);
+    return userSnap.exists() ? (userSnap.data() as User) : null;
   }
 }

@@ -4,45 +4,57 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+// Angular Material Modules
+import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatInputModule } from '@angular/material/input';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTabsModule } from '@angular/material/tabs';
+
+// Firebase Imports
+import { environment } from '@env/environment';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+
+// Service Worker
+import { ServiceWorkerModule } from '@angular/service-worker';
+
+// Utility Modules
 import { IconModule } from './util/icon.module';
-import { provideHttpClient } from '@angular/common/http';
+
+// Components
 import { TotalBalanceComponent } from './component/dashboard/total-balance/total-balance.component';
 import { CalendarViewComponent } from './component/dashboard/calendar-view/calendar-view.component';
 import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
 import { AddTransactionComponent } from './component/dashboard/transaction-list/add-transaction/add-transaction.component';
 import { HeaderComponent } from './component/dashboard/header/header.component';
 import { SideBarComponent } from './component/dashboard/side-bar/side-bar.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatMenuModule } from '@angular/material/menu';
 import { TransactionComponent } from './component/dashboard/transaction-list/add-transaction/transaction/transaction.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
-import { environment } from '@env/environment';
-import { AngularFireModule } from '@angular/fire/compat';
-import { AngularFireAuthModule } from '@angular/fire/compat/auth';
-import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
 import { SignInComponent } from './component/auth/sign-in/sign-in.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatTabsModule } from '@angular/material/tabs';
-import { getAuth, provideAuth } from '@angular/fire/auth';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { UserComponent } from './component/dashboard/header/user/user.component';
+import { AccountsComponent } from './component/dashboard/accounts/accounts.component';
+import { BudgetsComponent } from './component/dashboard/budgets/budgets.component';
+import { GoalsComponent } from './component/dashboard/goals/goals.component';
+import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
 
 @NgModule({
   declarations: [
@@ -56,7 +68,11 @@ import { UserComponent } from './component/dashboard/header/user/user.component'
     TransactionComponent,
     SignInComponent,
     DashboardComponent,
-    UserComponent
+    UserComponent,
+    AccountsComponent,
+    BudgetsComponent,
+    GoalsComponent,
+    SubscriptionComponent
   ],
   imports: [
     BrowserModule,
@@ -64,6 +80,8 @@ import { UserComponent } from './component/dashboard/header/user/user.component'
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
+
+    // Material Modules
     MatCardModule,
     MatListModule,
     MatIconModule,
@@ -71,7 +89,6 @@ import { UserComponent } from './component/dashboard/header/user/user.component'
     MatProgressBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    IconModule,
     MatSidenavModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -83,23 +100,25 @@ import { UserComponent } from './component/dashboard/header/user/user.component'
     MatInputModule,
     MatDialogModule,
     MatMenuModule,
-    AngularFireModule.initializeApp(environment.firebaseConfig),
+    MatDatepickerModule,
 
-     AngularFireAuthModule, // Firebase Authentication
-    // AngularFireDatabaseModule, // Firebase Realtime Database
+    // Utility
+    IconModule,
+
+    // Service Worker
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
     })
   ],
   providers: [
     provideAnimationsAsync(),
-    MatDatepickerModule,
     provideHttpClient(),
+
+    // Firebase
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
   ],
   bootstrap: [AppComponent]
 })

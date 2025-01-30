@@ -13,10 +13,10 @@ $_palettes: (
     25: #3A6F86,
     30: #3A6F86,
     35: #3A6F86,
-    40: #A3D3D0,
-    50: #A3D3D0,
-    60: #A3D3D0,
-    70: #A3D3D0,
+    40: #639592,
+    50: #4b6f6d,
+    60: #3d6360,
+    70: #648b89,
     80: #3A6F86,
     90: #3A6F86,
     95: #3A6F86,
@@ -205,6 +205,9 @@ $light-theme: mat.define-theme(
 
   .mat-mdc-card {
     background-color: white !important;
+  }
+  .mat-mdc-select{
+    border-color: transparent !important;
   }
 
 }

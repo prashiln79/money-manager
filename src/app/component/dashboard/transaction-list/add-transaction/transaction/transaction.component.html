@@ -70,52 +70,55 @@
 
         <mat-form-field appearance="fill" class="w-full">
             <mat-label>Payee Name</mat-label>
-            <input matInput formControlName="name" placeholder="Enter agent name" class="rounded-md border-2 p-2" />
+            <input matInput formControlName="name" placeholder="Enter Payee Name" class="rounded-md border-2 p-2" />
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="w-full">
             <mat-label>Amount</mat-label>
-            <textarea matInput formControlName="amount" placeholder="Enter agent description"
-                class="rounded-md border-2 p-2"></textarea>
-        </mat-form-field>
-
-        <!-- <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Slug</mat-label>
-            <textarea matInput formControlName="slug" placeholder="Enter agent slug"
-                class="rounded-md border-2 p-2"></textarea>
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Price per Hour</mat-label>
-            <input matInput formControlName="price_per_hour" type="number" placeholder="Enter price per hour"
+            <input matInput type="number" formControlName="amount" placeholder="Enter Amount"
                 class="rounded-md border-2 p-2" />
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="w-full">
-            <mat-label>API Key</mat-label>
-            <input matInput formControlName="api_key" placeholder="Enter API key" class="rounded-md border-2 p-2" />
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="w-full">
-            <mat-label>URL</mat-label>
-            <input matInput formControlName="url" placeholder="Enter agent URL" class="rounded-md border-2 p-2" />
-        </mat-form-field> -->
-
-        <!-- <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Subscription Start Date</mat-label>
-            <input matInput [matDatepicker]="startDatePicker" (click)="startDatePicker.open()"
-                formControlName="subscription_start_date" placeholder="Choose start date"
-                class="rounded-md border-2 p-2" />
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="startDatePicker" (click)="startDatePicker.open()" formControlName="date"
+                placeholder="Choose Date" class="rounded-md border-2 p-2" />
             <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #startDatePicker></mat-datepicker>
-        </mat-form-field> -->
+        </mat-form-field>
 
-       
+        <div class="flex gap-2">
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Select Tag</mat-label>
+                <mat-select [multiple]="true" formControlName="tag" class="rounded-md border-2 p-2" placeholder="Select Tag">
+                    @for (item of tagList; track item) {
+                    <mat-option [value]="item">{{item}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status" class="rounded-md border-2 p-2" placeholder="Select Tag">
+                    @for (item of statusList; track item) {
+                    <mat-option [value]="item">{{item}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="description" [rows]="3" placeholder="Enter agent description"
+                class="rounded-md border-2 p-2"></textarea>
+        </mat-form-field>
+
+
 
         <div class="flex justify-center">
-            <button mat-raised-button color="primary" type="submit" [disabled]="transactionForm.invalid"
+            <button mat-flat-button  type="submit" [disabled]="transactionForm.invalid"
                 class="w-full py-2 rounded-md text-white">
-                Add 
+                Add
             </button>
         </div>
     </form>

@@ -3,6 +3,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { Auth } from '@angular/fire/auth';
+import { TransactionsService } from 'src/app/util/service/transactions.service';
 
 @Component({
   selector: 'transaction-list',
@@ -19,97 +21,12 @@ export class TransactionListComponent {
   public pageSizeOptions: number[] = [10, 25, 100];
 
 
-  constructor(private breakpointObserver: BreakpointObserver) {
+  constructor(private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService) {
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
     });
 
-    this.dataSource.data = [{
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    {
-      date: '01/01/2020',
-      type: 'Deposit',
-      payee: 'John Doe',
-      amount: 100,
-      status: 'Completed'
-    },
-    ];
   }
 
   ngAfterViewInit() {
@@ -119,8 +36,17 @@ export class TransactionListComponent {
 
 
   ngOnInit() {
+    const user = this.auth.currentUser;
+    this.loadTransactions(user?.uid);
   }
 
 
 
+  async loadTransactions(userId: any) {
+    if (userId) {
+      this.transactionsService.getTransactions(userId).subscribe(transactions => {
+        this.dataSource.data = transactions;
+      });
+    }
+  }
 }

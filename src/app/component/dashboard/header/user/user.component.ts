@@ -8,8 +8,12 @@ import { UserService } from 'src/app/util/service/user.service';
 })
 export class UserComponent {
   isOpen = false;
+  public user = this.userService.getUser();
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService) {
+
+    this.user
+  }
 
 
   toggle() {
@@ -23,7 +27,7 @@ export class UserComponent {
     }, 100);
   }
 
-  async signOut(e:any) {
+  async signOut(e: any) {
     console.log('signing out');
     await this.userService.signOut();
     e.stopPropagation();

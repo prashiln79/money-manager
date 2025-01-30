@@ -104,14 +104,14 @@
         <h6 class="font-bold !text-sm"> <i class="fa fa-exchange" aria-hidden="true"></i> Transactions</h6>
       </ng-template>
 
-      <section class="w-full relative min-h-[64vh] max-h-[64vh]">
-    
+      <section class="w-full relative min-h-[64vh] max-h-[64vh] ">
+
 
 
         <table mat-table [dataSource]="dataSource" matSort>
           <ng-container matColumnDef="Date">
             <th mat-header-cell *matHeaderCellDef><span class="font-extrabold">Date</span></th>
-            <td mat-cell *matCellDef="let element">{{element.date}}</td>
+            <td mat-cell *matCellDef="let element"> {{element.date}}</td>
           </ng-container>
 
           <ng-container matColumnDef="Type">
@@ -136,6 +136,8 @@
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <!-- no data -->
+           <!-- <tr *ngIf="!dataSource.data?.length"> No Data </tr> -->
         </table>
 
       </section>
@@ -151,6 +153,7 @@
         <mat-icon class="mb-2">attach_money</mat-icon>
         <h6 class="font-bold !text-sm"> Accounts</h6>
       </ng-template>
+      <user-accounts></user-accounts>
     </mat-tab>
     <mat-tab label="">
       <ng-template mat-tab-label>
