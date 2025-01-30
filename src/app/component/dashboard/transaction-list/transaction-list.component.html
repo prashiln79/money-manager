@@ -137,7 +137,7 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           <!-- no data -->
-           <!-- <tr *ngIf="!dataSource.data?.length"> No Data </tr> -->
+          <!-- <tr *ngIf="!dataSource.data?.length"> No Data </tr> -->
         </table>
 
       </section>
@@ -153,13 +153,19 @@
         <mat-icon class="mb-2">attach_money</mat-icon>
         <h6 class="font-bold !text-sm"> Accounts</h6>
       </ng-template>
-      <user-accounts></user-accounts>
+      <section class="w-full">
+        <user-accounts></user-accounts>
+      </section>
+
     </mat-tab>
     <mat-tab label="">
       <ng-template mat-tab-label>
         <mat-icon class="mb-2 mr-1">local_offer</mat-icon>
         <h6 class="font-bold !text-sm">Tags</h6>
       </ng-template>
+      <section>
+        <transaction-category></transaction-category>
+      </section>
     </mat-tab>
   </mat-tab-group>
 

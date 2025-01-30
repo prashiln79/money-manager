@@ -55,6 +55,7 @@ import { AccountsComponent } from './component/dashboard/accounts/accounts.compo
 import { BudgetsComponent } from './component/dashboard/budgets/budgets.component';
 import { GoalsComponent } from './component/dashboard/goals/goals.component';
 import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
+import { CategoryComponent } from './component/dashboard/category/category.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +73,8 @@ import { SubscriptionComponent } from './component/dashboard/subscription/subscr
     AccountsComponent,
     BudgetsComponent,
     GoalsComponent,
-    SubscriptionComponent
+    SubscriptionComponent,
+    CategoryComponent
   ],
   imports: [
     BrowserModule,

@@ -9,6 +9,7 @@ import { Account, AccountsService } from 'src/app/util/service/accounts.service'
   styleUrls: ['./accounts.component.scss']
 })
 export class AccountsComponent implements OnInit {
+  public showAddOption:boolean = false;
   userId: string = '';
   accounts: Account[] = [];
   newAccount: Account = {
