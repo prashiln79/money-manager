@@ -68,8 +68,6 @@ export class UserService {
     return this.userSubject.value;
   }
 
-
-  // Sign Out
   async signOut(): Promise<void> {
     try {
       await signOut(this.auth);
