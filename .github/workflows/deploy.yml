@@ -15,7 +15,7 @@ jobs:
         with:
           # This checks out the private repo
           repository: ${{ github.repository }}
-          token: ${{ secrets.key }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
         run: |
