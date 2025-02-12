@@ -28,7 +28,7 @@ export class TransactionComponent {
     type: 'expense',
     date: Timestamp.fromDate(new Date()),
     recurring: false,
-    recurringInterval: 'monthly',  // Default to monthly
+    recurringInterval: 'monthly', 
   };
 
 
