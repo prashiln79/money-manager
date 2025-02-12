@@ -62,7 +62,6 @@
                 }
               ],
               "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json",
               "baseHref":"https://prashiln79.github.io/wallet/",
               "fileReplacements": [
                 {
