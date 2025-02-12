@@ -37,7 +37,6 @@ export class CategoryService {
         });
     }
 
-    /** Create a new category */
     async createCategory(userId: string, name: string, type: 'income' | 'expense'): Promise<void> {
         await addDoc(this.getUserCategoriesCollection(userId), {
             name,
