@@ -27,8 +27,7 @@ export class UserService {
       this.userSubject.next(user); // Update the user observable with the current user
     });
   }
-
-  // Sign Up
+  
   async signUp(email: string, password: string, name: string): Promise<UserCredential> {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
