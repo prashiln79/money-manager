@@ -24,10 +24,10 @@ export class UserService {
 
   constructor(private auth: Auth, private router: Router, private afAuth: Auth, private firestore: Firestore) {
     onAuthStateChanged(getAuth(), (user) => {
-      this.userSubject.next(user); // Update the user observable with the current user
+      this.userSubject.next(user); 
     });
   }
-  
+
   async signUp(email: string, password: string, name: string): Promise<UserCredential> {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
