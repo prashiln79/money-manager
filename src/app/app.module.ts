@@ -35,7 +35,7 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 
 // Service Worker
-import { ServiceWorkerModule } from '@angular/service-worker';
+// import { ServiceWorkerModule } from '@angular/service-worker';
 
 // Utility Modules
 import { IconModule } from './util/icon.module';
@@ -108,10 +108,10 @@ import { CategoryComponent } from './component/dashboard/category/category.compo
     IconModule,
 
     // Service Worker
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000'
-    })
+    // ServiceWorkerModule.register('ngsw-worker.js', {
+    //   enabled: !isDevMode(),
+    //   registrationStrategy: 'registerWhenStable:30000'
+    // })
   ],
   providers: [
     provideAnimationsAsync(),
