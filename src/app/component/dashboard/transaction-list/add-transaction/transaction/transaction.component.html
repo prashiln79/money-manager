@@ -36,7 +36,7 @@
 </mat-card>
 } @else { -->
 
-<div class="max-w-2xl mx-auto p-4 overflow-auto ">
+<div class="max-w-2xl mx-auto p-4 overflow-auto " [ngClass]="{'h-[100vh]': isMobile}">
     <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <h5 class="text-sm font-semibold text-center text-gray-700"> Add Transaction</h5>
 
@@ -91,11 +91,15 @@
 
 
 
-        <div class="flex justify-center">
+        <div class="flex  gap-4">
             <button mat-flat-button type="submit" [disabled]="transactionForm.invalid"
                 class="w-full py-2 rounded-md text-white">
                 Add
             </button>
+            <button mat-flat-button type="button"  mat-dialog-close
+            class="w-fit py-2 rounded-md text-white">
+            Close
+        </button>
         </div>
     </form>
 </div>
