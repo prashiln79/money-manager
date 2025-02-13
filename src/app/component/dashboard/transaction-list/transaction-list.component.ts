@@ -36,17 +36,16 @@ export class TransactionListComponent {
 
 
   ngOnInit() {
-    const user = this.auth.currentUser;
-    this.loadTransactions(user?.uid);
+    this.loadTransactions();
   }
 
 
 
-  async loadTransactions(userId: any) {
-    if (userId) {
-      this.transactionsService.getTransactions(userId).subscribe(transactions => {
-        this.dataSource.data = transactions;
-      });
-    }
+  loadTransactions() {
+    this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
+      this.dataSource.data = transactions;
+    });
+
   }
+
 }

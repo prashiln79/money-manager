@@ -19,5 +19,9 @@ export class IconModule {
       'test',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icon/test.svg')
     );
+    this.matIconRegistry.addSvgIcon(
+      'add-txn',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icon/add-txn.svg')
+    );
   }
  }

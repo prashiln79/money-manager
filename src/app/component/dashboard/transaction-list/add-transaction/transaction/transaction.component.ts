@@ -4,6 +4,7 @@ import { Auth } from '@angular/fire/auth';
 import { Timestamp } from '@angular/fire/firestore';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { CategoryService } from 'src/app/util/service/category.service';
 import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
 
 @Component({
@@ -14,33 +15,23 @@ import { Transaction, TransactionsService } from 'src/app/util/service/transacti
 export class TransactionComponent {
   isMobile = false;
   transactionForm: FormGroup;
-  categories: string[] = ['Food', 'Travel', 'Entertainment', 'Health', 'Other'];
+  categories: Array<any> = [];
   buttons: string[] = ['7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', '=', '+'];
-  public tagList: string[] = ['Personal', 'Business', 'Family', 'Friends', 'Other'];
+  public tagList: Array<any> = [];
   public statusList: string[] = ['Pending', 'Completed', 'Cancelled'];
+  public typeList: string[] = ['Income', 'Expense'];
   public userId: any;
-  newTransaction: Transaction = {
-    transactionId: '',
-    userId: '',
-    accountId: '',
-    amount: 0,
-    category: 'Food',
-    type: 'expense',
-    date: Timestamp.fromDate(new Date()),
-    recurring: false,
-    recurringInterval: 'monthly', 
-  };
 
 
-  constructor(private transactionsService: TransactionsService, private fb: FormBuilder, public dialogRef: MatDialogRef<TransactionComponent>, private breakpointObserver: BreakpointObserver, private auth: Auth) {
+  constructor(private categoryService: CategoryService, private transactionsService: TransactionsService, private fb: FormBuilder, public dialogRef: MatDialogRef<TransactionComponent>, private breakpointObserver: BreakpointObserver, private auth: Auth) {
 
     this.transactionForm = this.fb.group({
-      name: ['', Validators.required],
+      payee: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       date: [new Date(), Validators.required],
       description: [''],
       tag: [''],
-      status: ['']
+      type: ['Expense']
     });
 
     this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
@@ -50,14 +41,27 @@ export class TransactionComponent {
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
+    this.categoryService.getCategories(this.auth.currentUser?.uid || '').subscribe((resp) => {
+      this.tagList = resp;
+    });
   }
 
   async onSubmit(): Promise<void> {
     if (this.transactionForm.valid) {
-      this.newTransaction.userId = this.userId;
-      this.newTransaction.transactionId = `${this.newTransaction.userId}-${new Date().getTime()}`;
 
-      await this.transactionsService.createTransaction(this.userId, this.newTransaction);
+      this.dialogRef.close(true);
+      await this.transactionsService.createTransaction(this.userId, {
+        payee: this.transactionForm.get('payee')?.value,
+        userId: this.userId,
+        accountId: '',
+        amount: this.transactionForm.get('amount')?.value,
+        category: this.transactionForm.get('tag')?.value,
+        type: this.transactionForm.get('type')?.value,
+        date: Timestamp.fromDate(new Date()),
+        notes: this.transactionForm.get('description')?.value
+      });
+
+
     }
   }
 

@@ -27,6 +27,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 // Firebase Imports
 import { environment } from '@env/environment';
@@ -103,6 +104,7 @@ import { CategoryComponent } from './component/dashboard/category/category.compo
     MatDialogModule,
     MatMenuModule,
     MatDatepickerModule,
+    MatCheckboxModule,
 
     // Utility
     IconModule,

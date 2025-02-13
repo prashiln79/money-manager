@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, Timestamp } from '@angular/fire/firestore';
+import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, Timestamp, addDoc, onSnapshot } from '@angular/fire/firestore';
 // import firebase from 'firebase/app';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
 export interface Transaction {
-    transactionId: string;
+    transactionId?: string;
+    payee: string;
     userId: string;
     accountId: string;  // Reference to an account
     amount: number;
@@ -13,7 +14,7 @@ export interface Transaction {
     type: 'income' | 'expense';  // Income or expense
     date: Timestamp;  // Timestamp for transaction date
     notes?: string;  // Optional notes for the transaction
-    recurring: boolean;  // Whether the transaction is recurring
+    recurring?: boolean;  // Whether the transaction is recurring
     recurringInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';  // Interval for recurring transactions
 }
 
@@ -23,10 +24,10 @@ export interface Transaction {
 export class TransactionsService {
     constructor(private firestore: Firestore, private auth: Auth) { }
 
-    // 🔹 Create a new transaction
-    async createTransaction(userId: string, transaction: Transaction): Promise<void> {
-        const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transaction.transactionId}`);
-        await setDoc(transactionRef, {
+
+    async createTransaction(userId: string, transaction: Omit<Transaction, 'transactionId'>): Promise<void> {
+        const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
+        await addDoc(transactionsCollection, {
             ...transaction,
             date: Timestamp.fromDate(transaction.date.toDate()),  // Ensure date is stored as a Firestore timestamp
         });
@@ -35,14 +36,19 @@ export class TransactionsService {
     // 🔹 Get all transactions for a user
     getTransactions(userId: string): Observable<Transaction[]> {
         const transactionsRef = collection(this.firestore, `users/${userId}/transactions`);
+        
         return new Observable<Transaction[]>(observer => {
-            getDocs(transactionsRef).then(querySnapshot => {
+            const unsubscribe = onSnapshot(transactionsRef, (querySnapshot) => {
                 const transactions: Transaction[] = [];
                 querySnapshot.forEach(doc => {
-                    transactions.push(doc.data() as Transaction);
+                    transactions.push({ id: doc.id, ...doc.data() } as unknown as Transaction);
                 });
                 observer.next(transactions);
+            }, error => {
+                observer.error(error);
             });
+    
+            return () => unsubscribe(); // Cleanup on unsubscribe
         });
     }
 
