@@ -1,95 +1,23 @@
 @if (isMobile) {
 <div class="overflow-auto h-fit md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
-  <mat-card class="my-2 p-2 w-full mt-0">
-    <section class="flex">
-      <div class="basis-1/2 p-5">
-        <mat-icon class="!w-fit !h-fit text-5xl">home</mat-icon>
-      </div>
-      <div class="basis-full">
-        <div class="font-semibold text-xl">New House</div>
-        <div class="text-gray-500">25 years</div>
-        <div class="font-bold text-lg">$80,000</div>
-      </div>
-    </section>
-  </mat-card>
+  <div *ngFor="let tx of dataSource.data; let i = index">
+    <mat-card class="my-2 p-2 w-full mt-0">
+      <section class="flex">
+        <div class="basis-1/2 p-5">
+          <mat-icon class="!w-fit !h-fit text-5xl">insert_invitation</mat-icon>
+        </div>
+        <div class="basis-full">
+          <div class="font-semibold text-xl">{{tx?.payee}}</div>
+          <div class="text-gray-500"> {{ tx?.date.seconds * 1000 | date:'dd/MM/yyyy hh:mm a' }}</div>
+          <div class="font-bold text-lg">{{tx?.amount}}</div>
+        </div>
+      </section>
+    </mat-card>
 
-  <mat-card class="my-2 p-2 w-full">
-    <section class="flex">
-      <div class="basis-1/2 p-5">
-        <mat-icon class="!w-fit !h-fit text-5xl">hotel</mat-icon>
-      </div>
-      <div class="basis-full">
-        <div class="font-semibold text-xl">New House</div>
-        <div class="text-gray-500">25 years</div>
-        <div class="font-bold text-lg">$80,000</div>
-      </div>
-    </section>
-  </mat-card>
 
-  <mat-card class="my-2 p-2 w-full">
-    <section class="flex">
-      <div class="basis-1/2 p-5">
-        <mat-icon class="!w-fit !h-fit text-5xl">home</mat-icon>
-      </div>
-      <div class="basis-full">
-        <div class="font-semibold text-xl">New House</div>
-        <div class="text-gray-500">25 years</div>
-        <div class="font-bold text-lg">$80,000</div>
-      </div>
-    </section>
-  </mat-card>
+  </div>
 
-  <mat-card class="my-2 p-2 w-full">
-    <section class="flex">
-      <div class="basis-1/2 p-5">
-        <mat-icon class="!w-fit !h-fit text-5xl">hot_tub</mat-icon>
-      </div>
-      <div class="basis-full">
-        <div class="font-semibold text-xl">New House</div>
-        <div class="text-gray-500">25 years</div>
-        <div class="font-bold text-lg">$80,000</div>
-      </div>
-    </section>
-  </mat-card>
 
-  <mat-card class="my-2 p-2 w-full">
-    <section class="flex">
-      <div class="basis-1/2 p-5">
-        <mat-icon class="!w-fit !h-fit text-5xl">home</mat-icon>
-      </div>
-      <div class="basis-full">
-        <div class="font-semibold text-xl">New House</div>
-        <div class="text-gray-500">25 years</div>
-        <div class="font-bold text-lg">$80,000</div>
-      </div>
-    </section>
-  </mat-card>
-
-  <mat-card class="my-2 p-2 w-full">
-    <section class="flex">
-      <div class="basis-1/2 p-5">
-        <mat-icon class="!w-fit !h-fit text-5xl">home</mat-icon>
-      </div>
-      <div class="basis-full">
-        <div class="font-semibold text-xl">New House</div>
-        <div class="text-gray-500">25 years</div>
-        <div class="font-bold text-lg">$80,000</div>
-      </div>
-    </section>
-  </mat-card>
-
-  <mat-card class="my-2 p-2 w-full">
-    <section class="flex">
-      <div class="basis-1/2 p-5">
-        <mat-icon class="!w-fit !h-fit text-5xl">home</mat-icon>
-      </div>
-      <div class="basis-full">
-        <div class="font-semibold text-xl">New House</div>
-        <div class="text-gray-500">25 years</div>
-        <div class="font-bold text-lg">$80,000</div>
-      </div>
-    </section>
-  </mat-card>
 </div>
 } @else {
 

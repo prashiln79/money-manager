@@ -1,4 +1,4 @@
-@if (isMobile) {
+<!-- @if (isMobile) {
 <mat-card class="p-1 mat-accent shadow" appearance="raised">
     <mat-card-title class="!flex justify-end pb-2 px-2">
         <button mat-icon-button mat-dialog-close class="top-[-10px] left-[19px]"><mat-icon>close</mat-icon></button>
@@ -7,11 +7,7 @@
     <mat-card-content>
         <section class=" pt-2">
             <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
-                <!-- 
-            <mat-form-field appearance="fill">
-                <mat-label>Transaction Name</mat-label>
-                <input matInput formControlName="name" required>
-            </mat-form-field> -->
+               
 
                 <mat-form-field floatLabel="always" class="w-full ">
                     <mat-label>Amount</mat-label>
@@ -29,30 +25,6 @@
                     </button>
 
                 </section>
-                <!-- 
-                <mat-form-field appearance="fill" class="w-full mb-5">
-                    <mat-label>Category</mat-label>
-                    <mat-select formControlName="category" required>
-                        <mat-option *ngFor="let category of categories" [value]="category">
-                            {{category}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="fill" class="w-full mb-5">
-                    <mat-label>Date</mat-label>
-                    <input matInput [matDatepicker]="picker" formControlName="date" required>
-                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
-
-
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Notes</mat-label>
-                    <textarea matInput formControlName="notes" [rows]="3"></textarea>
-                </mat-form-field>
-                -->
-
                 <div class="button-container pt-5">
                     <button mat-stroked-button color="primary" mat-dialog-close
                         type="submit"><mat-icon>add</mat-icon>Add
@@ -62,7 +34,7 @@
         </section>
     </mat-card-content>
 </mat-card>
-} @else {
+} @else { -->
 
 <div class="max-w-2xl mx-auto p-4 overflow-auto ">
     <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -125,4 +97,4 @@
 </div>
 
 
-}
+<!-- } -->
