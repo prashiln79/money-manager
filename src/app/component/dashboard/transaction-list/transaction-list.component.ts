@@ -4,7 +4,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Auth } from '@angular/fire/auth';
-import { TransactionsService } from 'src/app/util/service/transactions.service';
+import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
+import { NotificationService } from 'src/app/util/service/notification.service';
 
 @Component({
   selector: 'transaction-list',
@@ -17,11 +18,11 @@ export class TransactionListComponent {
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
   isMobile = false;
-  displayedColumns: string[] = ['Payee', 'Amount', 'Status', 'Type', 'Date',];
+  displayedColumns: string[] = ['Payee', 'Amount', 'Status', 'Type', 'Date', 'Actions'];
   public pageSizeOptions: number[] = [10, 25, 100];
 
 
-  constructor(private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService) {
+  constructor(private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService, private notificationService: NotificationService) {
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
@@ -47,5 +48,14 @@ export class TransactionListComponent {
     });
 
   }
+
+  editTransaction(transaction: Transaction) {
+  }
+
+  async deleteTransaction(transaction: Transaction) {
+    await this.transactionsService.deleteTransaction(this.auth.currentUser?.uid || '', transaction.id || '');
+    this.notificationService.success('Transaction deleted successfully');
+  }
+
 
 }

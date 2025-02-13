@@ -5,7 +5,7 @@ import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
 export interface Transaction {
-    transactionId?: string;
+    id?: string;
     payee: string;
     userId: string;
     accountId: string;  // Reference to an account
