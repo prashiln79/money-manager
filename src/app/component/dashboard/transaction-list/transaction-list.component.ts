@@ -17,7 +17,7 @@ export class TransactionListComponent {
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
   isMobile = false;
-  displayedColumns: string[] = ['Date', 'Type', 'Payee', 'Amount', 'Status'];
+  displayedColumns: string[] = ['Payee', 'Amount', 'Status', 'Type', 'Date',];
   public pageSizeOptions: number[] = [10, 25, 100];
 
 
