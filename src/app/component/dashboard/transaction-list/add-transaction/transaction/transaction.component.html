@@ -38,7 +38,7 @@
 
 <div class="max-w-2xl mx-auto p-4 overflow-auto ">
     <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <h5 class="text-sm font-semibold text-center text-gray-700">  Add Transaction</h5>
+        <h5 class="text-sm font-semibold text-center text-gray-700"> Add Transaction</h5>
 
         <mat-form-field appearance="fill" class="w-full">
             <mat-label>Payee Name</mat-label>
@@ -59,25 +59,29 @@
             <mat-datepicker #startDatePicker></mat-datepicker>
         </mat-form-field>
 
-        <div class="flex gap-2">
+        <div class="flex flex-col sm:flex-row gap-2">
+            <!-- Select Tag -->
             <mat-form-field appearance="fill" class="w-full">
                 <mat-label>Select Tag</mat-label>
-                <mat-select [multiple]="true" formControlName="tag" class="rounded-md border-2 p-2" placeholder="Select Tag">
+                <mat-select [multiple]="true" formControlName="tag" class="rounded-md border-2 p-2"
+                    placeholder="Select Tag">
                     @for (item of tagList; track item) {
-                    <mat-option [value]="item.name">{{item?.name}}</mat-option>
+                    <mat-option [value]="item.name">{{ item?.name }}</mat-option>
                     }
                 </mat-select>
             </mat-form-field>
 
+            <!-- Type -->
             <mat-form-field appearance="fill" class="w-full">
                 <mat-label>Type</mat-label>
                 <mat-select formControlName="type" class="rounded-md border-2 p-2" placeholder="Select Tag">
                     @for (item of typeList; track item) {
-                    <mat-option [value]="item">{{item}}</mat-option>
+                    <mat-option [value]="item">{{ item }}</mat-option>
                     }
                 </mat-select>
             </mat-form-field>
         </div>
+
 
         <mat-form-field appearance="fill" class="w-full">
             <mat-label>Notes</mat-label>
@@ -88,7 +92,7 @@
 
 
         <div class="flex justify-center">
-            <button mat-flat-button  type="submit" [disabled]="transactionForm.invalid"
+            <button mat-flat-button type="submit" [disabled]="transactionForm.invalid"
                 class="w-full py-2 rounded-md text-white">
                 Add
             </button>
