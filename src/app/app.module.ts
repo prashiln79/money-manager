@@ -58,6 +58,7 @@ import { GoalsComponent } from './component/dashboard/goals/goals.component';
 import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
 import { CategoryComponent } from './component/dashboard/category/category.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { LoaderComponent } from './util/components/loader/loader.component';
 
 @NgModule({
   declarations: [
@@ -84,6 +85,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
+    LoaderComponent,
 
     // Material Modules
     MatCardModule,

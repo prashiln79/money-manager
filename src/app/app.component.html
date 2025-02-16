@@ -1,6 +1,7 @@
 <div *ngIf="!isOnline" class="offline-banner">
-    You are offline! Some features may not work.
-  </div>
-<div >
-<router-outlet></router-outlet>
+  You are offline! Some features may not work.
+</div>
+<div>
+  <app-loader></app-loader>
+  <router-outlet></router-outlet>
 </div>

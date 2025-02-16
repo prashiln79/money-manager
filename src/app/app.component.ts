@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ThemeSwitchingService } from './util/service/theme-switching.service';
 import { Location } from '@angular/common';
+import { LoaderService } from './util/service/loader.service';
 
 @Component({
   selector: 'app-root',
@@ -11,8 +12,8 @@ export class AppComponent {
   public title = 'money-manager';
   isOnline = navigator.onLine;
 
-  constructor(private location: Location) {
-
+  constructor(private location: Location, private loaderService: LoaderService) {
+    this.loaderService.show();
   }
 
   ngOnInit() {

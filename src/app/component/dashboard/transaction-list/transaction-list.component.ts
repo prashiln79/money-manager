@@ -8,6 +8,7 @@ import { Transaction, TransactionsService } from 'src/app/util/service/transacti
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { TransactionComponent } from './add-transaction/transaction/transaction.component';
 import { MatDialog } from '@angular/material/dialog';
+import { LoaderService } from 'src/app/util/service/loader.service';
 
 @Component({
   selector: 'transaction-list',
@@ -26,7 +27,7 @@ export class TransactionListComponent {
   longPressTimeout: any;
 
 
-  constructor(private _dialog: MatDialog, private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService, private notificationService: NotificationService) {
+  constructor(private loaderService: LoaderService, private _dialog: MatDialog, private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService, private notificationService: NotificationService) {
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
@@ -45,10 +46,12 @@ export class TransactionListComponent {
   }
 
   loadTransactions() {
+    this.loaderService.show();
     this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
       this.dataSource.data = transactions;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
+      this.loaderService.hide();
     });
 
   }
