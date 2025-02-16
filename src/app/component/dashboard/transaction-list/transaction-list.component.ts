@@ -31,7 +31,7 @@ export class TransactionListComponent {
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
     });
-
+    this.loadTransactions();
   }
 
   ngAfterViewInit() {
@@ -41,12 +41,14 @@ export class TransactionListComponent {
 
 
   ngOnInit() {
-    this.loadTransactions();
+
   }
 
   loadTransactions() {
     this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
       this.dataSource.data = transactions;
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
     });
 
   }
