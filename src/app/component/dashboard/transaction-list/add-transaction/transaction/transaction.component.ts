@@ -31,7 +31,7 @@ export class TransactionComponent {
       date: [new Date(), Validators.required],
       description: [''],
       tag: [''],
-      type: ['Expense']
+      type: ['expense']
     });
 
     this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
