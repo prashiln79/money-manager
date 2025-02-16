@@ -27,5 +27,20 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "firebase-api",
+      "urls": [
+        "https://firestore.googleapis.com/**",
+        "https://firebasestorage.googleapis.com/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    }
   ]
 }
