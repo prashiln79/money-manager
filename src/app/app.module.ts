@@ -57,6 +57,7 @@ import { BudgetsComponent } from './component/dashboard/budgets/budgets.componen
 import { GoalsComponent } from './component/dashboard/goals/goals.component';
 import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
 import { CategoryComponent } from './component/dashboard/category/category.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [
@@ -108,6 +109,12 @@ import { CategoryComponent } from './component/dashboard/category/category.compo
 
     // Utility
     IconModule,
+     ServiceWorkerModule.register('ngsw-worker.js', {
+       enabled: !isDevMode(),
+       // Register the ServiceWorker as soon as the application is stable
+       // or after 30 seconds (whichever comes first).
+       registrationStrategy: 'registerWhenStable:30000'
+     }),
 
     // Service Worker
     // ServiceWorkerModule.register('ngsw-worker.js', {

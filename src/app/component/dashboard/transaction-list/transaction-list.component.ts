@@ -20,6 +20,8 @@ export class TransactionListComponent {
   isMobile = false;
   displayedColumns: string[] = ['Payee', 'Amount', 'Status', 'Type', 'Date', 'Actions'];
   public pageSizeOptions: number[] = [10, 25, 100];
+  selectedTx: any = null;
+  longPressTimeout: any;
 
 
   constructor(private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService, private notificationService: NotificationService) {
@@ -40,8 +42,6 @@ export class TransactionListComponent {
     this.loadTransactions();
   }
 
-
-
   loadTransactions() {
     this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
       this.dataSource.data = transactions;
@@ -57,5 +57,15 @@ export class TransactionListComponent {
     this.notificationService.success('Transaction deleted successfully');
   }
 
+  onShortPress(tx: any) {
+    clearTimeout(this.longPressTimeout);
+    this.selectedTx = null; // Hide edit/delete if a normal click happens
+  }
+
+  onLongPress(tx: any) {
+    this.longPressTimeout = setTimeout(() => {
+      this.selectedTx = tx; // Show edit/delete options on long press
+    }, 500); // Long press delay (500ms)
+  }
 
 }

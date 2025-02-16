@@ -1,28 +1,44 @@
 @if (isMobile) {
-<div class="overflow-auto h-fit md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
-  <div *ngFor="let tx of dataSource.data; let i = index">
-    <mat-card class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200">
-      <section class="flex items-center space-x-4">
-        <!-- Icon Section -->
-        <div class="p-2 bg-gray-100 rounded-full flex items-center justify-center">
-          <mat-icon class="!w-fit !h-fit text-4xl">insert_invitation</mat-icon>
-        </div>
-  
-        <!-- Transaction Details -->
-        <div class="flex-1">
-          <div class="font-semibold text-lg text-gray-800">{{ tx?.payee }}</div>
-          <div class="text-gray-500 text-sm">
-            {{ tx?.date.seconds * 1000 | date: 'dd/MM/yyyy hh:mm a' }}
+  <div class="overflow-auto h-fit md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
+    <div *ngFor="let tx of dataSource.data; let i = index">
+      <mat-card 
+        class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200 relative"
+        (press)="onLongPress(tx)"
+        (click)="onShortPress(tx)"
+      >
+        <section class="flex items-center space-x-4">
+          <!-- Icon Section -->
+          <div class="p-2 bg-gray-100 rounded-full flex items-center justify-center">
+            <mat-icon class="!w-fit !h-fit text-4xl">insert_invitation</mat-icon>
           </div>
-         
+    
+          <!-- Transaction Details -->
+          <div class="flex-1">
+            <div class="font-semibold text-lg text-gray-800">{{ tx?.payee }}</div>
+            <div class="text-gray-500 text-sm">
+              {{ tx?.date.seconds * 1000 | date: 'dd/MM/yyyy hh:mm a' }}
+            </div>
+          </div>
+          <div class="font-bold text-xl text-primary">₹{{ tx?.amount }}</div>
+        </section>
+  
+        <!-- Edit/Delete Options -->
+        <div 
+          *ngIf="selectedTx?.id === tx.id" 
+          class="absolute top-0 right-0 bg-white shadow-lg rounded-lg p-2 flex space-x-2"
+        >
+          <button mat-icon-button color="primary" (click)="editTransaction(tx)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteTransaction(tx)">
+            <mat-icon>delete</mat-icon>
+          </button>
         </div>
-        <div class="font-bold text-xl text-primary">₹{{ tx?.amount }}</div>
-      </section>
-    </mat-card>
+        
+      </mat-card>
+    </div>
   </div>
   
-
-</div>
 } @else {
 
 
