@@ -14,12 +14,12 @@
     
           <!-- Transaction Details -->
           <div class="flex-1">
-            <div class="font-semibold text-sm lg:text-lg text-gray-800">{{ tx?.payee }}</div>
+            <div class="font-semibold text-sm lg:text-lg text-gray-800">{{ tx?.payee + '- ' + tx.category}}</div>
             <div class="text-gray-500 text-sm">
               {{ tx?.date.seconds * 1000 | date: 'dd/MM/yyyy hh:mm a' }}
             </div>
           </div>
-          <div class="font-bold text-xl text-primary">₹{{ tx?.amount }}</div>
+          <div class="font-bold text-lg text-primary">{{  (tx?.type == 'income' ? '+':'-' ) + ' ₹' + tx?.amount }}</div>
         </section>
   
         <!-- Edit/Delete Options -->
