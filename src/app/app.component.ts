@@ -9,19 +9,26 @@ import { Location } from '@angular/common';
 })
 export class AppComponent {
   public title = 'money-manager';
+  isOnline = navigator.onLine;
 
   constructor(private location: Location) {
-
 
   }
 
   ngOnInit() {
+    this.onLoadEvent();
+  }
+
+  onLoadEvent() {
+
+    window.addEventListener('online', () => this.isOnline = true);
+    window.addEventListener('offline', () => this.isOnline = false);
     window.addEventListener('popstate', (event) => {
       this.goBack();
     });
   }
 
   goBack() {
-    this.location.back(); 
+    this.location.back();
   }
 }

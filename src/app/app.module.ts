@@ -32,7 +32,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 // Firebase Imports
 import { environment } from '@env/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideAuth, getAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
 import { provideFirestore, getFirestore, enableIndexedDbPersistence } from '@angular/fire/firestore';
 
 // Service Worker
@@ -127,12 +127,24 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 
     // Firebase
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
-    provideAuth(() => getAuth()),
+    provideAuth(() => {
+      const auth = getAuth();
+      auth.setPersistence(indexedDBLocalPersistence)
+        .then(() => console.log("Auth persistence enabled"))
+        .catch((error) => console.error("Auth persistence error", error));
+      return auth;
+    }),
     provideFirestore(() => {
       const firestore = getFirestore();
-      enableIndexedDbPersistence(firestore).catch((err) => {
-        console.error("Firestore persistence error", err);
-      });
+      enableIndexedDbPersistence(firestore)
+        .then(() => console.log('Offline persistence enabled'))
+        .catch((err) => {
+          if (err.code === 'failed-precondition') {
+            console.error('Multiple tabs open, offline persistence is not available.');
+          } else if (err.code === 'unimplemented') {
+            console.error('Offline persistence is not supported by this browser.');
+          }
+        });
       return firestore;
     })
   ],
