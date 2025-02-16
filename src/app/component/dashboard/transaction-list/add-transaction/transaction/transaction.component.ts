@@ -48,6 +48,10 @@ export class TransactionComponent {
           tag: this.dialogData.category,
           type: this.dialogData.type
         });
+      }else{
+        this.transactionForm.patchValue({
+          tag: [this.tagList[0].name]
+        });
       }
     });
 
