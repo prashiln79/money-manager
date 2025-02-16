@@ -19,7 +19,7 @@ export class TransactionComponent {
   buttons: string[] = ['7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', '=', '+'];
   public tagList: Array<any> = [];
   public statusList: string[] = ['Pending', 'Completed', 'Cancelled'];
-  public typeList: string[] = ['Income', 'Expense'];
+  public typeList: string[] = ['income', 'expense'];
   public userId: any;
 
 

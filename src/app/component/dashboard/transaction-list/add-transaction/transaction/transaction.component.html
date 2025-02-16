@@ -72,7 +72,7 @@
 
         <mat-form-field appearance="fill" class="w-full">
             <mat-label>Payee Name</mat-label>
-            <input matInput formControlName="payee" placeholder="Enter Payee Name" class="rounded-md border-2 p-2" />
+            <input matInput formControlName="payee" [maxlength]="45" placeholder="Enter Payee Name" class="rounded-md border-2 p-2" />
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="w-full">
@@ -93,7 +93,7 @@
             <!-- Select Tag -->
             <mat-form-field appearance="fill" class="w-full">
                 <mat-label>Select Tag</mat-label>
-                <mat-select [multiple]="true" formControlName="tag" class="rounded-md border-2 p-2"
+                <mat-select formControlName="tag" class="rounded-md border-2 p-2"
                     placeholder="Select Tag">
                     @for (item of tagList; track item) {
                     <mat-option [value]="item.name">{{ item?.name }}</mat-option>
@@ -106,7 +106,7 @@
                 <mat-label>Type</mat-label>
                 <mat-select formControlName="type" class="rounded-md border-2 p-2" placeholder="Select Tag">
                     @for (item of typeList; track item) {
-                    <mat-option [value]="item">{{ item }}</mat-option>
+                    <mat-option [value]="item">{{ item | titlecase }}</mat-option>
                     }
                 </mat-select>
             </mat-form-field>

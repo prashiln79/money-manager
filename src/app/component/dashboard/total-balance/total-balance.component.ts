@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { TransactionsService } from 'src/app/util/service/transactions.service';
+import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
 
 @Component({
   selector: 'total-balance',
@@ -9,7 +9,7 @@ import { TransactionsService } from 'src/app/util/service/transactions.service';
 })
 export class TotalBalanceComponent {
 
-  totalAmt = 0;
+  totalSpendAmt = 0;
   constructor(private transactionsService: TransactionsService, private auth: Auth) {
 
     this.getTotalAmount();
@@ -18,9 +18,9 @@ export class TotalBalanceComponent {
 
   getTotalAmount() {
     // Get total amount from transactions
-    this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe((transactions) => {
-      this.totalAmt = Math.abs(
-        transactions.reduce((acc, curr) => acc + (curr.type === 'income' ? curr.amount || 0 : -(curr.amount || 0)), 0)
+    this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe((transactions : Transaction[]) => {
+      this.totalSpendAmt = Math.abs(
+        transactions.reduce((acc, curr) => acc + (curr.type === 'income' ?  0 : -(curr.amount || 0)), 0)
       );
     });
   }
