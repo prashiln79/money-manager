@@ -32,15 +32,16 @@
     {
       "name": "firebase-api",
       "urls": [
+        "https://www.googleapis.com/**",
         "https://firestore.googleapis.com/**",
         "https://firebasestorage.googleapis.com/**",
         "https://identitytoolkit.googleapis.com/**"
       ],
       "cacheConfig": {
         "strategy": "performance",
-        "maxSize": 50,
+        "maxSize": 100,
         "maxAge": "1d",
-        "timeout": "1s"
+        "timeout": "0s"
       }
     }
   ]
