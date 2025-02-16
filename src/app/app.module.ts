@@ -27,13 +27,13 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
-import {MatCheckboxModule} from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Firebase Imports
 import { environment } from '@env/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideFirestore, getFirestore, enableIndexedDbPersistence } from '@angular/fire/firestore';
 
 // Service Worker
 // import { ServiceWorkerModule } from '@angular/service-worker';
@@ -113,7 +113,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
       enabled: !isDevMode(),
       registrationStrategy: 'registerImmediately'
     }),
-    
+
 
     // Service Worker
     // ServiceWorkerModule.register('ngsw-worker.js', {
@@ -128,7 +128,13 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     // Firebase
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
+    provideFirestore(() => {
+      const firestore = getFirestore();
+      enableIndexedDbPersistence(firestore).catch((err) => {
+        console.error("Firestore persistence error", err);
+      });
+      return firestore;
+    })
   ],
   bootstrap: [AppComponent]
 })
