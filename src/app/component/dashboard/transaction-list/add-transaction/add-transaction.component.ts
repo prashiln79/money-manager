@@ -18,7 +18,20 @@ export class AddTransactionComponent {
   }
 
   openDialog() {
-    const dialogRef = this._dialog.open(TransactionComponent);
+    let dialogRef;
+    if (this.isMobile) {
+      dialogRef = this._dialog.open(TransactionComponent, {
+        width: '100vw',
+        height: '100vh',
+        maxWidth: '100vw',
+        panelClass: 'full-screen-dialog',
+      });
+
+    } else {
+      dialogRef = this._dialog.open(TransactionComponent);
+    }
+
+
 
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);

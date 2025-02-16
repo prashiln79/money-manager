@@ -63,9 +63,7 @@ export class TransactionListComponent {
   }
 
   onLongPress(tx: any) {
-    this.longPressTimeout = setTimeout(() => {
-      this.selectedTx = tx; // Show edit/delete options on long press
-    }, 300); // Long press delay (500ms)
+    this.selectedTx = tx;
   }
 
 }

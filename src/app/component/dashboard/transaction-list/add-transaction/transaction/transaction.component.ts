@@ -39,7 +39,7 @@ export class TransactionComponent {
     });
     this.categoryService.getCategories(this.auth.currentUser?.uid || '').subscribe((resp) => {
       this.tagList = resp;
-      if (this.dialogData.id) {
+      if (this.dialogData?.id) {
         this.transactionForm.patchValue({
           payee: this.dialogData.payee,
           amount: this.dialogData.amount,
@@ -62,7 +62,7 @@ export class TransactionComponent {
   async onSubmit(): Promise<void> {
     if (this.transactionForm.valid) {
       this.dialogRef.close(true);
-      if (this.dialogData.id) {
+      if (this.dialogData?.id) {
         await this.transactionsService.updateTransaction(this.userId, this.dialogData.id, {
           payee: this.transactionForm.get('payee')?.value,
           userId: this.userId,
