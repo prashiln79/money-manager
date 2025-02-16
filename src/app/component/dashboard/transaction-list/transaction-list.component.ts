@@ -6,6 +6,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Auth } from '@angular/fire/auth';
 import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { TransactionComponent } from './add-transaction/transaction/transaction.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'transaction-list',
@@ -24,7 +26,7 @@ export class TransactionListComponent {
   longPressTimeout: any;
 
 
-  constructor(private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService, private notificationService: NotificationService) {
+  constructor(private _dialog: MatDialog, private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService, private notificationService: NotificationService) {
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
@@ -50,6 +52,9 @@ export class TransactionListComponent {
   }
 
   editTransaction(transaction: Transaction) {
+    const dialogRef = this._dialog.open(TransactionComponent, {
+      data: transaction
+    });
   }
 
   async deleteTransaction(transaction: Transaction) {
@@ -57,15 +62,10 @@ export class TransactionListComponent {
     this.notificationService.success('Transaction deleted successfully');
   }
 
-  onShortPress(tx: any) {
-    clearTimeout(this.longPressTimeout);
-    this.selectedTx = null; // Hide edit/delete if a normal click happens
-  }
-
   onLongPress(tx: any) {
     this.longPressTimeout = setTimeout(() => {
       this.selectedTx = tx; // Show edit/delete options on long press
-    }, 500); // Long press delay (500ms)
+    }, 300); // Long press delay (500ms)
   }
 
 }

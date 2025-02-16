@@ -1,9 +1,9 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Timestamp } from '@angular/fire/firestore';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
 
@@ -23,7 +23,7 @@ export class TransactionComponent {
   public userId: any;
 
 
-  constructor(private categoryService: CategoryService, private transactionsService: TransactionsService, private fb: FormBuilder, public dialogRef: MatDialogRef<TransactionComponent>, private breakpointObserver: BreakpointObserver, private auth: Auth) {
+  constructor(@Inject(MAT_DIALOG_DATA) public dialogData: any, private categoryService: CategoryService, private transactionsService: TransactionsService, private fb: FormBuilder, public dialogRef: MatDialogRef<TransactionComponent>, private breakpointObserver: BreakpointObserver, private auth: Auth) {
 
     this.transactionForm = this.fb.group({
       payee: ['', Validators.required],
@@ -37,32 +37,59 @@ export class TransactionComponent {
     this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
       this.isMobile = result.matches;
     });
+    this.categoryService.getCategories(this.auth.currentUser?.uid || '').subscribe((resp) => {
+      this.tagList = resp;
+      if (this.dialogData.id) {
+        this.transactionForm.patchValue({
+          payee: this.dialogData.payee,
+          amount: this.dialogData.amount,
+          date: this.dialogData.date.toDate(),
+          description: this.dialogData.notes,
+          tag: this.dialogData.category,
+          type: this.dialogData.type
+        });
+      }
+    });
+
+
   }
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
-    this.categoryService.getCategories(this.auth.currentUser?.uid || '').subscribe((resp) => {
-      this.tagList = resp;
-    });
+
   }
 
   async onSubmit(): Promise<void> {
     if (this.transactionForm.valid) {
-
       this.dialogRef.close(true);
-      await this.transactionsService.createTransaction(this.userId, {
-        payee: this.transactionForm.get('payee')?.value,
-        userId: this.userId,
-        accountId: '',
-        amount: this.transactionForm.get('amount')?.value,
-        category: this.transactionForm.get('tag')?.value,
-        type: this.transactionForm.get('type')?.value,
-        date: Timestamp.fromDate(new Date()),
-        notes: this.transactionForm.get('description')?.value
-      });
+      if (this.dialogData.id) {
+        await this.transactionsService.updateTransaction(this.userId, this.dialogData.id, {
+          payee: this.transactionForm.get('payee')?.value,
+          userId: this.userId,
+          accountId: '',
+          amount: this.transactionForm.get('amount')?.value,
+          category: this.transactionForm.get('tag')?.value,
+          type: this.transactionForm.get('type')?.value,
+          date: Timestamp.fromDate(new Date()),
+          notes: this.transactionForm.get('description')?.value
+        });
+      } else {
 
 
+        await this.transactionsService.createTransaction(this.userId, {
+          payee: this.transactionForm.get('payee')?.value,
+          userId: this.userId,
+          accountId: '',
+          amount: this.transactionForm.get('amount')?.value,
+          category: this.transactionForm.get('tag')?.value,
+          type: this.transactionForm.get('type')?.value,
+          date: Timestamp.fromDate(new Date()),
+          notes: this.transactionForm.get('description')?.value
+        });
+      }
     }
+
+
   }
 
   appendExpression(value: string): void {

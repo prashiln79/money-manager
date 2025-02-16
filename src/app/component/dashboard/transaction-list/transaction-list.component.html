@@ -4,7 +4,7 @@
       <mat-card 
         class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200 relative"
         (press)="onLongPress(tx)"
-        (click)="onShortPress(tx)"
+        (click)="onLongPress(tx)"
       >
         <section class="flex items-center space-x-4">
           <!-- Icon Section -->
@@ -25,12 +25,12 @@
         <!-- Edit/Delete Options -->
         <div 
           *ngIf="selectedTx?.id === tx.id" 
-          class="absolute top-0 right-0 bg-white shadow-lg rounded-lg p-2 flex space-x-2"
+          class="absolute top-0 right-0 bg-white rounded-lg p-2 flex space-x-2"
         >
-          <button mat-icon-button color="primary" (click)="editTransaction(tx)">
+          <button mat-icon-button color="secondary" (click)="editTransaction(tx)">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button color="warn" (click)="deleteTransaction(tx)">
+          <button mat-icon-button color="secondary" (click)="deleteTransaction(tx)">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
