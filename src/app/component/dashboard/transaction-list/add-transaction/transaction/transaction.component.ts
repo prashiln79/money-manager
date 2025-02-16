@@ -60,7 +60,10 @@ export class TransactionComponent {
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
-
+    window.addEventListener('popstate', (event) => {
+      this.dialogRef.close();
+      event.preventDefault();
+    });
   }
 
   async onSubmit(): Promise<void> {

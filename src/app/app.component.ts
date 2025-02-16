@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ThemeSwitchingService } from './util/service/theme-switching.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +10,18 @@ import { ThemeSwitchingService } from './util/service/theme-switching.service';
 export class AppComponent {
   public title = 'money-manager';
 
-  constructor() {
+  constructor(private location: Location) {
 
 
   }
 
+  ngOnInit() {
+    window.addEventListener('popstate', (event) => {
+      this.goBack();
+    });
+  }
+
+  goBack() {
+    this.location.back(); 
+  }
 }
