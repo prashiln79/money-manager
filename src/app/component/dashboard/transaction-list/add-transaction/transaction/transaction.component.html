@@ -124,7 +124,7 @@
         <div class="flex flex-col justify-end sm:flex-row gap-4" *ngIf="!isMobile">
             <button mat-flat-button type="submit" [disabled]="transactionForm.invalid"
                 class="w-full sm:w-auto py-3 sm:px-6 rounded-md text-white bg-blue-500 hover:bg-blue-600">
-                Add
+                {{dialogData?.id ? ' Update' : 'Add'}} 
             </button>
             <button mat-flat-button type="button" mat-dialog-close
                 class="w-full sm:w-auto py-3 sm:px-6 rounded-md text-white bg-gray-500 hover:bg-gray-600">

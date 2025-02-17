@@ -48,7 +48,7 @@ export class TransactionListComponent {
   loadTransactions() {
     this.loaderService.show();
     this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
-      this.dataSource.data = transactions;
+      this.dataSource.data = transactions.sort((a: any, b: any) => b.date.toDate() - a.date.toDate());
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
       this.loaderService.hide();

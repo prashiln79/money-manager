@@ -48,7 +48,7 @@ export class TransactionComponent {
           tag: this.dialogData.category,
           type: this.dialogData.type
         });
-      }else{
+      } else {
         this.transactionForm.patchValue({
           tag: [this.tagList[0].name]
         });
@@ -77,7 +77,7 @@ export class TransactionComponent {
           amount: this.transactionForm.get('amount')?.value,
           category: this.transactionForm.get('tag')?.value,
           type: this.transactionForm.get('type')?.value,
-          date: Timestamp.fromDate(new Date()),
+          date: Timestamp.fromDate(this.transactionForm.get('date')?.value),
           notes: this.transactionForm.get('description')?.value
         });
       } else {
@@ -90,7 +90,7 @@ export class TransactionComponent {
           amount: this.transactionForm.get('amount')?.value,
           category: this.transactionForm.get('tag')?.value,
           type: this.transactionForm.get('type')?.value,
-          date: Timestamp.fromDate(new Date()),
+          date: Timestamp.fromDate(this.transactionForm.get('date')?.value),
           notes: this.transactionForm.get('description')?.value
         });
       }
