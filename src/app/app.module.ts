@@ -129,28 +129,34 @@ import { HomeComponent } from './component/dashboard/home/home.component';
     provideAnimationsAsync(),
     provideHttpClient(),
 
-    // Firebase
+    // Firebase Initialization
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
+
+    // Auth with IndexedDB Persistence
     provideAuth(() => {
       const auth = getAuth();
       auth.setPersistence(indexedDBLocalPersistence)
-        .then(() => console.log("Auth persistence enabled"))
-        .catch((error) => console.error("Auth persistence error", error));
+        .then(() => console.log("✅ Auth persistence enabled"))
+        .catch((error) => console.warn("⚠️ Auth persistence error:", error.message));
       return auth;
     }),
+
+    // Firestore with IndexedDB Persistence (Improved)
     provideFirestore(() => {
       const firestore = getFirestore();
-      enableIndexedDbPersistence(firestore)
-        .then(() => console.log('Offline persistence enabled'))
-        .catch((err) => {
-          if (err.code === 'failed-precondition') {
-            console.error('Multiple tabs open, offline persistence is not available.');
-          } else if (err.code === 'unimplemented') {
-            console.error('Offline persistence is not supported by this browser.');
-          }
-        });
+
+      enableIndexedDbPersistence(firestore).then(() => {
+        console.log("✅ Firestore offline persistence enabled");
+      }).catch((err) => {
+        if (err.code === 'failed-precondition') {
+          console.warn("⚠️ Multiple tabs detected. Persistence disabled to avoid conflicts.");
+        } else if (err.code === 'unimplemented') {
+          console.warn("⚠️ IndexedDB persistence not supported. Falling back to cache.");
+        }
+      });
+
       return firestore;
-    })
+    }),
   ],
   bootstrap: [AppComponent]
 })
