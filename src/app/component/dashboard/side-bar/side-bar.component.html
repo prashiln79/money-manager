@@ -1,27 +1,44 @@
-<mat-drawer-container class="example-container  !z-[999] " [hasBackdrop]="true">
-    <mat-drawer #drawer [mode]="'over'" class="!fixed">
-        <section class="h-full w-full p-4">
-            <!-- Toggle -->
-            <div class="relative top-2 right-2 float-end"><mat-icon svgIcon="cross"
-                    (click)="drawer.toggle()"></mat-icon>
+<mat-drawer-container class="example-container !z-[999] h-screen">
+    <mat-drawer #drawer [mode]="'over'" class="!fixed bg-white shadow-lg w-72 rounded-r-2xl">
+        <section class="h-full w-full p-6 flex flex-col">
+            <!-- Close Button -->
+            <div class="flex justify-end">
+                <mat-icon svgIcon="cross" (click)="drawer.toggle()"
+                    class="cursor-pointer text-gray-600 hover:text-gray-800 transition">
+                </mat-icon>
             </div>
-            <!-- Toggle -->
 
-            <div class="section-one pt-10">
-                <span>Color Platter : </span>
-                <div class="mt-5 h-20 w-[93%] bg-gray-200 flex items-center gap-2 justify-center rounded">
-                    <mat-icon class="text-blue-50 color-ball cursor-pointer" (click)="changeTheme('light-theme',drawer)"
-                        fontIcon="brightness_1"></mat-icon>
-                    <mat-icon class="text-black color-ball cursor-pointer" (click)="changeTheme('dark-theme',drawer)"
-                        fontIcon="brightness_1"></mat-icon>
+            <!-- Theme Selector -->
+            <div class="section-one mt-8">
+                <span class="text-lg font-semibold text-gray-700">Color Palette:</span>
+                <div class="mt-4 flex items-center gap-4 justify-center p-4 bg-gray-100 rounded-lg shadow-sm">
+                    <mat-icon class="text-blue-500 cursor-pointer hover:scale-110 transition-transform"
+                        (click)="changeTheme('light-theme',drawer)" fontIcon="brightness_1"></mat-icon>
+                    <mat-icon class="text-black cursor-pointer hover:scale-110 transition-transform"
+                        (click)="changeTheme('dark-theme',drawer)" fontIcon="brightness_1"></mat-icon>
                 </div>
             </div>
-        </section>
 
+            <!-- Navigation Links -->
+            <nav class="mt-10 flex flex-col gap-4 text-gray-700">
+                <a routerLink="" (click)="drawer.toggle()"
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+                    <mat-icon class="text-gray-600">home</mat-icon> Home
+                </a>
+                <a routerLink="accounts" (click)="drawer.toggle()"
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+                    <mat-icon class="text-gray-600">account_circle</mat-icon> Accounts
+                </a>
+                <a routerLink="category" (click)="drawer.toggle()"
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+                    <mat-icon class="text-gray-600">category</mat-icon> Category
+                </a>
+            </nav>
+        </section>
     </mat-drawer>
+
     <mat-drawer-content class="!overflow-hidden">
-        <button  color="primary"  aria-label="Example icon button with a menu icon"
-            (click)="drawer.toggle()">
+        <button mat-button color="primary" class="flex items-center gap-2" (click)="drawer.toggle()">
             <mat-icon>menu</mat-icon>
         </button>
     </mat-drawer-content>

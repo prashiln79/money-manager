@@ -1,20 +1,22 @@
-<div class="flex gap-5 w-full justify-evenly p-5 ">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full p-6">
     <!-- List of Accounts -->
-    <section class="w-1/2 ">
+    <section>
+        <h2 class=" !text-lg lg:text-2xl font-semibold text-gray-800 mb-4">Your Accounts</h2>
         <div *ngFor="let account of accounts"
-            class="mb-4 p-4 bg-gray-100 rounded-lg shadow-sm flex justify-between items-center">
+            class="p-5 bg-white border border-gray-200 rounded-xl shadow-md flex justify-between items-center transition hover:shadow-lg hover:border-gray-300">
             <div>
-                <p class="text-lg font-medium text-gray-700">{{ account.name }}</p>
-                <p class="text-sm text-gray-500">{{ account.type }}</p>
+                <p class="text-lg font-medium text-gray-900">{{ account.name }}</p>
+                <p class="text-sm text-gray-500">{{ account.type | titlecase }}</p>
             </div>
             <p class="text-lg font-bold text-green-600">{{ account.balance | currency }}</p>
         </div>
     </section>
 
-    <section class="w-1/2">
-        <!-- Add New Account Form -->
-        <mat-card class="p-4 mt-6">
-            <form (submit)="createAccount()" class="space-y-4">
+    <!-- Add New Account Form -->
+    <section>
+        <mat-card class="p-6 shadow-md rounded-xl">
+            <h2 class="!text-xl lg:text-2xl  font-semibold text-gray-800 mb-4">Add New Account</h2>
+            <form (submit)="createAccount()" class="space-y-5">
                 <mat-form-field class="w-full">
                     <mat-label>Account Name</mat-label>
                     <input matInput type="text" [(ngModel)]="newAccount.name" name="accountName" required />
@@ -34,7 +36,11 @@
                     <input matInput type="number" [(ngModel)]="newAccount.balance" name="accountBalance" required />
                 </mat-form-field>
 
-                <button mat-flat-button color="primary" class="w-fit float-end">Add Account</button>
+                <div class="flex justify-end">
+                    <button mat-flat-button color="primary" class="px-6 py-3 rounded-lg shadow-sm hover:shadow-md">
+                        Add Account
+                    </button>
+                </div>
             </form>
         </mat-card>
     </section>

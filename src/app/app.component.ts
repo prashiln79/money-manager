@@ -13,7 +13,7 @@ export class AppComponent {
   isOnline = navigator.onLine;
 
   constructor(private location: Location, private loaderService: LoaderService) {
-    this.loaderService.show();
+
   }
 
   ngOnInit() {

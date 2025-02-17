@@ -59,6 +59,7 @@ import { SubscriptionComponent } from './component/dashboard/subscription/subscr
 import { CategoryComponent } from './component/dashboard/category/category.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { LoaderComponent } from './util/components/loader/loader.component';
+import { HomeComponent } from './component/dashboard/home/home.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { LoaderComponent } from './util/components/loader/loader.component';
     BudgetsComponent,
     GoalsComponent,
     SubscriptionComponent,
-    CategoryComponent
+    CategoryComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
