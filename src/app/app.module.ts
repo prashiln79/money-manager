@@ -61,6 +61,7 @@ import { CategoryComponent } from './component/dashboard/category/category.compo
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { LoaderComponent } from './util/components/loader/loader.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
+import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +81,8 @@ import { HomeComponent } from './component/dashboard/home/home.component';
     GoalsComponent,
     SubscriptionComponent,
     CategoryComponent,
-    HomeComponent
+    HomeComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,

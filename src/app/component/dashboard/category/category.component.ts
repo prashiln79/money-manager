@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { CategoryService } from 'src/app/util/service/category.service';
+import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
 interface Category {
   id?: string;
@@ -31,7 +33,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly categoryService: CategoryService,
-    private readonly auth: Auth
+    private readonly auth: Auth,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -172,21 +175,43 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Delete a category
+   * Delete a category with confirmation dialog
    */
-  public async deleteCategory(categoryId: string): Promise<void> {
-    if (confirm('Are you sure you want to delete this category?')) {
-      try {
-        this.isLoading = true;
-        this.errorMessage = '';
-
-        await this.categoryService.deleteCategory(this.userId, categoryId);
-        await this.loadUserCategories();
-      } catch (error) {
-        this.errorMessage = 'Failed to delete category';
-        this.isLoading = false;
-        console.error('Error deleting category:', error);
+  public deleteCategory(category: Category): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Category',
+        message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'delete'
       }
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        if (result) {
+          this.performDelete(category.id!);
+        }
+      });
+  }
+
+  /**
+   * Perform the actual delete operation
+   */
+  private async performDelete(categoryId: string): Promise<void> {
+    try {
+      this.isLoading = true;
+      this.errorMessage = '';
+
+      await this.categoryService.deleteCategory(this.userId, categoryId);
+      await this.loadUserCategories();
+    } catch (error) {
+      this.errorMessage = 'Failed to delete category';
+      this.isLoading = false;
+      console.error('Error deleting category:', error);
     }
   }
 
