@@ -11,12 +11,12 @@
 
   <!-- Loading Indicator -->
   <div *ngIf="isLoading" 
-       class="loading-indicator flex justify-center items-center py-12">
-    <mat-spinner diameter="32"></mat-spinner>
+       class="loading-indicator">
+    <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
   </div>
 
   <!-- Main Content -->
-  <div *ngIf="!isLoading" class="categories-grid">
+  <div class="categories-grid" [class.loading]="isLoading">
     
     <!-- Categories List Section -->
     <section class="categories-list">

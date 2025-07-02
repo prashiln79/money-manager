@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { NotificationService } from 'src/app/util/service/notification.service';
 
 interface Category {
   id?: string;
@@ -34,7 +35,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
   constructor(
     private readonly categoryService: CategoryService,
     private readonly auth: Auth,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -208,6 +210,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
       await this.categoryService.deleteCategory(this.userId, categoryId);
       await this.loadUserCategories();
+      this.notificationService.success('Category deleted successfully');
     } catch (error) {
       this.errorMessage = 'Failed to delete category';
       this.isLoading = false;

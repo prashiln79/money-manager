@@ -22,7 +22,46 @@
 
 // Loading Indicator
 .loading-indicator {
-  min-height: 200px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  animation: slideDown 0.3s ease-out;
+  
+  mat-progress-bar {
+    height: 3px;
+    
+    ::ng-deep .mat-progress-bar-fill::after {
+      background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 50%, #3b82f6 100%);
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    
+    ::ng-deep .mat-progress-bar-buffer {
+      background: rgba(59, 130, 246, 0.1);
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 // Main Grid Layout
@@ -32,6 +71,12 @@
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  transition: opacity 0.3s ease;
+  
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
   
   @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
