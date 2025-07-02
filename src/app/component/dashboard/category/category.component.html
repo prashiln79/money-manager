@@ -1,49 +1,110 @@
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full p-6">
-    <!-- List of Categories -->
-    <section class="w-full md:w-3/4 lg:w-2/3 mx-auto">
-        <h2 class="!text-xl lg:text-2xl font-semibold text-gray-800 mb-4">Manage Categories</h2>
-        
-        <div *ngFor="let category of categories"
-            class="flex justify-between items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-transform transform hover:-translate-y-1">
-            
-            <!-- Category Name & Type -->
-            <div class="flex items-center space-x-3">
-                <mat-icon class="text-blue-500">label</mat-icon>
-                <p class="text-lg font-medium text-gray-800">{{ category.name }}</p>
-                <span class="text-sm px-2 py-1 bg-blue-100 text-blue-600 rounded-lg">{{ category.type | titlecase }}</span>
+<div class="categories-container">
+  <!-- Error Message Display -->
+  <div *ngIf="errorMessage" 
+       class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+    <p class="text-red-700 text-sm">{{ errorMessage }}</p>
+    <button (click)="clearError()" 
+            class="text-red-500 hover:text-red-700 text-lg font-bold">
+      ×
+    </button>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" 
+       class="loading-indicator flex justify-center items-center py-12">
+    <mat-spinner diameter="32"></mat-spinner>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="categories-grid">
+    
+    <!-- Categories List Section -->
+    <section class="categories-list">
+      <div class="section-header">
+        <h2 class="section-title">Manage Categories</h2>
+        <p class="section-subtitle">{{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }}</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="categories.length === 0" 
+           class="empty-state">
+        <div class="empty-icon">🏷️</div>
+        <h3 class="empty-title">No categories yet</h3>
+        <p class="empty-text">Add your first category to get started</p>
+      </div>
+
+      <!-- Categories List -->
+      <div *ngIf="categories.length > 0" class="categories-grid-list">
+        <div *ngFor="let category of categories; trackBy: trackByCategoryId"
+             class="category-item"
+             [class.income-type]="category.type === 'income'"
+             [class.expense-type]="category.type === 'expense'">
+          <div class="category-content">
+            <div class="category-info">
+              <h3 class="category-name">{{ category.name }}</h3>
+              <span class="category-type">{{ category.type }}</span>
             </div>
-
-            <!-- Actions -->
-            <button mat-icon-button color="warn" (click)="deleteCategory(category.id)" matTooltip="Delete">
-                <mat-icon>delete</mat-icon>
-            </button>
+            <div class="category-actions">
+              <button (click)="editCategory(category)" 
+                      class="action-button edit-button"
+                      title="Edit category">
+                ✏️
+              </button>
+              <button (click)="deleteCategory(category.id!)" 
+                      class="action-button delete-button"
+                      title="Delete category">
+                🗑️
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
-    <!-- Add New Category Form -->
-    <section class="w-full md:w-1/2 mx-auto">
-        <mat-card class="p-6 shadow-md rounded-xl">
-            <h2 class="!text-xl lg:text-2xl font-semibold text-gray-800 mb-4">Add New Category</h2>
-            <form (submit)="createCategory()" class="space-y-4">
-                <mat-form-field class="w-full">
-                    <mat-label>Category Name</mat-label>
-                    <input matInput type="text" [(ngModel)]="newCategory.name" name="categoryName" required />
-                </mat-form-field>
+    <!-- Add Category Form Section -->
+    <section class="add-category">
+      <div class="form-card">
+        <div class="form-header">
+          <h2 class="form-title">Add New Category</h2>
+        </div>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Type</mat-label>
-                    <mat-select [(ngModel)]="newCategory.type" name="categoryType" required>
-                        <mat-option value="income">Income</mat-option>
-                        <mat-option value="expense">Expense</mat-option>
-                    </mat-select>
-                </mat-form-field>
+        <form (ngSubmit)="createCategory()" 
+              #categoryForm="ngForm" 
+              class="category-form">
+          
+          <!-- Category Name Field -->
+          <div class="form-field">
+            <label class="field-label">Category Name</label>
+            <input type="text" 
+                   [(ngModel)]="newCategory.name" 
+                   name="categoryName" 
+                   required
+                   placeholder="e.g., Groceries"
+                   class="form-input"
+                   maxlength="50" />
+          </div>
 
-                <div class="flex justify-end">
-                    <button mat-flat-button color="primary" class="px-6 py-3 rounded-lg shadow-sm hover:shadow-md">
-                        Add Category
-                    </button>
-                </div>
-            </form>
-        </mat-card>
+          <!-- Category Type Field -->
+          <div class="form-field">
+            <label class="field-label">Category Type</label>
+            <select [(ngModel)]="newCategory.type" 
+                    name="categoryType" 
+                    required
+                    class="form-select">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit"
+                  [disabled]="isLoading || !categoryForm.form.valid"
+                  class="submit-button">
+            <span *ngIf="isLoading" class="loading-spinner"></span>
+            {{ isLoading ? 'Adding...' : 'Add Category' }}
+          </button>
+        </form>
+      </div>
     </section>
+  </div>
 </div>
