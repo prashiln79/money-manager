@@ -20,6 +20,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public categories: Category[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
+  public isEditMode: boolean = false;
   
   // Form data
   public newCategory: Category = this.getEmptyCategory();
@@ -106,7 +107,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       );
       
       // Reset form and reload categories
-      this.newCategory = this.getEmptyCategory();
+      this.resetForm();
       await this.loadUserCategories();
     } catch (error) {
       this.errorMessage = 'Failed to create category';
@@ -118,28 +119,56 @@ export class CategoryComponent implements OnInit, OnDestroy {
   /**
    * Edit an existing category
    */
-  public async editCategory(category: Category): Promise<void> {
-    const newName = prompt('Edit Category Name:', category.name);
-    
-    if (newName !== null && newName.trim() !== '') {
-      try {
-        this.isLoading = true;
-        this.errorMessage = '';
+  public editCategory(category: Category): void {
+    this.isEditMode = true;
+    this.newCategory = {
+      id: category.id,
+      name: category.name,
+      type: category.type,
+      createdAt: category.createdAt
+    };
+  }
 
-        await this.categoryService.updateCategory(
-          this.userId, 
-          category.id!, 
-          newName.trim(), 
-          category.type
-        );
-        
-        await this.loadUserCategories();
-      } catch (error) {
-        this.errorMessage = 'Failed to update category';
-        this.isLoading = false;
-        console.error('Error updating category:', error);
-      }
+  /**
+   * Update an existing category
+   */
+  public async updateCategory(): Promise<void> {
+    if (!this.isValidCategoryData()) {
+      this.errorMessage = 'Please enter a category name';
+      return;
     }
+
+    if (!this.newCategory.id) {
+      this.errorMessage = 'Invalid category';
+      return;
+    }
+
+    try {
+      this.isLoading = true;
+      this.errorMessage = '';
+
+      await this.categoryService.updateCategory(
+        this.userId, 
+        this.newCategory.id, 
+        this.newCategory.name.trim(), 
+        this.newCategory.type
+      );
+      
+      // Reset form and reload categories
+      this.resetForm();
+      await this.loadUserCategories();
+    } catch (error) {
+      this.errorMessage = 'Failed to update category';
+      this.isLoading = false;
+      console.error('Error updating category:', error);
+    }
+  }
+
+  /**
+   * Cancel edit mode and reset form
+   */
+  public cancelEdit(): void {
+    this.resetForm();
   }
 
   /**
@@ -177,6 +206,15 @@ export class CategoryComponent implements OnInit, OnDestroy {
       type: 'expense',
       createdAt: Date.now()
     };
+  }
+
+  /**
+   * Reset form to initial state
+   */
+  private resetForm(): void {
+    this.isEditMode = false;
+    this.newCategory = this.getEmptyCategory();
+    this.errorMessage = '';
   }
 
   /**

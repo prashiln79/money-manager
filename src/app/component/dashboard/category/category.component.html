@@ -40,7 +40,8 @@
         <div *ngFor="let category of categories; trackBy: trackByCategoryId"
              class="category-item"
              [class.income-type]="category.type === 'income'"
-             [class.expense-type]="category.type === 'expense'">
+             [class.expense-type]="category.type === 'expense'"
+             [class.editing]="isEditMode && newCategory.id === category.id">
           <div class="category-content">
             <div class="category-info">
               <h3 class="category-name">{{ category.name }}</h3>
@@ -49,12 +50,14 @@
             <div class="category-actions">
               <button (click)="editCategory(category)" 
                       class="action-button edit-button"
-                      title="Edit category">
+                      title="Edit category"
+                      [disabled]="isEditMode">
                 <mat-icon>edit</mat-icon>
               </button>
               <button (click)="deleteCategory(category.id!)" 
                       class="action-button delete-button"
-                      title="Delete category">
+                      title="Delete category"
+                      [disabled]="isEditMode">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
@@ -63,14 +66,17 @@
       </div>
     </section>
 
-    <!-- Add Category Form Section -->
+    <!-- Add/Edit Category Form Section -->
     <section class="add-category">
       <div class="form-card">
         <div class="form-header">
-          <h2 class="form-title">Add New Category</h2>
+          <h2 class="form-title">
+            <mat-icon class="form-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+            {{ isEditMode ? 'Edit Category' : 'Add New Category' }}
+          </h2>
         </div>
 
-        <form (ngSubmit)="createCategory()" 
+        <form (ngSubmit)="isEditMode ? updateCategory() : createCategory()" 
               #categoryForm="ngForm" 
               class="category-form">
           
@@ -98,13 +104,24 @@
             </select>
           </div>
 
-          <!-- Submit Button -->
-          <button type="submit"
-                  [disabled]="isLoading || !categoryForm.form.valid"
-                  class="submit-button">
-            <span *ngIf="isLoading" class="loading-spinner"></span>
-            {{ isLoading ? 'Adding...' : 'Add Category' }}
-          </button>
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button type="submit"
+                    [disabled]="isLoading || !categoryForm.form.valid"
+                    class="submit-button">
+              <span *ngIf="isLoading" class="loading-spinner"></span>
+              <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+              {{ isLoading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Category' : 'Add Category') }}
+            </button>
+            
+            <button *ngIf="isEditMode"
+                    type="button"
+                    (click)="cancelEdit()"
+                    class="cancel-button">
+              <mat-icon>cancel</mat-icon>
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </section>
