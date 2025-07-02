@@ -1,47 +1,166 @@
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full p-6">
-    <!-- List of Accounts -->
-    <section>
-        <h2 class=" !text-lg lg:text-2xl font-semibold text-gray-800 mb-4">Your Accounts</h2>
-        <div *ngFor="let account of accounts"
-            class="p-5 bg-white border border-gray-200 rounded-xl shadow-md flex justify-between items-center transition hover:shadow-lg hover:border-gray-300">
-            <div>
-                <p class="text-lg font-medium text-gray-900">{{ account.name }}</p>
-                <p class="text-sm text-gray-500">{{ account.type | titlecase }}</p>
-            </div>
-            <p class="text-lg font-bold text-green-600">{{ account.balance | currency }}</p>
+<div class="accounts-container">
+    <!-- Error Message Display -->
+    <div *ngIf="errorMessage" 
+         class="error-message mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-center justify-between">
+            <p class="text-red-700">{{ errorMessage }}</p>
+            <button (click)="clearError()" 
+                    class="text-red-500 hover:text-red-700">
+                <span class="sr-only">Close error message</span>
+                ×
+            </button>
         </div>
-    </section>
+    </div>
 
-    <!-- Add New Account Form -->
-    <section>
-        <mat-card class="p-6 shadow-md rounded-xl">
-            <h2 class="!text-xl lg:text-2xl  font-semibold text-gray-800 mb-4">Add New Account</h2>
-            <form (submit)="createAccount()" class="space-y-5">
-                <mat-form-field class="w-full">
-                    <mat-label>Account Name</mat-label>
-                    <input matInput type="text" [(ngModel)]="newAccount.name" name="accountName" required />
-                </mat-form-field>
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" 
+         class="loading-indicator flex justify-center items-center py-8">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Account Type</mat-label>
-                    <mat-select [(ngModel)]="newAccount.type" name="accountType" required>
-                        <mat-option value="bank">Bank</mat-option>
-                        <mat-option value="cash">Cash</mat-option>
-                        <mat-option value="credit">Credit</mat-option>
-                    </mat-select>
-                </mat-form-field>
+    <!-- Main Content -->
+    <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full p-6">
+        
+        <!-- Accounts List Section -->
+        <section class="accounts-list-section">
+            <header class="mb-6">
+                <h2 class="text-xl lg:text-2xl font-semibold text-gray-800">
+                    Your Accounts
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">
+                    Manage your financial accounts
+                </p>
+            </header>
 
-                <mat-form-field class="w-full">
-                    <mat-label>Balance</mat-label>
-                    <input matInput type="number" [(ngModel)]="newAccount.balance" name="accountBalance" required />
-                </mat-form-field>
-
-                <div class="flex justify-end">
-                    <button mat-flat-button color="primary" class="px-6 py-3 rounded-lg shadow-sm hover:shadow-md">
-                        Add Account
-                    </button>
+            <!-- Empty State -->
+            <div *ngIf="accounts.length === 0" 
+                 class="empty-state text-center py-12 bg-gray-50 rounded-lg">
+                <div class="text-gray-400 mb-4">
+                    <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                    </svg>
                 </div>
-            </form>
-        </mat-card>
-    </section>
+                <p class="text-gray-600">No accounts found</p>
+                <p class="text-sm text-gray-500">Add your first account to get started</p>
+            </div>
+
+            <!-- Accounts List -->
+            <div *ngIf="accounts.length > 0" class="space-y-4">
+                <article *ngFor="let account of accounts; trackBy: trackByAccountId"
+                         class="account-card p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-200">
+                    <div class="flex justify-between items-center">
+                        <div class="account-info">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                {{ account.name }}
+                            </h3>
+                            <p class="text-sm text-gray-500 capitalize">
+                                {{ account.type }} Account
+                            </p>
+                        </div>
+                        <div class="account-balance text-right">
+                            <p class="text-lg font-bold" 
+                               [ngClass]="account.balance >= 0 ? 'text-green-600' : 'text-red-600'">
+                                {{ account.balance | currency }}
+                            </p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Add Account Form Section -->
+        <section class="add-account-section">
+            <mat-card class="add-account-card p-6 shadow-md rounded-xl">
+                <header class="mb-6">
+                    <h2 class="text-xl lg:text-2xl font-semibold text-gray-800">
+                        Add New Account
+                    </h2>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Create a new financial account
+                    </p>
+                </header>
+
+                <form (ngSubmit)="createAccount()" 
+                      #accountForm="ngForm" 
+                      class="space-y-5">
+                    
+                    <!-- Account Name Field -->
+                    <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>Account Name</mat-label>
+                        <input matInput 
+                               type="text" 
+                               [(ngModel)]="newAccount.name" 
+                               name="accountName" 
+                               required
+                               placeholder="e.g., Chase Checking"
+                               maxlength="50" />
+                        <mat-error *ngIf="accountForm.form.get('accountName')?.hasError('required')">
+                            Account name is required
+                        </mat-error>
+                    </mat-form-field>
+
+                                         <!-- Account Type Field -->
+                     <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>Account Type</mat-label>
+                        <mat-select [(ngModel)]="newAccount.type" 
+                                   name="accountType" 
+                                   required>
+                            <mat-option value="bank">
+                                <span class="flex items-center">
+                                    <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                                    Bank Account
+                                </span>
+                            </mat-option>
+                            <mat-option value="cash">
+                                <span class="flex items-center">
+                                    <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                                    Cash
+                                </span>
+                            </mat-option>
+                            <mat-option value="credit">
+                                <span class="flex items-center">
+                                    <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                                    Credit Card
+                                </span>
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="accountForm.form.get('accountType')?.hasError('required')">
+                            Account type is required
+                        </mat-error>
+                    </mat-form-field>
+
+                                         <!-- Balance Field -->
+                     <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>Initial Balance</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [(ngModel)]="newAccount.balance" 
+                               name="accountBalance" 
+                               required
+                               placeholder="0.00"
+                               step="0.01"
+                               min="-999999"
+                               max="999999" />
+                        <mat-error *ngIf="accountForm.form.get('accountBalance')?.hasError('required')">
+                            Initial balance is required
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end pt-4">
+                        <button mat-flat-button 
+                                color="primary" 
+                                type="submit"
+                                [disabled]="isLoading || !accountForm.form.valid"
+                                class="px-8 py-3 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                            <mat-spinner *ngIf="isLoading" 
+                                        diameter="20" 
+                                        class="mr-2"></mat-spinner>
+                            {{ isLoading ? 'Adding Account...' : 'Add Account' }}
+                        </button>
+                    </div>
+                </form>
+            </mat-card>
+        </section>
+    </div>
 </div>

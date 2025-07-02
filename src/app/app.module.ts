@@ -28,6 +28,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Firebase Imports
 import { environment } from '@env/environment';
@@ -110,6 +111,7 @@ import { HomeComponent } from './component/dashboard/home/home.component';
     MatMenuModule,
     MatDatepickerModule,
     MatCheckboxModule,
+    MatProgressSpinnerModule,
 
     // Utility
     IconModule,
