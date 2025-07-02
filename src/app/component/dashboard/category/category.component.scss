@@ -66,8 +66,14 @@
     border: 2px dashed #d1d5db;
     
     .empty-icon {
-      font-size: 3rem;
       margin-bottom: 1rem;
+      
+      mat-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+        color: #9ca3af;
+      }
     }
     
     .empty-title {
@@ -174,7 +180,15 @@
         border-radius: 6px;
         cursor: pointer;
         transition: all 0.2s ease;
-        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        mat-icon {
+          font-size: 1.25rem;
+          width: 1.25rem;
+          height: 1.25rem;
+        }
         
         &:hover {
           transform: scale(1.1);
@@ -183,12 +197,28 @@
         &.edit-button {
           &:hover {
             background: #fef3c7;
+            
+            mat-icon {
+              color: #d97706;
+            }
+          }
+          
+          mat-icon {
+            color: #6b7280;
           }
         }
         
         &.delete-button {
           &:hover {
             background: #fee2e2;
+            
+            mat-icon {
+              color: #dc2626;
+            }
+          }
+          
+          mat-icon {
+            color: #6b7280;
           }
         }
       }

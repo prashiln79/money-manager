@@ -28,7 +28,9 @@
       <!-- Empty State -->
       <div *ngIf="categories.length === 0" 
            class="empty-state">
-        <div class="empty-icon">🏷️</div>
+        <div class="empty-icon">
+          <mat-icon>local_offer</mat-icon>
+        </div>
         <h3 class="empty-title">No categories yet</h3>
         <p class="empty-text">Add your first category to get started</p>
       </div>
@@ -48,12 +50,12 @@
               <button (click)="editCategory(category)" 
                       class="action-button edit-button"
                       title="Edit category">
-                ✏️
+                <mat-icon>edit</mat-icon>
               </button>
               <button (click)="deleteCategory(category.id!)" 
                       class="action-button delete-button"
                       title="Delete category">
-                🗑️
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
           </div>
