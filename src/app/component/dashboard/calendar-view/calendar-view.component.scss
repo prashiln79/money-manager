@@ -1,0 +1,83 @@
+.demo-inline-calendar-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+// Custom styling for dates with transactions
+::ng-deep .mat-calendar-body-cell.has-transactions {
+  .mat-calendar-body-cell-content {
+    background-color: #3b82f6 !important; // Blue background
+    color: white !important;
+    font-weight: bold;
+    border-radius: 50%;
+  }
+}
+
+// Hover effect for dates with transactions
+::ng-deep .mat-calendar-body-cell.has-transactions:hover {
+  .mat-calendar-body-cell-content {
+    background-color: #2563eb !important; // Darker blue on hover
+  }
+}
+
+// Selected date styling
+::ng-deep .mat-calendar-body-cell.mat-calendar-body-active {
+  .mat-calendar-body-cell-content {
+    background-color: #1d4ed8 !important; // Dark blue for selected date
+    color: white !important;
+  }
+}
+
+// Transaction summary cards
+.transaction-summary {
+  .income-card {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  }
+  
+  .expense-card {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  }
+  
+  .net-card {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  }
+}
+
+// Transaction list styling
+.transaction-item {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .demo-inline-calendar-card {
+    max-width: 100%;
+  }
+  
+  .transaction-summary {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+// Dark theme support
+.dark {
+  ::ng-deep .mat-calendar-body-cell.has-transactions {
+    .mat-calendar-body-cell-content {
+      background-color: #60a5fa !important;
+      color: #1f2937 !important;
+    }
+  }
+  
+  ::ng-deep .mat-calendar-body-cell.has-transactions:hover {
+    .mat-calendar-body-cell-content {
+      background-color: #3b82f6 !important;
+    }
+  }
+}
