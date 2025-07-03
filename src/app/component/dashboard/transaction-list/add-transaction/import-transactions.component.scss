@@ -1,0 +1,30 @@
+mat-dialog-content {
+  min-width: 350px;
+}
+
+input[type="file"] {
+  margin-top: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+}
+
+th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+mat-dialog-actions {
+  margin-top: 16px;
+} 

@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>Import Transactions</h2>
+<div mat-dialog-content>
+  <div class="mb-4">
+    <button mat-stroked-button color="primary" (click)="downloadTemplate()">
+      <mat-icon>download</mat-icon>
+      Download Template
+    </button>
+  </div>
+  <div class="mb-4">
+    <input type="file" accept=".csv,.xlsx,.xls" (change)="onFileSelected($event)" />
+    <div *ngIf="error" class="text-red-600 text-sm mt-2">{{ error }}</div>
+  </div>
+  <div *ngIf="parsedTransactions.length">
+    <h3 class="font-semibold mb-2">Preview & Select Transactions</h3>
+    <table class="w-full border text-sm mb-2">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Payee</th>
+          <th>Amount</th>
+          <th>Type</th>
+          <th>Category</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tx of parsedTransactions">
+          <td>
+            <mat-checkbox [checked]="selectedToImport.has(tx._idx)" (change)="toggleSelect(tx._idx)"></mat-checkbox>
+          </td>
+          <td>{{ tx.payee }}</td>
+          <td>{{ tx.amount }}</td>
+          <td>{{ tx.type }}</td>
+          <td>{{ tx.category }}</td>
+          <td>{{ tx.date }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="importSelected()" [disabled]="!parsedTransactions.length">Import Selected</button>
+</div> 

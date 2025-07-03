@@ -62,11 +62,11 @@
             <p class="text-gray-600">Manage and track your financial transactions</p>
           </div>
           <div class="flex space-x-3">
-            <button mat-raised-button color="primary" class="flex items-center space-x-2">
+            <button mat-raised-button color="primary" class="flex items-center space-x-2" (click)="exportToExcel()">
               <mat-icon>file_download</mat-icon>
               <span>Export</span>
             </button>
-            <button mat-stroked-button class="flex items-center space-x-2">
+            <button mat-stroked-button class="flex items-center space-x-2" (click)="openImportDialog()">
               <mat-icon>file_upload</mat-icon>
               <span>Import</span>
             </button>

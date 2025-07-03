@@ -63,6 +63,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { LoaderComponent } from './util/components/loader/loader.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
 import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm-dialog.component';
+import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction/import-transactions.component';
 
 @NgModule({
   declarations: [
@@ -83,7 +84,8 @@ import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm
     SubscriptionComponent,
     CategoryComponent,
     HomeComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    ImportTransactionsComponent
   ],
   imports: [
     BrowserModule,

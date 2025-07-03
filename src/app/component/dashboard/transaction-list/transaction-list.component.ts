@@ -9,6 +9,7 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 import { TransactionComponent } from './add-transaction/transaction/transaction.component';
 import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
+import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
 
 @Component({
   selector: 'transaction-list',
@@ -133,6 +134,60 @@ export class TransactionListComponent {
     element.type = element.originalValues.type;
     element.isEditing = false;
     delete element.originalValues;
+  }
+
+  openImportDialog() {
+    const dialogRef = this._dialog.open(ImportTransactionsComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+    });
+    dialogRef.afterClosed().subscribe((imported: any[]) => {
+      if (imported && imported.length) {
+        // Here you would call your service to add these transactions
+        // For now, just show a notification
+        this.notificationService.success(`${imported.length} transactions ready to import!`);
+        // TODO: Actually import to backend
+      }
+    });
+  }
+
+  exportToExcel() {
+    if (!this.dataSource.data || this.dataSource.data.length === 0) {
+      this.notificationService.error('No transactions to export');
+      return;
+    }
+
+    // Prepare data for export
+    const exportData = this.dataSource.data.map(tx => ({
+      'Date': new Date(tx.date.seconds * 1000).toLocaleDateString(),
+      'Time': new Date(tx.date.seconds * 1000).toLocaleTimeString(),
+      'Payee': tx.payee,
+      'Amount': tx.amount,
+      'Type': tx.type,
+      'Category': tx.category,
+      'Notes': tx.notes || ''
+    }));
+
+    // Convert to CSV
+    const headers = Object.keys(exportData[0]);
+    const csvContent = [
+      headers.join(','),
+      ...exportData.map(row => headers.map(header => `"${(row as any)[header]}"`).join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    this.notificationService.success(`Exported ${exportData.length} transactions successfully`);
   }
 
 }
