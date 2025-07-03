@@ -71,21 +71,25 @@
                 </div>
               </div>
               
-              <!-- Quick Stats -->
-              <div class="flex flex-wrap gap-4 mt-4">
-                <div class="flex items-center space-x-2">
-                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">Total Transactions: <span class="font-semibold text-gray-800">{{ dataSource?.data?.length || 0 }}</span></span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">This Month: <span class="font-semibold text-gray-800">{{ getCurrentMonthTransactions() }}</span></span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">Categories: <span class="font-semibold text-gray-800">{{ getUniqueCategories() }}</span></span>
-                </div>
-              </div>
+                             <!-- Quick Stats -->
+               <div class="flex flex-wrap gap-4 mt-4">
+                 <div class="flex items-center space-x-2">
+                   <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                   <span class="text-sm text-gray-600">Total Transactions: <span class="font-semibold text-gray-800">{{ dataSource?.data?.length || 0 }}</span></span>
+                 </div>
+                 <div class="flex items-center space-x-2">
+                   <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                   <span class="text-sm text-gray-600">This Month: <span class="font-semibold text-gray-800">{{ getCurrentMonthTransactions() }}</span></span>
+                 </div>
+                 <div class="flex items-center space-x-2">
+                   <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                   <span class="text-sm text-gray-600">Categories: <span class="font-semibold text-gray-800">{{ getUniqueCategories() }}</span></span>
+                 </div>
+                 <div *ngIf="selectedDate" class="flex items-center space-x-2">
+                   <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                   <span class="text-sm text-gray-600">Filtered by: <span class="font-semibold text-gray-800">{{ selectedDate | date:'MMM dd, yyyy' }}</span></span>
+                 </div>
+               </div>
             </div>
 
             <!-- Action Buttons -->
@@ -109,6 +113,13 @@
                         matTooltip="View analytics"
                         (click)="viewAnalytics()">
                   <mat-icon class="text-gray-600">analytics</mat-icon>
+                </button>
+                <button *ngIf="selectedDate" 
+                        mat-icon-button 
+                        class="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg"
+                        matTooltip="Clear date filter"
+                        (click)="clearDateFilter()">
+                  <mat-icon class="text-red-600">clear</mat-icon>
                 </button>
               </div>
               

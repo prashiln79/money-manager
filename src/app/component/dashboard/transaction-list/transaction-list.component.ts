@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -10,13 +10,15 @@ import { TransactionComponent } from './add-transaction/transaction/transaction.
 import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
+import { DateSelectionService } from 'src/app/util/service/date-selection.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'transaction-list',
   templateUrl: './transaction-list.component.html',
   styleUrl: './transaction-list.component.scss'
 })
-export class TransactionListComponent {
+export class TransactionListComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild("tableSort", { static: false }) sort!: MatSort;
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
@@ -26,14 +28,26 @@ export class TransactionListComponent {
   public pageSizeOptions: number[] = [10, 25, 100];
   selectedTx: any = null;
   longPressTimeout: any;
+  
+  // Date filtering properties
+  selectedDate: Date | null = null;
+  allTransactions: any[] = [];
+  private dateSubscription = new Subscription();
 
 
-  constructor(private loaderService: LoaderService, private _dialog: MatDialog, private breakpointObserver: BreakpointObserver, private auth: Auth, private transactionsService: TransactionsService, private notificationService: NotificationService) {
+  constructor(
+    private loaderService: LoaderService, 
+    private _dialog: MatDialog, 
+    private breakpointObserver: BreakpointObserver, 
+    private auth: Auth, 
+    private transactionsService: TransactionsService, 
+    private notificationService: NotificationService,
+    private dateSelectionService: DateSelectionService
+  ) {
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
     });
-    this.loadTransactions();
   }
 
   ngAfterViewInit() {
@@ -43,18 +57,53 @@ export class TransactionListComponent {
 
 
   ngOnInit() {
+    this.loadTransactions();
+    this.subscribeToDateSelection();
+  }
 
+  ngOnDestroy() {
+    this.dateSubscription.unsubscribe();
   }
 
   loadTransactions() {
     this.loaderService.show();
     this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
-      this.dataSource.data = transactions.sort((a: any, b: any) => b.date.toDate() - a.date.toDate());
+      this.allTransactions = transactions.sort((a: any, b: any) => b.date.toDate() - a.date.toDate());
+      this.applyDateFilter();
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
       this.loaderService.hide();
     });
+  }
 
+  subscribeToDateSelection() {
+    this.dateSubscription = this.dateSelectionService.selectedDate$.subscribe(date => {
+      this.selectedDate = date;
+      this.applyDateFilter();
+    });
+  }
+
+  applyDateFilter() {
+    if (this.selectedDate) {
+      const selectedDateStr = this.formatDate(this.selectedDate);
+      this.dataSource.data = this.allTransactions.filter(transaction => {
+        const transactionDate = transaction.date.toDate();
+        return this.formatDate(transactionDate) === selectedDateStr;
+      });
+      this.notificationService.success(`Showing transactions for ${this.selectedDate.toLocaleDateString()}`);
+    } else {
+      this.dataSource.data = [...this.allTransactions];
+    }
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  clearDateFilter() {
+    this.selectedDate = null;
+    this.dateSelectionService.clearSelectedDate();
+    this.applyDateFilter();
   }
 
   editTransaction(transaction: Transaction) {

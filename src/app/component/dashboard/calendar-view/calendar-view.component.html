@@ -6,16 +6,16 @@
 </mat-card>
 
 <!-- Transaction details for selected date -->
-<div class="mt-4" *ngIf="selectedDate && selectedDateTransactions.length > 0">
+<!-- <div class="mt-4" *ngIf="selectedDate && selectedDateTransactions.length > 0">
   <mat-card>
     <mat-card-header>
       <mat-card-title>
         Transactions for {{ selectedDate | date:'fullDate' }}
       </mat-card-title>
     </mat-card-header>
-    <mat-card-content>
+    <mat-card-content> -->
       <!-- Summary -->
-      <div class="grid grid-cols-3 gap-4 mb-4">
+      <!-- <div class="grid grid-cols-3 gap-4 mb-4">
         <div class="text-center p-3 bg-green-100 rounded-lg">
           <div class="text-sm text-gray-600">Income</div>
           <div class="text-lg font-bold text-green-600">${{ getTotalIncome() | number:'1.2-2' }}</div>
@@ -30,10 +30,10 @@
             ${{ getNetAmount() | number:'1.2-2' }}
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Transaction list -->
-      <div class="space-y-2">
+      <!-- <div class="space-y-2">
         <div *ngFor="let transaction of selectedDateTransactions" 
              class="flex items-center justify-between p-3 border rounded-lg"
              [ngClass]="transaction.type === 'income' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'">
@@ -59,10 +59,10 @@
       </div>
     </mat-card-content>
   </mat-card>
-</div>
+</div> -->
 
 <!-- No transactions message -->
-<div class="mt-4" *ngIf="selectedDate && selectedDateTransactions.length === 0">
+<!-- <div class="mt-4" *ngIf="selectedDate && selectedDateTransactions.length === 0">
   <mat-card>
     <mat-card-content class="text-center py-8">
       <div class="text-gray-500">
@@ -71,7 +71,7 @@
       </div>
     </mat-card-content>
   </mat-card>
-</div>
+</div> -->
 
 <!-- Loading skeleton (keep existing) -->
 <!-- <div class="flex w-full overflow-hidden bg-white rounded-lg shadow-lg animate-pulse dark:bg-gray-800 mt-2" *ngIf="!isMobile">

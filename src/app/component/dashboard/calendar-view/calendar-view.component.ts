@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { TransactionsService, Transaction } from '../../../util/service/transactions.service';
 import { UserService } from '../../../util/service/user.service';
+import { DateSelectionService } from '../../../util/service/date-selection.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,7 +22,8 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private transactionsService: TransactionsService,
-    private userService: UserService
+    private userService: UserService,
+    private dateSelectionService: DateSelectionService
   ) {
     this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
       this.isMobile = result.matches;
@@ -71,8 +73,11 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.selectedDate = date;
     if (date) {
       this.selectedDateTransactions = this.getTransactionsForDate(date);
+      // Emit selected date to other components
+      this.dateSelectionService.setSelectedDate(date);
     } else {
       this.selectedDateTransactions = [];
+      this.dateSelectionService.clearSelectedDate();
     }
   }
 
