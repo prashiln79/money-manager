@@ -65,36 +65,85 @@
           <ng-container matColumnDef="Type">
             <th mat-header-cell *matHeaderCellDef><span class="font-extrabold">Type</span></th>
             <td mat-cell *matCellDef="let element">{{element.type}}</td>
-          </ng-container>
+          </ng-container> 
 
           <ng-container matColumnDef="Payee">
             <th mat-header-cell *matHeaderCellDef><span class="font-extrabold">Payee</span></th>
-            <td mat-cell *matCellDef="let element">{{element.payee}}</td>
+            <td mat-cell *matCellDef="let element">
+              <span *ngIf="!element.isEditing" class="flex-1">{{element.payee}}</span>
+              <input 
+                *ngIf="element.isEditing" 
+                [(ngModel)]="element.payee" 
+                class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                placeholder="Enter payee name"
+              >
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="Amount">
             <th mat-header-cell *matHeaderCellDef><span class="font-extrabold">Amount</span></th>
-            <td mat-cell *matCellDef="let element">{{element.amount}}</td>
+            <td mat-cell *matCellDef="let element">
+              <span *ngIf="!element.isEditing" class="flex-1 font-semibold">
+                {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount }}
+              </span>
+              <input 
+                *ngIf="element.isEditing" 
+                [(ngModel)]="element.amount" 
+                type="number"
+                class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                placeholder="Enter amount"
+              >
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="Status">
             <th mat-header-cell *matHeaderCellDef><span class="font-extrabold">Type</span></th>
-            <td mat-cell *matCellDef="let element">{{element.type}}</td>
+            <td mat-cell *matCellDef="let element">
+              <span *ngIf="!element.isEditing" class="flex-1">
+                <span [class]="element.type === 'income' ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">
+                  {{element.type}}
+                </span>
+              </span>
+              <select 
+                *ngIf="element.isEditing" 
+                [(ngModel)]="element.type" 
+                class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+              >
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="Actions">
             <th mat-header-cell *matHeaderCellDef><span class="font-extrabold">Actions</span></th>
             <td mat-cell *matCellDef="let element" class="text-center">
-
-              <div class="border rounded-md inline-block p-0">
-                <button mat-icon-button (click)="editTransaction(element)">
-                  <mat-icon>edit</mat-icon>
-                </button>
+              <!-- Normal state -->
+              <div *ngIf="!element.isEditing" class="flex space-x-2">
+                <div class="border rounded-md inline-block p-0">
+                  <button mat-icon-button (click)="startRowEdit(element)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                <div class="border rounded-md inline-block p-0">
+                  <button mat-icon-button (click)="deleteTransaction(element)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
               </div>
-              <div class="border rounded-md inline-block p-0 ml-2">
-                <button mat-icon-button (click)="deleteTransaction(element)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+              
+              <!-- Editing state -->
+              <div *ngIf="element.isEditing" class="flex space-x-2">
+                <div class="border rounded-md inline-block p-0">
+                  <button mat-icon-button color="primary" (click)="saveRowEdit(element)">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                </div>
+                <div class="border rounded-md inline-block p-0">
+                  <button mat-icon-button color="warn" (click)="cancelRowEdit(element)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
               </div>
             </td>
           </ng-container>

@@ -71,4 +71,68 @@ export class TransactionListComponent {
     this.selectedTx = tx;
   }
 
+  // Row-level editing methods
+  startRowEdit(element: any) {
+    // Store original values for cancellation
+    element.originalValues = {
+      payee: element.payee,
+      amount: element.amount,
+      type: element.type
+    };
+    element.isEditing = true;
+  }
+
+  saveRowEdit(element: any) {
+    // Validate inputs
+    if (!element.payee || !element.payee.trim()) {
+      this.notificationService.error('Payee cannot be empty');
+      return;
+    }
+
+    const amount = parseFloat(element.amount);
+    if (!amount || amount <= 0) {
+      this.notificationService.error('Amount must be a positive number');
+      return;
+    }
+
+    if (!element.type || (element.type !== 'income' && element.type !== 'expense')) {
+      this.notificationService.error('Please select a valid transaction type');
+      return;
+    }
+
+    // Prepare update data
+    const updateData = {
+      payee: element.payee.trim(),
+      amount: amount,
+      type: element.type
+    };
+
+    // Save to database
+    this.transactionsService.updateTransaction(
+      this.auth.currentUser?.uid || '', 
+      element.id || '', 
+      updateData
+    ).then(() => {
+      this.notificationService.success('Transaction updated successfully');
+      element.isEditing = false;
+      delete element.originalValues;
+    }).catch(error => {
+      this.notificationService.error('Failed to update transaction');
+      // Revert to original values
+      element.payee = element.originalValues.payee;
+      element.amount = element.originalValues.amount;
+      element.type = element.originalValues.type;
+      element.isEditing = false;
+    });
+  }
+
+  cancelRowEdit(element: any) {
+    // Revert to original values
+    element.payee = element.originalValues.payee;
+    element.amount = element.originalValues.amount;
+    element.type = element.originalValues.type;
+    element.isEditing = false;
+    delete element.originalValues;
+  }
+
 }
