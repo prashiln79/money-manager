@@ -64,6 +64,7 @@ import { LoaderComponent } from './util/components/loader/loader.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
 import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm-dialog.component';
 import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction/import-transactions.component';
+import { ReportsComponent } from './component/dashboard/reports/reports.component';
 
 @NgModule({
   declarations: [
@@ -85,7 +86,8 @@ import { ImportTransactionsComponent } from './component/dashboard/transaction-l
     CategoryComponent,
     HomeComponent,
     ConfirmDialogComponent,
-    ImportTransactionsComponent
+    ImportTransactionsComponent,
+    ReportsComponent
   ],
   imports: [
     BrowserModule,
