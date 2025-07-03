@@ -86,18 +86,22 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     // Subscribe to single date selection
     this.dateSubscription.add(
       this.dateSelectionService.selectedDate$.subscribe(date => {
-        this.selectedDate = date;
-        this.selectedDateRange = null;
-        this.applyDateFilter();
+        if(date){
+          this.selectedDate = date;
+          this.selectedDateRange = null;
+          this.applyDateFilter();
+        }
       })
     );
 
     // Subscribe to date range selection
     this.dateSubscription.add(
       this.dateSelectionService.selectedDateRange$.subscribe(dateRange => {
+        if(dateRange){
         this.selectedDateRange = dateRange;
-        this.selectedDate = null;
-        this.applyDateFilter();
+          this.selectedDate = null;
+          this.applyDateFilter();
+        }
       })
     );
   }

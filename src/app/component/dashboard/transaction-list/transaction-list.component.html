@@ -1,383 +1,348 @@
 @if (isMobile) {
-  <div class="overflow-auto h-[40vh] md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
-    <div *ngFor="let tx of dataSource.data; let i = index">
-      <mat-card 
-        class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200 relative"
-        (press)="onLongPress(tx)"
-        (click)="onLongPress(tx)"
-      >
-        <section class="flex items-center space-x-4">
-          <!-- Icon Section -->
-          <div class="p-2 bg-gray-100 rounded-full flex items-center justify-center">
-            <mat-icon class="!w-fit !h-fit text-4xl">insert_invitation</mat-icon>
-          </div>
-    
-          <!-- Transaction Details -->
-          <div class="flex-1">
-            <div class="font-semibold text-sm lg:text-lg text-gray-800">{{ tx?.payee + '- ' + tx.category}}</div>
-            <div class="text-gray-500 text-sm">
-              {{ tx?.date.seconds * 1000 | date: 'dd/MM/yyyy hh:mm a' }}
-            </div>
-          </div>
-          <div class="font-bold text-lg text-primary">{{  (tx?.type == 'income' ? '+':'-' ) + ' ₹' + tx?.amount }}</div>
-        </section>
-  
-        <!-- Edit/Delete Options -->
-        <div 
-          *ngIf="selectedTx?.id === tx.id" 
-          class="absolute top-0 right-0 bg-white rounded-lg p-2 flex space-x-2"
-        >
-          <button mat-icon-button color="secondary" (click)="editTransaction(tx)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="secondary" (click)="deleteTransaction(tx)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-        
-      </mat-card>
-    </div>
-  </div>
-  
+<div class="overflow-auto h-[40vh] md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
+	<div *ngFor="let tx of dataSource.data; let i = index">
+		<mat-card class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200 relative" (press)="onLongPress(tx)" (click)="onLongPress(tx)">
+			<section class="flex items-center space-x-4">
+				<!-- Icon Section -->
+				<div class="p-2 bg-gray-100 rounded-full flex items-center justify-center">
+					<mat-icon class="!w-fit !h-fit text-4xl">insert_invitation</mat-icon>
+				</div>
+
+				<!-- Transaction Details -->
+				<div class="flex-1">
+					<div class="font-semibold text-sm lg:text-lg text-gray-800">{{ tx?.payee + '- ' + tx.category}}</div>
+					<div class="text-gray-500 text-sm">
+						{{ tx?.date.seconds * 1000 | date: 'dd/MM/yyyy hh:mm a' }}
+					</div>
+				</div>
+				<div class="font-bold text-lg text-primary">{{ (tx?.type == 'income' ? '+':'-' ) + ' ₹' + tx?.amount }}</div>
+			</section>
+
+			<!-- Edit/Delete Options -->
+			<div *ngIf="selectedTx?.id === tx.id" class="absolute top-0 right-0 bg-white rounded-lg p-2 flex space-x-2">
+				<button mat-icon-button color="secondary" (click)="editTransaction(tx)">
+					<mat-icon>edit</mat-icon>
+				</button>
+				<button mat-icon-button color="secondary" (click)="deleteTransaction(tx)">
+					<mat-icon>delete</mat-icon>
+				</button>
+			</div>
+		</mat-card>
+	</div>
+</div>
+
 } @else {
 
-
-
-
 <mat-card class="p-6 shadow-lg border-0 rounded-xl transaction-list-container max-h-[80vh]">
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs">
-    <mat-tab class="max-h-full">
-      <ng-template mat-tab-label>
-        <div class="flex items-center space-x-2 px-4 py-2">
-          <mat-icon class="text-blue-600">compare_arrows</mat-icon>
-          <span class="font-semibold text-gray-700">Transactions</span>
-        </div>
-      </ng-template>
+	<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs">
+		<mat-tab class="max-h-full">
+			<ng-template mat-tab-label>
+				<div class="flex items-center space-x-2 px-4 py-2">
+					<mat-icon class="text-blue-600">compare_arrows</mat-icon>
+					<span class="font-semibold text-gray-700">Transactions</span>
+				</div>
+			</ng-template>
 
-      <div class="p-6">
-        <!-- Header Section -->
-        <!-- Enhanced Header Section -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
-          <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-            <!-- Title and Description -->
-            <div class="flex-1">
-              <div class="flex items-center space-x-3 mb-2">
-                <div class="p-2 bg-blue-100 rounded-lg">
-                  <mat-icon class="text-blue-600">receipt_long</mat-icon>
-                </div>
-                <div>
-                  <h4 class="text-2xl font-bold text-gray-800">Transaction History</h4>
-                  <p class="text-gray-600">Manage and track your financial transactions with detailed insights</p>
-                </div>
-              </div>
-              
-                             <!-- Quick Stats -->
-               <div class="flex flex-wrap gap-4 mt-4">
-                 <div class="flex items-center space-x-2">
-                   <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                   <span class="text-sm text-gray-600">Transactions: <span class="font-semibold text-gray-800">{{ getFilteredCount() }}</span><span *ngIf="getFilteredCount() !== getTotalCount()" class="text-gray-400">/{{ getTotalCount() }}</span></span>
-                 </div>
-                 <div class="flex items-center space-x-2">
-                   <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                   <span class="text-sm text-gray-600">This Month: <span class="font-semibold text-gray-800">{{ getCurrentMonthTransactions() }}</span></span>
-                 </div>
-                 <div class="flex items-center space-x-2">
-                   <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                   <span class="text-sm text-gray-600">Categories: <span class="font-semibold text-gray-800">{{ getUniqueCategories() }}</span></span>
-                 </div>
-                 <div *ngIf="selectedDate" class="flex items-center space-x-2">
-                   <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                   <span class="text-sm text-gray-600">Filtered by: <span class="font-semibold text-gray-800">{{ selectedDate | date:'MMM dd, yyyy' }}</span></span>
-                 </div>
-                 <div *ngIf="selectedDateRange" class="flex items-center space-x-2">
-                   <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                   <span class="text-sm text-gray-600">Range: <span class="font-semibold text-gray-800">{{ selectedDateRange.startDate | date:'MMM dd' }} - {{ selectedDateRange.endDate | date:'MMM dd, yyyy' }}</span></span>
-                 </div>
-                 <div *ngIf="searchTerm || selectedCategory !== 'all' || selectedType !== 'all'" class="flex items-center space-x-2">
-                   <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                   <span class="text-sm text-gray-600">Filters: <span class="font-semibold text-gray-800">
-                     {{ (searchTerm ? 'Search' : '') + (selectedCategory !== 'all' ? (searchTerm ? ', ' : '') + 'Category' : '') + (selectedType !== 'all' ? ((searchTerm || selectedCategory !== 'all') ? ', ' : '') + 'Type' : '') }}
-                   </span></span>
-                 </div>
-               </div>
-            </div>
+			<div class="p-6">
+				<!-- Header Section -->
+				<!-- Enhanced Header Section -->
+				<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
+						<!-- Title and Description -->
+						<div class="flex flex-col">
+							<div class="flex justify-between items-start mb-2">
+								<div class="flex items-start ">
+									<div class="p-2 bg-blue-100 rounded-lg mr-2">
+										<mat-icon class="text-blue-600">receipt_long</mat-icon>
+									</div>
+									<div>
+										<h4 class="text-2xl font-bold text-gray-800">Transaction History</h4>
+										<p class="text-gray-600">Manage and track your financial transactions with detailed insights</p>
+                    <!-- Quick Stats -->
+							<div class="flex flex-wrap gap-4 mt-4">
+								<div class="flex items-center space-x-2">
+									<div class="w-2 h-2 bg-green-500 rounded-full"></div>
+									<span class="text-sm text-gray-600"
+										>Transactions: <span class="font-semibold text-gray-800">{{ getFilteredCount() }}</span
+										><span *ngIf="getFilteredCount() !== getTotalCount()" class="text-gray-400">/{{ getTotalCount() }}</span></span
+									>
+								</div>
+								<div class="flex items-center space-x-2">
+									<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+									<span class="text-sm text-gray-600">This Month: <span class="font-semibold text-gray-800">{{ getCurrentMonthTransactions() }}</span></span>
+								</div>
+								<div class="flex items-center space-x-2">
+									<div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+									<span class="text-sm text-gray-600">Categories: <span class="font-semibold text-gray-800">{{ getUniqueCategories() }}</span></span>
+								</div>
+								<div *ngIf="selectedDate" class="flex items-center space-x-2">
+									<div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+									<span class="text-sm text-gray-600">Filtered by: <span class="font-semibold text-gray-800">{{ selectedDate | date:'MMM dd, yyyy' }}</span></span>
+								</div>
+								<div *ngIf="selectedDateRange" class="flex items-center space-x-2">
+									<div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+									<span class="text-sm text-gray-600"
+										>Range: <span class="font-semibold text-gray-800">{{ selectedDateRange.startDate | date:'MMM dd' }} - {{ selectedDateRange.endDate | date:'MMM dd, yyyy' }}</span></span
+									>
+								</div>
+								<div *ngIf="searchTerm || selectedCategory !== 'all' || selectedType !== 'all'" class="flex items-center space-x-2">
+									<div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+									<span class="text-sm text-gray-600"
+										>Filters:
+										<span class="font-semibold text-gray-800">
+											{{ (searchTerm ? 'Search' : '') + (selectedCategory !== 'all' ? (searchTerm ? ', ' : '') + 'Category' : '') + (selectedType !== 'all' ? ((searchTerm || selectedCategory !==
+											'all') ? ', ' : '') + 'Type' : '') }}
+										</span></span
+									>
+								</div>
+							</div>
+									</div>
+                  
+								</div>
+								<div class="flex flex-col sm:flex-row gap-3 justify-end">
+									<!-- Main Actions -->
+									<div class="flex space-x-3">
+										<button mat-stroked-button class="flex items-center space-x-2 border-blue-200 text-blue-600 hover:bg-blue-50" (click)="openImportDialog()">
+											<mat-icon>file_upload</mat-icon>
+											<span>Import</span>
+										</button>
+										<button mat-raised-button color="primary" class="flex items-center space-x-2 shadow-lg hover:shadow-xl transition-shadow" (click)="exportToExcel()">
+											<mat-icon>file_download</mat-icon>
+											<span>Export</span>
+										</button>
+									</div>
+								</div>
+							</div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3">
-              <!-- Quick Actions -->
-              <div class="flex space-x-2">
-                <button mat-icon-button 
-                        class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg"
-                        matTooltip="Refresh transactions"
-                        (click)="refreshTransactions()">
-                  <mat-icon class="text-gray-600">refresh</mat-icon>
-                </button>
-                <button mat-icon-button 
-                        class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg"
-                        matTooltip="Filter transactions"
-                        (click)="openFilterDialog()">
-                  <mat-icon class="text-gray-600">filter_list</mat-icon>
-                </button>
-                <button mat-icon-button 
-                        class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg"
-                        matTooltip="View analytics"
-                        (click)="viewAnalytics()">
-                  <mat-icon class="text-gray-600">analytics</mat-icon>
-                </button>
-                <button *ngIf="selectedDate || selectedDateRange || searchTerm || selectedCategory !== 'all' || selectedType !== 'all'" 
-                        mat-icon-button 
-                        class="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg"
-                        matTooltip="Clear all filters"
-                        (click)="clearAllFilters()">
-                  <mat-icon class="text-red-600">clear</mat-icon>
-                </button>
-              </div>
-              
-              <!-- Main Actions -->
-              <div class="flex space-x-3">
-                <button mat-stroked-button 
-                        class="flex items-center space-x-2 border-blue-200 text-blue-600 hover:bg-blue-50"
-                        (click)="openImportDialog()">
-                  <mat-icon>file_upload</mat-icon>
-                  <span>Import</span>
-                </button>
-                <button mat-raised-button 
-                        color="primary" 
-                        class="flex items-center space-x-2 shadow-lg hover:shadow-xl transition-shadow"
-                        (click)="exportToExcel()">
-                  <mat-icon>file_download</mat-icon>
-                  <span>Export</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+							
+						</div>
+				</div>
 
-        <!-- Search and Filter Section -->
-        <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Search Input -->
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
-              <input 
-                type="text" 
-                [(ngModel)]="searchTerm"
-                (input)="onSearchChange()"
-                placeholder="Search transactions..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-            </div>
+				<!-- Search and Filter Section -->
+				<div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+						<!-- Search Input -->
+						<div class="relative">
+							<mat-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
+							<input
+								type="text"
+								[(ngModel)]="searchTerm"
+								(input)="onSearchChange()"
+								placeholder="Search transactions..."
+								class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							/>
+						</div>
 
-            <!-- Category Filter -->
-            <div>
-              <select 
-                [(ngModel)]="selectedCategory"
-                (change)="onCategoryChange()"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Categories</option>
-                <option *ngFor="let category of getCategoriesList()" [value]="category">
-                  {{ category }}
-                </option>
-              </select>
-            </div>
+						<!-- Category Filter -->
+						<div>
+							<select
+								[(ngModel)]="selectedCategory"
+								(change)="onCategoryChange()"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							>
+								<option value="all">All Categories</option>
+								<option *ngFor="let category of getCategoriesList()" [value]="category">
+									{{ category }}
+								</option>
+							</select>
+						</div>
 
-            <!-- Type Filter -->
-            <div>
-              <select 
-                [(ngModel)]="selectedType"
-                (change)="onTypeChange()"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Types</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-              </select>
-            </div>
+						<!-- Type Filter -->
+						<div>
+							<select
+								[(ngModel)]="selectedType"
+								(change)="onTypeChange()"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							>
+								<option value="all">All Types</option>
+								<option value="income">Income</option>
+								<option value="expense">Expense</option>
+							</select>
+						</div>
 
-            <!-- Clear Filters Button -->
-            <div>
-              <button 
-                (click)="clearAllFilters()"
-                class="w-full px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center space-x-2"
-              >
-                <mat-icon class="text-sm">clear</mat-icon>
-                <span>Clear Filters</span>
-              </button>
-            </div>
-          </div>
-        </div>
+						<!-- Clear Filters Button -->
+						<div class="flex space-x-2">
+							<button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Refresh transactions" (click)="refreshTransactions()">
+								<mat-icon class="text-gray-600">refresh</mat-icon>
+							</button>
+							<button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Filter transactions" (click)="openFilterDialog()">
+								<mat-icon class="text-gray-600">filter_list</mat-icon>
+							</button>
+							<button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="View analytics" (click)="viewAnalytics()">
+								<mat-icon class="text-gray-600">analytics</mat-icon>
+							</button>
+							<button
+								*ngIf="selectedDate || selectedDateRange || searchTerm || selectedCategory !== 'all' || selectedType !== 'all'"
+								mat-icon-button
+								class="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg"
+								matTooltip="Clear all filters"
+								(click)="clearAllFilters()"
+							>
+								<mat-icon class="text-red-600">clear</mat-icon>
+							</button>
+						</div>
+					</div>
+				</div>
 
-        <!-- Table Container -->
-        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden  flex flex-col max-h-[400px]">
-          <div class="flex-1 overflow-auto table-container max-h-full">
-            <table mat-table [dataSource]="dataSource" matSort class="w-full">
-            <!-- Date Column -->
-            <ng-container matColumnDef="Date">
-              <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
-                <div class="flex items-center space-x-2">
-                  <mat-icon class="text-gray-500 text-sm">schedule</mat-icon>
-                  <span class="font-semibold text-gray-700">Date & Time</span>
-                </div>
-              </th>
-              <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-                <div class="text-sm text-gray-600">
-                  {{ element.date.seconds * 1000 | date:'MMM dd, yyyy' }}
-                </div>
-                <div class="text-xs text-gray-400">
-                  {{ element.date.seconds * 1000 | date:'hh:mm a' }}
-                </div>
-              </td>
-            </ng-container>
+				<!-- Table Container -->
+				<div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col max-h-[400px]">
+					<div class="flex-1 overflow-auto table-container max-h-full">
+						<table mat-table [dataSource]="dataSource" matSort class="w-full">
+							<!-- Date Column -->
+							<ng-container matColumnDef="Date">
+								<th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+									<div class="flex items-center space-x-2">
+										<mat-icon class="text-gray-500 text-sm">schedule</mat-icon>
+										<span class="font-semibold text-gray-700">Date & Time</span>
+									</div>
+								</th>
+								<td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
+									<div class="text-sm text-gray-600">
+										{{ element.date.seconds * 1000 | date:'MMM dd, yyyy' }}
+									</div>
+									<div class="text-xs text-gray-400">
+										{{ element.date.seconds * 1000 | date:'hh:mm a' }}
+									</div>
+								</td>
+							</ng-container>
 
-            <!-- Type Column -->
-            <ng-container matColumnDef="Type">
-              <th mat-header-cell *matHeaderCellDef class=" px-6 py-4">
-                <div class="flex items-center space-x-2">
-                  <mat-icon class="text-gray-500 text-sm">category</mat-icon>
-                  <span class="font-semibold text-gray-700">Category</span>
-                </div>
-              </th>
-              <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                  {{element.type}}
-                </span>
-              </td>
-            </ng-container> 
+							<!-- Type Column -->
+							<ng-container matColumnDef="Type">
+								<th mat-header-cell *matHeaderCellDef class="px-6 py-4">
+									<div class="flex items-center space-x-2">
+										<mat-icon class="text-gray-500 text-sm">category</mat-icon>
+										<span class="font-semibold text-gray-700">Category</span>
+									</div>
+								</th>
+								<td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+										{{element.type}}
+									</span>
+								</td>
+							</ng-container>
 
-            <!-- Payee Column -->
-            <ng-container matColumnDef="Payee">
-              <th mat-header-cell *matHeaderCellDef class=" px-6 py-4">
-                <div class="flex items-center space-x-2">
-                  <mat-icon class="text-gray-500 text-sm">person</mat-icon>
-                  <span class="font-semibold text-gray-700">Payee</span>
-                </div>
-              </th>
-              <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-                <span *ngIf="!element.isEditing" class="font-medium text-gray-900 max-w-[100px] text-wrap !block">{{element.payee}}</span>
-                <input 
-                  *ngIf="element.isEditing" 
-                  [(ngModel)]="element.payee" 
-                  class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter payee name"
-                >
-              </td>
-            </ng-container>
+							<!-- Payee Column -->
+							<ng-container matColumnDef="Payee">
+								<th mat-header-cell *matHeaderCellDef class="px-6 py-4">
+									<div class="flex items-center space-x-2">
+										<mat-icon class="text-gray-500 text-sm">person</mat-icon>
+										<span class="font-semibold text-gray-700">Payee</span>
+									</div>
+								</th>
+								<td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
+									<span *ngIf="!element.isEditing" class="font-medium text-gray-900 max-w-[100px] text-wrap !block">{{element.payee}}</span>
+									<input
+										*ngIf="element.isEditing"
+										[(ngModel)]="element.payee"
+										class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+										placeholder="Enter payee name"
+									/>
+								</td>
+							</ng-container>
 
-            <!-- Amount Column -->
-            <ng-container matColumnDef="Amount">
-              <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
-                <div class="flex items-center space-x-2">
-                  <mat-icon class="text-gray-500 text-sm">account_balance_wallet</mat-icon>
-                  <span class="font-semibold text-gray-700">Amount</span>
-                </div>
-              </th>
-              <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-                <span *ngIf="!element.isEditing" class="font-bold text-sm" [class]="element.type === 'income' ? 'text-green-600' : 'text-red-600'">
-                  {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
-                </span>
-                <input 
-                  *ngIf="element.isEditing" 
-                  [(ngModel)]="element.amount" 
-                  type="number"
-                  class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter amount"
-                >
-              </td>
-            </ng-container>
+							<!-- Amount Column -->
+							<ng-container matColumnDef="Amount">
+								<th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+									<div class="flex items-center space-x-2">
+										<mat-icon class="text-gray-500 text-sm">account_balance_wallet</mat-icon>
+										<span class="font-semibold text-gray-700">Amount</span>
+									</div>
+								</th>
+								<td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
+									<span *ngIf="!element.isEditing" class="font-bold text-sm" [class]="element.type === 'income' ? 'text-green-600' : 'text-red-600'">
+										{{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
+									</span>
+									<input
+										*ngIf="element.isEditing"
+										[(ngModel)]="element.amount"
+										type="number"
+										class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+										placeholder="Enter amount"
+									/>
+								</td>
+							</ng-container>
 
-            <!-- Status Column -->
-            <ng-container matColumnDef="Status">
-              <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
-                <div class="flex items-center space-x-2">
-                  <mat-icon class="text-gray-500 text-sm">swap_horiz</mat-icon>
-                  <span class="font-semibold text-gray-700">Type</span>
-                </div>
-              </th>
-              <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-                <span *ngIf="!element.isEditing">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" 
-                        [class]="element.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                    <mat-icon class="text-xs mr-1">{{element.type === 'income' ? 'trending_up' : 'trending_down'}}</mat-icon>
-                    {{element.type}}
-                  </span>
-                </span>
-                <select 
-                  *ngIf="element.isEditing" 
-                  [(ngModel)]="element.type" 
-                  class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="income">Income</option>
-                  <option value="expense">Expense</option>
-                </select>
-              </td>
-            </ng-container>
+							<!-- Status Column -->
+							<ng-container matColumnDef="Status">
+								<th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+									<div class="flex items-center space-x-2">
+										<mat-icon class="text-gray-500 text-sm">swap_horiz</mat-icon>
+										<span class="font-semibold text-gray-700">Type</span>
+									</div>
+								</th>
+								<td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
+									<span *ngIf="!element.isEditing">
+										<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" [class]="element.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+											<mat-icon class="text-xs mr-1">{{element.type === 'income' ? 'trending_up' : 'trending_down'}}</mat-icon>
+											{{element.type}}
+										</span>
+									</span>
+									<select
+										*ngIf="element.isEditing"
+										[(ngModel)]="element.type"
+										class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+									>
+										<option value="income">Income</option>
+										<option value="expense">Expense</option>
+									</select>
+								</td>
+							</ng-container>
 
-            <!-- Actions Column -->
-            <ng-container matColumnDef="Actions">
-              <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4 text-center">
-                <div class="flex items-center justify-center space-x-2">
-                  <mat-icon class="text-gray-500 text-sm">settings</mat-icon>
-                  <span class="font-semibold text-gray-700">Actions</span>
-                </div>
-              </th>
-              <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100 text-center">
-                <!-- Normal state -->
-                <div *ngIf="!element.isEditing" class="flex justify-center space-x-2">
-                  <button mat-icon-button 
-                          class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                          (click)="startRowEdit(element)"
-                          matTooltip="Edit transaction">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button 
-                          class="text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                          (click)="deleteTransaction(element)"
-                          matTooltip="Delete transaction">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                
-                <!-- Editing state -->
-                <div *ngIf="element.isEditing" class="flex justify-center space-x-2">
-                  <button mat-icon-button 
-                          color="primary" 
-                          class="bg-green-100 text-green-600 hover:bg-green-200 rounded-full transition-colors"
-                          (click)="saveRowEdit(element)"
-                          matTooltip="Save changes">
-                    <mat-icon>check</mat-icon>
-                  </button>
-                  <button mat-icon-button 
-                          color="warn" 
-                          class="bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition-colors"
-                          (click)="cancelRowEdit(element)"
-                          matTooltip="Cancel editing">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-              </td>
-            </ng-container>
+							<!-- Actions Column -->
+							<ng-container matColumnDef="Actions">
+								<th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4 text-center">
+									<div class="flex items-center justify-center space-x-2">
+										<mat-icon class="text-gray-500 text-sm">settings</mat-icon>
+										<span class="font-semibold text-gray-700">Actions</span>
+									</div>
+								</th>
+								<td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100 text-center">
+									<!-- Normal state -->
+									<div *ngIf="!element.isEditing" class="flex justify-center space-x-2">
+										<button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="startRowEdit(element)" matTooltip="Edit transaction">
+											<mat-icon>edit</mat-icon>
+										</button>
+										<button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="deleteTransaction(element)" matTooltip="Delete transaction">
+											<mat-icon>delete</mat-icon>
+										</button>
+									</div>
 
-                         <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-16"></tr>
-             <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-                 class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
-           </table>
+									<!-- Editing state -->
+									<div *ngIf="element.isEditing" class="flex justify-center space-x-2">
+										<button
+											mat-icon-button
+											color="primary"
+											class="bg-green-100 text-green-600 hover:bg-green-200 rounded-full transition-colors"
+											(click)="saveRowEdit(element)"
+											matTooltip="Save changes"
+										>
+											<mat-icon>check</mat-icon>
+										</button>
+										<button mat-icon-button color="warn" class="bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition-colors" (click)="cancelRowEdit(element)" matTooltip="Cancel editing">
+											<mat-icon>close</mat-icon>
+										</button>
+									</div>
+								</td>
+							</ng-container>
 
-           <!-- Empty State -->
-           <div *ngIf="!dataSource.data?.length" class="text-center py-12">
-             <mat-icon class="text-gray-400 text-6xl mb-4">receipt_long</mat-icon>
-             <h3 class="text-lg font-medium text-gray-900 mb-2">No transactions yet</h3>
-             <p class="text-gray-500 mb-4">Start by adding your first transaction to track your finances.</p>
-             <button mat-raised-button color="primary" class="flex items-center space-x-2 mx-auto">
-               <mat-icon>add</mat-icon>
-               <span>Add Transaction</span>
-             </button>
-           </div>
-         </div>
-       </div>
+							<tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-16"></tr>
+							<tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
+						</table>
 
-        <!-- Pagination -->
-        <!-- <div class="mt-4 flex justify-between items-center bg-white rounded-lg border border-gray-200 p-4">
+						<!-- Empty State -->
+						<div *ngIf="!dataSource.data?.length" class="text-center py-12">
+							<mat-icon class="text-gray-400 text-6xl mb-4">receipt_long</mat-icon>
+							<h3 class="text-lg font-medium text-gray-900 mb-2">No transactions yet</h3>
+							<p class="text-gray-500 mb-4">Start by adding your first transaction to track your finances.</p>
+							<button mat-raised-button color="primary" class="flex items-center space-x-2 mx-auto">
+								<mat-icon>add</mat-icon>
+								<span>Add Transaction</span>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pagination -->
+				<!-- <div class="mt-4 flex justify-between items-center bg-white rounded-lg border border-gray-200 p-4">
           
           <mat-paginator #Paginator 
                          [pageSizeOptions]="pageSizeOptions" 
@@ -385,85 +350,83 @@
                          class="bg-transparent border-0">
           </mat-paginator>
         </div> -->
-      </div>
-      
-      <add-transaction *ngIf="!isMobile"></add-transaction>
-    </mat-tab>
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <div class="flex items-center space-x-2 px-4 py-2">
-          <mat-icon class="text-green-600">attach_money</mat-icon>
-          <span class="font-semibold text-gray-700">Accounts</span>
-        </div>
-      </ng-template>
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-1">Account Management</h2>
-            <p class="text-gray-600">Manage your bank accounts and financial institutions</p>
-          </div>
-          <button mat-raised-button color="primary" class="flex items-center space-x-2">
-            <mat-icon>add</mat-icon>
-            <span>Add Account</span>
-          </button>
-        </div>
-        <user-accounts></user-accounts>
-      </div>
-    </mat-tab>
-    
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <div class="flex items-center space-x-2 px-4 py-2">
-          <mat-icon class="text-purple-600">local_offer</mat-icon>
-          <span class="font-semibold text-gray-700">Categories</span>
-        </div>
-      </ng-template>
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-1">Transaction Categories</h2>
-            <p class="text-gray-600">Organize your transactions with custom categories</p>
-          </div>
-          <button mat-raised-button color="primary" class="flex items-center space-x-2">
-            <mat-icon>add</mat-icon>
-            <span>Add Category</span>
-          </button>
-        </div>
-        <transaction-category></transaction-category>
-      </div>
-    </mat-tab>
-    
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <div class="flex items-center space-x-2 px-4 py-2">
-          <mat-icon class="text-orange-600">analytics</mat-icon>
-          <span class="font-semibold text-gray-700">Reports</span>
-        </div>
-      </ng-template>
-      <app-reports></app-reports>
-    </mat-tab>
-    
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <div class="flex items-center space-x-2 px-4 py-2">
-          <mat-icon class="text-red-600">receipt_long</mat-icon>
-          <span class="font-semibold text-gray-700">Tax</span>
-        </div>
-      </ng-template>
-      <app-tax></app-tax>
-    </mat-tab>
-    
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <div class="flex items-center space-x-2 px-4 py-2">
-          <mat-icon class="text-yellow-600">note</mat-icon>
-          <span class="font-semibold text-gray-700">Notes</span>
-        </div>
-      </ng-template>
-      <app-notes></app-notes>
-    </mat-tab>
-  </mat-tab-group>
+			</div>
 
+			<add-transaction *ngIf="!isMobile"></add-transaction>
+		</mat-tab>
+		<mat-tab>
+			<ng-template mat-tab-label>
+				<div class="flex items-center space-x-2 px-4 py-2">
+					<mat-icon class="text-green-600">attach_money</mat-icon>
+					<span class="font-semibold text-gray-700">Accounts</span>
+				</div>
+			</ng-template>
+			<div class="p-6">
+				<div class="flex justify-between items-center mb-6">
+					<div>
+						<h2 class="text-2xl font-bold text-gray-800 mb-1">Account Management</h2>
+						<p class="text-gray-600">Manage your bank accounts and financial institutions</p>
+					</div>
+					<button mat-raised-button color="primary" class="flex items-center space-x-2">
+						<mat-icon>add</mat-icon>
+						<span>Add Account</span>
+					</button>
+				</div>
+				<user-accounts></user-accounts>
+			</div>
+		</mat-tab>
 
+		<mat-tab>
+			<ng-template mat-tab-label>
+				<div class="flex items-center space-x-2 px-4 py-2">
+					<mat-icon class="text-purple-600">local_offer</mat-icon>
+					<span class="font-semibold text-gray-700">Categories</span>
+				</div>
+			</ng-template>
+			<div class="p-6">
+				<div class="flex justify-between items-center mb-6">
+					<div>
+						<h2 class="text-2xl font-bold text-gray-800 mb-1">Transaction Categories</h2>
+						<p class="text-gray-600">Organize your transactions with custom categories</p>
+					</div>
+					<button mat-raised-button color="primary" class="flex items-center space-x-2">
+						<mat-icon>add</mat-icon>
+						<span>Add Category</span>
+					</button>
+				</div>
+				<transaction-category></transaction-category>
+			</div>
+		</mat-tab>
+
+		<mat-tab>
+			<ng-template mat-tab-label>
+				<div class="flex items-center space-x-2 px-4 py-2">
+					<mat-icon class="text-orange-600">analytics</mat-icon>
+					<span class="font-semibold text-gray-700">Reports</span>
+				</div>
+			</ng-template>
+			<app-reports></app-reports>
+		</mat-tab>
+
+		<mat-tab>
+			<ng-template mat-tab-label>
+				<div class="flex items-center space-x-2 px-4 py-2">
+					<mat-icon class="text-red-600">receipt_long</mat-icon>
+					<span class="font-semibold text-gray-700">Tax</span>
+				</div>
+			</ng-template>
+			<app-tax></app-tax>
+		</mat-tab>
+
+		<mat-tab>
+			<ng-template mat-tab-label>
+				<div class="flex items-center space-x-2 px-4 py-2">
+					<mat-icon class="text-yellow-600">note</mat-icon>
+					<span class="font-semibold text-gray-700">Notes</span>
+				</div>
+			</ng-template>
+			<app-notes></app-notes>
+		</mat-tab>
+	</mat-tab-group>
 </mat-card>
 }
