@@ -1,105 +1,131 @@
 <mat-card class="demo-inline-calendar-card">
-  <!-- Calendar Controls -->
-  <div class="flex justify-between items-center mb-4 p-4 border-b border-gray-200">
-    <div class="flex items-center space-x-4">
-      <button mat-raised-button 
-              [color]="!isRangeMode ? 'primary' : 'basic'"
-              (click)="toggleRangeMode()">
-        <mat-icon>event</mat-icon>
-        Single Date
-      </button>
-      <button mat-raised-button 
-              [color]="isRangeMode ? 'primary' : 'basic'"
-              (click)="toggleRangeMode()">
-        <mat-icon>date_range</mat-icon>
-        Date Range
-      </button>
+  <!-- Collapsible Calendar Controls -->
+  <div class="calendar-header">
+    <div class="header-main">
+      <div class="header-title">
+        <mat-icon>calendar_today</mat-icon>
+        <span>Calendar</span>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button 
+                color="warn" 
+                (click)="clearSelections()"
+                matTooltip="Clear selection"
+                *ngIf="hasSelection()">
+          <mat-icon>clear</mat-icon>
+        </button>
+        <button mat-icon-button 
+                (click)="toggleControls()"
+                [class.rotated]="isControlsExpanded"
+                matTooltip="{{ isControlsExpanded ? 'Hide controls' : 'Show controls' }}">
+          <mat-icon>expand_more</mat-icon>
+        </button>
+      </div>
     </div>
     
-    <button mat-icon-button 
-            color="warn" 
-            (click)="clearSelections()"
-            matTooltip="Clear selection">
-      <mat-icon>clear</mat-icon>
-    </button>
+    <!-- Collapsible Controls Section -->
+    <div class="controls-section" [class.expanded]="isControlsExpanded">
+      <div class="mode-toggle">
+        <button mat-raised-button 
+                [color]="!isRangeMode ? 'primary' : 'basic'"
+                (click)="toggleRangeMode()">
+          <mat-icon>event</mat-icon>
+          Single Date
+        </button>
+        <button mat-raised-button 
+                [color]="isRangeMode ? 'primary' : 'basic'"
+                (click)="toggleRangeMode()">
+          <mat-icon>date_range</mat-icon>
+          Date Range
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Range Selection Status -->
-  <div *ngIf="isRangeMode" class="px-4 pb-4">
-    <div class="flex items-center space-x-4 text-sm">
-      <div class="flex items-center space-x-2">
-        <span class="text-gray-600">Start:</span>
-        <span *ngIf="startDate" class="font-semibold text-blue-600">
-          {{ startDate | date:'MMM dd, yyyy' }}
-        </span>
-        <span *ngIf="!startDate" class="text-gray-400">Not selected</span>
-      </div>
-      <mat-icon class="text-gray-400">arrow_forward</mat-icon>
-      <div class="flex items-center space-x-2">
-        <span class="text-gray-600">End:</span>
-        <span *ngIf="endDate" class="font-semibold text-green-600">
-          {{ endDate | date:'MMM dd, yyyy' }}
-        </span>
-        <span *ngIf="!endDate" class="text-gray-400">Not selected</span>
-      </div>
-    </div>
-    
-    <!-- Range Summary -->
-    <div *ngIf="startDate && endDate" class="mt-3 p-3 bg-blue-50 rounded-lg">
-      <div class="grid grid-cols-3 gap-4 text-center">
-        <div>
-          <div class="text-xs text-gray-600">Income</div>
-          <div class="text-sm font-bold text-green-600">₹{{ getRangeTotalIncome() | number:'1.2-2' }}</div>
+  <div *ngIf="isRangeMode" class="status-section">
+    <div class="range-status">
+      <div class="date-range-display">
+        <div class="date-item">
+          <span class="date-label">Start:</span>
+          <span *ngIf="startDate" class="date-value start-date">
+            {{ startDate | date:'MMM dd, yyyy' }}
+          </span>
+          <span *ngIf="!startDate" class="date-placeholder">Not selected</span>
         </div>
-        <div>
-          <div class="text-xs text-gray-600">Expenses</div>
-          <div class="text-sm font-bold text-red-600">₹{{ getRangeTotalExpenses() | number:'1.2-2' }}</div>
+        <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+        <div class="date-item">
+          <span class="date-label">End:</span>
+          <span *ngIf="endDate" class="date-value end-date">
+            {{ endDate | date:'MMM dd, yyyy' }}
+          </span>
+          <span *ngIf="!endDate" class="date-placeholder">Not selected</span>
         </div>
-        <div>
-          <div class="text-xs text-gray-600">Net</div>
-          <div class="text-sm font-bold" [ngClass]="getRangeNetAmount() >= 0 ? 'text-blue-600' : 'text-orange-600'">
-            ₹{{ getRangeNetAmount() | number:'1.2-2' }}
+      </div>
+      
+      <!-- Range Summary -->
+      <div *ngIf="startDate && endDate" class="range-summary">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">Income</div>
+            <div class="summary-amount income">₹{{ getRangeTotalIncome() | number:'1.2-2' }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Expenses</div>
+            <div class="summary-amount expense">₹{{ getRangeTotalExpenses() | number:'1.2-2' }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Net</div>
+            <div class="summary-amount" [ngClass]="getRangeNetAmount() >= 0 ? 'positive' : 'negative'">
+              ₹{{ getRangeNetAmount() | number:'1.2-2' }}
+            </div>
           </div>
         </div>
-      </div>
-      <div class="text-xs text-gray-500 mt-2 text-center">
-        {{ rangeTransactions.length }} transactions in range
+        <div class="transaction-count">
+          {{ rangeTransactions.length }} transactions in range
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Single Date Status -->
-  <div *ngIf="!isRangeMode && selectedDate" class="px-4 pb-4">
-    <div class="p-3 bg-green-50 rounded-lg">
-      <div class="text-sm font-semibold text-green-800">
-        Selected: {{ selectedDate | date:'fullDate' }}
+  <div *ngIf="!isRangeMode && selectedDate" class="status-section">
+    <div class="single-date-status">
+      <div class="selected-date-display">
+        <mat-icon class="date-icon">event</mat-icon>
+        <span class="selected-date-text">{{ selectedDate | date:'fullDate' }}</span>
       </div>
-      <div class="grid grid-cols-3 gap-4 mt-2 text-center">
-        <div>
-          <div class="text-xs text-gray-600">Income</div>
-          <div class="text-sm font-bold text-green-600">₹{{ getTotalIncome() | number:'1.2-2' }}</div>
-        </div>
-        <div>
-          <div class="text-xs text-gray-600">Expenses</div>
-          <div class="text-sm font-bold text-red-600">₹{{ getTotalExpenses() | number:'1.2-2' }}</div>
-        </div>
-        <div>
-          <div class="text-xs text-gray-600">Net</div>
-          <div class="text-sm font-bold" [ngClass]="getNetAmount() >= 0 ? 'text-blue-600' : 'text-orange-600'">
-            ₹{{ getNetAmount() | number:'1.2-2' }}
+      <div class="date-summary">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">Income</div>
+            <div class="summary-amount income">₹{{ getTotalIncome() | number:'1.2-2' }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Expenses</div>
+            <div class="summary-amount expense">₹{{ getTotalExpenses() | number:'1.2-2' }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Net</div>
+            <div class="summary-amount" [ngClass]="getNetAmount() >= 0 ? 'positive' : 'negative'">
+              ₹{{ getNetAmount() | number:'1.2-2' }}
+            </div>
           </div>
         </div>
-      </div>
-      <div class="text-xs text-gray-500 mt-2 text-center">
-        {{ selectedDateTransactions.length }} transactions
+        <div class="transaction-count">
+          {{ selectedDateTransactions.length }} transactions
+        </div>
       </div>
     </div>
   </div>
 
-  <mat-calendar 
-    [dateClass]="dateClass"
-    (selectedChange)="onDateSelected($event)">
-  </mat-calendar>
+  <!-- Calendar -->
+  <div class="calendar-container">
+    <mat-calendar 
+      [dateClass]="dateClass"
+      (selectedChange)="onDateSelected($event)">
+    </mat-calendar>
+  </div>
 </mat-card>
 
 <!-- Transaction details for selected date -->

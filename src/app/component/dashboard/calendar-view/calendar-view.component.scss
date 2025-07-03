@@ -2,6 +2,180 @@
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
+  overflow: hidden;
+}
+
+// Collapsible Calendar Header
+.calendar-header {
+  border-bottom: 1px solid #e5e7eb;
+  
+  .header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+      
+      mat-icon {
+        color: #6b7280;
+      }
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 0.25rem;
+      
+      button {
+        transition: transform 0.2s ease;
+        
+        &.rotated mat-icon {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+  
+  .controls-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 1rem;
+    
+    &.expanded {
+      max-height: 100px;
+      padding: 0 1rem 1rem;
+    }
+    
+    .mode-toggle {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      
+      button {
+        flex: 1;
+        max-width: 150px;
+      }
+    }
+  }
+}
+
+// Status Sections
+.status-section {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  
+  .range-status, .single-date-status {
+    .date-range-display, .selected-date-display {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      
+      .date-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        
+        .date-label {
+          font-size: 0.875rem;
+          color: #6b7280;
+          font-weight: 500;
+        }
+        
+        .date-value {
+          font-weight: 600;
+          
+          &.start-date {
+            color: #3b82f6;
+          }
+          
+          &.end-date {
+            color: #10b981;
+          }
+        }
+        
+        .date-placeholder {
+          color: #9ca3af;
+          font-style: italic;
+        }
+      }
+      
+      .arrow-icon {
+        color: #9ca3af;
+        font-size: 1rem;
+      }
+      
+      .date-icon {
+        color: #10b981;
+      }
+      
+      .selected-date-text {
+        font-weight: 600;
+        color: #374151;
+      }
+    }
+    
+    .range-summary, .date-summary {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 1rem;
+      
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+        
+        .summary-item {
+          text-align: center;
+          
+          .summary-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+          }
+          
+          .summary-amount {
+            font-weight: 700;
+            font-size: 0.875rem;
+            
+            &.income {
+              color: #10b981;
+            }
+            
+            &.expense {
+              color: #ef4444;
+            }
+            
+            &.positive {
+              color: #3b82f6;
+            }
+            
+            &.negative {
+              color: #f59e0b;
+            }
+          }
+        }
+      }
+      
+      .transaction-count {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
+    }
+  }
+}
+
+// Calendar Container
+.calendar-container {
+  padding: 1rem;
 }
 
 // Custom styling for dates with transactions

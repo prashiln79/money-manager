@@ -24,6 +24,9 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   endDate: Date | null = null;
   rangeTransactions: Transaction[] = [];
   
+  // Collapsible controls
+  isControlsExpanded = false;
+  
   private subscription = new Subscription();
 
   constructor(
@@ -192,6 +195,20 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   toggleRangeMode(): void {
     this.isRangeMode = !this.isRangeMode;
     this.clearSelections();
+  }
+
+  // Toggle controls visibility
+  toggleControls(): void {
+    this.isControlsExpanded = !this.isControlsExpanded;
+  }
+
+  // Check if any date is selected
+  hasSelection(): boolean {
+    if (this.isRangeMode) {
+      return this.startDate !== null || this.endDate !== null;
+    } else {
+      return this.selectedDate !== null;
+    }
   }
 
   // Clear all selections
