@@ -10,7 +10,7 @@ import { TransactionComponent } from './add-transaction/transaction/transaction.
 import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
-import { DateSelectionService } from 'src/app/util/service/date-selection.service';
+import { DateSelectionService, DateRange } from 'src/app/util/service/date-selection.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -31,8 +31,14 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   
   // Date filtering properties
   selectedDate: Date | null = null;
+  selectedDateRange: DateRange | null = null;
   allTransactions: any[] = [];
   private dateSubscription = new Subscription();
+  
+  // Search and filter properties
+  searchTerm: string = '';
+  selectedCategory: string = 'all';
+  selectedType: string = 'all';
 
 
   constructor(
@@ -77,23 +83,99 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   subscribeToDateSelection() {
-    this.dateSubscription = this.dateSelectionService.selectedDate$.subscribe(date => {
-      this.selectedDate = date;
-      this.applyDateFilter();
-    });
+    // Subscribe to single date selection
+    this.dateSubscription.add(
+      this.dateSelectionService.selectedDate$.subscribe(date => {
+        this.selectedDate = date;
+        this.selectedDateRange = null;
+        this.applyDateFilter();
+      })
+    );
+
+    // Subscribe to date range selection
+    this.dateSubscription.add(
+      this.dateSelectionService.selectedDateRange$.subscribe(dateRange => {
+        this.selectedDateRange = dateRange;
+        this.selectedDate = null;
+        this.applyDateFilter();
+      })
+    );
   }
 
   applyDateFilter() {
+    let filteredData = [...this.allTransactions];
+    
+    // Apply date filtering
     if (this.selectedDate) {
       const selectedDateStr = this.formatDate(this.selectedDate);
-      this.dataSource.data = this.allTransactions.filter(transaction => {
+      filteredData = filteredData.filter(transaction => {
         const transactionDate = transaction.date.toDate();
         return this.formatDate(transactionDate) === selectedDateStr;
       });
       this.notificationService.success(`Showing transactions for ${this.selectedDate.toLocaleDateString()}`);
-    } else {
-      this.dataSource.data = [...this.allTransactions];
+    } else if (this.selectedDateRange) {
+      // Set time to start of day for start date and end of day for end date
+      const startOfDay = new Date(this.selectedDateRange.startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(this.selectedDateRange.endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      filteredData = filteredData.filter(transaction => {
+        const transactionDate = transaction.date.toDate();
+        return transactionDate >= startOfDay && transactionDate <= endOfDay;
+      });
+      const startDate = this.selectedDateRange.startDate.toLocaleDateString();
+      const endDate = this.selectedDateRange.endDate.toLocaleDateString();
+      this.notificationService.success(`Showing transactions from ${startDate} to ${endDate}`);
     }
+    
+    // Apply search and other filters
+    filteredData = this.applySearchAndFilters(filteredData);
+    
+    this.dataSource.data = filteredData;
+  }
+
+  applySearchAndFilters(transactions: any[]): any[] {
+    let filtered = transactions;
+    
+    // Apply search term
+    if (this.searchTerm && this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(transaction => 
+        transaction.payee.toLowerCase().includes(searchLower) ||
+        transaction.category.toLowerCase().includes(searchLower) ||
+        (transaction.notes && transaction.notes.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    // Apply category filter
+    if (this.selectedCategory && this.selectedCategory !== 'all') {
+      filtered = filtered.filter(transaction => 
+        transaction.category === this.selectedCategory
+      );
+    }
+    
+    // Apply type filter
+    if (this.selectedType && this.selectedType !== 'all') {
+      filtered = filtered.filter(transaction => 
+        transaction.type === this.selectedType
+      );
+    }
+    
+    return filtered;
+  }
+
+  onSearchChange(): void {
+    this.applyDateFilter();
+  }
+
+  onCategoryChange(): void {
+    this.applyDateFilter();
+  }
+
+  onTypeChange(): void {
+    this.applyDateFilter();
   }
 
   private formatDate(date: Date): string {
@@ -102,8 +184,20 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   clearDateFilter() {
     this.selectedDate = null;
+    this.selectedDateRange = null;
     this.dateSelectionService.clearSelectedDate();
     this.applyDateFilter();
+  }
+
+  clearAllFilters(): void {
+    this.selectedDate = null;
+    this.selectedDateRange = null;
+    this.searchTerm = '';
+    this.selectedCategory = 'all';
+    this.selectedType = 'all';
+    this.dateSelectionService.clearSelectedDate();
+    this.applyDateFilter();
+    this.notificationService.success('All filters cleared');
   }
 
   editTransaction(transaction: Transaction) {
@@ -252,6 +346,23 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   getUniqueCategories(): number {
     const categories = new Set(this.dataSource.data.map((tx: any) => tx.category));
     return categories.size;
+  }
+
+  getFilteredCount(): number {
+    return this.dataSource.data.length;
+  }
+
+  getTotalCount(): number {
+    return this.allTransactions.length;
+  }
+
+  getCategoriesList(): string[] {
+    const categories = new Set(this.allTransactions.map((tx: any) => tx.category));
+    return Array.from(categories).sort();
+  }
+
+  getTypesList(): string[] {
+    return ['income', 'expense'];
   }
 
   refreshTransactions(): void {

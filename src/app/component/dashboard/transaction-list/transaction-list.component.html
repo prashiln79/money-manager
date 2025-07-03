@@ -75,7 +75,7 @@
                <div class="flex flex-wrap gap-4 mt-4">
                  <div class="flex items-center space-x-2">
                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                   <span class="text-sm text-gray-600">Total Transactions: <span class="font-semibold text-gray-800">{{ dataSource?.data?.length || 0 }}</span></span>
+                   <span class="text-sm text-gray-600">Transactions: <span class="font-semibold text-gray-800">{{ getFilteredCount() }}</span><span *ngIf="getFilteredCount() !== getTotalCount()" class="text-gray-400">/{{ getTotalCount() }}</span></span>
                  </div>
                  <div class="flex items-center space-x-2">
                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -88,6 +88,16 @@
                  <div *ngIf="selectedDate" class="flex items-center space-x-2">
                    <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
                    <span class="text-sm text-gray-600">Filtered by: <span class="font-semibold text-gray-800">{{ selectedDate | date:'MMM dd, yyyy' }}</span></span>
+                 </div>
+                 <div *ngIf="selectedDateRange" class="flex items-center space-x-2">
+                   <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                   <span class="text-sm text-gray-600">Range: <span class="font-semibold text-gray-800">{{ selectedDateRange.startDate | date:'MMM dd' }} - {{ selectedDateRange.endDate | date:'MMM dd, yyyy' }}</span></span>
+                 </div>
+                 <div *ngIf="searchTerm || selectedCategory !== 'all' || selectedType !== 'all'" class="flex items-center space-x-2">
+                   <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                   <span class="text-sm text-gray-600">Filters: <span class="font-semibold text-gray-800">
+                     {{ (searchTerm ? 'Search' : '') + (selectedCategory !== 'all' ? (searchTerm ? ', ' : '') + 'Category' : '') + (selectedType !== 'all' ? ((searchTerm || selectedCategory !== 'all') ? ', ' : '') + 'Type' : '') }}
+                   </span></span>
                  </div>
                </div>
             </div>
@@ -114,11 +124,11 @@
                         (click)="viewAnalytics()">
                   <mat-icon class="text-gray-600">analytics</mat-icon>
                 </button>
-                <button *ngIf="selectedDate" 
+                <button *ngIf="selectedDate || selectedDateRange || searchTerm || selectedCategory !== 'all' || selectedType !== 'all'" 
                         mat-icon-button 
                         class="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg"
-                        matTooltip="Clear date filter"
-                        (click)="clearDateFilter()">
+                        matTooltip="Clear all filters"
+                        (click)="clearAllFilters()">
                   <mat-icon class="text-red-600">clear</mat-icon>
                 </button>
               </div>
@@ -139,6 +149,61 @@
                   <span>Export</span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Search Input -->
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
+              <input 
+                type="text" 
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange()"
+                placeholder="Search transactions..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+            </div>
+
+            <!-- Category Filter -->
+            <div>
+              <select 
+                [(ngModel)]="selectedCategory"
+                (change)="onCategoryChange()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Categories</option>
+                <option *ngFor="let category of getCategoriesList()" [value]="category">
+                  {{ category }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Type Filter -->
+            <div>
+              <select 
+                [(ngModel)]="selectedType"
+                (change)="onTypeChange()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+
+            <!-- Clear Filters Button -->
+            <div>
+              <button 
+                (click)="clearAllFilters()"
+                class="w-full px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center space-x-2"
+              >
+                <mat-icon class="text-sm">clear</mat-icon>
+                <span>Clear Filters</span>
+              </button>
             </div>
           </div>
         </div>

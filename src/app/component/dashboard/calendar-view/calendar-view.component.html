@@ -1,4 +1,101 @@
 <mat-card class="demo-inline-calendar-card">
+  <!-- Calendar Controls -->
+  <div class="flex justify-between items-center mb-4 p-4 border-b border-gray-200">
+    <div class="flex items-center space-x-4">
+      <button mat-raised-button 
+              [color]="!isRangeMode ? 'primary' : 'basic'"
+              (click)="toggleRangeMode()">
+        <mat-icon>event</mat-icon>
+        Single Date
+      </button>
+      <button mat-raised-button 
+              [color]="isRangeMode ? 'primary' : 'basic'"
+              (click)="toggleRangeMode()">
+        <mat-icon>date_range</mat-icon>
+        Date Range
+      </button>
+    </div>
+    
+    <button mat-icon-button 
+            color="warn" 
+            (click)="clearSelections()"
+            matTooltip="Clear selection">
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <!-- Range Selection Status -->
+  <div *ngIf="isRangeMode" class="px-4 pb-4">
+    <div class="flex items-center space-x-4 text-sm">
+      <div class="flex items-center space-x-2">
+        <span class="text-gray-600">Start:</span>
+        <span *ngIf="startDate" class="font-semibold text-blue-600">
+          {{ startDate | date:'MMM dd, yyyy' }}
+        </span>
+        <span *ngIf="!startDate" class="text-gray-400">Not selected</span>
+      </div>
+      <mat-icon class="text-gray-400">arrow_forward</mat-icon>
+      <div class="flex items-center space-x-2">
+        <span class="text-gray-600">End:</span>
+        <span *ngIf="endDate" class="font-semibold text-green-600">
+          {{ endDate | date:'MMM dd, yyyy' }}
+        </span>
+        <span *ngIf="!endDate" class="text-gray-400">Not selected</span>
+      </div>
+    </div>
+    
+    <!-- Range Summary -->
+    <div *ngIf="startDate && endDate" class="mt-3 p-3 bg-blue-50 rounded-lg">
+      <div class="grid grid-cols-3 gap-4 text-center">
+        <div>
+          <div class="text-xs text-gray-600">Income</div>
+          <div class="text-sm font-bold text-green-600">₹{{ getRangeTotalIncome() | number:'1.2-2' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-600">Expenses</div>
+          <div class="text-sm font-bold text-red-600">₹{{ getRangeTotalExpenses() | number:'1.2-2' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-600">Net</div>
+          <div class="text-sm font-bold" [ngClass]="getRangeNetAmount() >= 0 ? 'text-blue-600' : 'text-orange-600'">
+            ₹{{ getRangeNetAmount() | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-gray-500 mt-2 text-center">
+        {{ rangeTransactions.length }} transactions in range
+      </div>
+    </div>
+  </div>
+
+  <!-- Single Date Status -->
+  <div *ngIf="!isRangeMode && selectedDate" class="px-4 pb-4">
+    <div class="p-3 bg-green-50 rounded-lg">
+      <div class="text-sm font-semibold text-green-800">
+        Selected: {{ selectedDate | date:'fullDate' }}
+      </div>
+      <div class="grid grid-cols-3 gap-4 mt-2 text-center">
+        <div>
+          <div class="text-xs text-gray-600">Income</div>
+          <div class="text-sm font-bold text-green-600">₹{{ getTotalIncome() | number:'1.2-2' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-600">Expenses</div>
+          <div class="text-sm font-bold text-red-600">₹{{ getTotalExpenses() | number:'1.2-2' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-600">Net</div>
+          <div class="text-sm font-bold" [ngClass]="getNetAmount() >= 0 ? 'text-blue-600' : 'text-orange-600'">
+            ₹{{ getNetAmount() | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-gray-500 mt-2 text-center">
+        {{ selectedDateTransactions.length }} transactions
+      </div>
+    </div>
+  </div>
+
   <mat-calendar 
     [dateClass]="dateClass"
     (selectedChange)="onDateSelected($event)">

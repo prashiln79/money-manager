@@ -17,6 +17,13 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   transactions: Transaction[] = [];
   selectedDate: Date | null = null;
   selectedDateTransactions: Transaction[] = [];
+  
+  // Date range selection properties
+  isRangeMode = false;
+  startDate: Date | null = null;
+  endDate: Date | null = null;
+  rangeTransactions: Transaction[] = [];
+  
   private subscription = new Subscription();
 
   constructor(
@@ -54,22 +61,57 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Custom date class function to highlight dates with transactions
+  // Custom date class function to highlight dates with transactions and range selection
   dateClass: MatCalendarCellClassFunction<Date> = (cellDate, view) => {
     if (view === 'month') {
       const dateStr = this.formatDate(cellDate);
+      let classes = '';
+      
+      // Check if date has transactions
       const hasTransactions = this.transactions.some(transaction => {
         const transactionDate = transaction.date.toDate();
         return this.formatDate(transactionDate) === dateStr;
       });
       
-      return hasTransactions ? 'has-transactions' : '';
+      if (hasTransactions) {
+        classes += 'has-transactions ';
+      }
+      
+      // Range mode highlighting
+      if (this.isRangeMode) {
+        if (this.startDate && this.formatDate(this.startDate) === dateStr) {
+          classes += 'range-start ';
+        }
+        if (this.endDate && this.formatDate(this.endDate) === dateStr) {
+          classes += 'range-end ';
+        }
+        if (this.startDate && this.endDate && 
+            cellDate >= this.startDate && cellDate <= this.endDate) {
+          classes += 'range-in-between ';
+        }
+      } else {
+        // Single date mode highlighting
+        if (this.selectedDate && this.formatDate(this.selectedDate) === dateStr) {
+          classes += 'selected-date ';
+        }
+      }
+      
+      return classes.trim();
     }
     return '';
   }
 
   // Handle date selection
   onDateSelected(date: Date | null) {
+    if (this.isRangeMode) {
+      this.handleRangeSelection(date);
+    } else {
+      this.handleSingleDateSelection(date);
+    }
+  }
+
+  // Handle single date selection
+  private handleSingleDateSelection(date: Date | null) {
     this.selectedDate = date;
     if (date) {
       this.selectedDateTransactions = this.getTransactionsForDate(date);
@@ -81,12 +123,44 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Handle date range selection
+  private handleRangeSelection(date: Date | null) {
+    if (!date) return;
+
+    if (!this.startDate || (this.startDate && this.endDate)) {
+      // Start new range
+      this.startDate = date;
+      this.endDate = null;
+      this.rangeTransactions = [];
+    } else {
+      // Complete the range
+      if (date >= this.startDate) {
+        this.endDate = date;
+      } else {
+        // If end date is before start date, swap them
+        this.endDate = this.startDate;
+        this.startDate = date;
+      }
+      this.rangeTransactions = this.getTransactionsForDateRange(this.startDate, this.endDate);
+      // Emit date range to other components
+      this.dateSelectionService.setSelectedDateRange(this.startDate, this.endDate);
+    }
+  }
+
   // Get transactions for a specific date
   getTransactionsForDate(date: Date): Transaction[] {
     const dateStr = this.formatDate(date);
     return this.transactions.filter(transaction => {
       const transactionDate = transaction.date.toDate();
       return this.formatDate(transactionDate) === dateStr;
+    });
+  }
+
+  // Get transactions for a date range
+  getTransactionsForDateRange(startDate: Date, endDate: Date): Transaction[] {
+    return this.transactions.filter(transaction => {
+      const transactionDate = transaction.date.toDate();
+      return transactionDate >= startDate && transactionDate <= endDate;
     });
   }
 
@@ -112,5 +186,40 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   // Get net amount for selected date
   getNetAmount(): number {
     return this.getTotalIncome() - this.getTotalExpenses();
+  }
+
+  // Toggle between single date and range mode
+  toggleRangeMode(): void {
+    this.isRangeMode = !this.isRangeMode;
+    this.clearSelections();
+  }
+
+  // Clear all selections
+  clearSelections(): void {
+    this.selectedDate = null;
+    this.selectedDateTransactions = [];
+    this.startDate = null;
+    this.endDate = null;
+    this.rangeTransactions = [];
+    this.dateSelectionService.clearSelectedDate();
+  }
+
+  // Get total income for date range
+  getRangeTotalIncome(): number {
+    return this.rangeTransactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }
+
+  // Get total expenses for date range
+  getRangeTotalExpenses(): number {
+    return this.rangeTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }
+
+  // Get net amount for date range
+  getRangeNetAmount(): number {
+    return this.getRangeTotalIncome() - this.getRangeTotalExpenses();
   }
 }

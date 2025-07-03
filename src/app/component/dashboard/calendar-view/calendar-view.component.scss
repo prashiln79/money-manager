@@ -29,6 +29,39 @@
   }
 }
 
+// Range selection styling
+::ng-deep .mat-calendar-body-cell.range-start {
+  .mat-calendar-body-cell-content {
+    background-color: #059669 !important; // Green for start date
+    color: white !important;
+    font-weight: bold;
+  }
+}
+
+::ng-deep .mat-calendar-body-cell.range-end {
+  .mat-calendar-body-cell-content {
+    background-color: #dc2626 !important; // Red for end date
+    color: white !important;
+    font-weight: bold;
+  }
+}
+
+::ng-deep .mat-calendar-body-cell.range-in-between {
+  .mat-calendar-body-cell-content {
+    background-color: #fbbf24 !important; // Yellow for dates in between
+    color: #1f2937 !important;
+    font-weight: 500;
+  }
+}
+
+::ng-deep .mat-calendar-body-cell.selected-date {
+  .mat-calendar-body-cell-content {
+    background-color: #7c3aed !important; // Purple for single selected date
+    color: white !important;
+    font-weight: bold;
+  }
+}
+
 // Transaction summary cards
 .transaction-summary {
   .income-card {
