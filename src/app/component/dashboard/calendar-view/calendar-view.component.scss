@@ -21,6 +21,7 @@
       gap: 0.5rem;
       font-weight: 600;
       color: #374151;
+      font-size: 1.2rem;
       
       mat-icon {
         color: #6b7280;
@@ -93,7 +94,7 @@
           font-weight: 600;
           
           &.start-date {
-            color: #3b82f6;
+            @apply text-primary;
           }
           
           &.end-date {
@@ -155,7 +156,7 @@
             }
             
             &.positive {
-              color: #3b82f6;
+              @apply text-primary;
             }
             
             &.negative {
@@ -182,7 +183,7 @@
 // Custom styling for dates with transactions
 ::ng-deep .mat-calendar-body-cell.has-transactions {
   .mat-calendar-body-cell-content {
-    background-color: #3b82f6 !important; // Blue background
+    @apply bg-primary ; 
     color: white !important;
     font-weight: bold;
     border-radius: 50%;
@@ -192,14 +193,14 @@
 // Hover effect for dates with transactions
 ::ng-deep .mat-calendar-body-cell.has-transactions:hover {
   .mat-calendar-body-cell-content {
-    background-color: #2563eb !important; // Darker blue on hover
+    @apply bg-primary; // Darker blue on hover
   }
 }
 
 // Selected date styling
 ::ng-deep .mat-calendar-body-cell.mat-calendar-body-active {
   .mat-calendar-body-cell-content {
-    background-color: #1d4ed8 !important; // Dark blue for selected date
+    @apply bg-primary; // Dark blue for selected date
     color: white !important;
   }
 }
@@ -285,7 +286,7 @@
   
   ::ng-deep .mat-calendar-body-cell.has-transactions:hover {
     .mat-calendar-body-cell-content {
-      background-color: #3b82f6 !important;
+       @apply bg-primary;
     }
   }
 }
