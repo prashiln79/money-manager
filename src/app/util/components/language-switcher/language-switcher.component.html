@@ -1,0 +1,23 @@
+<div class="language-switcher">
+  <div class="language-dropdown" (click)="toggleDropdown()">
+    <div class="current-language">
+      <span class="language-flag">{{ getCurrentLanguageName() === 'हिंदी' ? '🇮🇳' : '🇺🇸' }}</span>
+      <span class="language-name">{{ getCurrentLanguageName() }}</span>
+      <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    
+    <div class="dropdown-menu" *ngIf="isDropdownOpen">
+      <div 
+        class="dropdown-item" 
+        *ngFor="let lang of availableLanguages"
+        (click)="onLanguageSelect(lang.code)"
+        [class.active]="lang.code === currentLanguage">
+        <span class="language-flag">{{ lang.code === 'hi' ? '🇮🇳' : '🇺🇸' }}</span>
+        <span class="language-name">{{ lang.nativeName }}</span>
+        <span class="language-english">{{ lang.name }}</span>
+      </div>
+    </div>
+  </div>
+</div> 

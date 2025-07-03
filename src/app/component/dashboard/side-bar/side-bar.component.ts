@@ -3,6 +3,7 @@ import { ThemeSwitchingService } from '../../../util/service/theme-switching.ser
 import { ThemeType } from 'src/app/util/models/theme.model';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { LanguageSwitcherComponent } from '../../../util/components/language-switcher/language-switcher.component';
 
 @Component({
   selector: 'side-bar',

@@ -13,7 +13,7 @@
       </div>
 
       <p class="mt-3 text-xl text-center text-gray-600 dark:text-gray-200">
-        Welcome back!
+        {{ 'welcomeBack' | translate }}
       </p>
 
       <a href="#"
@@ -35,21 +35,21 @@
           </svg>
         </div>
 
-        <span class="w-5/6 px-4 py-3 font-bold text-center" (click)="signInWithGoogle()">Sign in with Google</span>
+        <span class="w-5/6 px-4 py-3 font-bold text-center" (click)="signInWithGoogle()">{{ 'signIn' | translate }} with Google</span>
       </a>
 
       <form [formGroup]="signInForm">
         <div class="flex items-center justify-between mt-4">
           <span class="w-1/5 border-b dark:border-gray-600 lg:w-1/4"></span>
 
-          <a class="text-xs text-center text-gray-500 uppercase dark:text-gray-400 hover:underline">or login with
+          <a class="text-xs text-center text-gray-500 uppercase dark:text-gray-400 hover:underline">or {{ 'login' | translate }} with
             email</a>
 
           <span class="w-1/5 border-b dark:border-gray-400 lg:w-1/4"></span>
         </div>
 
         <div class="mt-4">
-          <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200" for="LoggingEmailAddress">Email
+          <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200" for="LoggingEmailAddress">{{ 'email' | translate }}
             Address</label>
           <input id="LoggingEmailAddress" formControlName="email"
             class="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
@@ -57,14 +57,14 @@
 
           <div *ngIf="signInForm.get('email')?.invalid && signInForm.get('email')?.touched"
             class="text-red-500 text-sm mt-1">
-            <span *ngIf="signInForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="signInForm.get('email')?.errors?.['required']">{{ 'emailRequired' | translate }}</span>
             <span *ngIf="signInForm.get('email')?.errors?.['email']">Email is invalid</span>
           </div>
 
           <div class="mt-4">
             <div class="flex justify-between">
               <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200"
-                for="loggingPassword">Password</label>
+                for="loggingPassword">{{ 'password' | translate }}</label>
               <a class="text-xs text-gray-500 dark:text-gray-300 hover:underline" *ngIf="isSignInPage">Forget
                 Password?</a>
             </div>
@@ -75,15 +75,14 @@
 
             <div *ngIf="signInForm.get('password')?.invalid && signInForm.get('password')?.touched"
               class="text-red-500 text-sm mt-1">
-              <span *ngIf="signInForm.get('password')?.errors?.['required']">Password is required</span>
+              <span *ngIf="signInForm.get('password')?.errors?.['required']">{{ 'passwordRequired' | translate }}</span>
             </div>
           </div>
 
           <div class="mt-4" *ngIf="!isSignInPage">
             <div class="flex justify-between">
               <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200"
-                for="loggingPassword">Confirm
-                Password</label>
+                for="loggingPassword">{{ 'confirmPassword' | translate }}</label>
             </div>
             <input id="loggingPassword" formControlName="confirmPassword"
               class="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
@@ -91,7 +90,7 @@
 
             <div *ngIf="signInForm.get('confirmPassword')?.invalid && signInForm.get('confirmPassword')?.touched"
               class="text-red-500 text-sm mt-1">
-              <span *ngIf="signInForm.get('confirmPassword')?.errors?.['required']">Confirm Password is required</span>
+              <span *ngIf="signInForm.get('confirmPassword')?.errors?.['required']">{{ 'confirmPassword' | translate }} is required</span>
               <span *ngIf="signInForm.get('confirmPassword')?.errors?.['notMatch']">Password not match</span>
             </div>
           </div>
@@ -100,7 +99,7 @@
         <div class="mt-6">
           <button (click)="isSignInPage? onSignIn() : onSignUp()"
             class="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50">
-            {{isSignInPage?'Sign In':'Sign Up'}}
+            {{isSignInPage ? ('signIn' | translate) : ('signUp' | translate)}}
           </button>
         </div>
 
@@ -108,7 +107,7 @@
           <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
 
           <a (click)="gotoPage()" class="text-xs text-gray-500 uppercase dark:text-gray-400 hover:underline">or
-            {{isSignInPage?'Sign Up':'Sign In'}}</a>
+            {{isSignInPage ? ('signUp' | translate) : ('signIn' | translate)}}</a>
 
           <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
         </div>

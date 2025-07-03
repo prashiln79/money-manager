@@ -67,6 +67,8 @@ import { ImportTransactionsComponent } from './component/dashboard/transaction-l
 import { ReportsComponent } from './component/dashboard/reports/reports.component';
 import { TaxComponent } from './component/dashboard/tax/tax.component';
 import { NotesComponent } from './component/dashboard/notes/notes.component';
+import { LanguageSwitcherComponent } from './util/components/language-switcher/language-switcher.component';
+import { TranslatePipe } from './util/pipes/translate.pipe';
 
 @NgModule({
   declarations: [
@@ -91,7 +93,8 @@ import { NotesComponent } from './component/dashboard/notes/notes.component';
     ImportTransactionsComponent,
     ReportsComponent,
     TaxComponent,
-    NotesComponent
+    NotesComponent,
+    LanguageSwitcherComponent
   ],
   imports: [
     BrowserModule,
@@ -127,6 +130,7 @@ import { NotesComponent } from './component/dashboard/notes/notes.component';
 
     // Utility
     IconModule,
+    TranslatePipe,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerImmediately'

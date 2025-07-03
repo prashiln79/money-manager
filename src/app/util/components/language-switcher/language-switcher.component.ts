@@ -1,0 +1,40 @@
+import { Component, OnInit } from '@angular/core';
+import { TranslationService, Language } from '../../service/translation.service';
+
+@Component({
+  selector: 'app-language-switcher',
+  templateUrl: './language-switcher.component.html',
+  styleUrls: ['./language-switcher.component.scss']
+})
+export class LanguageSwitcherComponent implements OnInit {
+  currentLanguage: Language = 'en';
+  availableLanguages: { code: Language; name: string; nativeName: string }[] = [];
+  isDropdownOpen = false;
+
+  constructor(private translationService: TranslationService) {}
+
+  ngOnInit(): void {
+    this.availableLanguages = this.translationService.getAvailableLanguages();
+    this.translationService.getCurrentLanguage().subscribe(lang => {
+      this.currentLanguage = lang;
+    });
+  }
+
+  switchLanguage(language: Language): void {
+    this.translationService.setLanguage(language);
+  }
+
+  getCurrentLanguageName(): string {
+    const lang = this.availableLanguages.find(l => l.code === this.currentLanguage);
+    return lang ? lang.nativeName : 'English';
+  }
+
+  toggleDropdown(): void {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  onLanguageSelect(language: Language): void {
+    this.switchLanguage(language);
+    this.isDropdownOpen = false;
+  }
+} 
