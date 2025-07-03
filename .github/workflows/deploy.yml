@@ -1,21 +1,32 @@
-name: Copy to Public Repo
+name: Build and Deploy to Public Repo
 
 on:
   push:
     branches:
-      - main # Change this to the branch you want to trigger the action on
+      - main
 
 jobs:
-  copy-to-public:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Private Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          # This checks out the private repo
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build
 
       - name: Configure Git
         run: |
@@ -28,13 +39,21 @@ jobs:
           cd public-repo
           git remote set-url origin https://prashiln79:${{ secrets.PUBLIC_REPO_PAT }}@github.com/prashiln79/wallet.git
 
-      - name: Copy Files
+      - name: Copy Built Files
         run: |
-            rsync -av --exclude='.git'  dist/money-manager/browser/ public-repo/
+          # Remove existing files except .git
+          cd public-repo
+          find . -not -path './.git*' -not -path '.' -delete
+          # Copy built files
+          rsync -av --exclude='.git' ../dist/money-manager/browser/ ./
 
       - name: Commit and Push
         run: |
           cd public-repo
           git add .
-          git commit -m "Update from new" 
-          git push origin main # Change this if the default branch is not main
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Deploy: Update from money-manager repo - $(date)"
+            git push origin main
+          fi
