@@ -1,0 +1,170 @@
+import { Component, OnInit } from '@angular/core';
+
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  isImportant: boolean;
+}
+
+@Component({
+  selector: 'app-notes',
+  templateUrl: './notes.component.html',
+  styleUrls: ['./notes.component.scss']
+})
+export class NotesComponent implements OnInit {
+
+  notes: Note[] = [];
+  filteredNotes: Note[] = [];
+  selectedCategory: string = 'all';
+  searchTerm: string = '';
+  isAddingNote: boolean = false;
+  newNote: Partial<Note> = {
+    title: '',
+    content: '',
+    category: 'personal',
+    tags: [],
+    isImportant: false
+  };
+
+  categories: { value: string; label: string; icon: string }[] = [
+    { value: 'all', label: 'All Notes', icon: 'note' },
+    { value: 'personal', label: 'Personal', icon: 'person' },
+    { value: 'financial', label: 'Financial', icon: 'account_balance_wallet' },
+    { value: 'tax', label: 'Tax Related', icon: 'receipt_long' },
+    { value: 'investment', label: 'Investment', icon: 'trending_up' },
+    { value: 'expenses', label: 'Expenses', icon: 'money_off' },
+    { value: 'goals', label: 'Goals', icon: 'flag' },
+    { value: 'documents', label: 'Documents', icon: 'description' }
+  ];
+
+  constructor() { }
+
+  ngOnInit(): void {
+    this.loadNotes();
+  }
+
+  loadNotes(): void {
+    // TODO: Load notes from service/database
+    this.notes = [
+      {
+        id: '1',
+        title: 'Tax Planning Notes',
+        content: 'Remember to invest in ELSS for tax saving under section 80C. Also consider health insurance for 80D benefits.',
+        category: 'tax',
+        tags: ['tax', 'investment', 'planning'],
+        createdAt: new Date('2024-01-15'),
+        updatedAt: new Date('2024-01-15'),
+        isImportant: true
+      },
+      {
+        id: '2',
+        title: 'Monthly Budget Goals',
+        content: 'Target: Save 30% of income. Track expenses daily. Review budget every weekend.',
+        category: 'financial',
+        tags: ['budget', 'savings', 'goals'],
+        createdAt: new Date('2024-01-10'),
+        updatedAt: new Date('2024-01-10'),
+        isImportant: true
+      }
+    ];
+    this.filteredNotes = [...this.notes];
+  }
+
+  filterNotes(): void {
+    this.filteredNotes = this.notes.filter(note => {
+      const matchesCategory = this.selectedCategory === 'all' || note.category === this.selectedCategory;
+      const matchesSearch = note.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                           note.content.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                           note.tags.some(tag => tag.toLowerCase().includes(this.searchTerm.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }
+
+  onCategoryChange(): void {
+    this.filterNotes();
+  }
+
+  onSearchChange(): void {
+    this.filterNotes();
+  }
+
+  addNote(): void {
+    this.isAddingNote = true;
+  }
+
+  saveNote(): void {
+    if (this.newNote.title && this.newNote.content) {
+      const note: Note = {
+        id: Date.now().toString(),
+        title: this.newNote.title!,
+        content: this.newNote.content!,
+        category: this.newNote.category!,
+        tags: this.newNote.tags!,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isImportant: this.newNote.isImportant!
+      };
+      
+      this.notes.unshift(note);
+      this.filterNotes();
+      this.resetNewNote();
+      this.isAddingNote = false;
+    }
+  }
+
+  cancelAddNote(): void {
+    this.resetNewNote();
+    this.isAddingNote = false;
+  }
+
+  resetNewNote(): void {
+    this.newNote = {
+      title: '',
+      content: '',
+      category: 'personal',
+      tags: [],
+      isImportant: false
+    };
+  }
+
+  deleteNote(noteId: string): void {
+    this.notes = this.notes.filter(note => note.id !== noteId);
+    this.filterNotes();
+  }
+
+  toggleImportant(note: Note): void {
+    note.isImportant = !note.isImportant;
+    note.updatedAt = new Date();
+  }
+
+  addTag(tag: any): void {
+    let tagValue = tag.target.value;
+    if (tagValue && !this.newNote.tags!.includes(tagValue)) {
+      this.newNote.tags!.push(tagValue);
+    }
+  }
+
+  removeTag(tag: string): void {
+    this.newNote.tags = this.newNote.tags!.filter(t => t !== tag);
+  }
+
+  exportNotes(): void {
+    // TODO: Implement export functionality
+    console.log('Export notes clicked');
+  }
+
+  importNotes(): void {
+    // TODO: Implement import functionality
+    console.log('Import notes clicked');
+  }
+
+  getCategoryInfo(categoryValue: string): { icon: string; label: string } {
+    const category = this.categories.find(c => c.value === categoryValue);
+    return category ? { icon: category.icon, label: category.label } : { icon: 'note', label: 'Unknown' };
+  }
+} 

@@ -66,6 +66,7 @@ import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm
 import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction/import-transactions.component';
 import { ReportsComponent } from './component/dashboard/reports/reports.component';
 import { TaxComponent } from './component/dashboard/tax/tax.component';
+import { NotesComponent } from './component/dashboard/notes/notes.component';
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import { TaxComponent } from './component/dashboard/tax/tax.component';
     ConfirmDialogComponent,
     ImportTransactionsComponent,
     ReportsComponent,
-    TaxComponent
+    TaxComponent,
+    NotesComponent
   ],
   imports: [
     BrowserModule,
