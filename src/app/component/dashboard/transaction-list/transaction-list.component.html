@@ -38,7 +38,7 @@
 		<mat-tab class="max-h-full">
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
-					<mat-icon class="text-blue-600">compare_arrows</mat-icon>
+					<mat-icon class="text-primary">compare_arrows</mat-icon>
 					<span class="font-semibold text-gray-700">Transactions</span>
 				</div>
 			</ng-template>
@@ -47,17 +47,17 @@
 				<!-- Header Section -->
 				<!-- Enhanced Header Section -->
 				@if(!showFullTable) {
-				<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
+				<div class="bg-gradient-to-r from-gray-50 to-white rounded-xl p-6 mb-6 border border-blue-100">
 					<!-- Title and Description -->
 					<div class="flex flex-col">
 						<div class="flex justify-between items-start mb-2">
 							<div class="flex items-start">
-								<div class="p-2 bg-blue-100 rounded-lg mr-2">
-									<mat-icon class="text-blue-600">receipt_long</mat-icon>
+								<div class="p-2 px-3 bg-blue-100 rounded-lg mr-2">
+									<mat-icon class="text-primary">receipt_long</mat-icon>
 								</div>
 								<div>
-									<h4 class="text-2xl font-bold text-gray-800">Transaction History</h4>
-									<p class="text-gray-600">Manage and track your financial transactions with detailed insights</p>
+									<h4 class="text-2xl font-bold text-gray-800 !mb-1">Transaction History</h4>
+									<p class="text-gray-600 text-sm">Manage and track your financial transactions with detailed insights</p>
 									<!-- Quick Stats -->
 									<div class="flex flex-wrap gap-4 mt-4">
 										<div class="flex items-center space-x-2">
@@ -101,7 +101,7 @@
 							<div class="flex flex-col sm:flex-row gap-3 justify-end">
 								<!-- Main Actions -->
 								<div class="flex space-x-3">
-									<button mat-button class="flex items-center space-x-2 border-blue-200 text-blue-600 hover:bg-blue-50" (click)="openImportDialog()">
+									<button mat-button class="flex items-center space-x-2 border-blue-200 text-primary hover:bg-blue-50" (click)="openImportDialog()">
 										<mat-icon>file_upload</mat-icon>
 										<span>Import</span>
 									</button>
@@ -250,7 +250,7 @@
 									</div>
 								</th>
 								<td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-									<span *ngIf="!element.isEditing" class="font-bold text-sm" [class]="element.type === 'income' ? 'text-green-600' : 'text-red-600'">
+									<span *ngIf="!element.isEditing" class="font-bold text-sm" [class]="element.type === 'income' ? 'text-green-700' : 'text-red-800'">
 										{{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
 									</span>
 									<input
@@ -357,7 +357,7 @@
 		<mat-tab>
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
-					<mat-icon class="text-green-600">attach_money</mat-icon>
+					<mat-icon class="text-primary">attach_money</mat-icon>
 					<span class="font-semibold text-gray-700">Accounts</span>
 				</div>
 			</ng-template>
@@ -379,7 +379,7 @@
 		<mat-tab>
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
-					<mat-icon class="text-purple-600">local_offer</mat-icon>
+					<mat-icon class="text-primary">local_offer</mat-icon>
 					<span class="font-semibold text-gray-700">Categories</span>
 				</div>
 			</ng-template>
@@ -401,7 +401,7 @@
 		<mat-tab>
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
-					<mat-icon class="text-orange-600">analytics</mat-icon>
+					<mat-icon class="text-primary">analytics</mat-icon>
 					<span class="font-semibold text-gray-700">Reports</span>
 				</div>
 			</ng-template>
@@ -411,7 +411,7 @@
 		<mat-tab>
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
-					<mat-icon class="text-red-600">receipt_long</mat-icon>
+					<mat-icon class="text-primary">receipt_long</mat-icon>
 					<span class="font-semibold text-gray-700">Tax</span>
 				</div>
 			</ng-template>
