@@ -1,5 +1,10 @@
+
+
 <mat-card class="demo-inline-calendar-card">
-  <!-- Collapsible Calendar Controls -->
+  <div class="m-5 flex justify-around">
+    <total-balance class="md:col-span-2 lg:col-span-7"></total-balance>
+  </div>
+
   <div class="calendar-header">
     <div class="header-main">
       <div class="header-title">
@@ -127,6 +132,8 @@
     </mat-calendar>
   </div>
 </mat-card>
+
+
 
 <!-- Transaction details for selected date -->
 <!-- <div class="mt-4" *ngIf="selectedDate && selectedDateTransactions.length > 0">
