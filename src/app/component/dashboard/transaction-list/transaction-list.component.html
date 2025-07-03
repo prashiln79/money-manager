@@ -4,9 +4,14 @@
 		<mat-card class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200 relative" (press)="onLongPress(tx)" (click)="onLongPress(tx)">
 			<section class="flex items-center space-x-4">
 				<!-- Icon Section -->
-				<div class="p-2 bg-gray-100 rounded-full flex items-center justify-center">
-					<mat-icon class="!w-fit !h-fit text-4xl">insert_invitation</mat-icon>
-				</div>
+				<div class="p-2  rounded-full flex items-center justify-center">
+					<div class="p-3 rounded-2xl flex items-center justify-center shadow-sm transition-transform hover:scale-110" 
+					[class]="tx.type === 'income' ? 'bg-green-100' : 'bg-red-100'">
+				   <mat-icon class="text-2xl" 
+							[class]="tx.type === 'income' ? 'text-green-600' : 'text-red-600'">
+					   {{ tx.type === 'income' ? 'trending_up' : 'trending_down' }}
+				   </mat-icon>
+			   </div></div>
 
 				<!-- Transaction Details -->
 				<div class="flex-1">
