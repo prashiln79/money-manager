@@ -1,8 +1,8 @@
 <div class="p-6">
   <div class="flex justify-between items-center mb-6">
     <div>
-      <h2 class="text-2xl font-bold text-gray-800 mb-1">Financial Reports</h2>
-      <p class="text-gray-600">Analyze your spending patterns and financial insights</p>
+      <h2 class="heading-responsive-h2 text-gray-800 mb-1">Financial Reports</h2>
+      <p class="body-responsive-medium text-gray-600">Analyze your spending patterns and financial insights</p>
     </div>
     <div class="flex space-x-3">
       <button mat-stroked-button class="flex items-center space-x-2" (click)="exportReport()">
@@ -21,7 +21,7 @@
     <!-- Spending Overview Card -->
     <mat-card class="p-6 shadow-lg border-0 rounded-xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">Spending Overview</h3>
+        <h3 class="heading-responsive-h4 text-gray-800">Spending Overview</h3>
         <mat-icon class="text-blue-600">pie_chart</mat-icon>
       </div>
       <div class="space-y-4">
@@ -43,7 +43,7 @@
     <!-- Monthly Trends Card -->
     <mat-card class="p-6 shadow-lg border-0 rounded-xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">Monthly Trends</h3>
+        <h3 class="heading-responsive-h4 text-gray-800">Monthly Trends</h3>
         <mat-icon class="text-green-600">trending_up</mat-icon>
       </div>
       <div class="space-y-4">
@@ -65,13 +65,13 @@
     <!-- Top Categories Card -->
     <mat-card class="p-6 shadow-lg border-0 rounded-xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">Top Spending Categories</h3>
+        <h3 class="heading-responsive-h4 text-gray-800">Top Spending Categories</h3>
         <mat-icon class="text-purple-600">category</mat-icon>
       </div>
       <div class="space-y-3">
         <div class="text-center py-8">
-          <mat-icon class="text-gray-400 text-4xl mb-2">bar_chart</mat-icon>
-          <p class="text-gray-500">No data available</p>
+                  <mat-icon class="text-gray-400 text-responsive-4xl mb-2">bar_chart</mat-icon>
+        <p class="body-responsive-small text-gray-500">No data available</p>
         </div>
       </div>
     </mat-card>
@@ -79,13 +79,13 @@
     <!-- Recent Activity Card -->
     <mat-card class="p-6 shadow-lg border-0 rounded-xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">Recent Activity</h3>
+        <h3 class="heading-responsive-h4 text-gray-800">Recent Activity</h3>
         <mat-icon class="text-orange-600">schedule</mat-icon>
       </div>
       <div class="space-y-3">
         <div class="text-center py-8">
-          <mat-icon class="text-gray-400 text-4xl mb-2">receipt_long</mat-icon>
-          <p class="text-gray-500">No recent transactions</p>
+                  <mat-icon class="text-gray-400 text-responsive-4xl mb-2">receipt_long</mat-icon>
+        <p class="body-responsive-small text-gray-500">No recent transactions</p>
         </div>
       </div>
     </mat-card>
@@ -97,7 +97,7 @@
   <div class="mt-8">
     <mat-card class="p-6 shadow-lg border-0 rounded-xl">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-semibold text-gray-800">Detailed Analysis</h3>
+        <h3 class="heading-responsive-h3 text-gray-800">Detailed Analysis</h3>
         <div class="flex space-x-2">
           <button mat-stroked-button>Daily</button>
           <button mat-stroked-button>Weekly</button>
@@ -106,9 +106,9 @@
         </div>
       </div>
       <div class="text-center py-12">
-        <mat-icon class="text-gray-400 text-6xl mb-4">analytics</mat-icon>
-        <h4 class="text-lg font-medium text-gray-900 mb-2">No Data Available</h4>
-        <p class="text-gray-500 mb-4">Start adding transactions to see detailed reports and insights.</p>
+        <mat-icon class="text-gray-400 text-responsive-6xl mb-4">analytics</mat-icon>
+        <h4 class="heading-responsive-h4 text-gray-900 mb-2">No Data Available</h4>
+        <p class="body-responsive-medium text-gray-500 mb-4">Start adding transactions to see detailed reports and insights.</p>
         <button mat-raised-button color="primary" class="flex items-center space-x-2 mx-auto" (click)="addTransaction()">
           <mat-icon>add</mat-icon>
           <span>Add Transaction</span>

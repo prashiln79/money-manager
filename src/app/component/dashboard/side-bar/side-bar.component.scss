@@ -5,5 +5,5 @@
 .color-ball {
   height: 3rem;
   width: 3rem;
-  font-size: 3rem;
+  font-size: clamp(2.5rem, 6vw, 4rem);
 }

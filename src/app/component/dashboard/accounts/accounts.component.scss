@@ -45,7 +45,7 @@
     margin-bottom: 1.5rem;
     
     .section-title {
-      font-size: 1.5rem;
+      font-size: clamp(1.25rem, 3vw, 2rem);
       font-weight: 600;
       color: #1f2937;
       margin: 0 0 0.25rem 0;
@@ -53,7 +53,7 @@
     
     .section-subtitle {
       color: #6b7280;
-      font-size: 0.875rem;
+      font-size: clamp(0.75rem, 2vw, 1rem);
       margin: 0;
     }
   }
@@ -66,12 +66,12 @@
     border: 2px dashed #d1d5db;
     
     .empty-icon {
-      font-size: 3rem;
+      font-size: clamp(2.5rem, 6vw, 4rem);
       margin-bottom: 1rem;
     }
     
     .empty-title {
-      font-size: 1.125rem;
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
       font-weight: 500;
       color: #374151;
       margin: 0 0 0.5rem 0;
@@ -79,7 +79,7 @@
     
     .empty-text {
       color: #6b7280;
-      font-size: 0.875rem;
+      font-size: clamp(0.75rem, 2vw, 1rem);
       margin: 0;
     }
   }
@@ -134,7 +134,7 @@
     
     .account-info {
       .account-name {
-        font-size: 1.125rem;
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
         font-weight: 600;
         color: #1f2937;
         margin: 0 0 0.25rem 0;
@@ -146,7 +146,7 @@
         background: #f3f4f6;
         color: #6b7280;
         border-radius: 20px;
-        font-size: 0.75rem;
+        font-size: clamp(0.625rem, 1.5vw, 0.875rem);
         font-weight: 500;
         text-transform: capitalize;
       }
@@ -154,7 +154,7 @@
     
     .account-balance {
       .balance-amount {
-        font-size: 1.25rem;
+        font-size: clamp(1.125rem, 3vw, 1.5rem);
         font-weight: 700;
         color: #1f2937;
       }
@@ -176,7 +176,7 @@
     margin-bottom: 1.5rem;
     
     .form-title {
-      font-size: 1.5rem;
+      font-size: clamp(1.25rem, 3vw, 2rem);
       font-weight: 600;
       color: #1f2937;
       margin: 0;

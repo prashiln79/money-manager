@@ -9,7 +9,7 @@
   margin-bottom: 1rem;
   
   .dialog-icon {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     width: 2rem;
     height: 2rem;
     color: #6b7280;
@@ -20,7 +20,7 @@
   }
   
   .dialog-title {
-    font-size: 1.25rem;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
     font-weight: 600;
     color: #1f2937;
     margin: 0;
@@ -32,7 +32,7 @@
   
   .dialog-message {
     color: #6b7280;
-    font-size: 1rem;
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
     line-height: 1.5;
     margin: 0;
   }
