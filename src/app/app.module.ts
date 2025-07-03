@@ -29,6 +29,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Firebase Imports
 import { environment } from '@env/environment';
@@ -114,6 +115,7 @@ import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm
     MatDatepickerModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
 
     // Utility
     IconModule,

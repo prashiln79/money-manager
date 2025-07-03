@@ -3,10 +3,10 @@
   <div *ngIf="errorMessage" 
        class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
     <p class="text-red-700 text-sm">{{ errorMessage }}</p>
-    <button (click)="clearError()" 
-            class="text-red-500 hover:text-red-700 text-lg font-bold">
-      ×
-    </button>
+         <button mat-icon-button (click)="clearError()" 
+             class="error-close-button">
+       <mat-icon>close</mat-icon>
+     </button>
   </div>
 
   <!-- Loading Indicator -->
@@ -47,20 +47,20 @@
               <h3 class="category-name">{{ category.name }}</h3>
               <span class="category-type">{{ category.type }}</span>
             </div>
-            <div class="category-actions">
-              <button (click)="editCategory(category)" 
-                      class="action-button edit-button"
-                      title="Edit category"
-                      [disabled]="isEditMode">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button (click)="deleteCategory(category)" 
-                      class="action-button delete-button"
-                      title="Delete category"
-                      [disabled]="isEditMode">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
+                          <div class="category-actions">
+                <button mat-icon-button (click)="editCategory(category)" 
+                        class="action-button edit-button"
+                        matTooltip="Edit category"
+                        [disabled]="isEditMode">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteCategory(category)" 
+                        class="action-button delete-button"
+                        matTooltip="Delete category"
+                        [disabled]="isEditMode">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
           </div>
         </div>
       </div>
@@ -104,24 +104,27 @@
             </select>
           </div>
 
-          <!-- Action Buttons -->
-          <div class="form-actions">
-            <button type="submit"
-                    [disabled]="isLoading || !categoryForm.form.valid"
-                    class="submit-button">
-              <span *ngIf="isLoading" class="loading-spinner"></span>
-              <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-              {{ isLoading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Category' : 'Add Category') }}
-            </button>
-            
-            <button *ngIf="isEditMode"
-                    type="button"
-                    (click)="cancelEdit()"
-                    class="cancel-button">
-              <mat-icon>cancel</mat-icon>
-              Cancel
-            </button>
-          </div>
+                      <!-- Action Buttons -->
+            <div class="form-actions">
+              <button mat-raised-button
+                      type="submit"
+                      color="primary"
+                      [disabled]="isLoading || !categoryForm.form.valid"
+                      class="submit-button">
+                <mat-spinner *ngIf="isLoading" diameter="16"></mat-spinner>
+                <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+                {{ isLoading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Category' : 'Add Category') }}
+              </button>
+              
+              <button *ngIf="isEditMode"
+                      mat-stroked-button
+                      type="button"
+                      (click)="cancelEdit()"
+                      class="cancel-button">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+            </div>
         </form>
       </div>
     </section>
