@@ -384,4 +384,16 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.notificationService.success('Analytics view coming soon');
   }
 
+  addTransactionDialog(): void {
+    const dialogRef = this._dialog.open(TransactionComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+    });
+    dialogRef.afterClosed().subscribe((transaction: Transaction) => {
+      if (transaction) {
+        this.loadTransactions();
+      }
+    });
+  }
+
 }
