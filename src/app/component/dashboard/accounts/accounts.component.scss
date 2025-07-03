@@ -111,6 +111,21 @@
       border-left: 4px solid #ef4444;
     }
     
+    &.loan-account {
+      border-left: 4px solid #f59e0b;
+      background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
+      
+      .account-type {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fbbf24;
+      }
+      
+      .balance-amount {
+        color: #dc2626;
+      }
+    }
+    
     .account-content {
       display: flex;
       justify-content: space-between;

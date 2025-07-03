@@ -37,8 +37,9 @@
             <div *ngIf="accounts.length > 0" class="accounts-grid-list">
                 <div *ngFor="let account of accounts; trackBy: trackByAccountId"
                      class="account-item"
-                     [class.positive-balance]="account.balance >= 0"
-                     [class.negative-balance]="account.balance < 0">
+                     [class.positive-balance]="account.balance >= 0 && account.type !== 'loan'"
+                     [class.negative-balance]="account.balance < 0 && account.type !== 'loan'"
+                     [class.loan-account]="account.type === 'loan'">
                     <div class="account-content">
                         <div class="account-info">
                             <h3 class="account-name">{{ account.name }}</h3>
@@ -85,6 +86,7 @@
                             <option value="bank">Bank Account</option>
                             <option value="cash">Cash</option>
                             <option value="credit">Credit Card</option>
+                            <option value="loan">Loan</option>
                         </select>
                     </div>
 

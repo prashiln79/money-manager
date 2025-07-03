@@ -7,7 +7,7 @@ export interface Account {
     accountId: string;
     userId: string;
     name: string;
-    type: 'bank' | 'cash' | 'credit';
+    type: 'bank' | 'cash' | 'credit' | 'loan';
     balance: number;
     createdAt: string;
 }
