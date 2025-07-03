@@ -1,5 +1,5 @@
 @if (isMobile) {
-  <div class="overflow-auto h-fit md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
+  <div class="overflow-auto h-[40vh] md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
     <div *ngFor="let tx of dataSource.data; let i = index">
       <mat-card 
         class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200 relative"
@@ -44,7 +44,7 @@
 
 
 
-<mat-card class="p-6 shadow-lg border-0 rounded-xl transaction-list-container">
+<mat-card class="p-6 shadow-lg border-0 rounded-xl transaction-list-container max-h-[80vh]">
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs">
     <mat-tab>
       <ng-template mat-tab-label>
