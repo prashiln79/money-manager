@@ -10,10 +10,10 @@ import { Transaction, TransactionsService } from 'src/app/util/service/transacti
 export class TotalBalanceComponent {
 
   totalSpendAmt = 0;
+  totalIncomeAmt = 0;
+  
   constructor(private transactionsService: TransactionsService, private auth: Auth) {
-
     this.getTotalAmount();
-
   }
 
   getTotalAmount() {
@@ -21,6 +21,10 @@ export class TotalBalanceComponent {
     this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe((transactions : Transaction[]) => {
       this.totalSpendAmt = Math.abs(
         transactions.reduce((acc, curr) => acc + (curr.type === 'income' ?  0 : -(curr.amount || 0)), 0)
+      );
+      
+      this.totalIncomeAmt = Math.abs(
+        transactions.reduce((acc, curr) => acc + (curr.type === 'income' ? (curr.amount || 0) : 0), 0)
       );
     });
   }
