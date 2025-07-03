@@ -40,6 +40,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   selectedCategory: string = 'all';
   selectedType: string = 'all';
 
+  // Table properties
+  showFullTable: boolean = false;
+
 
   constructor(
     private loaderService: LoaderService, 
@@ -394,6 +397,10 @@ export class TransactionListComponent implements OnInit, OnDestroy {
         this.loadTransactions();
       }
     });
+  }
+
+  expandTable(): void {
+    this.showFullTable = !this.showFullTable;
   }
 
 }

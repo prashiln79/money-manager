@@ -46,76 +46,75 @@
 			<div class="p-6 max-h-[76vh] overflow-hidden">
 				<!-- Header Section -->
 				<!-- Enhanced Header Section -->
+				@if(!showFullTable) {
 				<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
-						<!-- Title and Description -->
-						<div class="flex flex-col">
-							<div class="flex justify-between items-start mb-2">
-								<div class="flex items-start ">
-									<div class="p-2 bg-blue-100 rounded-lg mr-2">
-										<mat-icon class="text-blue-600">receipt_long</mat-icon>
-									</div>
-									<div>
-										<h4 class="text-2xl font-bold text-gray-800">Transaction History</h4>
-										<p class="text-gray-600">Manage and track your financial transactions with detailed insights</p>
-                    <!-- Quick Stats -->
-							<div class="flex flex-wrap gap-4 mt-4">
-								<div class="flex items-center space-x-2">
-									<div class="w-2 h-2 bg-green-500 rounded-full"></div>
-									<span class="text-sm text-gray-600"
-										>Transactions: <span class="font-semibold text-gray-800">{{ getFilteredCount() }}</span
-										><span *ngIf="getFilteredCount() !== getTotalCount()" class="text-gray-400">/{{ getTotalCount() }}</span></span
-									>
+					<!-- Title and Description -->
+					<div class="flex flex-col">
+						<div class="flex justify-between items-start mb-2">
+							<div class="flex items-start">
+								<div class="p-2 bg-blue-100 rounded-lg mr-2">
+									<mat-icon class="text-blue-600">receipt_long</mat-icon>
 								</div>
-								<div class="flex items-center space-x-2">
-									<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-									<span class="text-sm text-gray-600">This Month: <span class="font-semibold text-gray-800">{{ getCurrentMonthTransactions() }}</span></span>
-								</div>
-								<div class="flex items-center space-x-2">
-									<div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-									<span class="text-sm text-gray-600">Categories: <span class="font-semibold text-gray-800">{{ getUniqueCategories() }}</span></span>
-								</div>
-								<div *ngIf="selectedDate" class="flex items-center space-x-2">
-									<div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-									<span class="text-sm text-gray-600">Filtered by: <span class="font-semibold text-gray-800">{{ selectedDate | date:'MMM dd, yyyy' }}</span></span>
-								</div>
-								<div *ngIf="selectedDateRange" class="flex items-center space-x-2">
-									<div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-									<span class="text-sm text-gray-600"
-										>Range: <span class="font-semibold text-gray-800">{{ selectedDateRange.startDate | date:'MMM dd' }} - {{ selectedDateRange.endDate | date:'MMM dd, yyyy' }}</span></span
-									>
-								</div>
-								<div *ngIf="searchTerm || selectedCategory !== 'all' || selectedType !== 'all'" class="flex items-center space-x-2">
-									<div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-									<span class="text-sm text-gray-600"
-										>Filters:
-										<span class="font-semibold text-gray-800">
-											{{ (searchTerm ? 'Search' : '') + (selectedCategory !== 'all' ? (searchTerm ? ', ' : '') + 'Category' : '') + (selectedType !== 'all' ? ((searchTerm || selectedCategory !==
-											'all') ? ', ' : '') + 'Type' : '') }}
-										</span></span
-									>
-								</div>
-							</div>
-									</div>
-                  
-								</div>
-								<div class="flex flex-col sm:flex-row gap-3 justify-end">
-									<!-- Main Actions -->
-									<div class="flex space-x-3">
-										<button mat-button class="flex items-center space-x-2 border-blue-200 text-blue-600 hover:bg-blue-50" (click)="openImportDialog()">
-											<mat-icon>file_upload</mat-icon>
-											<span>Import</span>
-										</button>
-										<button mat-stroked-button color="primary" (click)="addTransactionDialog()">
-											<mat-icon>add</mat-icon>
-											<span>Add</span>
-										</button>
+								<div>
+									<h4 class="text-2xl font-bold text-gray-800">Transaction History</h4>
+									<p class="text-gray-600">Manage and track your financial transactions with detailed insights</p>
+									<!-- Quick Stats -->
+									<div class="flex flex-wrap gap-4 mt-4">
+										<div class="flex items-center space-x-2">
+											<div class="w-2 h-2 bg-green-500 rounded-full"></div>
+											<span class="text-sm text-gray-600"
+												>Transactions: <span class="font-semibold text-gray-800">{{ getFilteredCount() }}</span
+												><span *ngIf="getFilteredCount() !== getTotalCount()" class="text-gray-400">/{{ getTotalCount() }}</span></span
+											>
+										</div>
+										<div class="flex items-center space-x-2">
+											<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+											<span class="text-sm text-gray-600">This Month: <span class="font-semibold text-gray-800">{{ getCurrentMonthTransactions() }}</span></span>
+										</div>
+										<div class="flex items-center space-x-2">
+											<div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+											<span class="text-sm text-gray-600">Categories: <span class="font-semibold text-gray-800">{{ getUniqueCategories() }}</span></span>
+										</div>
+										<div *ngIf="selectedDate" class="flex items-center space-x-2">
+											<div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+											<span class="text-sm text-gray-600">Filtered by: <span class="font-semibold text-gray-800">{{ selectedDate | date:'MMM dd, yyyy' }}</span></span>
+										</div>
+										<div *ngIf="selectedDateRange" class="flex items-center space-x-2">
+											<div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+											<span class="text-sm text-gray-600"
+												>Range: <span class="font-semibold text-gray-800">{{ selectedDateRange.startDate | date:'MMM dd' }} - {{ selectedDateRange.endDate | date:'MMM dd, yyyy' }}</span></span
+											>
+										</div>
+										<div *ngIf="searchTerm || selectedCategory !== 'all' || selectedType !== 'all'" class="flex items-center space-x-2">
+											<div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+											<span class="text-sm text-gray-600"
+												>Filters:
+												<span class="font-semibold text-gray-800">
+													{{ (searchTerm ? 'Search' : '') + (selectedCategory !== 'all' ? (searchTerm ? ', ' : '') + 'Category' : '') + (selectedType !== 'all' ? ((searchTerm || selectedCategory !==
+													'all') ? ', ' : '') + 'Type' : '') }}
+												</span></span
+											>
+										</div>
 									</div>
 								</div>
 							</div>
-
-							
+							<div class="flex flex-col sm:flex-row gap-3 justify-end">
+								<!-- Main Actions -->
+								<div class="flex space-x-3">
+									<button mat-button class="flex items-center space-x-2 border-blue-200 text-blue-600 hover:bg-blue-50" (click)="openImportDialog()">
+										<mat-icon>file_upload</mat-icon>
+										<span>Import</span>
+									</button>
+									<button mat-stroked-button color="primary" (click)="addTransactionDialog()">
+										<mat-icon>add</mat-icon>
+										<span>Add</span>
+									</button>
+								</div>
+							</div>
 						</div>
+					</div>
 				</div>
+				}
 
 				<!-- Search and Filter Section -->
 				<div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
@@ -161,14 +160,17 @@
 
 						<!-- Clear Filters Button -->
 						<div class="flex space-x-2">
-							<button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Refresh transactions" (click)="refreshTransactions()">
+							<!-- <button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Refresh transactions" (click)="refreshTransactions()">
 								<mat-icon class="text-gray-600">refresh</mat-icon>
-							</button>
+							</button> -->
 							<button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Filter transactions" (click)="openFilterDialog()">
 								<mat-icon class="text-gray-600">filter_list</mat-icon>
 							</button>
 							<button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="View analytics" (click)="viewAnalytics()">
 								<mat-icon class="text-gray-600">analytics</mat-icon>
+							</button>
+							<button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Expand table" (click)="expandTable()">
+								<mat-icon class="text-gray-600">open_in_new</mat-icon>
 							</button>
 							<button
 								*ngIf="selectedDate || selectedDateRange || searchTerm || selectedCategory !== 'all' || selectedType !== 'all'"
@@ -351,7 +353,6 @@
           </mat-paginator>
         </div> -->
 			</div>
-
 		</mat-tab>
 		<mat-tab>
 			<ng-template mat-tab-label>
