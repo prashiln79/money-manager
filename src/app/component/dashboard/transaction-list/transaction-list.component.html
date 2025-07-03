@@ -46,7 +46,7 @@
 
 <mat-card class="p-6 shadow-lg border-0 rounded-xl transaction-list-container max-h-[80vh]">
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs">
-    <mat-tab>
+    <mat-tab class="max-h-full">
       <ng-template mat-tab-label>
         <div class="flex items-center space-x-2 px-4 py-2">
           <mat-icon class="text-blue-600">compare_arrows</mat-icon>
@@ -56,26 +56,85 @@
 
       <div class="p-6">
         <!-- Header Section -->
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h3 class="text-xl font-bold text-gray-800 mb-1">Transaction History</h3>
-            <p class="text-gray-600">Manage and track your financial transactions</p>
-          </div>
-          <div class="flex space-x-3">
-            <button mat-raised-button color="primary" class="flex items-center space-x-2" (click)="exportToExcel()">
-              <mat-icon>file_download</mat-icon>
-              <span>Export</span>
-            </button>
-            <button mat-stroked-button class="flex items-center space-x-2" (click)="openImportDialog()">
-              <mat-icon>file_upload</mat-icon>
-              <span>Import</span>
-            </button>
+        <!-- Enhanced Header Section -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
+          <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+            <!-- Title and Description -->
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                  <mat-icon class="text-blue-600">receipt_long</mat-icon>
+                </div>
+                <div>
+                  <h4 class="text-2xl font-bold text-gray-800">Transaction History</h4>
+                  <p class="text-gray-600">Manage and track your financial transactions with detailed insights</p>
+                </div>
+              </div>
+              
+              <!-- Quick Stats -->
+              <div class="flex flex-wrap gap-4 mt-4">
+                <div class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span class="text-sm text-gray-600">Total Transactions: <span class="font-semibold text-gray-800">{{ dataSource?.data?.length || 0 }}</span></span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span class="text-sm text-gray-600">This Month: <span class="font-semibold text-gray-800">{{ getCurrentMonthTransactions() }}</span></span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span class="text-sm text-gray-600">Categories: <span class="font-semibold text-gray-800">{{ getUniqueCategories() }}</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <!-- Quick Actions -->
+              <div class="flex space-x-2">
+                <button mat-icon-button 
+                        class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg"
+                        matTooltip="Refresh transactions"
+                        (click)="refreshTransactions()">
+                  <mat-icon class="text-gray-600">refresh</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg"
+                        matTooltip="Filter transactions"
+                        (click)="openFilterDialog()">
+                  <mat-icon class="text-gray-600">filter_list</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg"
+                        matTooltip="View analytics"
+                        (click)="viewAnalytics()">
+                  <mat-icon class="text-gray-600">analytics</mat-icon>
+                </button>
+              </div>
+              
+              <!-- Main Actions -->
+              <div class="flex space-x-3">
+                <button mat-stroked-button 
+                        class="flex items-center space-x-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+                        (click)="openImportDialog()">
+                  <mat-icon>file_upload</mat-icon>
+                  <span>Import</span>
+                </button>
+                <button mat-raised-button 
+                        color="primary" 
+                        class="flex items-center space-x-2 shadow-lg hover:shadow-xl transition-shadow"
+                        (click)="exportToExcel()">
+                  <mat-icon>file_download</mat-icon>
+                  <span>Export</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Table Container -->
-        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden h-[calc(100vh-300px)] flex flex-col">
-          <div class="flex-1 overflow-auto table-container">
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden  flex flex-col max-h-[400px]">
+          <div class="flex-1 overflow-auto table-container max-h-full">
             <table mat-table [dataSource]="dataSource" matSort class="w-full">
             <!-- Date Column -->
             <ng-container matColumnDef="Date">
@@ -97,7 +156,7 @@
 
             <!-- Type Column -->
             <ng-container matColumnDef="Type">
-              <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+              <th mat-header-cell *matHeaderCellDef class=" px-6 py-4">
                 <div class="flex items-center space-x-2">
                   <mat-icon class="text-gray-500 text-sm">category</mat-icon>
                   <span class="font-semibold text-gray-700">Category</span>
@@ -112,14 +171,14 @@
 
             <!-- Payee Column -->
             <ng-container matColumnDef="Payee">
-              <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+              <th mat-header-cell *matHeaderCellDef class=" px-6 py-4">
                 <div class="flex items-center space-x-2">
                   <mat-icon class="text-gray-500 text-sm">person</mat-icon>
                   <span class="font-semibold text-gray-700">Payee</span>
                 </div>
               </th>
               <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-                <span *ngIf="!element.isEditing" class="font-medium text-gray-900">{{element.payee}}</span>
+                <span *ngIf="!element.isEditing" class="font-medium text-gray-900 max-w-[100px] text-wrap !block">{{element.payee}}</span>
                 <input 
                   *ngIf="element.isEditing" 
                   [(ngModel)]="element.payee" 
@@ -138,7 +197,7 @@
                 </div>
               </th>
               <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-                <span *ngIf="!element.isEditing" class="font-bold text-lg" [class]="element.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                <span *ngIf="!element.isEditing" class="font-bold text-sm" [class]="element.type === 'income' ? 'text-green-600' : 'text-red-600'">
                   {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
                 </span>
                 <input 
@@ -242,13 +301,14 @@
        </div>
 
         <!-- Pagination -->
-        <div class="mt-4 flex justify-between items-center bg-white rounded-lg border border-gray-200 p-4">
+        <!-- <div class="mt-4 flex justify-between items-center bg-white rounded-lg border border-gray-200 p-4">
+          
           <mat-paginator #Paginator 
                          [pageSizeOptions]="pageSizeOptions" 
                          aria-label="Select page of transactions"
                          class="bg-transparent border-0">
           </mat-paginator>
-        </div>
+        </div> -->
       </div>
       
       <add-transaction *ngIf="!isMobile"></add-transaction>

@@ -190,4 +190,34 @@ export class TransactionListComponent {
     this.notificationService.success(`Exported ${exportData.length} transactions successfully`);
   }
 
+  // Header enhancement methods
+  getCurrentMonthTransactions(): number {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    return this.dataSource.data.filter((tx: any) => {
+      const txDate = new Date(tx.date.seconds * 1000);
+      return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+    }).length;
+  }
+
+  getUniqueCategories(): number {
+    const categories = new Set(this.dataSource.data.map((tx: any) => tx.category));
+    return categories.size;
+  }
+
+  refreshTransactions(): void {
+    this.loadTransactions();
+    this.notificationService.success('Transactions refreshed');
+  }
+
+  openFilterDialog(): void {
+    // TODO: Implement filter dialog
+    this.notificationService.success('Filter functionality coming soon');
+  }
+
+  viewAnalytics(): void {
+    // TODO: Navigate to analytics or open analytics dialog
+    this.notificationService.success('Analytics view coming soon');
+  }
+
 }
