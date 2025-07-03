@@ -14,13 +14,21 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-
     return new Observable<boolean>((observer) => {
       onAuthStateChanged(getAuth(), (user) => {
         if (user) {
+          // Optional: Role-based access placeholder
+          // const allowedRoles = route.data['roles'] as string[];
+          // if (allowedRoles && !this.userService.hasRole(user.uid, allowedRoles)) {
+          //   this.router.navigate(['/dashboard']);
+          //   observer.next(false);
+          //   return;
+          // }
           observer.next(true);
         } else {
-          this.router.navigate(['/sign-in']);
+          this.router.navigate(['/sign-in'], {
+            queryParams: { session: 'expired', redirect: state.url }
+          });
           observer.next(false);
         }
       });
