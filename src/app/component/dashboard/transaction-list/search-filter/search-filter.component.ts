@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Transaction } from '../../../util/service/transactions.service';
+import { Transaction } from '../../../../util/service/transactions.service';
 import moment from 'moment';
 
 @Component({

@@ -1,8 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
-import { Transaction } from '../../../util/service/transactions.service';
+import { Transaction } from '../../../../util/service/transactions.service';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
 
