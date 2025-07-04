@@ -17,7 +17,7 @@ export class SideBarComponent implements AfterViewInit {
 
   constructor(
     private auth: Auth,
-    private router: Router,
+    public router: Router,
     private elementRef: ElementRef
   ){
     this.navigationSections = getAllNavigationItems();
