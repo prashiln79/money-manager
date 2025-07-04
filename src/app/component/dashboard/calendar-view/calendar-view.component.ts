@@ -5,6 +5,7 @@ import { TransactionsService, Transaction } from '../../../util/service/transact
 import { UserService } from '../../../util/service/user.service';
 import { DateSelectionService } from '../../../util/service/date-selection.service';
 import { Subscription } from 'rxjs';
+import moment from 'moment';
 
 @Component({
   selector: 'calendar-view',
@@ -26,6 +27,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   
   // Collapsible controls
   isControlsExpanded = false;
+
   
   private subscription = new Subscription();
 
@@ -64,16 +66,16 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Custom date class function to highlight dates with transactions and range selection
+  // Custom date class function to highlight dates with transactions and range selection using Moment.js
   dateClass: MatCalendarCellClassFunction<Date> = (cellDate, view) => {
     if (view === 'month') {
-      const dateStr = this.formatDate(cellDate);
+      const cellMoment = moment(cellDate).startOf('day');
       let classes = '';
       
       // Check if date has transactions
       const hasTransactions = this.transactions.some(transaction => {
-        const transactionDate = transaction.date.toDate();
-        return this.formatDate(transactionDate) === dateStr;
+        const transactionMoment = moment(transaction.date.toDate()).startOf('day');
+        return transactionMoment.isSame(cellMoment, 'day');
       });
       
       if (hasTransactions) {
@@ -82,19 +84,22 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       
       // Range mode highlighting
       if (this.isRangeMode) {
-        if (this.startDate && this.formatDate(this.startDate) === dateStr) {
+        if (this.startDate && moment(this.startDate).startOf('day').isSame(cellMoment, 'day')) {
           classes += 'range-start ';
         }
-        if (this.endDate && this.formatDate(this.endDate) === dateStr) {
+        if (this.endDate && moment(this.endDate).startOf('day').isSame(cellMoment, 'day')) {
           classes += 'range-end ';
         }
-        if (this.startDate && this.endDate && 
-            cellDate >= this.startDate && cellDate <= this.endDate) {
-          classes += 'range-in-between ';
+        if (this.startDate && this.endDate) {
+          const startMoment = moment(this.startDate).startOf('day');
+          const endMoment = moment(this.endDate).endOf('day');
+          if (cellMoment.isBetween(startMoment, endMoment, 'day', '[]')) {
+            classes += 'range-in-between ';
+          }
         }
       } else {
         // Single date mode highlighting
-        if (this.selectedDate && this.formatDate(this.selectedDate) === dateStr) {
+        if (this.selectedDate && moment(this.selectedDate).startOf('day').isSame(cellMoment, 'day')) {
           classes += 'selected-date ';
         }
       }
@@ -150,26 +155,30 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Get transactions for a specific date
+  // Get transactions for a specific date using Moment.js
   getTransactionsForDate(date: Date): Transaction[] {
-    const dateStr = this.formatDate(date);
+    const targetMoment = moment(date).startOf('day');
+    
     return this.transactions.filter(transaction => {
-      const transactionDate = transaction.date.toDate();
-      return this.formatDate(transactionDate) === dateStr;
+      const transactionMoment = moment(transaction.date.toDate()).startOf('day');
+      return transactionMoment.isSame(targetMoment, 'day');
     });
   }
 
-  // Get transactions for a date range
+  // Get transactions for a date range using Moment.js
   getTransactionsForDateRange(startDate: Date, endDate: Date): Transaction[] {
+    const startMoment = moment(startDate).startOf('day');
+    const endMoment = moment(endDate).endOf('day');
+    
     return this.transactions.filter(transaction => {
-      const transactionDate = transaction.date.toDate();
-      return transactionDate >= startDate && transactionDate <= endDate;
+      const transactionMoment = moment(transaction.date.toDate());
+      return transactionMoment.isBetween(startMoment, endMoment, 'day', '[]'); // inclusive
     });
   }
 
-  // Format date to string for comparison
+  // Format date to string for comparison using Moment.js
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return moment(date).format('YYYY-MM-DD');
   }
 
   // Get total income for selected date
@@ -238,5 +247,49 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   // Get net amount for date range
   getRangeNetAmount(): number {
     return this.getRangeTotalIncome() - this.getRangeTotalExpenses();
+  }
+
+  // Utility method to get formatted date range string
+  getFormattedDateRange(): string {
+    if (!this.startDate || !this.endDate) {
+      return '';
+    }
+    
+    const startMoment = moment(this.startDate);
+    const endMoment = moment(this.endDate);
+    
+    if (startMoment.isSame(endMoment, 'day')) {
+      return startMoment.format('MMM DD, YYYY');
+    } else if (startMoment.isSame(endMoment, 'year')) {
+      return `${startMoment.format('MMM DD')} - ${endMoment.format('MMM DD, YYYY')}`;
+    } else {
+      return `${startMoment.format('MMM DD, YYYY')} - ${endMoment.format('MMM DD, YYYY')}`;
+    }
+  }
+
+  // Utility method to get number of days in range
+  getDaysInRange(): number {
+    if (!this.startDate || !this.endDate) {
+      return 0;
+    }
+    
+    const startMoment = moment(this.startDate);
+    const endMoment = moment(this.endDate);
+    return endMoment.diff(startMoment, 'days') + 1; // +1 to include both start and end dates
+  }
+
+  // Utility method to check if a date is today
+  isToday(date: Date): boolean {
+    return moment(date).isSame(moment(), 'day');
+  }
+
+  // Utility method to check if a date is in the past
+  isPastDate(date: Date): boolean {
+    return moment(date).isBefore(moment(), 'day');
+  }
+
+  // Utility method to check if a date is in the future
+  isFutureDate(date: Date): boolean {
+    return moment(date).isAfter(moment(), 'day');
   }
 }

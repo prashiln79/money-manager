@@ -12,6 +12,7 @@ import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
 import { DateSelectionService, DateRange } from 'src/app/util/service/date-selection.service';
 import { Subscription } from 'rxjs';
+import moment from 'moment';
 
 @Component({
   selector: 'transaction-list',
@@ -119,21 +120,18 @@ export class TransactionListComponent implements OnInit, OnDestroy {
         const transactionDate = transaction.date.toDate();
         return this.formatDate(transactionDate) === selectedDateStr;
       });
-      this.notificationService.success(`Showing transactions for ${this.selectedDate.toLocaleDateString()}`);
+      this.notificationService.success(`Showing transactions for ${moment(this.selectedDate).format('MMM DD, YYYY')}`);
     } else if (this.selectedDateRange) {
-      // Set time to start of day for start date and end of day for end date
-      const startOfDay = new Date(this.selectedDateRange.startDate);
-      startOfDay.setHours(0, 0, 0, 0);
-      
-      const endOfDay = new Date(this.selectedDateRange.endDate);
-      endOfDay.setHours(23, 59, 59, 999);
+      // Use Moment.js for date range filtering
+      const startOfDay = moment(this.selectedDateRange.startDate).startOf('day').toDate();
+      const endOfDay = moment(this.selectedDateRange.endDate).endOf('day').toDate();
       
       filteredData = filteredData.filter(transaction => {
         const transactionDate = transaction.date.toDate();
         return transactionDate >= startOfDay && transactionDate <= endOfDay;
       });
-      const startDate = this.selectedDateRange.startDate.toLocaleDateString();
-      const endDate = this.selectedDateRange.endDate.toLocaleDateString();
+      const startDate = moment(this.selectedDateRange.startDate).format('MMM DD, YYYY');
+      const endDate = moment(this.selectedDateRange.endDate).format('MMM DD, YYYY');
       this.notificationService.success(`Showing transactions from ${startDate} to ${endDate}`);
     }
     
@@ -186,7 +184,8 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    // Use Moment.js for consistent date formatting
+    return moment(date).format('YYYY-MM-DD');
   }
 
   clearDateFilter() {
@@ -307,10 +306,10 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Prepare data for export
+    // Prepare data for export using Moment.js
     const exportData = this.dataSource.data.map(tx => ({
-      'Date': new Date(tx.date.seconds * 1000).toLocaleDateString(),
-      'Time': new Date(tx.date.seconds * 1000).toLocaleTimeString(),
+      'Date': moment(tx.date.seconds * 1000).format('MM/DD/YYYY'),
+      'Time': moment(tx.date.seconds * 1000).format('hh:mm A'),
       'Payee': tx.payee,
       'Amount': tx.amount,
       'Type': tx.type,
@@ -330,7 +329,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `transactions_${moment().format('YYYY-MM-DD')}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -342,11 +341,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   // Header enhancement methods
   getCurrentMonthTransactions(): number {
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
+    const currentMonth = moment().month();
+    const currentYear = moment().year();
     return this.dataSource.data.filter((tx: any) => {
-      const txDate = new Date(tx.date.seconds * 1000);
-      return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+      const txDate = moment(tx.date.seconds * 1000);
+      return txDate.month() === currentMonth && txDate.year() === currentYear;
     }).length;
   }
 

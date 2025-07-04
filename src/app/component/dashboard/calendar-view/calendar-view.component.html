@@ -87,7 +87,7 @@
           </div>
         </div>
         <div class="transaction-count">
-          {{ rangeTransactions.length }} transactions in range
+          {{ rangeTransactions.length }} transactions in {{ getDaysInRange() }} day{{ getDaysInRange() !== 1 ? 's' : '' }}
         </div>
       </div>
     </div>
