@@ -91,12 +91,13 @@
 }
 
 .summary-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .summary-card {
+  width: 40%;
   background: white;
   border-radius: 12px;
   padding: 12px;

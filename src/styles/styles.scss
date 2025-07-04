@@ -71,13 +71,20 @@
 
 // Remove Later *****
 html,
-body {
-  height: 100%;
-}
+
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   font-size: 14px; /* Base mobile font size */
+  max-height: 99vh;
+  overflow: hidden; /* Hidden on desktop */
+}
+
+/* Enable scrolling on mobile devices */
+@media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
 }
 
 /* Responsive base font sizes */
