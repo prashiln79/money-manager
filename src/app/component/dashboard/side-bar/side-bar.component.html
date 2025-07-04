@@ -10,7 +10,7 @@
 					<span class="text-lg font-semibold text-gray-900">{{ 'moneyManager' | translate }}</span>
 				</div>
 				<div class="flex items-center gap-3">
-					<button mat-icon-button (click)="drawer.toggle()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors" aria-label="Close sidebar">
+					<button mat-icon-button (click)="drawer.toggle()" routerLink="/dashboard" class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors" aria-label="Close sidebar">
 						<mat-icon>home</mat-icon>
 					</button>
 					<button mat-icon-button (click)="drawer.toggle()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors" aria-label="Close sidebar">
@@ -35,19 +35,15 @@
 			<!-- Settings Section -->
 			<div class="p-4 border-b border-gray-100">
 				<h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Settings</h5>
-				<div class="flex items-center justify-between">
-					<!-- Theme Toggle -->
-					<div class="flex items-center gap-3">
-						<mat-icon class="text-yellow-500 text-sm" matTooltip="Light Theme">light_mode</mat-icon>
-						<mat-slide-toggle [checked]="isDarkTheme" (change)="toggleTheme(drawer)" color="primary"> </mat-slide-toggle>
-						<mat-icon class="text-blue-300 text-sm" matTooltip="Dark Theme">dark_mode</mat-icon>
-					</div>
-
-					<!-- Language Selector -->
-					<div class="scale-75 origin-right">
-						<app-language-switcher></app-language-switcher>
-					</div>
-				</div>
+				                <div class="flex items-center justify-between">
+                    <!-- Theme Toggle -->
+                    <app-theme-toggle></app-theme-toggle>
+                    
+                    <!-- Language Selector -->
+                    <div class="scale-75 origin-right">
+                        <app-language-switcher></app-language-switcher>
+                    </div>
+                </div>
 			</div>
 
 			<!-- Navigation -->

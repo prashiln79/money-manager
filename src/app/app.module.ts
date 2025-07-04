@@ -69,6 +69,7 @@ import { ReportsComponent } from './component/dashboard/reports/reports.componen
 import { TaxComponent } from './component/dashboard/tax/tax.component';
 import { NotesComponent } from './component/dashboard/notes/notes.component';
 import { LanguageSwitcherComponent } from './util/components/language-switcher/language-switcher.component';
+import { ThemeToggleComponent } from './util/components/theme-toggle/theme-toggle.component';
 import { TranslatePipe } from './util/pipes/translate.pipe';
 
 @NgModule({
@@ -95,7 +96,8 @@ import { TranslatePipe } from './util/pipes/translate.pipe';
     ReportsComponent,
     TaxComponent,
     NotesComponent,
-    LanguageSwitcherComponent
+    LanguageSwitcherComponent,
+    ThemeToggleComponent
   ],
   imports: [
     BrowserModule,
