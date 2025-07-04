@@ -1,0 +1,82 @@
+<div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+  <!-- Transaction Count -->
+  <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+    <div class="flex items-center space-x-2">
+      <mat-icon class="text-gray-500 text-sm">receipt_long</mat-icon>
+      <span class="text-sm text-gray-600">
+        {{ getCurrentYear() }} Transactions: <span class="font-semibold text-gray-800">{{ filteredCount }}</span>
+        <span *ngIf="filteredCount !== currentYearCount" class="text-gray-400">/{{ currentYearCount }}</span>
+      </span>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button mat-icon-button class="bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors" matTooltip="Import transactions" (click)="onImportTransactions()">
+        <mat-icon>file_upload</mat-icon>
+      </button>
+      <button mat-icon-button class="bg-green-50 hover:bg-green-100 text-green-600 rounded-lg transition-colors" matTooltip="Add transaction" (click)="onAddTransaction()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <!-- Search Input -->
+    <div class="relative col-span-2">
+      <mat-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
+      <input
+        type="text"
+        [ngModel]="searchTerm"
+        (ngModelChange)="searchTermChange.emit($event)"
+        placeholder="Search transactions..."
+        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+
+    <!-- Category Filter -->
+    <div>
+      <select
+        [ngModel]="selectedCategory"
+        (ngModelChange)="selectedCategoryChange.emit($event)"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="all">All Categories</option>
+        <option *ngFor="let category of categories" [value]="category">
+          {{ category }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Type Filter -->
+    <div>
+      <select
+        [ngModel]="selectedType"
+        (ngModelChange)="selectedTypeChange.emit($event)"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="all">All Types</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+    </div>
+
+    <!-- Clear Filters Button -->
+    <div class="flex space-x-2">
+      <button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Filter transactions" (click)="onOpenFilterDialog()">
+        <mat-icon class="text-gray-600">filter_list</mat-icon>
+      </button>
+      <button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="View analytics" (click)="onViewAnalytics()">
+        <mat-icon class="text-gray-600">analytics</mat-icon>
+      </button>
+      <button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Expand table" (click)="onExpandTable()">
+        <mat-icon class="text-gray-600">open_in_new</mat-icon>
+      </button>
+      <button
+        *ngIf="hasActiveFilters()"
+        mat-icon-button
+        class="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg"
+        matTooltip="Clear all filters"
+        (click)="onClearAllFilters()"
+      >
+        <mat-icon class="text-red-600">clear</mat-icon>
+      </button>
+    </div>
+  </div>
+</div> 

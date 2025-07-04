@@ -73,6 +73,7 @@ import { ThemeToggleComponent } from './util/components/theme-toggle/theme-toggl
 import { TranslatePipe } from './util/pipes/translate.pipe';
 import { MobileTransactionListComponent } from './component/dashboard/transaction-list/mobile-transaction-list.component';
 import { TransactionTableComponent } from './component/dashboard/transaction-list/transaction-table.component';
+import { SearchFilterComponent } from './component/dashboard/transaction-list/search-filter.component';
 
 @NgModule({
   declarations: [
@@ -101,7 +102,8 @@ import { TransactionTableComponent } from './component/dashboard/transaction-lis
     LanguageSwitcherComponent,
     ThemeToggleComponent,
     MobileTransactionListComponent,
-    TransactionTableComponent
+    TransactionTableComponent,
+    SearchFilterComponent
   ],
   imports: [
     BrowserModule,
