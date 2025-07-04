@@ -74,6 +74,7 @@ import { TranslatePipe } from './util/pipes/translate.pipe';
 import { MobileTransactionListComponent } from './component/dashboard/transaction-list/mobile-transaction-list/mobile-transaction-list.component';
 import { SearchFilterComponent } from './component/dashboard/transaction-list/search-filter/search-filter.component';
 import { TransactionTableComponent } from './component/dashboard/transaction-list/transaction-table/transaction-table.component';
+import { RegistrationComponent } from './component/auth/registration/registration.component';
 
 
 @NgModule({
@@ -87,6 +88,7 @@ import { TransactionTableComponent } from './component/dashboard/transaction-lis
     SideBarComponent,
     TransactionComponent,
     SignInComponent,
+    RegistrationComponent,
     DashboardComponent,
     UserComponent,
     AccountsComponent,

@@ -109,14 +109,16 @@ export class UserService {
           createdAt: new Date(),
         };
         await setDoc(userRef, newUser);
+        this.router.navigate(['/register']);
         console.log('✅ User created in Firestore');
       } else {
         console.log('✅ User already exists in Firestore');
+        this.router.navigate(['/dashboard']);
       }
       
       // Navigate to dashboard
       console.log('🚀 Navigating to dashboard...');
-      this.router.navigate(['/dashboard']);
+      
       
     } catch (error: any) {
       console.error('❌ Google sign-in error:', error);

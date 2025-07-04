@@ -112,12 +112,11 @@
         <div class="flex items-center justify-between mt-4">
           <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
 
-          <a (click)="gotoPage()" class="text-xs text-gray-500 uppercase dark:text-gray-400 hover:underline">or
+          <a (click)="gotoPage()" class="text-xs text-gray-500 uppercase dark:text-gray-400 hover:underline cursor-pointer">or
             {{isSignInPage ? ('signUp' | translate) : ('signIn' | translate)}}</a>
 
           <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
         </div>
-
       </form>
     </div>
   </div>
