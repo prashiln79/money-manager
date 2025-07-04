@@ -79,6 +79,7 @@ import { TransactionTableComponent } from './component/dashboard/transaction-lis
 import { RegistrationComponent } from './component/auth/registration/registration.component';
 import { OfflineIndicatorComponent } from './util/components/offline-indicator/offline-indicator.component';
 import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
+import { FooterComponent } from './component/dashboard/footer/footer.component';
 
 
 @NgModule({
@@ -113,6 +114,7 @@ import { OfflinePageComponent } from './util/components/offline-page/offline-pag
     SearchFilterComponent,
     OfflineIndicatorComponent,
     OfflinePageComponent,
+    FooterComponent,
     ClickOutsideDirective
   ],
   imports: [
