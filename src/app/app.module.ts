@@ -44,6 +44,9 @@ import { provideFirestore, getFirestore, enableIndexedDbPersistence } from '@ang
 // Utility Modules
 import { IconModule } from './util/icon.module';
 
+// Directives
+import { ClickOutsideDirective } from './util/directives/click-outside.directive';
+
 // Components
 import { TotalBalanceComponent } from './component/dashboard/total-balance/total-balance.component';
 import { CalendarViewComponent } from './component/dashboard/calendar-view/calendar-view.component';
@@ -106,7 +109,8 @@ import { RegistrationComponent } from './component/auth/registration/registratio
     ThemeToggleComponent,
     MobileTransactionListComponent,
     TransactionTableComponent,
-    SearchFilterComponent
+    SearchFilterComponent,
+    ClickOutsideDirective
   ],
   imports: [
     BrowserModule,
