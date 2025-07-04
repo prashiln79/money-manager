@@ -3,6 +3,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Professional Font System */
+@layer base {
+  /* Typography hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  
+  /* Financial data styling */
+  .financial-data {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+  
+  /* Professional text styling */
+  .text-professional {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  
+  .text-professional-medium {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+  
+  .text-professional-semibold {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+}
+
 /* Responsive Design Utilities */
 @layer utilities {
   /* Mobile-first responsive text sizes */
@@ -23,12 +59,17 @@
   .font-responsive-semibold { @apply font-semibold sm:font-bold md:font-extrabold; }
   
   /* Responsive heading classes */
-  .heading-responsive-h1 { @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold; }
-  .heading-responsive-h2 { @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold; }
-  .heading-responsive-h3 { @apply text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold; }
-  .heading-responsive-h4 { @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium; }
-  .heading-responsive-h5 { @apply text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium; }
-  .heading-responsive-h6 { @apply text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium; }
+  .heading-responsive-h1 { @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold font-heading; }
+  .heading-responsive-h2 { @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold font-heading; }
+  .heading-responsive-h3 { @apply text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold font-heading; }
+  .heading-responsive-h4 { @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium font-heading; }
+  .heading-responsive-h5 { @apply text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium font-heading; }
+  .heading-responsive-h6 { @apply text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium font-heading; }
+  
+  /* Professional financial data classes */
+  .financial-amount { @apply font-mono font-medium tracking-wide; }
+  .financial-amount-large { @apply font-mono font-semibold text-lg sm:text-xl md:text-2xl tracking-wide; }
+  .financial-amount-display { @apply font-mono font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-wide; }
   
   /* Responsive body text */
   .body-responsive-large { @apply text-lg sm:text-xl md:text-2xl lg:text-3xl; }
@@ -74,10 +115,13 @@ html,
 
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 14px; /* Base mobile font size */
   max-height: 100vh;
   overflow: hidden; /* Hidden on desktop */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Enable scrolling on mobile devices */
@@ -132,6 +176,8 @@ body {
   font-size: clamp(2rem, 5vw, 4rem);
   font-weight: bold;
   color: #4caf50;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.025em;
 }
 
 .item-content {
@@ -140,16 +186,23 @@ body {
 }
 
 .item-title {
-  font-weight: bold;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 .item-subtitle {
   color: gray;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
 }
 
 .item-amount {
   margin-top: 8px;
   margin-bottom: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  letter-spacing: 0.025em;
 }
 
 // Material theme common changes

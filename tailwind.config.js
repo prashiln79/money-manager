@@ -4,6 +4,12 @@ module.exports = {
   darkMode: 'dark-theme',
   theme: {
     extend: {
+      fontFamily: {
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'heading': ['Poppins', 'system-ui', 'sans-serif'],
+        'mono': ['JetBrains Mono', 'monospace'],
+        'display': ['Poppins', 'system-ui', 'sans-serif'],
+      },
       colors:{
         primary: '#46777f', // primary color
       },
