@@ -12,6 +12,7 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   @Input() searchTerm: string = '';
   @Input() selectedCategory: string = 'all';
   @Input() selectedType: string = 'all';
+  @Input() selectedYear: number = moment().year();
   @Input() selectedDate: Date | null = null;
   @Input() selectedDateRange: { start: Date; end: Date } | null = null;
   @Input() filteredCount: number = 0;
@@ -20,6 +21,7 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   @Output() searchTermChange = new EventEmitter<string>();
   @Output() selectedCategoryChange = new EventEmitter<string>();
   @Output() selectedTypeChange = new EventEmitter<string>();
+  @Output() selectedYearChange = new EventEmitter<number>();
   @Output() addTransaction = new EventEmitter<void>();
   @Output() importTransactions = new EventEmitter<void>();
   @Output() openFilterDialog = new EventEmitter<void>();
@@ -28,6 +30,7 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   @Output() clearAllFilters = new EventEmitter<void>();
 
   categories: string[] = [];
+  availableYears: number[] = [];
   currentYear: number;
 
   constructor() {
@@ -36,11 +39,13 @@ export class SearchFilterComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.updateCategories();
+    this.updateAvailableYears();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['transactions']) {
       this.updateCategories();
+      this.updateAvailableYears();
     }
   }
 
@@ -53,6 +58,14 @@ export class SearchFilterComponent implements OnInit, OnChanges {
     }
   }
 
+  private updateAvailableYears() {
+    //check this year is coming as NaN
+    if (isNaN(this.selectedYear)) {
+      this.selectedYear = this.currentYear;
+    }
+    this.availableYears = Array.from({ length: 10 }, (_, i) => this.currentYear - i);
+  }
+
   onSearchChange(event: any) {
     this.searchTermChange.emit(event.target.value);
   }
@@ -63,6 +76,10 @@ export class SearchFilterComponent implements OnInit, OnChanges {
 
   onTypeChange(event: any) {
     this.selectedTypeChange.emit(event.target.value);
+  }
+
+  onSelectedYearChange(event: any) {
+    this.selectedYearChange.emit(event.target.value);
   }
 
   onAddTransaction() {
@@ -95,7 +112,8 @@ export class SearchFilterComponent implements OnInit, OnChanges {
       this.selectedDateRange || 
       this.searchTerm || 
       this.selectedCategory !== 'all' || 
-      this.selectedType !== 'all'
+      this.selectedType !== 'all' ||
+      this.selectedYear !== this.currentYear
     );
   }
 

@@ -1,33 +1,45 @@
-<div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-  <!-- Transaction Count -->
-  <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-    <div class="flex items-center space-x-2">
-      <mat-icon class="text-gray-500 text-sm">receipt_long</mat-icon>
+<div class="bg-white rounded-lg border border-gray-200 p-3 mb-4">
+  <!-- Header with count and actions -->
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center space-x-3">
       <span class="text-sm text-gray-600">
         {{ getCurrentYear() }} Transactions: <span class="font-semibold text-gray-800">{{ filteredCount }}</span>
         <span *ngIf="filteredCount !== currentYearCount" class="text-gray-400">/{{ currentYearCount }}</span>
       </span>
-    </div>
-    <div class="flex items-center space-x-2">
       <button mat-icon-button class="bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors" matTooltip="Import transactions" (click)="onImportTransactions()">
-        <mat-icon>file_upload</mat-icon>
+        <mat-icon class="text-sm">file_upload</mat-icon>
       </button>
       <button mat-icon-button class="bg-green-50 hover:bg-green-100 text-green-600 rounded-lg transition-colors" matTooltip="Add transaction" (click)="onAddTransaction()">
-        <mat-icon>add</mat-icon>
+        <mat-icon class="text-sm">add</mat-icon>
       </button>
     </div>
   </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+  <!-- Filters Row -->
+  <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
     <!-- Search Input -->
     <div class="relative col-span-2">
-      <mat-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
+      <mat-icon class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">search</mat-icon>
       <input
         type="text"
         [ngModel]="searchTerm"
         (ngModelChange)="searchTermChange.emit($event)"
         placeholder="Search transactions..."
-        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
+    </div>
+
+    <!-- Year Filter -->
+    <div>
+      <select
+        [ngModel]="selectedYear"
+        (ngModelChange)="selectedYearChange.emit($event)"
+        class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option *ngFor="let year of availableYears" [value]="year">
+          {{ year }}
+        </option>
+      </select>
     </div>
 
     <!-- Category Filter -->
@@ -35,7 +47,7 @@
       <select
         [ngModel]="selectedCategory"
         (ngModelChange)="selectedCategoryChange.emit($event)"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="all">All Categories</option>
         <option *ngFor="let category of categories" [value]="category">
@@ -49,7 +61,7 @@
       <select
         [ngModel]="selectedType"
         (ngModelChange)="selectedTypeChange.emit($event)"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="all">All Types</option>
         <option value="income">Income</option>
@@ -57,16 +69,16 @@
       </select>
     </div>
 
-    <!-- Clear Filters Button -->
-    <div class="flex space-x-2">
+    <!-- Action Buttons -->
+    <div class="flex space-x-1">
       <button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Filter transactions" (click)="onOpenFilterDialog()">
-        <mat-icon class="text-gray-600">filter_list</mat-icon>
+        <mat-icon class="text-gray-600 text-sm">filter_list</mat-icon>
       </button>
       <button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="View analytics" (click)="onViewAnalytics()">
-        <mat-icon class="text-gray-600">analytics</mat-icon>
+        <mat-icon class="text-gray-600 text-sm">analytics</mat-icon>
       </button>
       <button mat-icon-button class="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg" matTooltip="Expand table" (click)="onExpandTable()">
-        <mat-icon class="text-gray-600">open_in_new</mat-icon>
+        <mat-icon class="text-gray-600 text-sm">open_in_new</mat-icon>
       </button>
       <button
         *ngIf="hasActiveFilters()"
@@ -75,7 +87,7 @@
         matTooltip="Clear all filters"
         (click)="onClearAllFilters()"
       >
-        <mat-icon class="text-red-600">clear</mat-icon>
+        <mat-icon class="text-red-600 text-sm">clear</mat-icon>
       </button>
     </div>
   </div>
