@@ -1,23 +1,26 @@
 <mat-drawer-container class="example-container !z-[999] h-screen">
-    <mat-drawer #drawer [mode]="'over'" class="!fixed bg-white shadow-xl w-72 border-r border-gray-100">
-        <div class="h-full flex flex-col">
-            <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-100">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                        <mat-icon class="text-white text-sm">account_balance_wallet</mat-icon>
-                    </div>
-                    <span class="text-lg font-semibold text-gray-900">{{ 'moneyManager' | translate }}</span>
-                </div>
-                <button mat-icon-button (click)="drawer.toggle()" 
-                        class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                        aria-label="Close sidebar">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
+	<mat-drawer #drawer [mode]="'over'" class="!fixed bg-white shadow-xl w-72 border-r border-gray-100">
+		<div class="h-full flex flex-col">
+			<!-- Header -->
+			<div class="flex items-center justify-between p-6 border-b border-gray-100">
+				<div class="flex items-center gap-3">
+					<div class="w-8 h-8 bg-gradient-to-br bg-primary rounded-lg flex items-center justify-center cursor-pointer" routerLink="/dashboard">
+						<mat-icon class="text-white text-[2rem] !h-[33px] !w-[33px]">account_balance_wallet</mat-icon>
+					</div>
+					<span class="text-lg font-semibold text-gray-900">{{ 'moneyManager' | translate }}</span>
+				</div>
+				<div class="flex items-center gap-3">
+					<button mat-icon-button (click)="drawer.toggle()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors" aria-label="Close sidebar">
+						<mat-icon>home</mat-icon>
+					</button>
+					<button mat-icon-button (click)="drawer.toggle()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors" aria-label="Close sidebar">
+						<mat-icon>close</mat-icon>
+					</button>
+				</div>
+			</div>
 
-            <!-- User Profile -->
-            <!-- <div class="p-6 border-b border-gray-100">
+			<!-- User Profile -->
+			<!-- <div class="p-6 border-b border-gray-100">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                         <mat-icon class="text-white text-lg">person</mat-icon>
@@ -29,137 +32,157 @@
                 </div>
             </div> -->
 
-            <!-- Settings Section -->
-            <div class="p-4 border-b border-gray-100">
-                <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Settings</h5>
-                <div class="flex items-center justify-between">
-                    <!-- Theme Toggle -->
-                    <div class="flex items-center gap-3">
-                        <mat-icon class="text-yellow-500 text-sm" matTooltip="Light Theme">light_mode</mat-icon>
-                        <mat-slide-toggle 
-                            [checked]="isDarkTheme"
-                            (change)="toggleTheme(drawer)"
-                            color="primary">
-                        </mat-slide-toggle>
-                        <mat-icon class="text-blue-300 text-sm" matTooltip="Dark Theme">dark_mode</mat-icon>
-                    </div>
-                    
-                    <!-- Language Selector -->
-                    <div class="scale-75 origin-right">
-                        <app-language-switcher></app-language-switcher>
-                    </div>
-                </div>
-            </div>
+			<!-- Settings Section -->
+			<div class="p-4 border-b border-gray-100">
+				<h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Settings</h5>
+				<div class="flex items-center justify-between">
+					<!-- Theme Toggle -->
+					<div class="flex items-center gap-3">
+						<mat-icon class="text-yellow-500 text-sm" matTooltip="Light Theme">light_mode</mat-icon>
+						<mat-slide-toggle [checked]="isDarkTheme" (change)="toggleTheme(drawer)" color="primary"> </mat-slide-toggle>
+						<mat-icon class="text-blue-300 text-sm" matTooltip="Dark Theme">dark_mode</mat-icon>
+					</div>
 
-            <!-- Navigation -->
-            <nav class="flex-1 p-6">
-                <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Navigation</h5>
-                
-                <div class="space-y-1">
-                    <a routerLink="" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600" 
-                       (click)="drawer.toggle()"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">dashboard</mat-icon>
-                        <span class="font-medium text-sm">{{ 'dashboard' | translate }}</span>
-                    </a>
-                    
-                    <a routerLink="accounts" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                       (click)="drawer.toggle()"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">account_balance</mat-icon>
-                        <span class="font-medium text-sm">{{ 'accounts' | translate }}</span>
-                    </a>
-                    
-                    <a routerLink="transaction-list" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                       (click)="drawer.toggle()"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">receipt_long</mat-icon>
-                        <span class="font-medium text-sm">{{ 'transactions' | translate }}</span>
-                    </a>
-                    
-                    <a routerLink="category" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                       (click)="drawer.toggle()"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">category</mat-icon>
-                        <span class="font-medium text-sm">{{ 'categories' | translate }}</span>
-                    </a>
-                    
-                    <a routerLink="budgets" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                       (click)="drawer.toggle()"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">pie_chart</mat-icon>
-                        <span class="font-medium text-sm">{{ 'budgets' | translate }}</span>
-                    </a>
-                    
-                    <a routerLink="goals" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                       (click)="drawer.toggle()"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">flag</mat-icon>
-                        <span class="font-medium text-sm">{{ 'goals' | translate }}</span>
-                    </a>
-                    
-                    <a routerLink="reports" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                       (click)="drawer.toggle()"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">analytics</mat-icon>
-                        <span class="font-medium text-sm">{{ 'reports' | translate }}</span>
-                    </a>
-                </div>
+					<!-- Language Selector -->
+					<div class="scale-75 origin-right">
+						<app-language-switcher></app-language-switcher>
+					</div>
+				</div>
+			</div>
 
-                <!-- Tools Section -->
-                <div class="mt-8 pt-6 border-t border-gray-100">
-                    <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Tools</h5>
-                    <div class="space-y-1">
-                        <a routerLink="calendar-view" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                           (click)="drawer.toggle()"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                            <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">calendar_today</mat-icon>
-                            <span class="font-medium text-sm">{{ 'calendar' | translate }} View</span>
-                        </a>
-                        
-                        <a routerLink="notes" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                           (click)="drawer.toggle()"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                            <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">note</mat-icon>
-                            <span class="font-medium text-sm">{{ 'notes' | translate }}</span>
-                        </a>
-                        
-                        <a routerLink="tax" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                           (click)="drawer.toggle()"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
-                            <mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">calculate</mat-icon>
-                            <span class="font-medium text-sm">{{ 'tax' | translate }} Calculator</span>
-                        </a>
-                    </div>
-                </div>
-            </nav>
+			<!-- Navigation -->
+			<nav class="flex-1 p-6">
+				<h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Navigation</h5>
 
-            <!-- Footer -->
-            <div class="p-6 border-t border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <mat-icon class="text-gray-400 text-sm">settings</mat-icon>
-                        <span class="text-xs text-gray-500">{{ 'settings' | translate }}</span>
-                    </div>
-                    <button mat-icon-button 
-                            class="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
-                            (click)="logout()"
-                            matTooltip="Logout">
-                        <mat-icon class="text-sm">logout</mat-icon>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </mat-drawer>
+				<div class="space-y-1">
+					<a
+						routerLink=""
+						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+						(click)="drawer.toggle()"
+						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					>
+						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">dashboard</mat-icon>
+						<span class="font-medium text-sm">{{ 'dashboard' | translate }}</span>
+					</a>
 
-    <mat-drawer-content class="!overflow-hidden">
-        <div >
-            <button 
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-200  transition-colors"
-                    (click)="drawer.toggle()"
-                    aria-label="Open sidebar">
-                <mat-icon class="text-gray-600">menu</mat-icon>
-            </button>
-        </div>
-    </mat-drawer-content>
+					<a
+						routerLink="accounts"
+						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+						(click)="drawer.toggle()"
+						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					>
+						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">account_balance</mat-icon>
+						<span class="font-medium text-sm">{{ 'accounts' | translate }}</span>
+					</a>
+
+					<a
+						routerLink="transaction-list"
+						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+						(click)="drawer.toggle()"
+						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					>
+						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">receipt_long</mat-icon>
+						<span class="font-medium text-sm">{{ 'transactions' | translate }}</span>
+					</a>
+
+					<a
+						routerLink="category"
+						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+						(click)="drawer.toggle()"
+						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					>
+						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">category</mat-icon>
+						<span class="font-medium text-sm">{{ 'categories' | translate }}</span>
+					</a>
+
+					<a
+						routerLink="budgets"
+						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+						(click)="drawer.toggle()"
+						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					>
+						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">pie_chart</mat-icon>
+						<span class="font-medium text-sm">{{ 'budgets' | translate }}</span>
+					</a>
+
+					<a
+						routerLink="goals"
+						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+						(click)="drawer.toggle()"
+						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					>
+						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">flag</mat-icon>
+						<span class="font-medium text-sm">{{ 'goals' | translate }}</span>
+					</a>
+
+					<a
+						routerLink="reports"
+						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+						(click)="drawer.toggle()"
+						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					>
+						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">analytics</mat-icon>
+						<span class="font-medium text-sm">{{ 'reports' | translate }}</span>
+					</a>
+				</div>
+
+				<!-- Tools Section -->
+				<div class="mt-8 pt-6 border-t border-gray-100">
+					<h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Tools</h5>
+					<div class="space-y-1">
+						<a
+							routerLink="calendar-view"
+							routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+							(click)="drawer.toggle()"
+							class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+						>
+							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">calendar_today</mat-icon>
+							<span class="font-medium text-sm">{{ 'calendar' | translate }} View</span>
+						</a>
+
+						<a
+							routerLink="notes"
+							routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+							(click)="drawer.toggle()"
+							class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+						>
+							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">note</mat-icon>
+							<span class="font-medium text-sm">{{ 'notes' | translate }}</span>
+						</a>
+
+						<a
+							routerLink="tax"
+							routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
+							(click)="drawer.toggle()"
+							class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+						>
+							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">calculate</mat-icon>
+							<span class="font-medium text-sm">{{ 'tax' | translate }} Calculator</span>
+						</a>
+					</div>
+				</div>
+			</nav>
+
+			<!-- Footer -->
+			<div class="p-6 border-t border-gray-100">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<mat-icon class="text-gray-400 text-sm">settings</mat-icon>
+						<span class="text-xs text-gray-500">{{ 'settings' | translate }}</span>
+					</div>
+					<button mat-icon-button class="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" (click)="logout()" matTooltip="Logout">
+						<mat-icon class="text-sm">logout</mat-icon>
+					</button>
+				</div>
+			</div>
+		</div>
+	</mat-drawer>
+
+	<mat-drawer-content class="!overflow-hidden">
+		<div>
+			<button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors" (click)="drawer.toggle()" aria-label="Open sidebar">
+				<mat-icon class="text-gray-600">menu</mat-icon>
+			</button>
+		</div>
+	</mat-drawer-content>
 </mat-drawer-container>
