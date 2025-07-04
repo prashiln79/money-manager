@@ -27,6 +27,7 @@ export class OfflineService {
   constructor(private swUpdate: SwUpdate) {
     this.initializeNetworkMonitoring();
     this.initializeServiceWorkerUpdates();
+    this.checkForAppUpdates();
   }
 
   private initializeNetworkMonitoring(): void {
@@ -62,10 +63,12 @@ export class OfflineService {
   private initializeServiceWorkerUpdates(): void {
     // Check for service worker updates
     if (this.swUpdate.isEnabled) {
-      // Check for updates every 6 hours
+      // Check for updates more frequently on mobile
+      const updateInterval = this.isMobileDevice() ? 30 * 60 * 1000 : 6 * 60 * 60 * 1000; // 30 min on mobile, 6 hours on desktop
+      
       setInterval(() => {
         this.swUpdate.checkForUpdate();
-      }, 6 * 60 * 60 * 1000);
+      }, updateInterval);
 
       // Handle available updates
       this.swUpdate.versionUpdates.subscribe(event => {
@@ -73,17 +76,96 @@ export class OfflineService {
         
         if (event.type === 'VERSION_READY') {
           console.log('New version available:', event);
-          this.promptUserForUpdate();
+          this.handleUpdateAvailable();
         } else if (event.type === 'VERSION_INSTALLATION_FAILED') {
           console.error('Service worker installation failed:', event);
+          this.handleUpdateFailure();
         }
       });
-
-      // Handle activated updates (deprecated in newer versions)
-      // this.swUpdate.activated.subscribe(event => {
-      //   console.log('Service worker activated:', event);
-      // });
     }
+  }
+
+  private checkForAppUpdates(): void {
+    // Check for app version changes on startup
+    const currentVersion = this.getAppVersion();
+    const storedVersion = localStorage.getItem('app-version');
+    
+    if (storedVersion && storedVersion !== currentVersion) {
+      console.log('App version changed, clearing cache and reloading');
+      this.forceAppUpdate();
+    } else {
+      localStorage.setItem('app-version', currentVersion);
+    }
+
+    // Check for updates immediately on mobile
+    if (this.isMobileDevice() && this.swUpdate.isEnabled) {
+      setTimeout(() => {
+        this.swUpdate.checkForUpdate();
+      }, 2000); // Check after 2 seconds
+    }
+  }
+
+  private getAppVersion(): string {
+    // You can replace this with your actual versioning strategy
+    return new Date().toISOString().split('T')[0]; // Use date as version for now
+  }
+
+  private isMobileDevice(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
+  private handleUpdateAvailable(): void {
+    if (this.isMobileDevice()) {
+      // On mobile, show a more prominent update notification
+      this.showMobileUpdateNotification();
+    } else {
+      // On desktop, use the standard prompt
+      this.promptUserForUpdate();
+    }
+  }
+
+  private showMobileUpdateNotification(): void {
+    // Create a custom update notification for mobile
+    const updateBanner = document.createElement('div');
+    updateBanner.className = 'fixed top-0 left-0 right-0 z-[9999] bg-blue-600 text-white px-4 py-3 text-center shadow-lg';
+    updateBanner.innerHTML = `
+      <div class="flex items-center justify-center space-x-3">
+        <mat-icon class="text-white">system_update</mat-icon>
+        <span class="text-sm font-medium">New version available</span>
+        <button 
+          class="bg-white text-blue-600 px-3 py-1 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+          onclick="this.parentElement.parentElement.remove(); window.location.reload();"
+        >
+          Update Now
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(updateBanner);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (updateBanner.parentElement) {
+        updateBanner.remove();
+      }
+    }, 10000);
+  }
+
+  private handleUpdateFailure(): void {
+    console.error('Update failed, forcing cache clear');
+    this.forceAppUpdate();
+  }
+
+  private forceAppUpdate(): void {
+    // Clear all caches and reload
+    this.clearAllCaches().then(() => {
+      console.log('Cache cleared, reloading app');
+      window.location.reload();
+    }).catch(error => {
+      console.error('Failed to clear cache:', error);
+      // Fallback: reload anyway
+      window.location.reload();
+    });
   }
 
   private updateNetworkStatus(status: Partial<NetworkStatus>): void {
@@ -95,6 +177,10 @@ export class OfflineService {
     if (online) {
       console.log('🌐 Network connection restored');
       this.showOnlineNotification();
+      // Check for updates when back online
+      if (this.swUpdate.isEnabled) {
+        this.swUpdate.checkForUpdate();
+      }
     } else {
       console.log('📴 Network connection lost');
       this.showOfflineNotification();
@@ -143,7 +229,14 @@ export class OfflineService {
     return this.networkStatusSubject.value.online;
   }
 
-
+  public getConnectionQuality(): string {
+    const status = this.networkStatusSubject.value;
+    if (!status.online) return 'offline';
+    if (status.effectiveType === '4g') return 'excellent';
+    if (status.effectiveType === '3g') return 'good';
+    if (status.effectiveType === '2g') return 'poor';
+    return 'unknown';
+  }
 
   public requestNotificationPermission(): Promise<NotificationPermission> {
     if ('Notification' in window) {
@@ -190,5 +283,38 @@ export class OfflineService {
     } catch (error) {
       console.error('Failed to clear cache:', error);
     }
+  }
+
+  public async clearAllCaches(): Promise<void> {
+    try {
+      // Clear service worker caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map(cacheName => caches.delete(cacheName))
+        );
+      }
+
+      // Clear IndexedDB
+      if ('indexedDB' in window) {
+        const databases = await indexedDB.databases();
+        databases.forEach(db => {
+          if (db.name) {
+            indexedDB.deleteDatabase(db.name);
+          }
+        });
+      }
+
+      // Clear localStorage (optional - be careful with this)
+      // localStorage.clear();
+
+      console.log('All caches cleared successfully');
+    } catch (error) {
+      console.error('Failed to clear all caches:', error);
+    }
+  }
+
+  public forceUpdate(): void {
+    this.forceAppUpdate();
   }
 } 

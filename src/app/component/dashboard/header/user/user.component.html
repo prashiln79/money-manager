@@ -70,6 +70,18 @@
 
             <button
                 class="flex items-center w-full px-4 py-2 text-sm text-gray-600 capitalize transition-colors duration-200 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700"
+                (click)="openCacheManager()"
+            >
+                <svg class="w-4 h-4 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3ZM19 19H5V5H19V19ZM17 13H7V11H17V13ZM13 17H7V15H13V17ZM7 9V7H17V9H7Z"
+                        fill="currentColor"></path>
+                </svg>
+                <span>Cache Management</span>
+            </button>
+
+            <button
+                class="flex items-center w-full px-4 py-2 text-sm text-gray-600 capitalize transition-colors duration-200 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700"
                 (click)="openHelp()"
             >
                 <svg class="w-4 h-4 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

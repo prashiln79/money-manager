@@ -5,8 +5,11 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration production",
+    "build:cache-bust": "node deploy-cache-bust.js && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "cache-bust": "node deploy-cache-bust.js",
+    "deploy": "npm run cache-bust && npm run build"
   },
   "private": true,
   "dependencies": {
