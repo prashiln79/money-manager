@@ -1,11 +1,11 @@
-<mat-drawer-container class="example-container !z-[999] h-screen">
+<mat-drawer-container class="example-container !z-[999] h-screen ">
 	<mat-drawer #drawer [mode]="'over'" class="!fixed bg-white shadow-2xl w-72 border-r border-gray-100 backdrop-blur-sm">
-		<div class="h-full flex flex-col">
+		<div class="h-full flex flex-col overflow-auto">
 			<!-- Header -->
 			<div class="flex items-center justify-between p-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
 				<div class="flex items-center gap-3">
 					<div class="w-8 h-8 bg-gradient-to-br bg-primary rounded-lg flex items-center justify-center cursor-pointer" routerLink="/dashboard">
-						<mat-icon class="text-white text-[2rem] !h-[33px] !w-[33px]">account_balance_wallet</mat-icon>
+						<mat-icon class=" text-[2rem] !h-[33px] !w-[33px]">account_balance_wallet</mat-icon>
 					</div>
 					<span class="text-lg font-semibold text-gray-900">{{ 'moneyManager' | translate }}</span>
 				</div>
