@@ -37,6 +37,16 @@
           "https://fonts.googleapis.com/icon?family=Material+Icons"
         ]
       }
+    },
+    {
+      "name": "icons",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/icons/**/*"
+        ]
+      }
     }
   ],
   "dataGroups": [
@@ -51,8 +61,33 @@
       "cacheConfig": {
         "strategy": "performance",
         "maxSize": 100,
-        "maxAge": "1d",
-        "timeout": "2s"
+        "maxAge": "7d",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "api-cache",
+      "urls": [
+        "/api/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "static-assets",
+      "urls": [
+        "https://cdn.jsdelivr.net/**",
+        "https://unpkg.com/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 200,
+        "maxAge": "30d",
+        "timeout": "5s"
       }
     },
     {
@@ -62,9 +97,15 @@
       ],
       "cacheConfig": {
         "strategy": "performance",
-        "maxSize": 10,
+        "maxSize": 20,
         "maxAge": "1h"
       }
     }
+  ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**"
   ]
 }

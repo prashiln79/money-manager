@@ -39,7 +39,7 @@ import { provideAuth, getAuth, indexedDBLocalPersistence } from '@angular/fire/a
 import { provideFirestore, getFirestore, enableIndexedDbPersistence } from '@angular/fire/firestore';
 
 // Service Worker
-// import { ServiceWorkerModule } from '@angular/service-worker';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 // Utility Modules
 import { IconModule } from './util/icon.module';
@@ -63,7 +63,6 @@ import { BudgetsComponent } from './component/dashboard/budgets/budgets.componen
 import { GoalsComponent } from './component/dashboard/goals/goals.component';
 import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
 import { CategoryComponent } from './component/dashboard/category/category.component';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { LoaderComponent } from './util/components/loader/loader.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
 import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm-dialog.component';
@@ -78,6 +77,8 @@ import { MobileTransactionListComponent } from './component/dashboard/transactio
 import { SearchFilterComponent } from './component/dashboard/transaction-list/search-filter/search-filter.component';
 import { TransactionTableComponent } from './component/dashboard/transaction-list/transaction-table/transaction-table.component';
 import { RegistrationComponent } from './component/auth/registration/registration.component';
+import { OfflineIndicatorComponent } from './util/components/offline-indicator/offline-indicator.component';
+import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
 
 
 @NgModule({
@@ -110,6 +111,8 @@ import { RegistrationComponent } from './component/auth/registration/registratio
     MobileTransactionListComponent,
     TransactionTableComponent,
     SearchFilterComponent,
+    OfflineIndicatorComponent,
+    OfflinePageComponent,
     ClickOutsideDirective
   ],
   imports: [
@@ -148,17 +151,13 @@ import { RegistrationComponent } from './component/auth/registration/registratio
     // Utility
     IconModule,
     TranslatePipe,
+    
+    // Enhanced Service Worker with offline support
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerImmediately'
+      registrationStrategy: 'registerImmediately',
+      scope: './'
     }),
-
-
-    // Service Worker
-    // ServiceWorkerModule.register('ngsw-worker.js', {
-    //   enabled: !isDevMode(),
-    //   registrationStrategy: 'registerWhenStable:30000'
-    // })
   ],
   providers: [
     provideAnimationsAsync(),
