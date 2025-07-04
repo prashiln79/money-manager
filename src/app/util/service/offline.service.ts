@@ -143,14 +143,7 @@ export class OfflineService {
     return this.networkStatusSubject.value.online;
   }
 
-  public getConnectionQuality(): string {
-    const status = this.networkStatusSubject.value;
-    if (!status.online) return 'offline';
-    if (status.effectiveType === '4g') return 'excellent';
-    if (status.effectiveType === '3g') return 'good';
-    if (status.effectiveType === '2g') return 'poor';
-    return 'unknown';
-  }
+
 
   public requestNotificationPermission(): Promise<NotificationPermission> {
     if ('Notification' in window) {

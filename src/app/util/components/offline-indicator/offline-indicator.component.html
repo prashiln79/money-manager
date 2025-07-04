@@ -1,0 +1,35 @@
+<div 
+  *ngIf="!isOnline" 
+  class="fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-4 py-4 text-center shadow-lg"
+  [@slideDown]
+>
+  <div class="flex items-center justify-center space-x-2">
+    <mat-icon class="text-white">wifi_off</mat-icon>
+    <span class="text-sm ">You're offline.</span>
+    <!-- <button 
+      mat-icon-button 
+      class="text-white hover:bg-primary rounded-full"
+      (click)="dismissOfflineBanner()"
+    >
+      <mat-icon>close</mat-icon>
+    </button> -->
+  </div>
+</div>
+
+<div 
+  *ngIf="showOnlineBanner" 
+  class="fixed top-0 left-0 right-0 z-50 bg-primary text-white px-4 py-4 text-center shadow-lg"
+  [@slideDown]
+>
+  <div class="flex items-center justify-center space-x-2">
+    <mat-icon class="text-white">wifi</mat-icon>
+    <span class="text-sm font-medium">Connection restored. Syncing data...</span>
+    <!-- <button 
+      mat-icon-button 
+      class="text-white hover:bg-green-600 rounded-full"
+      (click)="dismissOnlineBanner()"
+    >
+      <mat-icon>close</mat-icon>
+    </button> -->
+  </div>
+</div>
