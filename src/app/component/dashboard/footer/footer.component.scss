@@ -9,4 +9,198 @@ footer {
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
+}
+
+// Desktop Footer Styles
+.hidden.md\:flex {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  
+  .dark & {
+    background: rgba(31, 41, 55, 0.95);
+  }
+}
+
+// Mobile Footer Styles
+.md\:hidden {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.98);
+  
+  .dark & {
+    background: rgba(31, 41, 55, 0.98);
+  }
+  
+  // Main action button
+  .main-action {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    
+    &:hover {
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+    
+    &:active {
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+  }
+  
+  // Quick action buttons
+  .quick-action {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    .action-icon {
+      transition: all 0.2s ease;
+    }
+    
+    &:hover .action-icon {
+      transform: scale(1.1);
+    }
+  }
+  
+  // Network status indicator
+  .network-status {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Action button colors
+.action-income {
+  .action-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+  
+  &:hover {
+    background: rgba(16, 185, 129, 0.1);
+  }
+}
+
+.action-expense {
+  .action-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+  }
+  
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+
+.action-scan {
+  .action-icon {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  }
+  
+  &:hover {
+    background: rgba(139, 92, 246, 0.1);
+  }
+}
+
+.action-search {
+  .action-icon {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+  }
+  
+  &:hover {
+    background: rgba(107, 114, 128, 0.1);
+  }
+}
+
+.action-more {
+  .action-icon {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+  }
+  
+  &:hover {
+    background: rgba(107, 114, 128, 0.1);
+  }
+}
+
+// Network status colors
+.network-online {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.network-offline {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.network-slow {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .mobile-footer {
+    .main-action {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .quick-actions {
+      gap: 0.25rem;
+    }
+    
+    .action-icon {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+}
+
+// Dark mode enhancements
+.dark {
+  footer {
+    border-color: rgba(75, 85, 99, 0.5);
+    
+    .network-status {
+      background: rgba(75, 85, 99, 0.2);
+    }
+    
+    .quick-action {
+      &:hover {
+        background: rgba(75, 85, 99, 0.1);
+      }
+    }
+  }
+}
+
+// Animation for network status changes
+@keyframes networkPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.network-status-changing {
+  animation: networkPulse 0.6s ease-in-out;
+}
+
+// Smooth transitions for all interactive elements
+button {
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: rgba(59, 130, 246, 0.5);
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 } 

@@ -106,37 +106,6 @@
   }
 }
 
-// Dark theme support
-@media (prefers-color-scheme: dark) {
-  .current-language {
-    background: var(--surface-color, #1f2937);
-    border-color: var(--border-color, #374151);
-    color: var(--text-primary-color, #f9fafb);
-
-    &:hover {
-      background: var(--surface-hover-color, #374151);
-      border-color: var(--border-hover-color, #4b5563);
-    }
-  }
-
-  .dropdown-menu {
-    background: var(--surface-color, #1f2937);
-    border-color: var(--border-color, #374151);
-  }
-
-  .dropdown-item {
-    border-bottom-color: var(--border-color, #374151);
-    color: var(--text-primary-color, #f9fafb);
-
-    &:hover {
-      background: var(--surface-hover-color, #374151);
-    }
-
-    .language-english {
-      color: var(--text-secondary-color, #9ca3af);
-    }
-  }
-}
 
 // Mobile responsive
 @media (max-width: 768px) {
