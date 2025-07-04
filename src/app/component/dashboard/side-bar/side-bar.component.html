@@ -17,7 +17,7 @@
             </div>
 
             <!-- User Profile -->
-            <div class="p-6 border-b border-gray-100">
+            <!-- <div class="p-6 border-b border-gray-100">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                         <mat-icon class="text-white text-lg">person</mat-icon>
@@ -27,37 +27,33 @@
                         <p class="text-xs text-gray-500">{{ 'manageFinances' | translate }}</p>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Settings Section -->
-            <div class="p-6 border-b border-gray-100 space-y-4">
-                <!-- Theme Toggle -->
-                <div>
-                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Theme</h4>
-                    <div class="flex gap-2">
-                        <button (click)="changeTheme('light-theme', drawer)"
-                                class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                            <mat-icon class="text-yellow-500 text-sm">light_mode</mat-icon>
-                            <span class="text-xs font-medium text-gray-700">Light</span>
-                        </button>
-                        <button (click)="changeTheme('dark-theme', drawer)"
-                                class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors">
-                            <mat-icon class="text-blue-300 text-sm">dark_mode</mat-icon>
-                            <span class="text-xs font-medium">Dark</span>
-                        </button>
+            <div class="p-4 border-b border-gray-100">
+                <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Settings</h5>
+                <div class="flex items-center justify-between">
+                    <!-- Theme Toggle -->
+                    <div class="flex items-center gap-3">
+                        <mat-icon class="text-yellow-500 text-sm" matTooltip="Light Theme">light_mode</mat-icon>
+                        <mat-slide-toggle 
+                            [checked]="isDarkTheme"
+                            (change)="toggleTheme(drawer)"
+                            color="primary">
+                        </mat-slide-toggle>
+                        <mat-icon class="text-blue-300 text-sm" matTooltip="Dark Theme">dark_mode</mat-icon>
                     </div>
-                </div>
-
-                <!-- Language Selector -->
-                <div>
-                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Language</h4>
-                    <app-language-switcher></app-language-switcher>
+                    
+                    <!-- Language Selector -->
+                    <div class="scale-75 origin-right">
+                        <app-language-switcher></app-language-switcher>
+                    </div>
                 </div>
             </div>
 
             <!-- Navigation -->
             <nav class="flex-1 p-6">
-                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Navigation</h4>
+                <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Navigation</h5>
                 
                 <div class="space-y-1">
                     <a routerLink="" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600" 
@@ -112,7 +108,7 @@
 
                 <!-- Tools Section -->
                 <div class="mt-8 pt-6 border-t border-gray-100">
-                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Tools</h4>
+                    <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Tools</h5>
                     <div class="space-y-1">
                         <a routerLink="calendar-view" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
                            (click)="drawer.toggle()"
@@ -159,7 +155,7 @@
     <mat-drawer-content class="!overflow-hidden">
         <div >
             <button 
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-200  transition-colors"
                     (click)="drawer.toggle()"
                     aria-label="Open sidebar">
                 <mat-icon class="text-gray-600">menu</mat-icon>

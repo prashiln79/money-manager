@@ -30,6 +30,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 // Firebase Imports
 import { environment } from '@env/environment';
@@ -127,6 +128,7 @@ import { TranslatePipe } from './util/pipes/translate.pipe';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatSlideToggleModule,
 
     // Utility
     IconModule,
