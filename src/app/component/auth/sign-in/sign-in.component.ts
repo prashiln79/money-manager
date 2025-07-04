@@ -79,8 +79,31 @@ export class SignInComponent {
     }
   }
 
-  public signInWithGoogle() {
-    this.userService.signInWithGoogle();
+  public async signInWithGoogle() {
+    try {
+      this.isLoading = true;
+      console.log('🔄 Starting Google sign-in from component...');
+      
+      await this.userService.signInWithGoogle();
+      
+      this.notificationService.success('Successfully signed in with Google!');
+      
+    } catch (error: any) {
+      console.error('❌ Google sign-in failed in component:', error);
+      
+      // Handle specific error cases with user-friendly messages
+      if (error.code === 'auth/popup-closed-by-user') {
+        this.notificationService.error('Sign-in was cancelled. Please try again.');
+      } else if (error.code === 'auth/popup-blocked') {
+        this.notificationService.error('Popup was blocked. Please allow popups for this site and try again.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        this.notificationService.error('Sign-in request was cancelled. Please try again.');
+      } else {
+        this.notificationService.error('Google sign-in failed. Please try again or use email sign-in.');
+      }
+    } finally {
+      this.isLoading = false;
+    }
   }
 
 }

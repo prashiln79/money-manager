@@ -79,21 +79,64 @@ export class UserService {
     }
   }
 
-  public signInWithGoogle() {
-    const provider = new GoogleAuthProvider();  // Create a Google Auth provider
-
-    // Use the modern approach with signInWithPopup from the Auth API
-    signInWithPopup(this.auth, provider)  // Open the Google sign-in popup
-      .then((result) => {
-        // On successful sign-in, you can access user info here
-        console.log('User signed in:', result.user);
-
-        // Navigate to a different route after successful sign-in
-        this.router.navigate(['/dashboard']);  // Replace '/dashboard' with your desired route
-      })
-      .catch((error) => {
-        console.error('Error during Google sign-in:', error);
-      });
+  public async signInWithGoogle() {
+    try {
+      console.log('🔐 Starting Google sign-in process...');
+      
+      const provider = new GoogleAuthProvider();
+      
+      // Add scopes if needed
+      provider.addScope('email');
+      provider.addScope('profile');
+      
+      console.log('📱 Opening Google sign-in popup...');
+      
+      const result = await signInWithPopup(this.auth, provider);
+      
+      console.log('✅ Google sign-in successful:', result.user);
+      
+      // Check if user exists in Firestore, if not create them
+      const userRef = doc(this.firestore, `users/${result.user.uid}`);
+      const userSnap = await getDoc(userRef);
+      
+      if (!userSnap.exists()) {
+        console.log('📝 Creating new user in Firestore...');
+        const newUser: User = {
+          uid: result.user.uid,
+          name: result.user.displayName || 'Unknown User',
+          email: result.user.email || '',
+          role: 'free',
+          createdAt: new Date(),
+        };
+        await setDoc(userRef, newUser);
+        console.log('✅ User created in Firestore');
+      } else {
+        console.log('✅ User already exists in Firestore');
+      }
+      
+      // Navigate to dashboard
+      console.log('🚀 Navigating to dashboard...');
+      this.router.navigate(['/dashboard']);
+      
+    } catch (error: any) {
+      console.error('❌ Google sign-in error:', error);
+      
+      // Handle specific error cases
+      if (error.code === 'auth/popup-closed-by-user') {
+        console.log('ℹ️ User closed the popup');
+        // You might want to show a user-friendly message here
+      } else if (error.code === 'auth/popup-blocked') {
+        console.log('ℹ️ Popup was blocked by browser');
+        // You might want to show instructions to allow popups
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        console.log('ℹ️ Popup request was cancelled');
+      } else {
+        console.error('❌ Unexpected error during Google sign-in:', error.message);
+      }
+      
+      // Re-throw the error so the component can handle it
+      throw error;
+    }
   }
 
   //Create or update a user
