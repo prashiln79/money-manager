@@ -292,4 +292,10 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   isFutureDate(date: Date): boolean {
     return moment(date).isAfter(moment(), 'day');
   }
+
+  clearAll() {
+    this.clearSelections();
+    this.isControlsExpanded = this.isRangeMode = false;
+    this.dateSelectionService.clearSelectedDate();
+  }
 }

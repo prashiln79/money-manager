@@ -1,0 +1,168 @@
+<div class="mobile-transaction-container">
+  <!-- Mobile Header with Summary -->
+  <div class="mobile-header">
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">receipt_long</mat-icon>
+        <span class="title-text">Transactions</span>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button 
+                class="action-btn import-btn" 
+                matTooltip="Import transactions" 
+                (click)="onImportTransactions()">
+          <mat-icon>file_upload</mat-icon>
+        </button>
+        <button mat-icon-button 
+                class="action-btn add-btn" 
+                matTooltip="Add transaction" 
+                (click)="onAddTransaction()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Transaction Count and Summary -->
+    <div class="transaction-summary">
+      <div class="count-info">
+        <span class="count-text">
+          {{ getFilteredCount() }} transaction{{ getFilteredCount() !== 1 ? 's' : '' }}
+        </span>
+        <span *ngIf="getFilteredCount() !== getTotalCount()" class="total-count">
+          of {{ getTotalCount() }}
+        </span>
+      </div>
+      
+      <!-- Quick Summary -->
+      <div class="summary-cards">
+        <div class="summary-card income">
+          <div class="summary-icon">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-label">Income</div>
+            <div class="summary-amount">₹{{ getTotalIncome() | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        
+        <div class="summary-card expense">
+          <div class="summary-icon">
+            <mat-icon>trending_down</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-label">Expenses</div>
+            <div class="summary-amount">₹{{ getTotalExpenses() | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        
+        <div class="summary-card net" [ngClass]="getNetAmount() >= 0 ? 'positive' : 'negative'">
+          <div class="summary-icon">
+            <mat-icon>{{ getNetAmount() >= 0 ? 'account_balance_wallet' : 'warning' }}</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-label">Net</div>
+            <div class="summary-amount">₹{{ getNetAmount() | number:'1.0-0' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction List -->
+  <div class="transaction-list-container">
+    <div class="overflow-auto transaction-scroll">
+      <!-- Empty State -->
+      <div *ngIf="!filteredTransactions.length" class="empty-state">
+        <div class="empty-icon">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <h3 class="empty-title">No transactions found</h3>
+        <p class="empty-description">
+          {{ transactions.length === 0 ? 'Start by adding your first transaction' : 'Try adjusting your filters' }}
+        </p>
+        <button *ngIf="transactions.length === 0" 
+                mat-raised-button 
+                color="primary" 
+                class="add-first-btn"
+                (click)="onAddTransaction()">
+          <mat-icon>add</mat-icon>
+          <span>Add First Transaction</span>
+        </button>
+      </div>
+
+      <!-- Transaction Cards -->
+      <div *ngFor="let tx of filteredTransactions; let i = index" 
+           class="transaction-card"
+           [class.selected]="selectedTx?.id === tx.id"
+           (click)="onLongPress(tx)">
+        
+        <!-- Main Transaction Content -->
+        <div class="transaction-main">
+          <!-- Icon Section -->
+          <div class="transaction-icon">
+            <div class="icon-container" [ngClass]="tx.type === 'income' ? 'income-bg' : 'expense-bg'">
+              <mat-icon [ngClass]="tx.type === 'income' ? 'income-icon' : 'expense-icon'">
+                {{ tx.type === 'income' ? 'trending_up' : 'trending_down' }}
+              </mat-icon>
+            </div>
+          </div>
+
+          <!-- Transaction Details -->
+          <div class="transaction-details">
+            <div class="transaction-title">
+              {{ tx.payee }}
+            </div>
+            <div class="transaction-category">
+              {{ tx.category }}
+            </div>
+            <div class="transaction-date">
+              {{ tx.date.seconds * 1000 | date:'MMM dd, yyyy' }}
+              <span class="time-separator">•</span>
+              {{ tx.date.seconds * 1000 | date:'hh:mm a' }}
+            </div>
+            <div *ngIf="tx.notes" class="transaction-notes">
+              {{ tx.notes }}
+            </div>
+          </div>
+
+          <!-- Amount Section -->
+          <div class="transaction-amount">
+            <div class="amount-value" [ngClass]="tx.type === 'income' ? 'income-text' : 'expense-text'">
+              {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.0-0' }}
+            </div>
+            <div class="amount-type">
+              {{ tx.type }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons (shown when selected) -->
+        <div *ngIf="selectedTx?.id === tx.id" class="transaction-actions">
+          <div class="actions-container">
+            <button mat-icon-button 
+                    class="action-button edit-btn" 
+                    (click)="onEditTransaction(tx)"
+                    matTooltip="Edit transaction">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button 
+                    class="action-button delete-btn" 
+                    (click)="onDeleteTransaction(tx)"
+                    matTooltip="Delete transaction">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button for Quick Add -->
+  <button mat-fab 
+          color="primary" 
+          class="fab-add"
+          (click)="onAddTransaction()"
+          matTooltip="Add transaction">
+    <mat-icon>add</mat-icon>
+  </button>
+</div> 

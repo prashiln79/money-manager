@@ -1,40 +1,16 @@
 @if (isMobile) {
-<div class="overflow-auto h-[40vh] md:max-h-[60vh] lg:max-h-[70vh] hide-scrollbar">
-	<div *ngFor="let tx of dataSource.data; let i = index">
-		<mat-card class="my-3 p-4 w-full shadow-md rounded-lg border border-gray-200 relative" (press)="onLongPress(tx)" (click)="onLongPress(tx)">
-			<section class="flex items-center space-x-4">
-				<!-- Icon Section -->
-				<div class="p-2  rounded-full flex items-center justify-center">
-					<div class="p-3 rounded-2xl flex items-center justify-center shadow-sm transition-transform hover:scale-110" 
-					[class]="tx.type === 'income' ? 'bg-green-100' : 'bg-red-100'">
-				   <mat-icon class="text-2xl" 
-							[class]="tx.type === 'income' ? 'text-green-600' : 'text-red-600'">
-					   {{ tx.type === 'income' ? 'trending_up' : 'trending_down' }}
-				   </mat-icon>
-			   </div></div>
-
-				<!-- Transaction Details -->
-				<div class="flex-1">
-					<div class="font-semibold text-sm lg:text-lg text-gray-800">{{ tx?.payee + '- ' + tx.category}}</div>
-					<div class="text-gray-500 text-sm">
-						{{ tx?.date.seconds * 1000 | date: 'dd/MM/yyyy hh:mm' }}
-					</div>
-				</div>
-				<div class="font-bold text-lg text-primary">{{ (tx?.type == 'income' ? '+':'-' ) + ' ₹' + tx?.amount }}</div>
-			</section>
-
-			<!-- Edit/Delete Options -->
-			<div *ngIf="selectedTx?.id === tx.id" class="absolute top-0 right-0 bg-white rounded-lg p-2 flex space-x-2">
-				<button mat-icon-button color="secondary" (click)="editTransaction(tx)">
-					<mat-icon>edit</mat-icon>
-				</button>
-				<button mat-icon-button color="secondary" (click)="deleteTransaction(tx)">
-					<mat-icon>delete</mat-icon>
-				</button>
-			</div>
-		</mat-card>
-	</div>
-</div>
+<mobile-transaction-list
+  [transactions]="allTransactions"
+  [searchTerm]="searchTerm"
+  [selectedCategory]="selectedCategory"
+  [selectedType]="selectedType"
+  [selectedDate]="selectedDate"
+  [selectedDateRange]="selectedDateRange"
+  (editTransaction)="editTransaction($event)"
+  (deleteTransaction)="deleteTransaction($event)"
+  (addTransaction)="addTransactionDialog()"
+  (importTransactions)="openImportDialog()">
+</mobile-transaction-list>
 
 } @else {
 

@@ -32,7 +32,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   
   // Date filtering properties
   selectedDate: Date | null = null;
-  selectedDateRange: DateRange | null = null;
+  selectedDateRange: DateRange | any = null;
   allTransactions: any[] = [];
   private dateSubscription = new Subscription();
   
