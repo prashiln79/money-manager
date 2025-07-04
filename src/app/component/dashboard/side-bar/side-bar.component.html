@@ -34,7 +34,6 @@
 
 			<!-- Settings Section -->
 			<div class="p-4 border-b border-gray-100 bg-gray-50/30">
-				<h5 class="text-xs font-medium text-gray-600 uppercase tracking-wider mb-3">Settings</h5>
 				                <div class="flex items-center justify-between">
                     <!-- Theme Toggle -->
                     <app-theme-toggle></app-theme-toggle>
@@ -58,7 +57,7 @@
 						[class.hover:bg-blue-50]="section.isCollapsible"
 					>
 						<div class="flex items-center gap-2.5">
-							<mat-icon class="text-gray-500 text-sm group-hover:text-blue-600 transition-colors">{{ section.icon }}</mat-icon>
+							<mat-icon class="text-gray-500 text-[1.5rem] group-hover:text-blue-600 transition-colors relative top-[-7px]">{{ section.icon }}</mat-icon>
 							<h6 class="text-xs font-semibold text-gray-600 uppercase tracking-wider group-hover:text-blue-700 transition-colors">{{ section.label }}</h6>
 						</div>
 						
