@@ -1,0 +1,493 @@
+// Table Container Styles
+.table-container {
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+// Table Styles
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+// Header Styles
+.mat-header-cell {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+  font-weight: 600;
+  color: #374151;
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  
+  .flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #6b7280;
+  }
+  
+  span {
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+// Cell Styles
+.mat-cell {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  
+  &:last-child {
+    border-right: none;
+  }
+}
+
+// Row Styles
+.mat-row {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:last-child .mat-cell {
+    border-bottom: none;
+  }
+}
+
+// Date Column Styles
+.date-cell {
+  .date-main {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 2px;
+  }
+  
+  .date-time {
+    font-size: 12px;
+    color: #6b7280;
+  }
+}
+
+// Category Column Styles
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+// Payee Column Styles
+.payee-cell {
+  .payee-name {
+    font-weight: 500;
+    color: #1f2937;
+    max-width: 120px;
+    word-wrap: break-word;
+    line-height: 1.4;
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  }
+}
+
+// Amount Column Styles
+.amount-cell {
+  text-align: right;
+  
+  .amount-value {
+    font-weight: 700;
+    font-size: 14px;
+    
+    &.income {
+      color: #059669;
+    }
+    
+    &.expense {
+      color: #dc2626;
+    }
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: right;
+    transition: all 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  }
+}
+
+// Status Column Styles
+.status-cell {
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    
+    &.income {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    
+    &.expense {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+    }
+  }
+  
+  select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: all 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  }
+}
+
+// Actions Column Styles
+.actions-cell {
+  text-align: center;
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .action-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    
+    &.edit-btn {
+      color: #2563eb;
+      
+      &:hover {
+        background: #dbeafe;
+        transform: scale(1.1);
+      }
+    }
+    
+    &.delete-btn {
+      color: #dc2626;
+      
+      &:hover {
+        background: #fee2e2;
+        transform: scale(1.1);
+      }
+    }
+    
+    &.save-btn {
+      background: #dcfce7;
+      color: #16a34a;
+      
+      &:hover {
+        background: #bbf7d0;
+        transform: scale(1.1);
+      }
+    }
+    
+    &.cancel-btn {
+      background: #fee2e2;
+      color: #dc2626;
+      
+      &:hover {
+        background: #fecaca;
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+// Empty State Styles
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+  
+  .empty-icon {
+    margin-bottom: 16px;
+    
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #d1d5db;
+    }
+  }
+  
+  .empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+  
+  .empty-description {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  
+  .add-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// Pagination Styles
+.pagination-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  
+  mat-paginator {
+    background: transparent;
+    border: none;
+    
+    ::ng-deep .mat-paginator-container {
+      justify-content: center;
+    }
+    
+    ::ng-deep .mat-paginator-page-size {
+      margin-right: 16px;
+    }
+    
+    ::ng-deep .mat-paginator-range-actions {
+      margin-left: 16px;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .mat-header-cell,
+  .mat-cell {
+    padding: 12px 16px;
+  }
+  
+  .payee-cell .payee-name {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mat-header-cell,
+  .mat-cell {
+    padding: 8px 12px;
+  }
+  
+  .mat-header-cell span {
+    font-size: 12px;
+  }
+  
+  .mat-header-cell mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+  
+  .payee-cell .payee-name {
+    max-width: 80px;
+    font-size: 13px;
+  }
+  
+  .amount-cell .amount-value {
+    font-size: 13px;
+  }
+  
+  .status-cell .status-badge {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .actions-cell .action-button {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .mat-header-cell,
+  .mat-cell {
+    padding: 6px 8px;
+  }
+  
+  .mat-header-cell .flex {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+  
+  .mat-header-cell span {
+    font-size: 11px;
+  }
+  
+  .mat-header-cell mat-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+  }
+  
+  .payee-cell .payee-name {
+    max-width: 60px;
+    font-size: 12px;
+  }
+  
+  .amount-cell .amount-value {
+    font-size: 12px;
+  }
+  
+  .status-cell .status-badge {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+  
+  .actions-cell .action-button {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+// Dark Theme Support
+@media (prefers-color-scheme: dark) {
+  .mat-header-cell {
+    background: #1f2937;
+    border-bottom-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .mat-row:hover {
+    background-color: #374151;
+  }
+  
+  .mat-cell {
+    border-bottom-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .category-badge {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  
+  .payee-cell .payee-name {
+    color: #f9fafb;
+  }
+  
+  .status-badge.income {
+    background: #064e3b;
+    color: #d1fae5;
+    border-color: #065f46;
+  }
+  
+  .status-badge.expense {
+    background: #7f1d1d;
+    color: #fecaca;
+    border-color: #991b1b;
+  }
+  
+  .empty-state {
+    color: #9ca3af;
+  }
+  
+  .empty-title {
+    color: #f9fafb;
+  }
+  
+  .pagination-container {
+    background: #1f2937;
+    border-color: #374151;
+  }
+} 

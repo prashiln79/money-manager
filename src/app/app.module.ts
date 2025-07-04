@@ -72,6 +72,7 @@ import { LanguageSwitcherComponent } from './util/components/language-switcher/l
 import { ThemeToggleComponent } from './util/components/theme-toggle/theme-toggle.component';
 import { TranslatePipe } from './util/pipes/translate.pipe';
 import { MobileTransactionListComponent } from './component/dashboard/transaction-list/mobile-transaction-list.component';
+import { TransactionTableComponent } from './component/dashboard/transaction-list/transaction-table.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +100,8 @@ import { MobileTransactionListComponent } from './component/dashboard/transactio
     NotesComponent,
     LanguageSwitcherComponent,
     ThemeToggleComponent,
-    MobileTransactionListComponent
+    MobileTransactionListComponent,
+    TransactionTableComponent
   ],
   imports: [
     BrowserModule,

@@ -362,6 +362,18 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     return this.allTransactions.length;
   }
 
+  getCurrentYearCount(): number {
+    const currentYear = moment().year();
+    return this.allTransactions.filter((tx: any) => {
+      const txYear = moment(tx.date.seconds * 1000).year();
+      return txYear === currentYear;
+    }).length;
+  }
+
+  getCurrentYear(): number {
+    return moment().year();
+  }
+
   getCategoriesList(): string[] {
     const categories = new Set(this.allTransactions.map((tx: any) => tx.category));
     return Array.from(categories).sort();

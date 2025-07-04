@@ -51,6 +51,13 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
   filterTransactions() {
     let filtered = [...this.transactions];
 
+    // Filter to show only current year transactions
+    const currentYear = moment().year();
+    filtered = filtered.filter(tx => {
+      const txYear = moment(tx.date.toDate()).year();
+      return txYear === currentYear;
+    });
+
     // Search filter
     if (this.searchTerm) {
       const searchLower = this.searchTerm.toLowerCase();
@@ -142,6 +149,10 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 
   getTotalCount(): number {
     return this.transactions.length;
+  }
+
+  getCurrentYear(): number {
+    return moment().year();
   }
 
   clearAllFilters() {

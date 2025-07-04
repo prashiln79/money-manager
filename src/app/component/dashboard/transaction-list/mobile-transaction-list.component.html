@@ -76,9 +76,9 @@
         <div class="empty-icon">
           <mat-icon>receipt_long</mat-icon>
         </div>
-        <h3 class="empty-title">No transactions found</h3>
+        <h3 class="empty-title">No transactions for {{ getCurrentYear() }}</h3>
         <p class="empty-description">
-          {{ transactions.length === 0 ? 'Start by adding your first transaction' : 'Try adjusting your filters' }}
+          {{ transactions.length === 0 ? 'Start by adding your first transaction' : 'No transactions found for the current year. Try adjusting your filters.' }}
         </p>
         <button *ngIf="transactions.length === 0" 
                 mat-raised-button 
