@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, ElementRef, AfterViewInit } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { ViewChild } from '@angular/core';
@@ -9,18 +9,41 @@ import { MatDrawer } from '@angular/material/sidenav';
   templateUrl: './side-bar.component.html',
   styleUrl: './side-bar.component.scss'
 })
-export class SideBarComponent {
+export class SideBarComponent implements AfterViewInit {
   @ViewChild('drawer') drawer!: MatDrawer;
 
   constructor(
     private auth: Auth,
-    private router: Router
+    private router: Router,
+    private elementRef: ElementRef
   ){}
+
+  ngAfterViewInit() {
+    // Add click listener to document after view is initialized
+    document.addEventListener('click', this.handleDocumentClick.bind(this));
+  }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape' && this.drawer && this.drawer.opened) {
       this.drawer.close();
+    }
+  }
+
+  private handleDocumentClick(event: Event) {
+    // Check if sidebar is open and click is outside
+    if (this.drawer && this.drawer.opened) {
+      const clickedElement = event.target as HTMLElement;
+      const sidebarElement = this.elementRef.nativeElement;
+      
+      // Check if click is outside the sidebar
+      if (!sidebarElement.contains(clickedElement)) {
+        // Check if it's not a click on the menu button (which should open the sidebar)
+        const menuButton = clickedElement.closest('button[aria-label="Open sidebar"]');
+        if (!menuButton) {
+          this.drawer.close();
+        }
+      }
     }
   }
 
