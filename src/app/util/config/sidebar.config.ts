@@ -52,12 +52,12 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         icon: 'pie_chart',
         order: 5
       },
-      {
-        label: 'goals',
-        route: 'goals',
-        icon: 'flag',
-        order: 6
-      },
+      // {
+      //   label: 'goals',
+      //   route: 'goals',
+      //   icon: 'flag',
+      //   order: 6
+      // },
       {
         label: 'reports',
         route: 'reports',
