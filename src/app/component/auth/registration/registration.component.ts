@@ -148,8 +148,6 @@ export class RegistrationComponent implements OnInit {
 			type: [account?.type || "checking", Validators.required],
 			balance: [account?.balance || 0, [Validators.required, Validators.min(0)]],
 			currency: [account?.currency || "USD", Validators.required],
-			institution: [account?.institution || "", Validators.required],
-			accountNumber: [account?.accountNumber || ""],
 		});
 
 		this.bankAccountsArray.push(bankAccountForm);
