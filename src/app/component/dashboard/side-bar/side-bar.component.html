@@ -48,114 +48,49 @@
 
 			<!-- Navigation -->
 			<nav class="flex-1 p-6">
-				<h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Navigation</h5>
-
-				<div class="space-y-1">
-					<a
-						routerLink=""
-						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-						(click)="drawer.toggle()"
-						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+				<div *ngFor="let section of navigationSections" class="mb-8">
+					<!-- Section Header -->
+					<div 
+						class="flex items-center justify-between mb-4 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
+						(click)="toggleSection(section)"
+						[class.cursor-pointer]="section.isCollapsible"
+						[class.cursor-default]="!section.isCollapsible"
 					>
-						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">dashboard</mat-icon>
-						<span class="font-medium text-sm">{{ 'dashboard' | translate }}</span>
-					</a>
+						<div class="flex items-center gap-2">
+							<mat-icon class="text-gray-500 text-sm">{{ section.icon }}</mat-icon>
+							<h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider">{{ section.label }}</h5>
+						</div>
+						
+						<!-- Collapse/Expand Icon -->
+						<mat-icon 
+							*ngIf="section.isCollapsible"
+							class="text-gray-400 text-sm transition-transform duration-200"
+							[class.rotate-180]="!section.isExpanded"
+						>
+							expand_more
+						</mat-icon>
+					</div>
 
-					<a
-						routerLink="accounts"
-						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-						(click)="drawer.toggle()"
-						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+					<!-- Section Children -->
+					<div 
+						class="space-y-1 overflow-hidden transition-all duration-200"
+						[class.max-h-0]="!section.isExpanded"
+						[class.max-h-96]="section.isExpanded"
 					>
-						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">account_balance</mat-icon>
-						<span class="font-medium text-sm">{{ 'accounts' | translate }}</span>
-					</a>
-
-					<a
-						routerLink="transaction-list"
-						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-						(click)="drawer.toggle()"
-						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-					>
-						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">receipt_long</mat-icon>
-						<span class="font-medium text-sm">{{ 'transactions' | translate }}</span>
-					</a>
-
-					<a
-						routerLink="category"
-						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-						(click)="drawer.toggle()"
-						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-					>
-						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">category</mat-icon>
-						<span class="font-medium text-sm">{{ 'categories' | translate }}</span>
-					</a>
-
-					<a
-						routerLink="budgets"
-						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-						(click)="drawer.toggle()"
-						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-					>
-						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">pie_chart</mat-icon>
-						<span class="font-medium text-sm">{{ 'budgets' | translate }}</span>
-					</a>
-
-					<a
-						routerLink="goals"
-						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-						(click)="drawer.toggle()"
-						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-					>
-						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">flag</mat-icon>
-						<span class="font-medium text-sm">{{ 'goals' | translate }}</span>
-					</a>
-
-					<a
-						routerLink="reports"
-						routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-						(click)="drawer.toggle()"
-						class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-					>
-						<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">analytics</mat-icon>
-						<span class="font-medium text-sm">{{ 'reports' | translate }}</span>
-					</a>
-				</div>
-
-				<!-- Tools Section -->
-				<div class="mt-8 pt-6 border-t border-gray-100">
-					<h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Tools</h5>
-					<div class="space-y-1">
 						<a
-							routerLink="calendar-view"
+							*ngFor="let child of section.children"
+							[routerLink]="child.route"
 							routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
 							(click)="drawer.toggle()"
 							class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
 						>
-							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">calendar_today</mat-icon>
-							<span class="font-medium text-sm">{{ 'calendar' | translate }} View</span>
-						</a>
-
-						<a
-							routerLink="notes"
-							routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-							(click)="drawer.toggle()"
-							class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-						>
-							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">note</mat-icon>
-							<span class="font-medium text-sm">{{ 'notes' | translate }}</span>
-						</a>
-
-						<a
-							routerLink="tax"
-							routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-							(click)="drawer.toggle()"
-							class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-						>
-							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">calculate</mat-icon>
-							<span class="font-medium text-sm">{{ 'tax' | translate }} Calculator</span>
+							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg">{{ child.icon }}</mat-icon>
+							<span class="font-medium text-sm">{{ child.label | translate }}</span>
 						</a>
 					</div>
+
+					<!-- Divider (except for last section) -->
+					<div *ngIf="section !== navigationSections[navigationSections.length - 1]" class="mt-8 pt-6 border-t border-gray-100"></div>
 				</div>
 			</nav>
 

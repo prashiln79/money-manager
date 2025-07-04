@@ -3,6 +3,7 @@ import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
+import { SidebarNavParent, getAllNavigationItems } from '../../../util/config/sidebar.config';
 
 @Component({
   selector: 'side-bar',
@@ -11,12 +12,22 @@ import { MatDrawer } from '@angular/material/sidenav';
 })
 export class SideBarComponent implements AfterViewInit {
   @ViewChild('drawer') drawer!: MatDrawer;
+  
+  navigationSections: SidebarNavParent[] = [];
 
   constructor(
     private auth: Auth,
     private router: Router,
     private elementRef: ElementRef
-  ){}
+  ){
+    this.navigationSections = getAllNavigationItems();
+  }
+
+  toggleSection(section: SidebarNavParent) {
+    if (section.isCollapsible) {
+      section.isExpanded = !section.isExpanded;
+    }
+  }
 
   ngAfterViewInit() {
     // Add click listener to document after view is initialized
