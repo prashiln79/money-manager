@@ -91,8 +91,8 @@ export class OfflineService {
     const storedVersion = localStorage.getItem('app-version');
     
     if (storedVersion && storedVersion !== currentVersion) {
-      console.log('App version changed, clearing cache and reloading');
-      this.forceAppUpdate();
+      console.log('App version changed, performing smart cache update');
+      this.performSmartCacheUpdate(storedVersion, currentVersion);
     } else {
       localStorage.setItem('app-version', currentVersion);
     }
@@ -106,12 +106,106 @@ export class OfflineService {
   }
 
   private getAppVersion(): string {
-    // You can replace this with your actual versioning strategy
-    return new Date().toISOString().split('T')[0]; // Use date as version for now
+    // Use a more stable versioning strategy - only change when there's a significant update
+    // For now, we'll use a weekly version to reduce unnecessary cache clears
+    const now = new Date();
+    const weekNumber = Math.ceil(now.getDate() / 7);
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    return `${year}-${month.toString().padStart(2, '0')}-W${weekNumber}`;
   }
 
   private isMobileDevice(): boolean {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
+  private async performSmartCacheUpdate(oldVersion: string, newVersion: string): Promise<void> {
+    try {
+      console.log(`Performing smart cache update from ${oldVersion} to ${newVersion}`);
+      
+      // Preserve authentication state
+      const authData = this.preserveAuthData();
+      
+      // Clear only application caches, not authentication data
+      await this.clearApplicationCaches();
+      
+      // Restore authentication state
+      this.restoreAuthData(authData);
+      
+      // Update version
+      localStorage.setItem('app-version', newVersion);
+      
+      console.log('Smart cache update completed successfully');
+    } catch (error) {
+      console.error('Smart cache update failed:', error);
+      // Fallback to full cache clear if smart update fails
+      this.forceAppUpdate();
+    }
+  }
+
+  private preserveAuthData(): any {
+    const authData: any = {};
+    
+    // Preserve Firebase Auth state
+    if (localStorage.getItem('firebase:authUser:')) {
+      const authKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith('firebase:authUser:') || 
+        key.startsWith('firebase:persistence:')
+      );
+      authKeys.forEach(key => {
+        authData[key] = localStorage.getItem(key);
+      });
+    }
+    
+    // Preserve user preferences
+    const userPrefs = ['theme', 'language', 'user-settings'];
+    userPrefs.forEach(pref => {
+      const value = localStorage.getItem(pref);
+      if (value) authData[pref] = value;
+    });
+    
+    return authData;
+  }
+
+  private restoreAuthData(authData: any): void {
+    // Restore preserved data
+    Object.keys(authData).forEach(key => {
+      localStorage.setItem(key, authData[key]);
+    });
+  }
+
+  private async clearApplicationCaches(): Promise<void> {
+    try {
+      // Clear service worker caches (excluding auth-related caches)
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        const appCaches = cacheNames.filter(name => 
+          !name.includes('firebase') && 
+          !name.includes('auth') && 
+          !name.includes('user')
+        );
+        
+        await Promise.all(
+          appCaches.map(cacheName => caches.delete(cacheName))
+        );
+      }
+
+      // Clear application-specific localStorage items
+      const keysToRemove = Object.keys(localStorage).filter(key => 
+        !key.startsWith('firebase:') &&
+        !key.startsWith('user') &&
+        !key.startsWith('theme') &&
+        !key.startsWith('language') &&
+        key !== 'app-version'
+      );
+      
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      console.log('Application caches cleared successfully');
+    } catch (error) {
+      console.error('Failed to clear application caches:', error);
+      throw error;
+    }
   }
 
   private handleUpdateAvailable(): void {
@@ -152,12 +246,13 @@ export class OfflineService {
   }
 
   private handleUpdateFailure(): void {
-    console.error('Update failed, forcing cache clear');
-    this.forceAppUpdate();
+    console.error('Update failed, performing smart cache update');
+    this.performSmartCacheUpdate('', this.getAppVersion());
   }
 
   private forceAppUpdate(): void {
-    // Clear all caches and reload
+    // This should only be used as a last resort
+    console.warn('Force app update triggered - this will clear all data including auth');
     this.clearAllCaches().then(() => {
       console.log('Cache cleared, reloading app');
       window.location.reload();
@@ -274,12 +369,7 @@ export class OfflineService {
 
   public async clearCache(): Promise<void> {
     try {
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames.map(cacheName => caches.delete(cacheName))
-        );
-      }
+      await this.clearApplicationCaches();
     } catch (error) {
       console.error('Failed to clear cache:', error);
     }

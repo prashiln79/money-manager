@@ -66,6 +66,20 @@
       }
     },
     {
+      "name": "auth-api",
+      "urls": [
+        "https://securetoken.googleapis.com/**",
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword",
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 10,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
+    {
       "name": "api-cache",
       "urls": [
         "/api/**"

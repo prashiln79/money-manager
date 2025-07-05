@@ -17,6 +17,8 @@ export class AuthGuard implements CanActivate {
     return new Observable<boolean>((observer) => {
       onAuthStateChanged(getAuth(), (user) => {
         if (user) {
+          console.log('User authenticated, allowing access to:', state.url);
+          
           // Optional: Role-based access placeholder
           // const allowedRoles = route.data['roles'] as string[];
           // if (allowedRoles && !this.userService.hasRole(user.uid, allowedRoles)) {
@@ -24,15 +26,50 @@ export class AuthGuard implements CanActivate {
           //   observer.next(false);
           //   return;
           // }
+          
           observer.next(true);
         } else {
+          console.log('User not authenticated, redirecting to sign-in');
+          
+          // Check if there's cached auth data that might indicate a cache update issue
+          const hasCachedAuthData = this.checkForCachedAuthData();
+          
+          if (hasCachedAuthData) {
+            console.log('Found cached auth data, user might have been logged out due to cache update');
+            // You could show a message to the user about the cache update
+          }
+          
           this.router.navigate(['/sign-in'], {
-            queryParams: { session: 'expired', redirect: state.url }
+            queryParams: { 
+              session: 'expired', 
+              redirect: state.url,
+              cacheUpdate: hasCachedAuthData ? 'true' : 'false'
+            }
           });
           observer.next(false);
         }
       });
     });
+  }
+
+  private checkForCachedAuthData(): boolean {
+    try {
+      // Check for Firebase auth data in localStorage
+      const authKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith('firebase:authUser:') || 
+        key.startsWith('firebase:persistence:')
+      );
+      
+      // Check for cached user data
+      const userDataKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith('user-data-')
+      );
+      
+      return authKeys.length > 0 || userDataKeys.length > 0;
+    } catch (error) {
+      console.error('Error checking cached auth data:', error);
+      return false;
+    }
   }
 
   /**

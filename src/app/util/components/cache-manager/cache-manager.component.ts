@@ -8,39 +8,39 @@ import { OfflineService } from '../../service/offline.service';
   imports: [MatIconModule],
   template: `
     <div class="p-4 bg-white rounded-lg shadow-sm border">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Cache Management</h3>
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Smart Cache Management</h3>
       
       <div class="space-y-4">
         <!-- Cache Status -->
         <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
           <div>
             <h4 class="font-medium text-gray-900">Cache Status</h4>
-            <p class="text-sm text-gray-600">Manage app cache and updates</p>
+            <p class="text-sm text-gray-600">Smart cache management preserves your login and data</p>
           </div>
           <div class="flex items-center space-x-2">
             <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span class="text-sm text-gray-600">Active</span>
+            <span class="text-sm text-gray-600">Smart Mode</span>
           </div>
         </div>
 
-        <!-- Clear Cache Button -->
+        <!-- Clear Application Cache Button -->
         <button 
-          (click)="clearCache()"
+          (click)="clearApplicationCache()"
           [disabled]="isClearing"
           class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <mat-icon class="text-sm">{{ isClearing ? 'hourglass_empty' : 'clear_all' }}</mat-icon>
-          <span>{{ isClearing ? 'Clearing Cache...' : 'Clear Cache' }}</span>
+          <span>{{ isClearing ? 'Clearing App Cache...' : 'Clear Application Cache' }}</span>
         </button>
 
         <!-- Force Update Button -->
         <button 
           (click)="forceUpdate()"
           [disabled]="isUpdating"
-          class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <mat-icon class="text-sm">{{ isUpdating ? 'hourglass_empty' : 'system_update' }}</mat-icon>
-          <span>{{ isUpdating ? 'Updating...' : 'Force Update' }}</span>
+          <span>{{ isUpdating ? 'Updating...' : 'Force Full Update (Logs Out)' }}</span>
         </button>
 
         <!-- Check for Updates Button -->
@@ -80,7 +80,22 @@ import { OfflineService } from '../../service/offline.service';
               <span class="text-sm text-gray-600">Last Updated:</span>
               <span class="text-sm font-medium">{{ getLastUpdated() }}</span>
             </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">Cache Strategy:</span>
+              <span class="text-sm font-medium text-green-600">Smart Mode</span>
+            </div>
           </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <h4 class="font-medium text-blue-900 mb-2">Smart Cache Features</h4>
+          <ul class="text-sm text-blue-800 space-y-1">
+            <li>• Preserves your login during updates</li>
+            <li>• Maintains user preferences and settings</li>
+            <li>• Only clears application data, not user data</li>
+            <li>• Weekly versioning reduces unnecessary clears</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -98,27 +113,29 @@ export class CacheManagerComponent {
 
   constructor(private offlineService: OfflineService) {}
 
-  async clearCache(): Promise<void> {
+  async clearApplicationCache(): Promise<void> {
     this.isClearing = true;
     try {
-      await this.offlineService.clearAllCaches();
-      alert('Cache cleared successfully!');
+      await this.offlineService.clearCache();
+      alert('Application cache cleared successfully! Your login and data are preserved.');
     } catch (error) {
-      console.error('Failed to clear cache:', error);
-      alert('Failed to clear cache. Please try again.');
+      console.error('Failed to clear application cache:', error);
+      alert('Failed to clear application cache. Please try again.');
     } finally {
       this.isClearing = false;
     }
   }
 
   async forceUpdate(): Promise<void> {
-    this.isUpdating = true;
-    try {
-      this.offlineService.forceUpdate();
-    } catch (error) {
-      console.error('Failed to force update:', error);
-      alert('Failed to force update. Please try again.');
-      this.isUpdating = false;
+    if (confirm('This will clear ALL cache including your login. You will need to sign in again. Continue?')) {
+      this.isUpdating = true;
+      try {
+        this.offlineService.forceUpdate();
+      } catch (error) {
+        console.error('Failed to force update:', error);
+        alert('Failed to force update. Please try again.');
+        this.isUpdating = false;
+      }
     }
   }
 
@@ -153,7 +170,11 @@ export class CacheManagerComponent {
   }
 
   getAppVersion(): string {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const weekNumber = Math.ceil(now.getDate() / 7);
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    return `${year}-${month.toString().padStart(2, '0')}-W${weekNumber}`;
   }
 
   getLastUpdated(): string {
