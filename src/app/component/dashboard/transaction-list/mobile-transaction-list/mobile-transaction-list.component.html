@@ -36,7 +36,7 @@
           <div class="transaction-icon">
             <div class="icon-container" [ngClass]="tx.type === 'income' ? 'income-bg' : 'expense-bg'">
               <mat-icon [ngClass]="tx.type === 'income' ? 'income-icon' : 'expense-icon'">
-                {{ tx.type === 'income' ? 'trending_up' : 'trending_down' }}
+                {{ getCategoryIcon(tx.category) }}
               </mat-icon>
             </div>
           </div>
@@ -46,9 +46,9 @@
             <div class="transaction-title text-base">
               {{ tx.payee | titlecase }}
             </div>
-            <div class="transaction-category text-base">
+            <!-- <div class="transaction-category text-base">
               {{ tx.category }}
-            </div>
+            </div> -->
             <div class="transaction-date text-base">
               {{ tx.date.seconds * 1000 | date:'MMM dd, yyyy' }}
               <span class="time-separator">•</span>

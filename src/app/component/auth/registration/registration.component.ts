@@ -239,7 +239,7 @@ export class RegistrationComponent implements OnInit {
 
 				// 4. Create categories
 				for (const category of formValue.categories) {
-					await this.categoryService.createCategory(user?.uid, category.name, category.type);
+					await this.categoryService.createCategory(user?.uid, category.name, category.type, category.icon);
 				}
 
 				this.notificationService.success("Registration successful! Welcome to Money Manager.");

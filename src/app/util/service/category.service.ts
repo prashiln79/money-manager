@@ -7,6 +7,7 @@ interface Category {
     id?: string;
     name: string;
     type: 'income' | 'expense';
+    icon: string;
     createdAt: number;
 }
 
@@ -27,7 +28,16 @@ export class CategoryService {
             getDocs(categoriesRef).then(querySnapshot => {
                 const categories: Category[] = [];
                 querySnapshot.forEach(doc => {
-                    categories.push({ id: doc.id, ...doc.data() } as Category);
+                    const data:any = doc.data();
+                    // Handle existing categories that might not have icon field
+                    const category: Category = {
+                        id: doc.id,
+                        name: data?.name,
+                        type: data?.type,
+                        icon: data?.icon || 'category',
+                        createdAt: data?.createdAt
+                    };
+                    categories.push(category);
                 });
                 observer.next(categories);
                 observer.complete(); // Complete the observable to prevent memory leaks
@@ -37,18 +47,19 @@ export class CategoryService {
         });
     }
 
-    async createCategory(userId: string, name: string, type: 'income' | 'expense'): Promise<void> {
+    async createCategory(userId: string, name: string, type: 'income' | 'expense', icon: string): Promise<void> {
         await addDoc(this.getUserCategoriesCollection(userId), {
             name,
             type,
+            icon,
             createdAt: Date.now()
         });
     }
 
     /** Update a category */
-    async updateCategory(userId: string, categoryId: string, name: string, type: 'income' | 'expense'): Promise<void> {
+    async updateCategory(userId: string, categoryId: string, name: string, type: 'income' | 'expense', icon: string): Promise<void> {
         const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
-        await updateDoc(categoryRef, { name, type });
+        await updateDoc(categoryRef, { name, type, icon });
     }
 
     /** Delete a category */

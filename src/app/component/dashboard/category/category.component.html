@@ -44,7 +44,10 @@
              [class.editing]="isEditMode && newCategory.id === category.id">
           <div class="category-content">
             <div class="category-info">
-              <h3 class="category-name">{{ category.name }}</h3>
+              <div class="category-icon-name">
+                <mat-icon class="category-icon">{{ category.icon || 'category' }}</mat-icon>
+                <h3 class="category-name">{{ category.name }}</h3>
+              </div>
               <span class="category-type">{{ category.type }}</span>
             </div>
                           <div class="category-actions">
@@ -102,6 +105,37 @@
               <option value="expense">Expense</option>
               <option value="income">Income</option>
             </select>
+          </div>
+
+          <!-- Category Icon Field -->
+          <div class="form-field">
+            <label class="field-label">Category Icon</label>
+            <div class="icon-selector">
+              <button type="button"
+                      (click)="toggleIconPicker()"
+                      class="icon-preview-button"
+                      [class.active]="showIconPicker">
+                <mat-icon>{{ newCategory.icon }}</mat-icon>
+                <span class="icon-label">{{ newCategory.icon }}</span>
+                <mat-icon class="dropdown-icon">expand_more</mat-icon>
+              </button>
+              
+              <!-- Icon Picker Dropdown -->
+              <div *ngIf="showIconPicker" 
+                   class="icon-picker-dropdown"
+                   (clickOutside)="closeIconPicker()">
+                <div class="icon-grid">
+                  <button *ngFor="let icon of availableIcons"
+                          type="button"
+                          (click)="selectIcon(icon)"
+                          class="icon-option"
+                          [class.selected]="newCategory.icon === icon"
+                          matTooltip="{{ icon }}">
+                    <mat-icon>{{ icon }}</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
                       <!-- Action Buttons -->

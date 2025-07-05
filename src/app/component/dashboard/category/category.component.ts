@@ -6,10 +6,11 @@ import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 
-interface Category {
+export interface Category {
   id?: string;
   name: string;
   type: 'income' | 'expense';
+  icon: string;
   createdAt: number;
 }
 
@@ -27,6 +28,32 @@ export class CategoryComponent implements OnInit, OnDestroy {
   
   // Form data
   public newCategory: Category = this.getEmptyCategory();
+  
+  // Icon selection
+  public availableIcons: string[] = [
+    'shopping_cart', 'restaurant', 'local_gas_station', 'home', 'directions_car',
+    'flight', 'hotel', 'local_hospital', 'school', 'work', 'sports_esports',
+    'movie', 'music_note', 'fitness_center', 'pets', 'child_care', 'elderly',
+    'celebration', 'card_giftcard', 'local_offer', 'account_balance', 'trending_up',
+    'attach_money', 'account_balance_wallet', 'credit_card', 'savings', 'payments',
+    'receipt', 'receipt_long', 'description', 'category', 'label', 'bookmark',
+    'favorite', 'star', 'thumb_up', 'thumb_down', 'check_circle', 'cancel',
+    'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
+    'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
+    'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'arrow_drop_up',
+    'arrow_drop_down', 'arrow_drop_left', 'arrow_drop_right', 'arrow_back_ios',
+    'arrow_forward_ios', 'arrow_upward_ios', 'arrow_downward_ios', 'arrow_drop_up_ios',
+    'arrow_drop_down_ios', 'arrow_drop_left_ios', 'arrow_drop_right_ios', 'arrow_back_ios_new',
+    'arrow_forward_ios_new', 'arrow_upward_ios_new', 'arrow_downward_ios_new', 'arrow_drop_up_ios_new',
+    'home', 'work', 'school', 'favorite', 'bookmark', 'star', 'thumb_up', 'thumb_down',
+    'check_circle', 'cancel', 'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
+    'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
+    'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'arrow_drop_up',
+    'arrow_drop_down', 'arrow_drop_left', 'arrow_drop_right', 'arrow_back_ios',
+    'arrow_forward_ios', 'arrow_upward_ios', 'arrow_downward_ios', 'arrow_drop_up_ios',
+    'arrow_drop_down_ios', 'arrow_drop_left_ios', 'arrow_drop_right_ios', 'arrow_back_ios_new',
+  ];
+  public showIconPicker: boolean = false;
   
   // Private properties
   private userId: string = '';
@@ -108,7 +135,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
       await this.categoryService.createCategory(
         this.userId, 
         this.newCategory.name.trim(), 
-        this.newCategory.type
+        this.newCategory.type,
+        this.newCategory.icon
       );
       
       // Reset form and reload categories
@@ -130,6 +158,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       id: category.id,
       name: category.name,
       type: category.type,
+      icon: category.icon || 'category',
       createdAt: category.createdAt
     };
   }
@@ -156,7 +185,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
         this.userId, 
         this.newCategory.id, 
         this.newCategory.name.trim(), 
-        this.newCategory.type
+        this.newCategory.type,
+        this.newCategory.icon
       );
       
       // Reset form and reload categories
@@ -232,6 +262,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     return {
       name: '',
       type: 'expense',
+      icon: 'shopping_cart',
       createdAt: Date.now()
     };
   }
@@ -257,5 +288,27 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public trackByCategoryId(index: number, category: Category): string {
     return category.id || index.toString();
+  }
+
+  /**
+   * Toggle icon picker visibility
+   */
+  public toggleIconPicker(): void {
+    this.showIconPicker = !this.showIconPicker;
+  }
+
+  /**
+   * Select an icon for the category
+   */
+  public selectIcon(icon: string): void {
+    this.newCategory.icon = icon;
+    this.showIconPicker = false;
+  }
+
+  /**
+   * Close icon picker
+   */
+  public closeIconPicker(): void {
+    this.showIconPicker = false;
   }
 }
