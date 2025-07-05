@@ -9,9 +9,14 @@ export class NotificationService {
   private defaultConfig: MatSnackBarConfig = {
     duration: 2000, // Duration for which the snack bar will stay visible
     horizontalPosition: 'right', // Horizontal position of the snack bar
-    verticalPosition: 'top', // Vertical position of the snack bar
-    panelClass: ['snack-bar-success'], // Default class for success (can be customized)
+    verticalPosition: this.isMobile() ? 'bottom' : 'top', // Bottom on mobile, top on desktop
+    panelClass: this.isMobile() ? ['snack-bar-success', 'mobile-notification'] : ['snack-bar-success'], // Add mobile class for custom positioning
   };
+
+  // Check if device is mobile
+  private isMobile(): boolean {
+    return window.innerWidth <= 768;
+  }
 
   constructor(private snackBar: MatSnackBar) {}
 
@@ -19,7 +24,7 @@ export class NotificationService {
   success(message: string, action: string = "Close"): void {
     this.snackBar.open(message, action, {
       ...this.defaultConfig,
-      panelClass: ['snack-bar-success'],
+      panelClass: this.isMobile() ? ['snack-bar-success', 'mobile-notification'] : ['snack-bar-success'],
     });
   }
 
@@ -27,7 +32,7 @@ export class NotificationService {
   error(message: string, action: string = "Close"): void {
     this.snackBar.open(message, action, {
       ...this.defaultConfig,
-      panelClass: ['snack-bar-error'],
+      panelClass: this.isMobile() ? ['snack-bar-error', 'mobile-notification'] : ['snack-bar-error'],
     });
   }
 

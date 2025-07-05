@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { OfflineService } from '../../../util/service/offline.service';
 import { Subscription, interval } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { TransactionComponent } from '../transaction-list/add-transaction/transaction/transaction.component';
 
 @Component({
   selector: 'app-footer',
@@ -16,7 +18,8 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   constructor(
     private offlineService: OfflineService,
-    private router: Router
+    private router: Router,
+    private _dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -41,8 +44,10 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   // Toolbar Action Methods
   addTransaction() {
-    console.log('Add transaction clicked');
-    this.router.navigate(['/dashboard/add-transaction']);
+    const dialogRef = this._dialog.open(TransactionComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+    });
   }
 
   quickIncome() {

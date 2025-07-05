@@ -201,6 +201,12 @@ body {
   font-weight: 400;
 }
 
+/* Mobile notification positioning - slightly up from bottom */
+.mobile-notification {
+  margin-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+}
+
+
 .item-amount {
   margin-top: 8px;
   margin-bottom: 8px;
