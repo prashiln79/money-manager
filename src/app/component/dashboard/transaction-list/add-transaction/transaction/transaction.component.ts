@@ -4,7 +4,9 @@ import { Auth } from "@angular/fire/auth";
 import { Timestamp } from "@angular/fire/firestore";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Router } from "@angular/router";
 import { CategoryService } from "src/app/util/service/category.service";
+import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.service";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { Transaction, TransactionsService } from "src/app/util/service/transactions.service";
 
@@ -31,7 +33,9 @@ export class TransactionComponent {
 		public dialogRef: MatDialogRef<TransactionComponent>,
 		private breakpointObserver: BreakpointObserver,
 		private auth: Auth,
-		private notificationService: NotificationService
+		private notificationService: NotificationService,
+		private router: Router,
+		private hapticFeedback: HapticFeedbackService,
 	) {
 		this.transactionForm = this.fb.group({
 			payee: ["", Validators.required],
@@ -99,6 +103,11 @@ export class TransactionComponent {
 					notes: this.transactionForm.get("description")?.value,
 				});
 				this.notificationService.success("Transaction added successfully");
+				this.hapticFeedback.successVibration();
+			}
+
+			if (this.isMobile) {
+				this.router.navigate(["/dashboard/transactions"]);
 			}
 		}
 	}

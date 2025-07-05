@@ -1,6 +1,203 @@
 <div class="mobile-transaction-container">
-  <!-- Mobile Header with Summary -->
-  
+  <!-- Mobile Filter Header -->
+  <div class="mobile-filter-header" *ngIf="showFilters">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          [ngModel]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search transactions..."
+          class="search-input"
+        />
+        <button 
+          *ngIf="searchTerm" 
+          mat-icon-button 
+          class="clear-search-btn"
+          (click)="onSearchChange('')"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Menu Buttons -->
+    <div class="filter-menu-container">
+      <!-- Sort Menu -->
+      <button 
+        mat-icon-button 
+        class="filter-menu-btn"
+        [matMenuTriggerFor]="sortMenu"
+        matTooltip="{{ getCurrentSortLabel() }}"
+      >
+        <mat-icon>sort</mat-icon>
+      </button>
+
+      <mat-menu #sortMenu="matMenu" class="filter-menu">
+        <button 
+          *ngFor="let option of sortOptions" 
+          mat-menu-item
+          [class.active-menu-item]="selectedSort === option.value"
+          (click)="onSortChange(option.value)"
+        >
+          <mat-icon>{{ option.icon }}</mat-icon>
+          <span>{{ option.label }}</span>
+          <mat-icon *ngIf="selectedSort === option.value" class="check-icon">check</mat-icon>
+        </button>
+      </mat-menu>
+
+      <!-- Type Menu -->
+      <button 
+        mat-icon-button 
+        class="filter-menu-btn"
+        [matMenuTriggerFor]="typeMenu"
+        matTooltip="{{ getCurrentTypeLabel() }}"
+      >
+        <mat-icon>account_balance_wallet</mat-icon>
+      </button>
+
+      <mat-menu #typeMenu="matMenu" class="filter-menu">
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="selectedType === 'all'"
+          (click)="onTypeChange('all')"
+        >
+          <mat-icon>list</mat-icon>
+          <span>All Types</span>
+          <mat-icon *ngIf="selectedType === 'all'" class="check-icon">check</mat-icon>
+        </button>
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="selectedType === 'income'"
+          (click)="onTypeChange('income')"
+        >
+          <mat-icon class="income-icon">trending_up</mat-icon>
+          <span>Income</span>
+          <mat-icon *ngIf="selectedType === 'income'" class="check-icon">check</mat-icon>
+        </button>
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="selectedType === 'expense'"
+          (click)="onTypeChange('expense')"
+        >
+          <mat-icon class="expense-icon">trending_down</mat-icon>
+          <span>Expense</span>
+          <mat-icon *ngIf="selectedType === 'expense'" class="check-icon">check</mat-icon>
+        </button>
+      </mat-menu>
+
+      <!-- Category Menu -->
+      <button 
+        mat-icon-button 
+        class="filter-menu-btn"
+        [matMenuTriggerFor]="categoryMenu"
+        matTooltip="{{ getCurrentCategoryLabel() }}"
+      >
+        <mat-icon>category</mat-icon>
+      </button>
+
+      <mat-menu #categoryMenu="matMenu" class="filter-menu">
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="selectedCategory === 'all'"
+          (click)="onCategoryChange('all')"
+        >
+          <mat-icon>list</mat-icon>
+          <span>All Categories</span>
+          <mat-icon *ngIf="selectedCategory === 'all'" class="check-icon">check</mat-icon>
+        </button>
+        <mat-divider></mat-divider>
+        <button 
+          *ngFor="let category of getCategoriesList()" 
+          mat-menu-item
+          [class.active-menu-item]="selectedCategory === category"
+          (click)="onCategoryChange(category)"
+        >
+          <mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
+          <span>{{ category }}</span>
+          <mat-icon *ngIf="selectedCategory === category" class="check-icon">check</mat-icon>
+        </button>
+      </mat-menu>
+
+      <!-- Date Range Menu -->
+      <button 
+        mat-icon-button 
+        class="filter-menu-btn"
+        [matMenuTriggerFor]="dateMenu"
+        matTooltip="{{ getCurrentDateLabel() }}"
+      >
+        <mat-icon>calendar_today</mat-icon>
+      </button>
+
+      <mat-menu #dateMenu="matMenu" class="filter-menu">
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="selectedDateRange === null"
+          (click)="onDateRangeChange(null)"
+        >
+          <mat-icon>all_inclusive</mat-icon>
+          <span>All Time</span>
+          <mat-icon *ngIf="selectedDateRange === null" class="check-icon">check</mat-icon>
+        </button>
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="isCurrentMonth()"
+          (click)="onDateRangeChange('currentMonth')"
+        >
+          <mat-icon>calendar_month</mat-icon>
+          <span>This Month</span>
+          <mat-icon *ngIf="isCurrentMonth()" class="check-icon">check</mat-icon>
+        </button>
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="isLastMonth()"
+          (click)="onDateRangeChange('lastMonth')"
+        >
+          <mat-icon>calendar_view_month</mat-icon>
+          <span>Last Month</span>
+          <mat-icon *ngIf="isLastMonth()" class="check-icon">check</mat-icon>
+        </button>
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="isCurrentYear()"
+          (click)="onDateRangeChange('currentYear')"
+        >
+          <mat-icon>calendar_view_year</mat-icon>
+          <span>This Year</span>
+          <mat-icon *ngIf="isCurrentYear()" class="check-icon">check</mat-icon>
+        </button>
+      </mat-menu>
+      
+      <!-- Clear Filters Button -->
+      <button 
+        *ngIf="hasActiveFilters()"
+        mat-icon-button 
+        class="clear-filters-btn"
+        (click)="clearAllFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Transaction Summary -->
+  <div class="transaction-summary" *ngIf="showFilters && filteredTransactions.length > 0">
+    <div class="summary-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ getFilteredCount() }}</span>
+        <span class="stat-total">/ {{ getTotalCount() }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value income">+₹{{ getTotalIncome() | number:'1.0-0' }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value expense">-₹{{ getTotalExpenses() | number:'1.0-0' }}</span>
+      </div>
+    </div>
+  </div>
 
   <!-- Transaction List -->
   <div class="transaction-list-container">
@@ -10,9 +207,9 @@
         <div class="empty-icon">
           <mat-icon>receipt_long</mat-icon>
         </div>
-        <h3 class="empty-title text-base">No transactions for {{ getCurrentYear() }}</h3>
+        <h3 class="empty-title text-base">No transactions found</h3>
         <p class="empty-description text-base">
-          {{ transactions.length === 0 ? 'Start by adding your first transaction' : 'No transactions found for the current year. Try adjusting your filters.' }}
+          {{ transactions.length === 0 ? 'Start by adding your first transaction' : 'No transactions match your current filters. Try adjusting your search or filters.' }}
         </p>
         <button *ngIf="transactions.length === 0" 
                 mat-raised-button 
@@ -21,6 +218,13 @@
                 (click)="onAddTransaction()">
           <mat-icon>add</mat-icon>
           <span class="text-base">Add First Transaction</span>
+        </button>
+        <button *ngIf="transactions.length > 0 && hasActiveFilters()" 
+                mat-stroked-button 
+                class="clear-filters-btn-large"
+                (click)="clearAllFilters()">
+          <mat-icon>clear</mat-icon>
+          <span class="text-base">Clear Filters</span>
         </button>
       </div>
 
@@ -65,7 +269,7 @@
               {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.0-0' }}
             </div>
             <div class="amount-type text-base">
-              {{ tx.type }}
+              {{ tx.category }}
             </div>
           </div>
         </div>

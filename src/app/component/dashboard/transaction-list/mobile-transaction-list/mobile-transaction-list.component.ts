@@ -8,6 +8,13 @@ import moment from "moment";
 import { CategoryService } from "src/app/util/service/category.service";
 import { Auth } from "@angular/fire/auth";
 import { Category } from "../../category/category.component";
+import { ActivatedRoute, Route, Router } from "@angular/router";
+
+interface SortOption {
+	value: string;
+	label: string;
+	icon: string;
+}
 
 @Component({
 	selector: "mobile-transaction-list",
@@ -26,19 +33,37 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	@Output() deleteTransaction = new EventEmitter<Transaction>();
 	@Output() addTransaction = new EventEmitter<void>();
 	@Output() importTransactions = new EventEmitter<void>();
+	@Output() searchTermChange = new EventEmitter<string>();
+	@Output() selectedCategoryChange = new EventEmitter<string>();
+	@Output() selectedTypeChange = new EventEmitter<string>();
+	@Output() selectedDateRangeChange = new EventEmitter<{ start: Date; end: Date } | null>();
 
 	selectedTx: Transaction | null = null;
 	filteredTransactions: Transaction[] = [];
+	selectedSort: string = 'date-desc';
+	showFilters: boolean = false;
+
+	sortOptions: SortOption[] = [
+		{ value: 'date-desc', label: 'Newest First', icon: 'schedule' },
+		{ value: 'date-asc', label: 'Oldest First', icon: 'schedule' },
+		{ value: 'amount-desc', label: 'Highest Amount', icon: 'trending_up' },
+		{ value: 'amount-asc', label: 'Lowest Amount', icon: 'trending_down' },
+		{ value: 'payee-asc', label: 'Payee A-Z', icon: 'sort_by_alpha' },
+		{ value: 'category-asc', label: 'Category A-Z', icon: 'category' }
+	];
 
 	private subscription = new Subscription();
 	destroy$: Subject<void> = new Subject<void>();
 	categories: Category[] = [];
 
-	constructor(private readonly categoryService: CategoryService, private readonly auth: Auth) {}
+	constructor(private readonly categoryService: CategoryService, private readonly auth: Auth, private readonly route: Router) {}
 
 	ngOnInit() {
 		this.filterTransactions();
 		this.loadUserCategories();
+		if (this.route.url.includes("transactions")) {
+			this.showFilters = true;
+		}
 	}
 
 	ngOnDestroy() {
@@ -52,17 +77,14 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	filterTransactions() {
 		let filtered = [...this.transactions];
 
-		// Filter to show only current year transactions
-		const currentYear = moment().year();
-		filtered = filtered.filter((tx) => {
-			const txYear = moment(tx.date.toDate()).year();
-			return txYear === currentYear;
-		});
-
 		// Search filter
 		if (this.searchTerm) {
 			const searchLower = this.searchTerm.toLowerCase();
-			filtered = filtered.filter((tx) => tx.payee.toLowerCase().includes(searchLower) || tx.category.toLowerCase().includes(searchLower) || tx.notes?.toLowerCase().includes(searchLower));
+			filtered = filtered.filter((tx) => 
+				tx.payee.toLowerCase().includes(searchLower) || 
+				tx.category.toLowerCase().includes(searchLower) || 
+				(tx.notes && tx.notes.toLowerCase().includes(searchLower))
+			);
 		}
 
 		// Category filter
@@ -94,7 +116,145 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 			});
 		}
 
+		// Sort transactions
+		filtered = this.sortTransactions(filtered);
+
 		this.filteredTransactions = filtered;
+	}
+
+	sortTransactions(transactions: Transaction[]): Transaction[] {
+		const sorted = [...transactions];
+		
+		switch (this.selectedSort) {
+			case 'date-desc':
+				return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
+			case 'date-asc':
+				return sorted.sort((a, b) => a.date.seconds - b.date.seconds);
+			case 'amount-desc':
+				return sorted.sort((a, b) => b.amount - a.amount);
+			case 'amount-asc':
+				return sorted.sort((a, b) => a.amount - b.amount);
+			case 'payee-asc':
+				return sorted.sort((a, b) => a.payee.localeCompare(b.payee));
+			case 'category-asc':
+				return sorted.sort((a, b) => a.category.localeCompare(b.category));
+			default:
+				return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
+		}
+	}
+
+	onSearchChange(term: string) {
+		this.searchTerm = term;
+		this.searchTermChange.emit(term);
+		this.filterTransactions();
+	}
+
+	onSortChange(sortValue: string) {
+		this.selectedSort = sortValue;
+		this.filterTransactions();
+	}
+
+	onTypeChange(type: string) {
+		this.selectedType = type;
+		this.selectedTypeChange.emit(type);
+		this.filterTransactions();
+	}
+
+	onCategoryChange(category: string) {
+		this.selectedCategory = category;
+		this.selectedCategoryChange.emit(category);
+		this.filterTransactions();
+	}
+
+	onDateRangeChange(range: string | null) {
+		if (!range) {
+			this.selectedDateRange = null;
+		} else {
+			const now = moment();
+			switch (range) {
+				case 'currentMonth':
+					this.selectedDateRange = {
+						start: now.startOf('month').toDate(),
+						end: now.endOf('month').toDate()
+					};
+					break;
+				case 'lastMonth':
+					this.selectedDateRange = {
+						start: now.subtract(1, 'month').startOf('month').toDate(),
+						end: now.subtract(1, 'month').endOf('month').toDate()
+					};
+					break;
+				case 'currentYear':
+					this.selectedDateRange = {
+						start: now.startOf('year').toDate(),
+						end: now.endOf('year').toDate()
+					};
+					break;
+			}
+		}
+		this.selectedDateRangeChange.emit(this.selectedDateRange);
+		this.filterTransactions();
+	}
+
+	isCurrentMonth(): boolean {
+		if (!this.selectedDateRange) return false;
+		const now = moment();
+		const start = moment(this.selectedDateRange.start);
+		const end = moment(this.selectedDateRange.end);
+		return start.isSame(now.startOf('month')) && end.isSame(now.endOf('month'));
+	}
+
+	isLastMonth(): boolean {
+		if (!this.selectedDateRange) return false;
+		const now = moment();
+		const lastMonth = now.subtract(1, 'month');
+		const start = moment(this.selectedDateRange.start);
+		const end = moment(this.selectedDateRange.end);
+		return start.isSame(lastMonth.startOf('month')) && end.isSame(lastMonth.endOf('month'));
+	}
+
+	isCurrentYear(): boolean {
+		if (!this.selectedDateRange) return false;
+		const now = moment();
+		const start = moment(this.selectedDateRange.start);
+		const end = moment(this.selectedDateRange.end);
+		return start.isSame(now.startOf('year')) && end.isSame(now.endOf('year'));
+	}
+
+	hasActiveFilters(): boolean {
+		return !!(
+			this.searchTerm || 
+			this.selectedCategory !== 'all' || 
+			this.selectedType !== 'all' ||
+			this.selectedDate ||
+			this.selectedDateRange
+		);
+	}
+
+	getCurrentSortLabel(): string {
+		const option = this.sortOptions.find(opt => opt.value === this.selectedSort);
+		return option ? option.label : 'Sort';
+	}
+
+	getCurrentTypeLabel(): string {
+		switch (this.selectedType) {
+			case 'all': return 'All Types';
+			case 'income': return 'Income';
+			case 'expense': return 'Expense';
+			default: return 'All Types';
+		}
+	}
+
+	getCurrentCategoryLabel(): string {
+		return this.selectedCategory === 'all' ? 'All Categories' : this.selectedCategory;
+	}
+
+	getCurrentDateLabel(): string {
+		if (!this.selectedDateRange) return 'All Time';
+		if (this.isCurrentMonth()) return 'This Month';
+		if (this.isLastMonth()) return 'Last Month';
+		if (this.isCurrentYear()) return 'This Year';
+		return 'Custom Range';
 	}
 
 	onLongPress(transaction: Transaction) {
@@ -173,6 +333,14 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 		this.selectedType = "all";
 		this.selectedDate = null;
 		this.selectedDateRange = null;
+		this.selectedSort = 'date-desc';
+		
+		// Emit changes
+		this.searchTermChange.emit("");
+		this.selectedCategoryChange.emit("all");
+		this.selectedTypeChange.emit("all");
+		this.selectedDateRangeChange.emit(null);
+		
 		this.filterTransactions();
 	}
 }
