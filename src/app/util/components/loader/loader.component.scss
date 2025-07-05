@@ -12,53 +12,34 @@
   z-index: 9999;
 }
 
-.skeleton-loader {
-  background: white;
+.loader {
+  background: transparent;
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  max-width: 500px;
+  max-width: 300px;
   width: 90%;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-.skeleton-header {
-  margin-bottom: 2rem;
-}
-
-.skeleton-spinner {
+.spinner {
   width: 48px;
   height: 48px;
   border: 4px solid #e5e7eb;
   border-top: 4px solid #46777f;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
 }
 
-.skeleton-title {
+.loader-message {
   font-family: 'Poppins', sans-serif;
-  font-weight: 600;
-  font-size: 1.25rem;
+  font-weight: 500;
+  font-size: 1.125rem;
   color: #1f2937;
   margin: 0;
-}
-
-.skeleton-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.skeleton-item {
-  background: linear-gradient(90deg, 
-    #e5e7eb 25%, 
-    #d1d5db 50%, 
-    #e5e7eb 75%);
-  background-size: 200% 100%;
-  border-radius: 0.5rem;
-  animation: shimmer 1.5s infinite;
-  display: block;
 }
 
 @keyframes spin {
@@ -66,48 +47,14 @@
   100% { transform: rotate(360deg); }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Dashboard specific styles */
-.skeleton-content .skeleton-item:nth-child(1) {
-  border-radius: 0.5rem;
-}
-
-.skeleton-content .skeleton-item:nth-child(2) {
-  border-radius: 0.75rem;
-}
-
-.skeleton-content .skeleton-item:nth-child(3),
-.skeleton-content .skeleton-item:nth-child(4) {
-  display: inline-block;
-  margin-right: 4%;
-}
-
-.skeleton-content .skeleton-item:nth-child(4) {
-  margin-right: 0;
-}
-
-/* Transaction specific styles */
-.skeleton-content .skeleton-item:nth-child(4) {
-  background: #f3f4f6;
-  border-radius: 0;
-}
-
 /* Mobile responsive */
 @media (max-width: 768px) {
-  .skeleton-loader {
+  .loader {
     padding: 1.5rem;
     margin: 1rem;
   }
   
-  .skeleton-title {
-    font-size: 1.125rem;
+  .loader-message {
+    font-size: 1rem;
   }
 }
