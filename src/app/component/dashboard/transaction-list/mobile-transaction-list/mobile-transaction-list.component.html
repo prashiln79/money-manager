@@ -269,7 +269,7 @@
               {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.0-0' }}
             </div>
             <div class="amount-type text-base">
-              {{ tx.category }}
+              {{ tx.category | titlecase }}
             </div>
           </div>
         </div>
