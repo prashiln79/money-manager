@@ -40,99 +40,173 @@
 
 <!-- Header for Mobile -->
 <!-- Mobile Header -->
-<div class="flex items-center justify-between bg-gray-100 p-3 rounded-lg sm:hidden">
-    <h6 class="text-sm font-semibold text-gray-700">Add Transaction</h6>
-    <div class="flex gap-3">
-        <!-- Add Button Icon -->
-        <button mat-icon-button (click)="onSubmit()" [disabled]="transactionForm.invalid" matTooltip="Add Transaction"
-            class="text-blue-500 hover:text-blue-600">
-            <mat-icon>check</mat-icon>
-        </button>
-
-        <!-- Close Button Icon -->
-        <button mat-icon-button type="button" mat-dialog-close matTooltip="Close"
-            class="text-gray-500 hover:text-gray-600">
-            <mat-icon>close</mat-icon>
-        </button>
+<div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+    <div class="flex items-center justify-between px-4 py-3">
+        <h6 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Add Transaction</h6>
+        <div class="flex items-center gap-2">
+            <!-- Add Button -->
+            <button 
+                mat-icon-button
+                color="primary" 
+                (click)="onSubmit()" 
+                [disabled]="transactionForm.invalid"
+                matTooltip="Add Transaction"
+                class="w-10 h-10 !bg-primary"
+            >
+                <mat-icon class="text-white">check</mat-icon>
+            </button>
+            
+            <!-- Close Button -->
+            <button 
+                mat-icon-button 
+                type="button" 
+                mat-dialog-close 
+                matTooltip="Close"
+                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
     </div>
 </div>
 
 }
-<div class="max-w-2xl mx-auto p-4 overflow-auto " [ngClass]="{'h-[100vh]': isMobile,'!p-10': isMobile}">
+<div class="flex-1 overflow-y-auto ">
+    <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8 h-screen">
+        <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            
+            <!-- Desktop Header -->
+            @if(!isMobile) {
+            <div class="text-center pb-4">
+                <h5 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    {{ dialogData?.id ? 'Edit' : 'Add' }} Transaction
+                </h5>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Enter transaction details below
+                </p>
+            </div>
+            }
 
-    <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="space-y-6">
-
-
-
-        @if(!isMobile) {
-        <h5 class="text-sm font-semibold text-center text-gray-700"> Add Transaction</h5>
-        }
-
-
-
-        <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Payee Name</mat-label>
-            <input matInput formControlName="payee" [maxlength]="45" placeholder="Enter Payee Name" class="rounded-md border-2 p-2" />
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Amount</mat-label>
-            <input matInput type="number" formControlName="amount" placeholder="Enter Amount"
-                class="rounded-md border-2 p-2" />
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Date</mat-label>
-            <input matInput [matDatepicker]="startDatePicker" (click)="startDatePicker.open()" formControlName="date"
-                placeholder="Choose Date" class="rounded-md border-2 p-2" />
-            <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #startDatePicker></mat-datepicker>
-        </mat-form-field>
-
-        <div class="flex flex-col sm:flex-row gap-2">
-            <!-- Select Tag -->
+            <!-- Amount Field - Prominent on Mobile -->
             <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Select Tag</mat-label>
-                <mat-select formControlName="tag" class="rounded-md border-2 p-2"
-                    placeholder="Select Tag">
-                    @for (item of tagList; track item) {
-                    <mat-option [value]="item.name">{{ item?.name }}</mat-option>
-                    }
-                </mat-select>
+                <mat-label>Amount *</mat-label>
+                <input 
+                    matInput 
+                    type="number" 
+                    formControlName="amount" 
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    class="text-lg font-semibold"
+                />
+                <span matTextPrefix class="text-gray-500 dark:text-gray-400 font-medium">$&nbsp;</span>
+                <mat-error *ngIf="transactionForm.get('amount')?.hasError('required')">
+                    Amount is required
+                </mat-error>
             </mat-form-field>
 
-            <!-- Type -->
+            <!-- Payee Field -->
             <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Type</mat-label>
-                <mat-select formControlName="type" class="rounded-md border-2 p-2" placeholder="Select Tag">
-                    @for (item of typeList; track item) {
-                    <mat-option [value]="item">{{ item | titlecase }}</mat-option>
-                    }
-                </mat-select>
+                <mat-label>Payee Name</mat-label>
+                <input 
+                    matInput 
+                    formControlName="payee" 
+                    [maxlength]="45" 
+                    placeholder="Enter payee name"
+                />
+                <mat-hint align="end">{{ transactionForm.get('payee')?.value?.length || 0 }}/45</mat-hint>
             </mat-form-field>
-        </div>
 
+            <!-- Date Field -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Date *</mat-label>
+                <input 
+                    matInput 
+                    [matDatepicker]="datePicker" 
+                    formControlName="date"
+                    placeholder="Choose date"
+                    readonly
+                />
+                <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                <mat-datepicker #datePicker></mat-datepicker>
+                <mat-error *ngIf="transactionForm.get('date')?.hasError('required')">
+                    Date is required
+                </mat-error>
+            </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Notes</mat-label>
-            <textarea matInput formControlName="description" [rows]="3" placeholder="Enter agent description"
-                class="rounded-md border-2 p-2"></textarea>
-        </mat-form-field>
+            <!-- Type and Tag Fields - Side by Side on Desktop -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Type Field -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Type *</mat-label>
+                    <mat-select formControlName="type" placeholder="Select type">
+                        @for (item of typeList; track item) {
+                        <mat-option [value]="item">
+                            <div class="flex items-center gap-2">
+                                <mat-icon class="text-sm">
+                                    {{ item === 'income' ? 'trending_up' : 'trending_down' }}
+                                </mat-icon>
+                                {{ item | titlecase }}
+                            </div>
+                        </mat-option>
+                        }
+                    </mat-select>
+                    <mat-error *ngIf="transactionForm.get('type')?.hasError('required')">
+                        Type is required
+                    </mat-error>
+                </mat-form-field>
 
+                <!-- Tag Field -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Category</mat-label>
+                    <mat-select formControlName="tag" placeholder="Select category">
+                        @for (item of tagList; track item) {
+                        <mat-option [value]="item.name">{{ item?.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
 
+            <!-- Notes Field -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Notes</mat-label>
+                <textarea 
+                    matInput 
+                    formControlName="description" 
+                    [rows]="3" 
+                    placeholder="Add any additional notes..."
+                ></textarea>
+            </mat-form-field>
 
-        <div class="flex flex-col justify-end sm:flex-row gap-4" *ngIf="!isMobile">
-            <button mat-flat-button type="submit" [disabled]="transactionForm.invalid"
-                class="w-full sm:w-auto py-3 sm:px-6 rounded-md text-white bg-blue-500 hover:bg-blue-600">
-                {{dialogData?.id ? ' Update' : 'Add'}} 
-            </button>
-            <button mat-flat-button type="button" mat-dialog-close
-                class="w-full sm:w-auto py-3 sm:px-6 rounded-md text-white bg-gray-500 hover:bg-gray-600">
-                Close
-            </button>
-        </div>
+            <!-- Desktop Buttons -->
+            @if(!isMobile) {
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                <button 
+                    mat-flat-button 
+                    type="submit" 
+                    [disabled]="transactionForm.invalid"
+                    class="flex-1 sm:flex-none px-6 py-3 rounded-lg text-white bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:text-gray-500 font-medium transition-colors"
+                >
+                    <mat-icon class="mr-2">add</mat-icon>
+                    {{ dialogData?.id ? 'Update' : 'Add' }} Transaction
+                </button>
+                <button 
+                    mat-stroked-button 
+                    type="button" 
+                    mat-dialog-close
+                    class="flex-1 sm:flex-none px-6 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-colors"
+                >
+                    Cancel
+                </button>
+            </div>
+            }
 
-    </form>
+            <!-- Mobile Bottom Spacing -->
+            @if(isMobile) {
+            <div class="h-20"></div>
+            }
+        </form>
+    </div>
 </div>
 
 
