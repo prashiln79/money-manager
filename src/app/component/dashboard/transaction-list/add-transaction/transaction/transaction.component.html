@@ -89,7 +89,7 @@
 
             <!-- Amount Field - Prominent on Mobile -->
             <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Amount *</mat-label>
+                <mat-label>Amount</mat-label>
                 <input 
                     matInput 
                     type="number" 
@@ -99,7 +99,7 @@
                     min="0"
                     class="text-lg font-semibold"
                 />
-                <span matTextPrefix class="text-gray-500 dark:text-gray-400 font-medium">$&nbsp;</span>
+                <!-- <span matTextPrefix class="text-gray-500 dark:text-gray-400 font-medium">$&nbsp;</span> -->
                 <mat-error *ngIf="transactionForm.get('amount')?.hasError('required')">
                     Amount is required
                 </mat-error>
@@ -107,7 +107,7 @@
 
             <!-- Payee Field -->
             <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Payee Name</mat-label>
+                <mat-label>Description</mat-label>
                 <input 
                     matInput 
                     formControlName="payee" 
@@ -143,9 +143,6 @@
                         @for (item of typeList; track item) {
                         <mat-option [value]="item">
                             <div class="flex items-center gap-2">
-                                <mat-icon class="text-sm">
-                                    {{ item === 'income' ? 'trending_up' : 'trending_down' }}
-                                </mat-icon>
                                 {{ item | titlecase }}
                             </div>
                         </mat-option>
