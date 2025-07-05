@@ -309,22 +309,22 @@
 }
 
 .transaction-title {
-  font-size: 15px;
   font-weight: 600;
   color: #1f2937;
   line-height: 1.3;
+  font-size: 1rem;
   margin: 0;
 }
 
 .transaction-category {
-  font-size: 12px;
+  font-size: 0.9rem;
   color: #6b7280;
   font-weight: 500;
   margin: 0;
 }
 
 .transaction-date {
-  font-size: 11px;
+  font-size:  0.9rem;
   color: #9ca3af;
   display: flex;
   align-items: center;
@@ -471,10 +471,6 @@
     font-size: 20px;
     width: 20px;
     height: 20px;
-  }
-
-  .transaction-title {
-    font-size: 14px;
   }
 
   .amount-value {

@@ -10,8 +10,8 @@
         <div class="empty-icon">
           <mat-icon>receipt_long</mat-icon>
         </div>
-        <h3 class="empty-title">No transactions for {{ getCurrentYear() }}</h3>
-        <p class="empty-description">
+        <h3 class="empty-title text-base">No transactions for {{ getCurrentYear() }}</h3>
+        <p class="empty-description text-base">
           {{ transactions.length === 0 ? 'Start by adding your first transaction' : 'No transactions found for the current year. Try adjusting your filters.' }}
         </p>
         <button *ngIf="transactions.length === 0" 
@@ -20,7 +20,7 @@
                 class="add-first-btn"
                 (click)="onAddTransaction()">
           <mat-icon>add</mat-icon>
-          <span>Add First Transaction</span>
+          <span class="text-base">Add First Transaction</span>
         </button>
       </div>
 
@@ -43,28 +43,28 @@
 
           <!-- Transaction Details -->
           <div class="transaction-details">
-            <div class="transaction-title">
+            <div class="transaction-title text-base">
               {{ tx.payee | titlecase }}
             </div>
-            <div class="transaction-category">
+            <div class="transaction-category text-base">
               {{ tx.category }}
             </div>
-            <div class="transaction-date">
+            <div class="transaction-date text-base">
               {{ tx.date.seconds * 1000 | date:'MMM dd, yyyy' }}
               <span class="time-separator">•</span>
               {{ tx.date.seconds * 1000 | date:'hh:mm a' }}
             </div>
-            <div *ngIf="tx.notes" class="transaction-notes">
+            <div *ngIf="tx.notes" class="transaction-notes text-base">
               {{ tx.notes }}
             </div>
           </div>
 
           <!-- Amount Section -->
           <div class="transaction-amount">
-            <div class="amount-value" [ngClass]="tx.type === 'income' ? 'income-text' : 'expense-text'">
+            <div class="amount-value text-base" [ngClass]="tx.type === 'income' ? 'income-text' : 'expense-text'">
               {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.0-0' }}
             </div>
-            <div class="amount-type">
+            <div class="amount-type text-base">
               {{ tx.type }}
             </div>
           </div>
