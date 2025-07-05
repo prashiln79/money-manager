@@ -113,20 +113,37 @@
 // Remove Later *****
 html {
   scroll-behavior: smooth;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 14px; /* Base mobile font size */
-  max-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden; /* Hidden on desktop */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overscroll-behavior: none;
-  
+  box-sizing: border-box;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure app-root takes full height and doesn't overflow */
+app-root {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
 
 /* Enable scrolling on mobile devices */
 @media (max-width: 768px) {
