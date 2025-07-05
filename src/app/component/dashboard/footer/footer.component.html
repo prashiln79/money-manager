@@ -61,7 +61,7 @@
         (click)="addTransaction()"
         class="group flex flex-col items-center gap-2 "
       >
-        <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-md hover:scale-105 transition-all duration-200" (click)="addTransaction()">
+        <div class="w-12 h-12 bg-gray-500 rounded-xl flex items-center justify-center shadow-md hover:scale-105 transition-all duration-200" >
           <mat-icon class="text-white text-lg relative bottom-1">add_circle</mat-icon>
         </div>
         <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Add</span>
@@ -83,8 +83,9 @@
 
       <!-- More -->
       <button 
-        (click)="openMoreMenu()"
+        [matMenuTriggerFor]="moreMenu"
         class="group flex flex-col items-center gap-2"
+        (click)="onMoreMenuClick()"
       >
         <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200" 
              [class]="isMoreActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'">
@@ -93,6 +94,34 @@
         <span class="text-xs font-medium transition-colors duration-200" 
               [class]="isMoreActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">More</span>
       </button>
+
+      <!-- More Menu -->
+      <mat-menu #moreMenu="matMenu" class="more-menu-panel">
+        <button mat-menu-item (click)="navigateTo('/dashboard/accounts')">
+          <mat-icon>account_balance</mat-icon>
+          <span>Accounts</span>
+        </button>
+        <button mat-menu-item (click)="navigateTo('/dashboard/budgets')">
+          <mat-icon>pie_chart</mat-icon>
+          <span>Budgets</span>
+        </button>
+        <button mat-menu-item (click)="navigateTo('/dashboard/goals')">
+          <mat-icon>flag</mat-icon>
+          <span>Goals</span>
+        </button>
+        <button mat-menu-item (click)="navigateTo('/dashboard/notes')">
+          <mat-icon>note</mat-icon>
+          <span>Notes</span>
+        </button>
+        <button mat-menu-item (click)="navigateTo('/dashboard/tax')">
+          <mat-icon>receipt</mat-icon>
+          <span>Tax</span>
+        </button>
+        <button mat-menu-item (click)="navigateTo('/dashboard/subscription')">
+          <mat-icon>subscriptions</mat-icon>
+          <span>Subscriptions</span>
+        </button>
+      </mat-menu>
     </div>
   </div>
 </footer> 

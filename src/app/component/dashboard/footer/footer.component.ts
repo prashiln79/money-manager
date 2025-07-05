@@ -139,84 +139,14 @@ export class FooterComponent implements OnInit, OnDestroy {
     alert('Search feature coming soon!');
   }
 
-  openMoreMenu() {
+  onMoreMenuClick() {
     this.hapticFeedback.buttonClick();
     console.log('More menu clicked');
-    this.showMoreMenu();
   }
 
-  private showMoreMenu() {
-    // Create a bottom sheet or modal for more options
-    const menu = document.createElement('div');
-    menu.className = 'fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-end';
-    menu.innerHTML = `
-      <div class="bg-white dark:bg-gray-800 rounded-t-xl w-full max-h-[60vh] overflow-y-auto">
-        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">More Options</h3>
-        </div>
-        <div class="p-2">
-          <button data-route="/dashboard/accounts" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <mat-icon class="text-gray-600 dark:text-gray-400">account_balance</mat-icon>
-            <span class="text-gray-700 dark:text-gray-300">Accounts</span>
-          </button>
-          <button data-route="/dashboard/budgets" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <mat-icon class="text-gray-600 dark:text-gray-400">pie_chart</mat-icon>
-            <span class="text-gray-700 dark:text-gray-300">Budgets</span>
-          </button>
-          <button data-route="/dashboard/goals" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <mat-icon class="text-gray-600 dark:text-gray-400">flag</mat-icon>
-            <span class="text-gray-700 dark:text-gray-300">Goals</span>
-          </button>
-          <button data-route="/dashboard/notes" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <mat-icon class="text-gray-600 dark:text-gray-400">note</mat-icon>
-            <span class="text-gray-700 dark:text-gray-300">Notes</span>
-          </button>
-          <button data-route="/dashboard/tax" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <mat-icon class="text-gray-600 dark:text-gray-400">receipt</mat-icon>
-            <span class="text-gray-700 dark:text-gray-300">Tax</span>
-          </button>
-          <button data-route="/dashboard/subscription" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <mat-icon class="text-gray-600 dark:text-gray-400">subscriptions</mat-icon>
-            <span class="text-gray-700 dark:text-gray-300">Subscriptions</span>
-          </button>
-        </div>
-        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-          <button id="cancel-btn" class="w-full py-2 text-gray-500 dark:text-gray-400">Cancel</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(menu);
-
-    // Add event listeners with haptic feedback
-    const buttons = menu.querySelectorAll('button[data-route]');
-    buttons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        const route = (e.target as HTMLElement).getAttribute('data-route');
-        this.hapticFeedback.navigationClick();
-        menu.remove();
-        if (route) {
-          this.router.navigate([route]);
-        }
-      });
-    });
-
-    // Cancel button
-    const cancelBtn = menu.querySelector('#cancel-btn');
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => {
-        this.hapticFeedback.buttonClick();
-        menu.remove();
-      });
-    }
-
-    // Close menu when clicking outside
-    menu.addEventListener('click', (e) => {
-      if (e.target === menu) {
-        this.hapticFeedback.buttonClick();
-        menu.remove();
-      }
-    });
+  navigateTo(route: string) {
+    this.hapticFeedback.navigationClick();
+    this.router.navigate([route]);
   }
 
   getAppVersion(): string {
