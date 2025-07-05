@@ -103,17 +103,6 @@
         "maxAge": "30d",
         "timeout": "5s"
       }
-    },
-    {
-      "name": "offline-fallback",
-      "urls": [
-        "/**"
-      ],
-      "cacheConfig": {
-        "strategy": "performance",
-        "maxSize": 20,
-        "maxAge": "1h"
-      }
     }
   ],
   "navigationUrls": [
