@@ -43,8 +43,8 @@
 
           <!-- Transaction Details -->
           <div class="transaction-details">
-            <div class="transaction-title">
-              {{ tx.payee }}
+            <div class="transaction-title text-base font-semibold">
+              {{ tx.payee | titlecase }}
             </div>
             <div class="transaction-category">
               {{ tx.category }}
@@ -61,7 +61,7 @@
 
           <!-- Amount Section -->
           <div class="transaction-amount">
-            <div class="amount-value" [ngClass]="tx.type === 'income' ? 'income-text' : 'expense-text'">
+            <div class="amount-value text-lg" [ngClass]="tx.type === 'income' ? 'income-text' : 'expense-text'">
               {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.0-0' }}
             </div>
             <div class="amount-type">
