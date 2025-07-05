@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, Sort } from '@angular/material/sort';
 import { Transaction } from '../../../../util/service/transactions.service';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
@@ -10,7 +10,7 @@ import moment from 'moment';
   templateUrl: './transaction-table.component.html',
   styleUrls: ['./transaction-table.component.scss']
 })
-export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges {
+export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @Input() transactions: Transaction[] = [];
   @Input() searchTerm: string = '';
   @Input() selectedCategory: string = 'all';
@@ -48,7 +48,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
+    this.setupSorting();
   }
 
   private setupDataSource() {
@@ -65,6 +65,44 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges {
         data.amount.toString().includes(searchStr)
       );
     };
+  }
+
+  private setupSorting() {
+    // Set up custom sort accessors
+    this.dataSource.sortingDataAccessor = (item: Transaction, property: string) => {
+      switch (property) {
+        case 'Date':
+          return (item?.date?.toDate() || new Date()).getTime();
+        case 'Type':
+          return (item?.category.toString().toLowerCase() || '');
+        case 'Payee':
+          return (item?.payee || '').toLowerCase();
+        case 'Amount':
+          return item?.amount;
+        case 'Status':
+          return (item?.type || '').toLowerCase();
+        default:
+          return '';
+      }
+    };
+
+    // Connect the sort to the data source
+    this.dataSource.sort = this.sort;
+
+    // Subscribe to sort changes for additional functionality
+    this.subscription.add(
+      this.sort.sortChange.subscribe((sort: Sort) => {
+        console.log(`Sorting by ${sort.active} in ${sort.direction} order`);
+        // You can add additional logic here, such as analytics tracking
+      })
+    );
+
+    // Set default sort
+    this.sort.sort({
+      id: 'Date',
+      start: 'desc',
+      disableClear: false
+    });
   }
 
   filterTransactions() {
@@ -153,6 +191,25 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges {
 
   getCurrentYear(): number {
     return moment().year();
+  }
+
+  // Get current sort state
+  getCurrentSortState(): Sort | null {
+    return this.sort ? this.sort.active ? {
+      active: this.sort.active,
+      direction: this.sort.direction
+    } : null : null;
+  }
+
+  // Clear current sort
+  clearSort(): void {
+    if (this.sort) {
+      this.sort.sort({
+        id: '',
+        start: 'asc',
+        disableClear: false
+      });
+    }
   }
 
   // Custom sort function for amount column

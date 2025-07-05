@@ -4,7 +4,7 @@
     <table mat-table [dataSource]="dataSource" matSort class="w-full">
       <!-- Date Column -->
       <ng-container matColumnDef="Date">
-        <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-6 py-4">
           <div class="flex items-center space-x-2">
             <mat-icon class="text-gray-500 text-sm">schedule</mat-icon>
             <span class="font-semibold text-gray-700">Date & Time</span>
@@ -22,7 +22,7 @@
 
       <!-- Type Column -->
       <ng-container matColumnDef="Type">
-        <th mat-header-cell *matHeaderCellDef class="px-6 py-4">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4">
           <div class="flex items-center space-x-2">
             <mat-icon class="text-gray-500 text-sm">category</mat-icon>
             <span class="font-semibold text-gray-700">Category</span>
@@ -30,14 +30,14 @@
         </th>
         <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            {{element.type}}
+            {{element.category}}
           </span>
         </td>
       </ng-container>
 
       <!-- Payee Column -->
       <ng-container matColumnDef="Payee">
-        <th mat-header-cell *matHeaderCellDef class="px-6 py-4">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4">
           <div class="flex items-center space-x-2">
             <mat-icon class="text-gray-500 text-sm">person</mat-icon>
             <span class="font-semibold text-gray-700">Payee</span>
@@ -56,7 +56,7 @@
 
       <!-- Amount Column -->
       <ng-container matColumnDef="Amount">
-        <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-6 py-4">
           <div class="flex items-center space-x-2">
             <mat-icon class="text-gray-500 text-sm">account_balance_wallet</mat-icon>
             <span class="font-semibold text-gray-700">Amount</span>
@@ -78,7 +78,7 @@
 
       <!-- Status Column -->
       <ng-container matColumnDef="Status">
-        <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-6 py-4">
           <div class="flex items-center space-x-2">
             <mat-icon class="text-gray-500 text-sm">swap_horiz</mat-icon>
             <span class="font-semibold text-gray-700">Type</span>
