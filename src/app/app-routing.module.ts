@@ -7,6 +7,7 @@ import { AuthGuard } from './util/guard/auth.guard';
 import { AccountsComponent } from './component/dashboard/accounts/accounts.component';
 import { CategoryComponent } from './component/dashboard/category/category.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
+import { ReportsComponent } from './component/dashboard/reports/reports.component';
 
 const routes: Routes = [
   { path: 'sign-in', component: SignInComponent },
@@ -18,8 +19,10 @@ const routes: Routes = [
 
     children: [
       { path: '', component: HomeComponent },
+      { path: 'home', component: HomeComponent },
       { path: 'accounts', component: AccountsComponent },
       { path: 'category', component: CategoryComponent },
+      { path: 'reports', component: ReportsComponent },
     ]
   },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' } // Default route

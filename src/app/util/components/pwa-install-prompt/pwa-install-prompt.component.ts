@@ -5,7 +5,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-pwa-install-prompt',
   template: `
-    <div *ngIf="showInstallPrompt" class="pwa-install-prompt">
+    <div *ngIf="showInstallPrompt && isMobileDevice" class="pwa-install-prompt">
       <div class="install-content">
         <div class="install-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -241,12 +241,14 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
   @Output() dismissClicked = new EventEmitter<void>();
 
   showInstallPrompt: boolean = false;
+  isMobileDevice: boolean = false;
   private deferredPrompt: any;
   private destroy$ = new Subject<void>();
 
   constructor(private pwaSwService: PwaSwService) {}
 
   ngOnInit(): void {
+    this.detectMobileDevice();
     this.setupInstallPrompt();
     this.checkInstallStatus();
   }
@@ -256,13 +258,22 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private detectMobileDevice(): void {
+    this.isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
   private setupInstallPrompt(): void {
     // Listen for beforeinstallprompt event
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       this.deferredPrompt = e;
-      this.showInstallPrompt = true;
-      console.log('Install prompt ready');
+      // Only show prompt if it's a mobile device
+      if (this.isMobileDevice) {
+        this.showInstallPrompt = true;
+        console.log('Install prompt ready for mobile device');
+      } else {
+        console.log('Install prompt ready but not showing on desktop');
+      }
     });
 
     // Listen for appinstalled event
@@ -279,6 +290,12 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
   }
 
   private checkInstallStatus(): void {
+    // Only check install status on mobile devices
+    if (!this.isMobileDevice) {
+      this.showInstallPrompt = false;
+      return;
+    }
+
     // Check if user has previously dismissed the prompt
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
@@ -328,11 +345,15 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
 
   // Method to manually show the prompt (for testing)
   public showPrompt(): void {
-    this.showInstallPrompt = true;
+    if (this.isMobileDevice) {
+      this.showInstallPrompt = true;
+    } else {
+      console.log('Install prompt not available on desktop');
+    }
   }
 
   // Method to check if install prompt is available
   public isInstallPromptAvailable(): boolean {
-    return !!this.deferredPrompt;
+    return this.isMobileDevice && !!this.deferredPrompt;
   }
 } 

@@ -5,6 +5,7 @@ import { Subscription, interval } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { TransactionComponent } from '../transaction-list/add-transaction/transaction/transaction.component';
 import { CalendarVisibilityService } from '../../../util/service/calendar-visibility.service';
+import { HapticFeedbackService } from '../../../util/service/haptic-feedback.service';
 
 @Component({
   selector: 'app-footer',
@@ -21,7 +22,8 @@ export class FooterComponent implements OnInit, OnDestroy {
     private offlineService: OfflineService,
     private router: Router,
     private _dialog: MatDialog,
-    private calendarVisibilityService: CalendarVisibilityService
+    private calendarVisibilityService: CalendarVisibilityService,
+    private hapticFeedback: HapticFeedbackService
   ) {}
 
   ngOnInit() {
@@ -46,6 +48,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   // Toolbar Action Methods
   addTransaction() {
+    this.hapticFeedback.buttonClick();
     const dialogRef = this._dialog.open(TransactionComponent, {
       width: '600px',
       maxWidth: '95vw',
@@ -53,52 +56,57 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   home() {
-    console.log('Quick income clicked');
-    // Show calendar view when home button is clicked
+    this.hapticFeedback.navigationClick();
+    this.router.navigate(['/dashboard/home']);
     this.calendarVisibilityService.showCalendar();
   }
 
   quickExpense() {
-    console.log('Quick expense clicked');
-    // Hide calendar view when expense button is clicked
+    this.hapticFeedback.navigationClick();
+    this.router.navigate(['/dashboard/home']);
     this.calendarVisibilityService.hideCalendar();
   }
 
-  quickTransfer() {
+  reports() {
+    this.hapticFeedback.navigationClick();
     console.log('Quick transfer clicked');
-    this.router.navigate(['/dashboard/add-transaction'], { 
-      queryParams: { type: 'transfer' } 
-    });
+    this.router.navigate(['/dashboard/reports']);
   }
 
   scanReceipt() {
+    this.hapticFeedback.buttonClick();
     console.log('Scan receipt clicked');
     // TODO: Implement receipt scanning functionality
     alert('Receipt scanning feature coming soon!');
   }
 
   openAddTransactionModal() {
+    this.hapticFeedback.buttonClick();
     console.log('Open add transaction modal clicked');
     this.router.navigate(['/dashboard/add-transaction']);
   }
 
   openSettings() {
+    this.hapticFeedback.buttonClick();
     console.log('Settings clicked');
     this.router.navigate(['/dashboard/settings']);
   }
 
   openReports() {
+    this.hapticFeedback.navigationClick();
     console.log('Reports clicked');
     this.router.navigate(['/dashboard/reports']);
   }
 
   openSearch() {
+    this.hapticFeedback.buttonClick();
     console.log('Search clicked');
     // TODO: Implement search functionality
     alert('Search feature coming soon!');
   }
 
   openMoreMenu() {
+    this.hapticFeedback.buttonClick();
     console.log('More menu clicked');
     this.showMoreMenu();
   }
@@ -113,42 +121,65 @@ export class FooterComponent implements OnInit, OnDestroy {
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">More Options</h3>
         </div>
         <div class="p-2">
-          <button onclick="this.closest('.fixed').remove(); window.location.href='/dashboard/accounts'" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button data-route="/dashboard/accounts" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <mat-icon class="text-gray-600 dark:text-gray-400">account_balance</mat-icon>
             <span class="text-gray-700 dark:text-gray-300">Accounts</span>
           </button>
-          <button onclick="this.closest('.fixed').remove(); window.location.href='/dashboard/budgets'" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button data-route="/dashboard/budgets" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <mat-icon class="text-gray-600 dark:text-gray-400">pie_chart</mat-icon>
             <span class="text-gray-700 dark:text-gray-300">Budgets</span>
           </button>
-          <button onclick="this.closest('.fixed').remove(); window.location.href='/dashboard/goals'" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button data-route="/dashboard/goals" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <mat-icon class="text-gray-600 dark:text-gray-400">flag</mat-icon>
             <span class="text-gray-700 dark:text-gray-300">Goals</span>
           </button>
-          <button onclick="this.closest('.fixed').remove(); window.location.href='/dashboard/notes'" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button data-route="/dashboard/notes" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <mat-icon class="text-gray-600 dark:text-gray-400">note</mat-icon>
             <span class="text-gray-700 dark:text-gray-300">Notes</span>
           </button>
-          <button onclick="this.closest('.fixed').remove(); window.location.href='/dashboard/tax'" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button data-route="/dashboard/tax" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <mat-icon class="text-gray-600 dark:text-gray-400">receipt</mat-icon>
             <span class="text-gray-700 dark:text-gray-300">Tax</span>
           </button>
-          <button onclick="this.closest('.fixed').remove(); window.location.href='/dashboard/subscription'" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button data-route="/dashboard/subscription" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <mat-icon class="text-gray-600 dark:text-gray-400">subscriptions</mat-icon>
             <span class="text-gray-700 dark:text-gray-300">Subscriptions</span>
           </button>
         </div>
         <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-          <button onclick="this.closest('.fixed').remove()" class="w-full py-2 text-gray-500 dark:text-gray-400">Cancel</button>
+          <button id="cancel-btn" class="w-full py-2 text-gray-500 dark:text-gray-400">Cancel</button>
         </div>
       </div>
     `;
 
     document.body.appendChild(menu);
 
+    // Add event listeners with haptic feedback
+    const buttons = menu.querySelectorAll('button[data-route]');
+    buttons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const route = (e.target as HTMLElement).getAttribute('data-route');
+        this.hapticFeedback.navigationClick();
+        menu.remove();
+        if (route) {
+          this.router.navigate([route]);
+        }
+      });
+    });
+
+    // Cancel button
+    const cancelBtn = menu.querySelector('#cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        this.hapticFeedback.buttonClick();
+        menu.remove();
+      });
+    }
+
     // Close menu when clicking outside
     menu.addEventListener('click', (e) => {
       if (e.target === menu) {
+        this.hapticFeedback.buttonClick();
         menu.remove();
       }
     });
@@ -189,6 +220,11 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   getBatteryLevel(): number {
     return this.batteryLevel;
+  }
+
+  // Test haptic feedback (for debugging)
+  testHapticFeedback(): void {
+    this.hapticFeedback.testVibration();
   }
 
   private updateTime(): void {
