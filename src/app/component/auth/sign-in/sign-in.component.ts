@@ -19,7 +19,7 @@ export class SignInComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
-    this._setIsSignInPage(this.router.url === '/sign-in');
+    this._setIsSignInPage(this.router.url.includes('/sign-in'));
   }
 
   onSignIn() {
