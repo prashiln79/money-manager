@@ -4,7 +4,7 @@
 
   <!-- Transaction List -->
   <div class="transaction-list-container">
-    <div class="overflow-auto transaction-scroll">
+    <div class="transaction-scroll">
       <!-- Empty State -->
       <div *ngIf="!filteredTransactions.length" class="empty-state">
         <div class="empty-icon">
@@ -43,7 +43,7 @@
 
           <!-- Transaction Details -->
           <div class="transaction-details">
-            <div class="transaction-title text-base font-semibold">
+            <div class="transaction-title">
               {{ tx.payee | titlecase }}
             </div>
             <div class="transaction-category">
@@ -61,7 +61,7 @@
 
           <!-- Amount Section -->
           <div class="transaction-amount">
-            <div class="amount-value text-lg" [ngClass]="tx.type === 'income' ? 'income-text' : 'expense-text'">
+            <div class="amount-value" [ngClass]="tx.type === 'income' ? 'income-text' : 'expense-text'">
               {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.0-0' }}
             </div>
             <div class="amount-type">
