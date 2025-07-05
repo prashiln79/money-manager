@@ -2,6 +2,54 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';
 
+// PWA Navigation and Service Worker initialization
+function initializePwaFeatures() {
+  // Handle PWA installation
+  let deferredPrompt: any;
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('PWA install prompt ready');
+  });
+
+  // Handle app installed event
+  window.addEventListener('appinstalled', () => {
+    console.log('PWA installed successfully');
+    deferredPrompt = null;
+  });
+
+  // Handle navigation events for PWA
+  window.addEventListener('popstate', (event) => {
+    console.log('Navigation event:', event);
+  });
+
+  // Handle visibility change for PWA
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      console.log('App went to background');
+    } else {
+      console.log('App came to foreground');
+    }
+  });
+
+  // Handle beforeunload for PWA
+  window.addEventListener('beforeunload', (event) => {
+    // Save app state before unload
+    const appState = {
+      timestamp: Date.now(),
+      url: window.location.href,
+      scrollPosition: window.scrollY
+    };
+    
+    try {
+      localStorage.setItem('app-state', JSON.stringify(appState));
+    } catch (error) {
+      console.warn('Failed to save app state:', error);
+    }
+  });
+}
+
 // Intelligent cache management that preserves authentication
 function initializeCacheManagement() {
   // Check if this is a mobile device
@@ -113,6 +161,9 @@ async function clearApplicationCaches(): Promise<void> {
     throw error;
   }
 }
+
+// Initialize PWA features
+initializePwaFeatures();
 
 // Initialize cache management
 initializeCacheManagement();

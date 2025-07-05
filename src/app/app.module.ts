@@ -81,6 +81,11 @@ import { OfflineIndicatorComponent } from './util/components/offline-indicator/o
 import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
 import { FooterComponent } from './component/dashboard/footer/footer.component';
 
+// PWA Components
+import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
+import { PwaNavigationBarComponent } from './util/components/pwa-navigation-bar/pwa-navigation-bar.component';
+import { PwaInstallPromptComponent } from './util/components/pwa-install-prompt/pwa-install-prompt.component';
+
 
 @NgModule({
   declarations: [
@@ -115,7 +120,10 @@ import { FooterComponent } from './component/dashboard/footer/footer.component';
     OfflineIndicatorComponent,
     OfflinePageComponent,
     FooterComponent,
-    ClickOutsideDirective
+    ClickOutsideDirective,
+    PwaBackButtonComponent,
+    PwaNavigationBarComponent,
+    PwaInstallPromptComponent
   ],
   imports: [
     BrowserModule,
