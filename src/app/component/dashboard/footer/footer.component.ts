@@ -84,7 +84,6 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   // Toolbar Action Methods
   addTransaction() {
-    this.hapticFeedback.buttonClick();
     const dialogRef = this._dialog.open(TransactionComponent, {
       width: '600px',
       maxWidth: '95vw',
@@ -92,48 +91,40 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   home() {
-    this.hapticFeedback.navigationClick();
     this.router.navigate(['/dashboard/home']);
   }
 
   quickExpense() {
-    this.hapticFeedback.navigationClick();
     this.router.navigate(['/dashboard/transactions']);
   }
 
   reports() {
-    this.hapticFeedback.navigationClick();
     console.log('Quick transfer clicked');
     this.router.navigate(['/dashboard/reports']);
   }
 
   scanReceipt() {
-    this.hapticFeedback.buttonClick();
     console.log('Scan receipt clicked');
     // TODO: Implement receipt scanning functionality
     alert('Receipt scanning feature coming soon!');
   }
 
   openAddTransactionModal() {
-    this.hapticFeedback.buttonClick();
     console.log('Open add transaction modal clicked');
     this.router.navigate(['/dashboard/add-transaction']);
   }
 
   openSettings() {
-    this.hapticFeedback.buttonClick();
     console.log('Settings clicked');
     this.router.navigate(['/dashboard/settings']);
   }
 
   openReports() {
-    this.hapticFeedback.navigationClick();
     console.log('Reports clicked');
     this.router.navigate(['/dashboard/reports']);
   }
 
   openSearch() {
-    this.hapticFeedback.buttonClick();
     console.log('Search clicked');
     // TODO: Implement search functionality
     alert('Search feature coming soon!');
@@ -145,7 +136,6 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   navigateTo(route: string) {
-    this.hapticFeedback.navigationClick();
     this.router.navigate([route]);
   }
 
@@ -184,11 +174,6 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   getBatteryLevel(): number {
     return this.batteryLevel;
-  }
-
-  // Test haptic feedback (for debugging)
-  testHapticFeedback(): void {
-    this.hapticFeedback.testVibration();
   }
 
   private updateTime(): void {

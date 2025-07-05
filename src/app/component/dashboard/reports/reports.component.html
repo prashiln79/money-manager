@@ -1,118 +1,232 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <div>
-      <h2 class="heading-responsive-h2 text-gray-800 mb-1">Financial Reports</h2>
-      <p class="body-responsive-medium text-gray-600">Analyze your spending patterns and financial insights</p>
-    </div>
-    <div class="flex space-x-3">
-      <button mat-stroked-button class="flex items-center space-x-2" (click)="exportReport()">
-        <mat-icon>download</mat-icon>
-        <span>Export Report</span>
-      </button>
-      <button mat-raised-button color="primary" class="flex items-center space-x-2" (click)="generateReport()">
-        <mat-icon>refresh</mat-icon>
-        <span>Generate Report</span>
-      </button>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <!-- Header Section -->
+  <div class="bg-white dark:bg-gray-800 ">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div class="flex-1">
+          <h4 class="text-lg sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            Financial Reports
+          </h4>
+          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+            Analyze your spending patterns and financial insights
+          </p>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <!-- Reports Content -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Spending Overview Card -->
-    <mat-card class="p-6 shadow-lg border-0 rounded-xl">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="heading-responsive-h4 text-gray-800">Spending Overview</h3>
-        <mat-icon class="text-blue-600">pie_chart</mat-icon>
-      </div>
-      <div class="space-y-4">
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600">Total Income</span>
-          <span class="font-semibold text-green-600">₹0</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600">Total Expenses</span>
-          <span class="font-semibold text-red-600">₹0</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600">Net Savings</span>
-          <span class="font-semibold text-blue-600">₹0</span>
-        </div>
-      </div>
-    </mat-card>
 
-    <!-- Monthly Trends Card -->
-    <mat-card class="p-6 shadow-lg border-0 rounded-xl">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="heading-responsive-h4 text-gray-800">Monthly Trends</h3>
-        <mat-icon class="text-green-600">trending_up</mat-icon>
-      </div>
-      <div class="space-y-4">
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600">This Month</span>
-          <span class="font-semibold text-gray-800">₹0</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600">Last Month</span>
-          <span class="font-semibold text-gray-800">₹0</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600">Change</span>
-          <span class="font-semibold text-green-600">+0%</span>
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Key Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <!-- Total Income -->
+      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-green-600 dark:text-green-400">Total Income</p>
+            <p class="text-2xl font-bold text-green-900 dark:text-green-100">₹0</p>
+          </div>
+          <div class="bg-green-500/10 p-3 rounded-lg">
+            <mat-icon class="text-green-600 dark:text-green-400">trending_up</mat-icon>
+          </div>
         </div>
       </div>
-    </mat-card>
 
-    <!-- Top Categories Card -->
-    <mat-card class="p-6 shadow-lg border-0 rounded-xl">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="heading-responsive-h4 text-gray-800">Top Spending Categories</h3>
-        <mat-icon class="text-purple-600">category</mat-icon>
-      </div>
-      <div class="space-y-3">
-        <div class="text-center py-8">
-                  <mat-icon class="text-gray-400 text-responsive-4xl mb-2">bar_chart</mat-icon>
-        <p class="body-responsive-small text-gray-500">No data available</p>
+      <!-- Total Expenses -->
+      <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-6 border border-red-200 dark:border-red-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-red-600 dark:text-red-400">Total Expenses</p>
+            <p class="text-2xl font-bold text-red-900 dark:text-red-100">₹0</p>
+          </div>
+          <div class="bg-red-500/10 p-3 rounded-lg">
+            <mat-icon class="text-red-600 dark:text-red-400">trending_down</mat-icon>
+          </div>
         </div>
       </div>
-    </mat-card>
 
-    <!-- Recent Activity Card -->
-    <mat-card class="p-6 shadow-lg border-0 rounded-xl">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="heading-responsive-h4 text-gray-800">Recent Activity</h3>
-        <mat-icon class="text-orange-600">schedule</mat-icon>
-      </div>
-      <div class="space-y-3">
-        <div class="text-center py-8">
-                  <mat-icon class="text-gray-400 text-responsive-4xl mb-2">receipt_long</mat-icon>
-        <p class="body-responsive-small text-gray-500">No recent transactions</p>
+      <!-- Net Savings -->
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-blue-600 dark:text-blue-400">Net Savings</p>
+            <p class="text-2xl font-bold text-blue-900 dark:text-blue-100">₹0</p>
+          </div>
+          <div class="bg-blue-500/10 p-3 rounded-lg">
+            <mat-icon class="text-blue-600 dark:text-blue-400">account_balance_wallet</mat-icon>
+          </div>
         </div>
       </div>
-    </mat-card>
-  </div>
 
-
-
-  <!-- Detailed Reports Section -->
-  <div class="mt-8">
-    <mat-card class="p-6 shadow-lg border-0 rounded-xl">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="heading-responsive-h3 text-gray-800">Detailed Analysis</h3>
-        <div class="flex space-x-2">
-          <button mat-stroked-button>Daily</button>
-          <button mat-stroked-button>Weekly</button>
-          <button mat-raised-button color="primary">Monthly</button>
-          <button mat-stroked-button>Yearly</button>
+      <!-- Monthly Change -->
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Monthly Change</p>
+            <p class="text-2xl font-bold text-purple-900 dark:text-purple-100">+0%</p>
+          </div>
+          <div class="bg-purple-500/10 p-3 rounded-lg">
+            <mat-icon class="text-purple-600 dark:text-purple-400">analytics</mat-icon>
+          </div>
         </div>
       </div>
-      <div class="text-center py-12">
-        <mat-icon class="text-gray-400 text-responsive-6xl mb-4">analytics</mat-icon>
-        <h4 class="heading-responsive-h4 text-gray-900 mb-2">No Data Available</h4>
-        <p class="body-responsive-medium text-gray-500 mb-4">Start adding transactions to see detailed reports and insights.</p>
-        <button mat-raised-button color="primary" class="flex items-center space-x-2 mx-auto" (click)="addTransaction()">
-          <mat-icon>add</mat-icon>
-          <span>Add Transaction</span>
-        </button>
+    </div>
+
+    <!-- Reports Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Spending Overview Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Spending Overview</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your financial summary</p>
+            </div>
+            <div class="bg-blue-500/10 p-3 rounded-lg">
+              <mat-icon class="text-blue-600 dark:text-blue-400">pie_chart</mat-icon>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="text-gray-700 dark:text-gray-300">Total Income</span>
+              </div>
+              <span class="font-semibold text-green-600 dark:text-green-400">₹0</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span class="text-gray-700 dark:text-gray-300">Total Expenses</span>
+              </div>
+              <span class="font-semibold text-red-600 dark:text-red-400">₹0</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span class="text-gray-700 dark:text-gray-300">Net Savings</span>
+              </div>
+              <span class="font-semibold text-blue-600 dark:text-blue-400">₹0</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Monthly Trends Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Monthly Trends</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Compare monthly performance</p>
+            </div>
+            <div class="bg-green-500/10 p-3 rounded-lg">
+              <mat-icon class="text-green-600 dark:text-green-400">trending_up</mat-icon>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <span class="text-gray-700 dark:text-gray-300">This Month</span>
+              <span class="font-semibold text-gray-900 dark:text-white">₹0</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <span class="text-gray-700 dark:text-gray-300">Last Month</span>
+              <span class="font-semibold text-gray-900 dark:text-white">₹0</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+              <span class="text-gray-700 dark:text-gray-300">Change</span>
+              <span class="font-semibold text-green-600 dark:text-green-400">+0%</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Top Categories Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Top Spending Categories</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your highest expense areas</p>
+            </div>
+            <div class="bg-purple-500/10 p-3 rounded-lg">
+              <mat-icon class="text-purple-600 dark:text-purple-400">category</mat-icon>
+            </div>
+          </div>
+          <div class="text-center py-12">
+            <div class="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <mat-icon class="text-gray-400 text-3xl">bar_chart</mat-icon>
+            </div>
+            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Available</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Add transactions to see category breakdown</p>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Recent Activity Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Latest transactions</p>
+            </div>
+            <div class="bg-orange-500/10 p-3 rounded-lg">
+              <mat-icon class="text-orange-600 dark:text-orange-400">schedule</mat-icon>
+            </div>
+          </div>
+          <div class="text-center py-12">
+            <div class="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <mat-icon class="text-gray-400 text-3xl">receipt_long</mat-icon>
+            </div>
+            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Recent Transactions</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Your recent activity will appear here</p>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Detailed Reports Section -->
+    <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Detailed Analysis</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Deep dive into your financial data</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button mat-stroked-button class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              Daily
+            </button>
+            <button mat-stroked-button class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              Weekly
+            </button>
+            <button mat-raised-button color="primary" class="px-4 py-2 text-sm rounded-lg shadow-md hover:shadow-lg transition-shadow">
+              Monthly
+            </button>
+            <button mat-stroked-button class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              Yearly
+            </button>
+          </div>
+        </div>
+        
+        <div class="text-center py-16">
+          <div class="bg-gray-100 dark:bg-gray-700 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+            <mat-icon class="text-gray-400 text-5xl">analytics</mat-icon>
+          </div>
+          <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Data Available</h4>
+          <p class="text-base text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+            Start adding transactions to see detailed reports and insights about your financial patterns.
+          </p>
+          <button 
+            mat-raised-button 
+            color="primary" 
+            class="flex items-center space-x-2 px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow mx-auto"
+            (click)="addTransaction()">
+            <mat-icon>add</mat-icon>
+            <span>Add Transaction</span>
+          </button>
+        </div>
       </div>
     </mat-card>
   </div>
