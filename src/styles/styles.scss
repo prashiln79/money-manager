@@ -111,7 +111,9 @@
 }
 
 // Remove Later *****
-html,
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   margin: 0;
@@ -123,6 +125,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overscroll-behavior: none;
+  
 }
 
 /* Enable scrolling on mobile devices */
