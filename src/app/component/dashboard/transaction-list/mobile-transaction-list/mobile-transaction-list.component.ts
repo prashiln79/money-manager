@@ -81,9 +81,9 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 		if (this.searchTerm) {
 			const searchLower = this.searchTerm.toLowerCase();
 			filtered = filtered.filter((tx) => 
-				tx.payee.toLowerCase().includes(searchLower) || 
-				tx.category.toLowerCase().includes(searchLower) || 
-				(tx.notes && tx.notes.toLowerCase().includes(searchLower))
+				tx?.payee?.toLowerCase().includes(searchLower) || 
+				tx?.category?.toString().toLowerCase().includes(searchLower) || 
+				(tx?.notes && tx?.notes?.toLowerCase().includes(searchLower))
 			);
 		}
 
