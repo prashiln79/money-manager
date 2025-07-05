@@ -4,6 +4,7 @@ import { OfflineService } from '../../../util/service/offline.service';
 import { Subscription, interval } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { TransactionComponent } from '../transaction-list/add-transaction/transaction/transaction.component';
+import { CalendarVisibilityService } from '../../../util/service/calendar-visibility.service';
 
 @Component({
   selector: 'app-footer',
@@ -19,7 +20,8 @@ export class FooterComponent implements OnInit, OnDestroy {
   constructor(
     private offlineService: OfflineService,
     private router: Router,
-    private _dialog: MatDialog
+    private _dialog: MatDialog,
+    private calendarVisibilityService: CalendarVisibilityService
   ) {}
 
   ngOnInit() {
@@ -50,18 +52,16 @@ export class FooterComponent implements OnInit, OnDestroy {
     });
   }
 
-  quickIncome() {
+  home() {
     console.log('Quick income clicked');
-    this.router.navigate(['/dashboard/add-transaction'], { 
-      queryParams: { type: 'income' } 
-    });
+    // Show calendar view when home button is clicked
+    this.calendarVisibilityService.showCalendar();
   }
 
   quickExpense() {
     console.log('Quick expense clicked');
-    this.router.navigate(['/dashboard/add-transaction'], { 
-      queryParams: { type: 'expense' } 
-    });
+    // Hide calendar view when expense button is clicked
+    this.calendarVisibilityService.hideCalendar();
   }
 
   quickTransfer() {
