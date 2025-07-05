@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, fromEvent, merge } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { SwUpdate } from '@angular/service-worker';
+import { UserService } from './user.service';
 
 export interface NetworkStatus {
   online: boolean;
@@ -24,7 +25,7 @@ export class OfflineService {
     map(status => status.online)
   );
 
-  constructor(private swUpdate: SwUpdate) {
+  constructor(private swUpdate: SwUpdate, private userService: UserService) {
     this.initializeNetworkMonitoring();
     this.initializeServiceWorkerUpdates();
     this.checkForAppUpdates();
@@ -228,7 +229,7 @@ export class OfflineService {
         <span class="text-sm font-medium">New version available</span>
         <button 
           class="bg-white text-blue-600 px-3 py-1 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
-          onclick="this.parentElement.parentElement.remove(); window.location.reload();"
+          id="update-now-btn"
         >
           Update Now
         </button>
@@ -236,6 +237,29 @@ export class OfflineService {
     `;
     
     document.body.appendChild(updateBanner);
+    
+    // Add click event listener to the update button
+    const updateButton = document.getElementById('update-now-btn');
+    if (updateButton) {
+      updateButton.addEventListener('click', async () => {
+        try {
+          // Check if user is logged in and sign out if they are
+          if (this.userService.isAuthenticated()) {
+            await this.userService.signOut();
+            console.log('User signed out before app update');
+          }
+          
+          // Remove the banner and reload the app
+          updateBanner.remove();
+          window.location.reload();
+        } catch (error) {
+          console.error('Error during update process:', error);
+          // Still reload even if sign out fails
+          updateBanner.remove();
+          window.location.reload();
+        }
+      });
+    }
     
     // Auto-remove after 10 seconds
     setTimeout(() => {
