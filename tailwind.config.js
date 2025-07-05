@@ -11,13 +11,21 @@ module.exports = {
         'display': ['Poppins', 'system-ui', 'sans-serif'],
       },
       colors:{
-        primary: '#46777f', // primary color
+        primary: '#46777f', // primary color light and dark con
+        primary50: '#f0f9ff', // primary color light and dark contrast
+        primary100: '#e0f2fe', // primary color light and dark contrast
+        primary200: '#bae6fd', // primary color light and dark contrast
+        primary300: '#93c5fd', // primary color light and dark contrast
+        primary400: '#60a5fa', // primary color light and dark contrast
+        primary500: '#3b82f6', // primary color light and dark contrast
+        primary600: '#2563eb', // primary color light and dark contrast
+        primary700: '#1d4ed8', // primary color light and dark contrast
       },
       fontSize: {
         // Mobile-optimized font sizes
         'xs': ['14px', { lineHeight: '1.4' }], // Increased from 12px
         'sm': ['16px', { lineHeight: '1.5' }], // Increased from 14px
-        'base': ['18px', { lineHeight: '1.6' }], // Increased from 16px
+        'base': ['18px', { lineHeight: '1.6' }], 
         'lg': ['20px', { lineHeight: '1.6' }],
         'xl': ['22px', { lineHeight: '1.5' }],
         '2xl': ['24px', { lineHeight: '1.4' }],
