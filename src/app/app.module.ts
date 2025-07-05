@@ -86,6 +86,10 @@ import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-ba
 import { PwaNavigationBarComponent } from './util/components/pwa-navigation-bar/pwa-navigation-bar.component';
 import { PwaInstallPromptComponent } from './util/components/pwa-install-prompt/pwa-install-prompt.component';
 
+// App Shell Component
+import { AppShellComponent } from './util/components/app-shell/app-shell.component';
+import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-loader/skeleton-loader.component';
+
 
 @NgModule({
   declarations: [
@@ -123,7 +127,9 @@ import { PwaInstallPromptComponent } from './util/components/pwa-install-prompt/
     ClickOutsideDirective,
     PwaBackButtonComponent,
     PwaNavigationBarComponent,
-    PwaInstallPromptComponent
+    PwaInstallPromptComponent,
+    AppShellComponent,
+    SkeletonLoaderComponent
   ],
   imports: [
     BrowserModule,
