@@ -7,6 +7,7 @@ import { TransactionComponent } from '../transaction-list/add-transaction/transa
 import { CalendarVisibilityService } from '../../../util/service/calendar-visibility.service';
 import { HapticFeedbackService } from '../../../util/service/haptic-feedback.service';
 import { filter } from 'rxjs/operators';
+import { MobileAddTransactionComponent } from '../transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 
 @Component({
   selector: 'app-footer',
@@ -84,7 +85,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   // Toolbar Action Methods
   addTransaction() {
-    const dialogRef = this._dialog.open(TransactionComponent, {
+    const dialogRef = this._dialog.open(MobileAddTransactionComponent, {
       width: '600px',
       maxWidth: '95vw',
     });

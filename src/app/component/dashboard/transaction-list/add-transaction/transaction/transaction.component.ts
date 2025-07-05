@@ -1,4 +1,3 @@
-import { BreakpointObserver } from "@angular/cdk/layout";
 import { Component, Inject } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
 import { Timestamp } from "@angular/fire/firestore";
@@ -16,7 +15,6 @@ import { Transaction, TransactionsService } from "src/app/util/service/transacti
 	styleUrl: "./transaction.component.scss",
 })
 export class TransactionComponent {
-	isMobile = false;
 	transactionForm: FormGroup;
 	categories: Array<any> = [];
 	buttons: string[] = ["7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", "=", "+"];
@@ -31,7 +29,6 @@ export class TransactionComponent {
 		private transactionsService: TransactionsService,
 		private fb: FormBuilder,
 		public dialogRef: MatDialogRef<TransactionComponent>,
-		private breakpointObserver: BreakpointObserver,
 		private auth: Auth,
 		private notificationService: NotificationService,
 		private router: Router,
@@ -46,9 +43,7 @@ export class TransactionComponent {
 			type: ["expense"],
 		});
 
-		this.breakpointObserver.observe(["(max-width: 600px)"]).subscribe((result) => {
-			this.isMobile = result.matches;
-		});
+
 		this.categoryService.getCategories(this.auth.currentUser?.uid || "").subscribe((resp) => {
 			this.tagList = resp;
 			if (this.dialogData?.id) {
@@ -106,9 +101,7 @@ export class TransactionComponent {
 				this.hapticFeedback.successVibration();
 			}
 
-			if (this.isMobile) {
-				this.router.navigate(["/dashboard/transactions"]);
-			}
+
 		}
 	}
 

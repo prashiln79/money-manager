@@ -56,6 +56,7 @@ import { AddTransactionComponent } from './component/dashboard/transaction-list/
 import { HeaderComponent } from './component/dashboard/header/header.component';
 import { SideBarComponent } from './component/dashboard/side-bar/side-bar.component';
 import { TransactionComponent } from './component/dashboard/transaction-list/add-transaction/transaction/transaction.component';
+import { MobileAddTransactionComponent } from './component/dashboard/transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { SignInComponent } from './component/auth/sign-in/sign-in.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
 import { UserComponent } from './component/dashboard/header/user/user.component';
@@ -102,6 +103,7 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     HeaderComponent,
     SideBarComponent,
     TransactionComponent,
+    MobileAddTransactionComponent,
     SignInComponent,
     RegistrationComponent,
     DashboardComponent,
