@@ -1,6 +1,5 @@
 .mobile-transaction-container {
   height: 100%;
-  max-height: 100vh;
   display: flex;
   flex-direction: column;
   background: #f8fafc;
@@ -191,7 +190,6 @@
 .transaction-scroll {
   height: 100%;
   padding: 12px;
-  padding-bottom: 80px; // Space for FAB
   overflow-y: auto;
 }
 
@@ -453,7 +451,6 @@
 
   .transaction-scroll {
     padding: 8px;
-    padding-bottom: 80px;
   }
 
   .transaction-main {

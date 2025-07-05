@@ -29,14 +29,17 @@
   <div class="px-2 py-3">
     <!-- Quick Actions Grid -->
     <div class="grid grid-cols-5 gap-2">
-      <!-- Income -->
+      <!-- Home -->
       <button  (click)="home()"
         class="group flex flex-col items-center gap-2"
       >
-        <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md " (click)="home()">
-          <mat-icon class="text-white text-lg relative bottom-1">home</mat-icon>
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200" 
+             [class]="isHomeActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+             (click)="home()">
+          <mat-icon class="text-lg relative bottom-1" [class]="isHomeActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">home</mat-icon>
         </div>
-        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Home</span>
+        <span class="text-xs font-medium transition-colors duration-200" 
+              [class]="isHomeActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Home</span>
       </button>
 
       <!-- Expense -->
@@ -44,10 +47,13 @@
         (click)="quickExpense()"
         class="group flex flex-col items-center gap-2"
       >
-        <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md" (click)="quickExpense()">
-          <mat-icon class="text-white text-lg relative bottom-1">trending_down</mat-icon>
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200" 
+             [class]="isExpenseActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+             (click)="quickExpense()">
+          <mat-icon class="text-lg relative bottom-1" [class]="isExpenseActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">trending_down</mat-icon>
         </div>
-        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Expense</span>
+        <span class="text-xs font-medium transition-colors duration-200" 
+              [class]="isExpenseActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Expense</span>
       </button>
 
       <!-- Add Transaction -->
@@ -61,15 +67,18 @@
         <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Add</span>
       </button>
 
-      <!-- Transfer -->
+      <!-- Reports -->
       <button 
         (click)="reports()"
         class="group flex flex-col items-center gap-2"
       >
-        <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md " (click)="reports()">
-          <mat-icon class="text-white text-lg relative bottom-1">bar_chart</mat-icon>
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200" 
+             [class]="isReportsActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+             (click)="reports()">
+          <mat-icon class="text-lg relative bottom-1" [class]="isReportsActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">bar_chart</mat-icon>
         </div>
-        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Report</span>
+        <span class="text-xs font-medium transition-colors duration-200" 
+              [class]="isReportsActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Report</span>
       </button>
 
       <!-- More -->
@@ -77,10 +86,12 @@
         (click)="openMoreMenu()"
         class="group flex flex-col items-center gap-2"
       >
-        <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md ">
-          <mat-icon class="text-white text-lg relative bottom-1">more_horiz</mat-icon>
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200" 
+             [class]="isMoreActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'">
+          <mat-icon class="text-lg relative bottom-1" [class]="isMoreActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">more_horiz</mat-icon>
         </div>
-        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">More</span>
+        <span class="text-xs font-medium transition-colors duration-200" 
+              [class]="isMoreActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">More</span>
       </button>
     </div>
   </div>

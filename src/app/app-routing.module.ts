@@ -8,6 +8,7 @@ import { AccountsComponent } from './component/dashboard/accounts/accounts.compo
 import { CategoryComponent } from './component/dashboard/category/category.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
 import { ReportsComponent } from './component/dashboard/reports/reports.component';
+import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
 
 const routes: Routes = [
   { path: 'sign-in', component: SignInComponent },
@@ -23,6 +24,7 @@ const routes: Routes = [
       { path: 'accounts', component: AccountsComponent },
       { path: 'category', component: CategoryComponent },
       { path: 'reports', component: ReportsComponent },
+      { path: 'transactions', component: TransactionListComponent },
     ]
   },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' } // Default route

@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 import { OfflineService } from '../../../util/service/offline.service';
 import { Subscription, interval } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { TransactionComponent } from '../transaction-list/add-transaction/transaction/transaction.component';
 import { CalendarVisibilityService } from '../../../util/service/calendar-visibility.service';
 import { HapticFeedbackService } from '../../../util/service/haptic-feedback.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-footer',
@@ -15,6 +16,7 @@ import { HapticFeedbackService } from '../../../util/service/haptic-feedback.ser
 export class FooterComponent implements OnInit, OnDestroy {
   private timeSubscription?: Subscription;
   private batterySubscription?: Subscription;
+  private routeSubscription?: Subscription;
   currentTime = '';
   batteryLevel = 0;
 
@@ -22,8 +24,8 @@ export class FooterComponent implements OnInit, OnDestroy {
     private offlineService: OfflineService,
     private router: Router,
     private _dialog: MatDialog,
-    private calendarVisibilityService: CalendarVisibilityService,
-    private hapticFeedback: HapticFeedbackService
+    private hapticFeedback: HapticFeedbackService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -39,11 +41,45 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.batterySubscription = interval(300000).subscribe(() => {
       this.updateBatteryLevel();
     });
+
+    // Listen to route changes for highlighting
+    this.routeSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        // Trigger change detection
+        this.cdr.detectChanges();
+      });
   }
 
   ngOnDestroy() {
     this.timeSubscription?.unsubscribe();
     this.batterySubscription?.unsubscribe();
+    this.routeSubscription?.unsubscribe();
+  }
+
+  // Route checking methods for highlighting
+  isHomeActive(): boolean {
+    return this.router.url === '/dashboard' || this.router.url === '/dashboard/home';
+  }
+
+  isExpenseActive(): boolean {
+    return this.router.url === '/dashboard/transactions'
+  }
+
+  isReportsActive(): boolean {
+    return this.router.url === '/dashboard/reports';
+  }
+
+  isMoreActive(): boolean {
+    const moreRoutes = [
+      '/dashboard/accounts',
+      '/dashboard/budgets', 
+      '/dashboard/goals',
+      '/dashboard/notes',
+      '/dashboard/tax',
+      '/dashboard/subscription'
+    ];
+    return moreRoutes.includes(this.router.url);
   }
 
   // Toolbar Action Methods
@@ -58,13 +94,11 @@ export class FooterComponent implements OnInit, OnDestroy {
   home() {
     this.hapticFeedback.navigationClick();
     this.router.navigate(['/dashboard/home']);
-    this.calendarVisibilityService.showCalendar();
   }
 
   quickExpense() {
     this.hapticFeedback.navigationClick();
-    this.router.navigate(['/dashboard/home']);
-    this.calendarVisibilityService.hideCalendar();
+    this.router.navigate(['/dashboard/transactions']);
   }
 
   reports() {

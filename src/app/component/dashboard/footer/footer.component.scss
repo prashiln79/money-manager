@@ -196,6 +196,30 @@ button {
   }
 }
 
+// Active state highlighting
+.footer-button {
+  transition: all 0.2s ease;
+  
+  &.active {
+    .action-icon {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .action-label {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+  }
+  
+  &:hover:not(.active) {
+    .action-icon {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
 // Accessibility improvements
 @media (prefers-reduced-motion: reduce) {
   * {
