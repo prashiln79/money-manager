@@ -39,7 +39,7 @@ export class HapticFeedbackService {
     if (!this.isHapticSupported()) return;
     
     try {
-      navigator.vibrate(50);
+      navigator.vibrate(10);
     } catch (error) {
       console.warn('Vibration failed:', error);
     }
