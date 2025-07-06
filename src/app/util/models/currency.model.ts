@@ -14,7 +14,7 @@ export const CURRENCIES: Currency[] = [
   { code: "INR", symbol: "₹", name: "Indian Rupee" },
 ];
 
-export const DEFAULT_CURRENCY = "USD";
+export const DEFAULT_CURRENCY = "INR";
 
 export function getCurrencyByCode(code: string): Currency | undefined {
   return CURRENCIES.find(currency => currency.code === code);
