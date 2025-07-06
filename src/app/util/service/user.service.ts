@@ -16,11 +16,11 @@ import { Firestore, doc, setDoc, getDoc, updateDoc } from "@angular/fire/firesto
 import { Router } from "@angular/router";
 import { BehaviorSubject, timestamp } from "rxjs";
 
-import { defaultBankAccounts, defaultCategories } from "src/app/component/auth/registration/registration.component";
+import { defaultBankAccounts } from "src/app/component/auth/registration/registration.component";
 import { CategoryService } from "./category.service";
 import { Account, AccountsService } from "./accounts.service";
 import { NotificationService } from "./notification.service";
-import { User, FirebaseAuthError } from "../models";
+import { User, FirebaseAuthError, defaultCategoriesForNewUser } from "../models";
 import { Timestamp } from "firebase/firestore";
 
 /**
@@ -291,12 +291,13 @@ export class UserService {
 		}
 
 		// Create default categories
-		for (const defaultCategory of defaultCategories) {
+		for (const defaultCategory of defaultCategoriesForNewUser) {
 			await this.categoryService.createCategory(
 				uid,
 				defaultCategory.name,
 				defaultCategory.type,
-				defaultCategory.icon
+				defaultCategory.icon,
+				defaultCategory.color
 			);
 		}
 	}

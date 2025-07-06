@@ -57,7 +57,7 @@ export class TransactionComponent {
 				});
 			} else {
 				this.transactionForm.patchValue({
-					tag: [this.tagList[0].name],
+					tag: this.tagList.length > 0 ? this.tagList[0].name : "",
 				});
 			}
 		});

@@ -7,7 +7,7 @@ import { Subject, Subscription, takeUntil } from "rxjs";
 import moment from "moment";
 import { CategoryService } from "src/app/util/service/category.service";
 import { Auth } from "@angular/fire/auth";
-import { Category } from "../../category/category.component";
+import { Category } from "src/app/util/models";
 import { ActivatedRoute, Route, Router } from "@angular/router";
 import { ConfirmDialogComponent } from "../../../../util/components/confirm-dialog/confirm-dialog.component";
 import { CustomDateRangeDialogComponent, CustomDateRangeData } from "../../../../util/components/custom-date-range-dialog";
@@ -339,9 +339,13 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 		return moment().year();
 	}
 
-	getCategoryIcon(category: string): string {
-		return this.categories.find((c) => c.name === category)?.icon || "category";
-	}
+	  getCategoryIcon(category: string): string {
+    return this.categories.find((c) => c.name === category)?.icon || "category";
+  }
+
+  getCategoryColor(category: string): string {
+    return this.categories.find((c) => c.name === category)?.color || "#2196F3";
+  }
 
 	private async loadUserCategories(): Promise<void> {
 		const currentUser = this.auth.currentUser;

@@ -164,7 +164,9 @@
           <div *ngIf="topCategories.length > 0" class="space-y-3">
             <div *ngFor="let category of topCategories" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div class="flex items-center space-x-3 min-w-0 flex-1">
-                <mat-icon class="text-gray-600 dark:text-gray-400 flex-shrink-0">{{ category.icon }}</mat-icon>
+                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" [style.background-color]="category.color">
+                  <mat-icon class="text-white text-sm">{{ category.icon }}</mat-icon>
+                </div>
                 <div class="min-w-0 flex-1">
                   <span class="text-gray-700 dark:text-gray-300 font-medium truncate block">{{ category.category }}</span>
                   <div class="text-xs text-gray-500 dark:text-gray-400">{{ category.percentage.toFixed(1) }}% of total</div>
@@ -295,7 +297,9 @@
             <div class="space-y-3">
               <div *ngFor="let category of topCategories" class="flex items-center justify-between">
                 <div class="flex items-center space-x-3 min-w-0 flex-1">
-                  <mat-icon class="text-gray-600 dark:text-gray-400 flex-shrink-0">{{ category.icon }}</mat-icon>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" [style.background-color]="category.color">
+                    <mat-icon class="text-white text-xs">{{ category.icon }}</mat-icon>
+                  </div>
                   <span class="text-gray-700 dark:text-gray-300 truncate">{{ category.category }}</span>
                 </div>
                 <div class="flex items-center space-x-3 sm:space-x-4 ml-3">

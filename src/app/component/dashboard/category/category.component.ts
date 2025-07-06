@@ -8,14 +8,7 @@ import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/c
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { MobileCategoryComponent } from './mobile-category/mobile-category.component';
-
-export interface Category {
-  id?: string;
-  name: string;
-  type: 'income' | 'expense';
-  icon: string;
-  createdAt: number;
-}
+import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS } from 'src/app/util/models';
 
 @Component({
   selector: 'transaction-category',
@@ -34,50 +27,28 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public newCategory: Category = this.getEmptyCategory();
   
   // Icon selection
-  public availableIcons: string[] = [
-    'shopping_cart', 'restaurant', 'local_gas_station', 'home', 'directions_car',
-    'flight', 'hotel', 'local_hospital', 'school', 'work', 'sports_esports',
-    'movie', 'music_note', 'fitness_center', 'pets', 'child_care', 'elderly',
-    'celebration', 'card_giftcard', 'local_offer', 'account_balance', 'trending_up',
-    'attach_money', 'account_balance_wallet', 'credit_card', 'savings', 'payments',
-    'receipt', 'receipt_long', 'description', 'category', 'label', 'bookmark',
-    'favorite', 'star', 'thumb_up', 'thumb_down', 'check_circle', 'cancel',
-    'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
-    'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
-    'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'arrow_drop_up',
-    'arrow_drop_down', 'arrow_drop_left', 'arrow_drop_right', 'arrow_back_ios',
-    'arrow_forward_ios', 'arrow_upward_ios', 'arrow_downward_ios', 'arrow_drop_up_ios',
-    'arrow_drop_down_ios', 'arrow_drop_left_ios', 'arrow_drop_right_ios', 'arrow_back_ios_new',
-    'arrow_forward_ios_new', 'arrow_upward_ios_new', 'arrow_downward_ios_new', 'arrow_drop_up_ios_new',
-    'home', 'favorite', 'bookmark', 'star', 'thumb_up', 'thumb_down',
-    'check_circle', 'cancel', 'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
-    'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
-    'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'arrow_drop_up',
-    'arrow_drop_down', 'arrow_drop_left', 'arrow_drop_right', 'arrow_back_ios',
-    'arrow_forward_ios', 'arrow_upward_ios', 'arrow_downward_ios', 'arrow_drop_up_ios',
-    'arrow_drop_down_ios', 'arrow_drop_left_ios', 'arrow_drop_right_ios', 'arrow_back_ios_new',
-  ];
+  public availableIcons: string[] = AVAILABLE_ICONS;
+
+  // Color selection
+  public availableColors: string[] = AVAILABLE_COLORS;
+
   public showIconPicker: boolean = false;
-  
-  // Private properties
-  private userId: string = '';
+  public showColorPicker: boolean = false;
+  public userId: string = '';
   private destroy$ = new Subject<void>();
 
   constructor(
-    private readonly categoryService: CategoryService,
-    private readonly auth: Auth,
-    private readonly dialog: MatDialog,
-    private readonly notificationService: NotificationService,
-    private readonly breakpointObserver: BreakpointObserver,
-    private readonly hapticFeedback: HapticFeedbackService
-  ) {
-    this.breakpointObserver.observe(['(max-width: 768px)']).subscribe(result => {
-      this.isMobile = result.matches;
-    });
-  }
+    private categoryService: CategoryService,
+    private auth: Auth,
+    private dialog: MatDialog,
+    private notificationService: NotificationService,
+    private hapticFeedback: HapticFeedbackService,
+    private breakpointObserver: BreakpointObserver
+  ) {}
 
   ngOnInit(): void {
     this.initializeComponent();
+    this.setupResponsiveDesign();
   }
 
   ngOnDestroy(): void {
@@ -101,19 +72,30 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load all categories for the current user
+   * Setup responsive design for mobile/desktop
+   */
+  private setupResponsiveDesign(): void {
+    this.breakpointObserver
+      .observe(['(max-width: 768px)'])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.isMobile = result.matches;
+      });
+  }
+
+  /**
+   * Load categories for the current user
    */
   private async loadUserCategories(): Promise<void> {
     try {
       this.isLoading = true;
       this.errorMessage = '';
 
-      this.categoryService
-        .getCategories(this.userId)
+      this.categoryService.getCategories(this.userId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (categories) => {
-            this.categories = categories || [];
+            this.categories = categories.sort((a, b) => a.name.localeCompare(b.name));
             this.isLoading = false;
           },
           error: (error) => {
@@ -148,7 +130,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
         this.userId, 
         this.newCategory.name.trim(), 
         this.newCategory.type,
-        this.newCategory.icon
+        this.newCategory.icon,
+        this.newCategory.color
       );
       
       this.notificationService.success('Category created successfully');
@@ -177,6 +160,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         name: category.name,
         type: category.type,
         icon: category.icon || 'category',
+        color: category.color || '#2196F3',
         createdAt: category.createdAt
       };
     }
@@ -205,7 +189,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
         this.newCategory.id, 
         this.newCategory.name.trim(), 
         this.newCategory.type,
-        this.newCategory.icon
+        this.newCategory.icon,
+        this.newCategory.color
       );
       
       this.notificationService.success('Category updated successfully');
@@ -218,13 +203,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
       console.error('Error updating category:', error);
       this.notificationService.error('Failed to update category');
     }
-  }
-
-  /**
-   * Cancel edit mode and reset form
-   */
-  public cancelEdit(): void {
-    this.resetForm();
   }
 
   /**
@@ -257,7 +235,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Perform the actual delete operation
+   * Perform the actual deletion of a category
    */
   private async performDelete(categoryId: string): Promise<void> {
     try {
@@ -265,55 +243,56 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.errorMessage = '';
 
       await this.categoryService.deleteCategory(this.userId, categoryId);
-      await this.loadUserCategories();
+      
       this.notificationService.success('Category deleted successfully');
+      await this.loadUserCategories();
     } catch (error) {
       this.errorMessage = 'Failed to delete category';
       this.isLoading = false;
       console.error('Error deleting category:', error);
+      this.notificationService.error('Failed to delete category');
     }
   }
 
   /**
-   * Validate the new category form data
+   * Cancel edit mode and reset form
    */
-  private isValidCategoryData(): boolean {
-    return !!(this.newCategory.name?.trim());
+  public cancelEdit(): void {
+    this.isEditMode = false;
+    this.resetForm();
   }
 
   /**
-   * Get an empty category template
-   */
-  private getEmptyCategory(): Category {
-    return {
-      name: '',
-      type: 'expense',
-      icon: 'shopping_cart',
-      createdAt: Date.now()
-    };
-  }
-
-  /**
-   * Reset form to initial state
+   * Reset the form to empty state
    */
   private resetForm(): void {
-    this.isEditMode = false;
     this.newCategory = this.getEmptyCategory();
-    this.errorMessage = '';
+    this.isEditMode = false;
+    this.isLoading = false;
+    this.showIconPicker = false;
+    this.showColorPicker = false;
   }
 
   /**
-   * Clear any error messages
+   * Validate category data before submission
+   */
+  private isValidCategoryData(): boolean {
+    return this.newCategory.name.trim().length > 0 && 
+           this.newCategory.name.trim().length <= 50;
+  }
+
+  /**
+   * Track categories by ID for ngFor optimization
+   */
+  public trackByCategoryId(index: number, category: Category): string | number {
+    return category.id || index;
+  }
+
+  /**
+   * Clear error message
    */
   public clearError(): void {
     this.errorMessage = '';
-  }
-
-  /**
-   * Track function for ngFor to optimize rendering performance
-   */
-  public trackByCategoryId(index: number, category: Category): string {
-    return category.id || index.toString();
   }
 
   /**
@@ -321,6 +300,16 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public toggleIconPicker(): void {
     this.showIconPicker = !this.showIconPicker;
+    if (this.showIconPicker) {
+      this.showColorPicker = false;
+    }
+  }
+
+  /**
+   * Close icon picker
+   */
+  public closeIconPicker(): void {
+    this.showIconPicker = false;
   }
 
   /**
@@ -332,35 +321,49 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Close icon picker
+   * Toggle color picker visibility
    */
-  public closeIconPicker(): void {
-    this.showIconPicker = false;
+  public toggleColorPicker(): void {
+    this.showColorPicker = !this.showColorPicker;
+    if (this.showColorPicker) {
+      this.showIconPicker = false;
+    }
   }
 
   /**
-   * Open mobile dialog for add/edit category
+   * Close color picker
+   */
+  public closeColorPicker(): void {
+    this.showColorPicker = false;
+  }
+
+  /**
+   * Select a color for the category
+   */
+  public selectColor(color: string): void {
+    this.newCategory.color = color;
+    this.showColorPicker = false;
+  }
+
+  /**
+   * Open mobile dialog for editing category
    */
   private openMobileDialog(category?: Category): void {
     const dialogRef = this.dialog.open(MobileCategoryComponent, {
-      width: '100vw',
-      height: '100vh',
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      panelClass: 'full-screen-dialog',
-      disableClose: false,
-      autoFocus: true,
-      data: category || null
+      width: '90vw',
+      maxWidth: '400px',
+      data: category || null,
+      disableClose: true,
+      panelClass: 'mobile-dialog'
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadUserCategories();
-        if (this.isMobile) {
-          this.hapticFeedback.successVibration();
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        if (result) {
+          this.loadUserCategories();
         }
-      }
-    });
+      });
   }
 
   /**
@@ -371,5 +374,18 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.hapticFeedback.lightVibration();
     }
     this.openMobileDialog();
+  }
+
+  /**
+   * Get an empty category template
+   */
+  private getEmptyCategory(): Category {
+    return {
+      name: '',
+      type: 'expense',
+      icon: 'shopping_cart',
+      color: '#2196F3',
+      createdAt: Date.now()
+    };
   }
 }

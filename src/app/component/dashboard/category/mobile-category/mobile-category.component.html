@@ -5,7 +5,7 @@
       <button 
         mat-icon-button 
         type="button" 
-        (click)="onClose()" 
+        (click)="onCancel()" 
         matTooltip="Close" 
         class="close-button"
       >
@@ -128,6 +128,48 @@
                       [class.selected]="categoryForm.get('icon')?.value === icon"
                       matTooltip="{{ icon }}">
                 <mat-icon>{{ icon }}</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Color Field -->
+      <div class="form-field">
+        <label class="field-label">
+          <mat-icon class="field-icon">palette</mat-icon>
+          Category Color *
+        </label>
+        <div class="color-selector">
+          <button type="button"
+                  (click)="toggleColorPicker()"
+                  class="color-preview-button"
+                  [class.active]="showColorPicker">
+            <div class="color-preview">
+              <div class="color-swatch" [style.background-color]="categoryForm.get('color')?.value || '#2196F3'"></div>
+              <span class="color-name">{{ categoryForm.get('color')?.value || '#2196F3' }}</span>
+            </div>
+            <mat-icon class="dropdown-icon">expand_more</mat-icon>
+          </button>
+          
+          <!-- Color Picker Dropdown -->
+          <div *ngIf="showColorPicker" 
+               class="color-picker-dropdown"
+               (clickOutside)="closeColorPicker()">
+            <div class="color-picker-header">
+              <h6>Select Color</h6>
+              <button mat-icon-button (click)="closeColorPicker()" class="close-picker">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="color-grid">
+              <button *ngFor="let color of availableColors"
+                      type="button"
+                      (click)="selectColor(color)"
+                      class="color-option"
+                      [class.selected]="categoryForm.get('color')?.value === color"
+                      [style.background-color]="color"
+                      matTooltip="{{ color }}">
               </button>
             </div>
           </div>

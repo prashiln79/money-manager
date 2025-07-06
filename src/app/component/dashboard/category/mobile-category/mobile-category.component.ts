@@ -6,14 +6,7 @@ import { Router } from '@angular/router';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
-
-export interface Category {
-  id?: string;
-  name: string;
-  type: 'income' | 'expense';
-  icon: string;
-  createdAt: number;
-}
+import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS } from 'src/app/util/models';
 
 @Component({
   selector: 'app-mobile-category',
@@ -22,23 +15,12 @@ export interface Category {
 })
 export class MobileCategoryComponent implements OnInit {
   categoryForm: FormGroup;
-  public availableIcons: string[] = [
-    'shopping_cart', 'restaurant', 'local_gas_station', 'home', 'directions_car',
-    'flight', 'hotel', 'local_hospital', 'school', 'work', 'sports_esports',
-    'movie', 'music_note', 'fitness_center', 'pets', 'child_care', 'elderly',
-    'celebration', 'card_giftcard', 'local_offer', 'account_balance', 'trending_up',
-    'attach_money', 'account_balance_wallet', 'credit_card', 'savings', 'payments',
-    'receipt', 'receipt_long', 'description', 'category', 'label', 'bookmark',
-    'favorite', 'star', 'thumb_up', 'thumb_down', 'check_circle', 'cancel',
-    'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
-    'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
-    'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'arrow_drop_up',
-    'arrow_drop_down', 'arrow_drop_left', 'arrow_drop_right', 'arrow_back_ios',
-    'arrow_forward_ios', 'arrow_upward_ios', 'arrow_downward_ios', 'arrow_drop_up_ios',
-    'arrow_drop_down_ios', 'arrow_drop_left_ios', 'arrow_drop_right_ios', 'arrow_back_ios_new',
-    'arrow_forward_ios_new', 'arrow_upward_ios_new', 'arrow_downward_ios_new', 'arrow_drop_up_ios_new',
-  ];
+  public availableIcons: string[] = AVAILABLE_ICONS;
+
+  public availableColors: string[] = AVAILABLE_COLORS;
+
   public showIconPicker: boolean = false;
+  public showColorPicker: boolean = false;
   public isSubmitting: boolean = false;
   public userId: string = '';
 
@@ -56,6 +38,7 @@ export class MobileCategoryComponent implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(50)]],
       type: ['expense', Validators.required],
       icon: ['category', Validators.required],
+      color: ['#2196F3', Validators.required],
     });
   }
 
@@ -68,12 +51,13 @@ export class MobileCategoryComponent implements OnInit {
       event.preventDefault();
     });
 
-    // If editing, populate form with existing data
     if (this.dialogData) {
+      // Edit mode - populate form with existing data
       this.categoryForm.patchValue({
         name: this.dialogData.name,
         type: this.dialogData.type,
         icon: this.dialogData.icon || 'category',
+        color: this.dialogData.color || '#2196F3',
       });
     }
   }
@@ -92,7 +76,8 @@ export class MobileCategoryComponent implements OnInit {
             this.dialogData.id,
             formValue.name.trim(),
             formValue.type,
-            formValue.icon
+            formValue.icon,
+            formValue.color
           );
           this.notificationService.success("Category updated successfully");
         } else {
@@ -101,7 +86,8 @@ export class MobileCategoryComponent implements OnInit {
             this.userId,
             formValue.name.trim(),
             formValue.type,
-            formValue.icon
+            formValue.icon,
+            formValue.color
           );
           this.notificationService.success("Category added successfully");
           this.hapticFeedback.successVibration();
@@ -118,12 +104,19 @@ export class MobileCategoryComponent implements OnInit {
     }
   }
 
-  onClose(): void {
-    this.dialogRef.close();
+  onCancel(): void {
+    this.dialogRef.close(false);
   }
 
   toggleIconPicker(): void {
     this.showIconPicker = !this.showIconPicker;
+    if (this.showIconPicker) {
+      this.showColorPicker = false;
+    }
+  }
+
+  closeIconPicker(): void {
+    this.showIconPicker = false;
   }
 
   selectIcon(icon: string): void {
@@ -131,12 +124,24 @@ export class MobileCategoryComponent implements OnInit {
     this.showIconPicker = false;
   }
 
-  selectType(type: 'income' | 'expense'): void {
-    this.categoryForm.patchValue({ type });
+  toggleColorPicker(): void {
+    this.showColorPicker = !this.showColorPicker;
+    if (this.showColorPicker) {
+      this.showIconPicker = false;
+    }
   }
 
-  closeIconPicker(): void {
-    this.showIconPicker = false;
+  closeColorPicker(): void {
+    this.showColorPicker = false;
+  }
+
+  selectColor(color: string): void {
+    this.categoryForm.patchValue({ color });
+    this.showColorPicker = false;
+  }
+
+  selectType(type: 'income' | 'expense'): void {
+    this.categoryForm.patchValue({ type });
   }
 
   getNameError(): string {

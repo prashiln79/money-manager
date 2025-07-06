@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, O
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { Transaction } from '../../../../util/service/transactions.service';
+import { CategoryService } from '../../../../util/service/category.service';
+import { Auth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
 
@@ -31,12 +33,17 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   displayedColumns: string[] = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
 
   private subscription = new Subscription();
+  categories: any[] = [];
 
-  constructor() {}
+  constructor(
+    private categoryService: CategoryService,
+    private auth: Auth
+  ) {}
 
   ngOnInit() {
     this.setupDataSource();
     this.filterTransactions();
+    this.loadCategories();
   }
 
   ngOnDestroy() {
@@ -225,6 +232,23 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   // Custom sort function for payee column
   sortPayee(a: Transaction, b: Transaction): number {
     return a.payee.localeCompare(b.payee);
+  }
+
+  private loadCategories(): void {
+    const userId = this.auth.currentUser?.uid;
+    if (userId) {
+      this.categoryService.getCategories(userId).subscribe(categories => {
+        this.categories = categories;
+      });
+    }
+  }
+
+  getCategoryIcon(category: string): string {
+    return this.categories.find((c) => c.name === category)?.icon || "category";
+  }
+
+  getCategoryColor(category: string): string {
+    return this.categories.find((c) => c.name === category)?.color || "#2196F3";
   }
 
   // Custom sort function for category column

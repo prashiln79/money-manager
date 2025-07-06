@@ -64,7 +64,9 @@
           <div class="category-content">
             <div class="category-info">
               <div class="category-icon-name">
-                <mat-icon class="category-icon">{{ category.icon || 'category' }}</mat-icon>
+                <div class="category-icon-container" [style.background-color]="category.color">
+                  <mat-icon class="category-icon">{{ category.icon || 'category' }}</mat-icon>
+                </div>
                 <div class="category-details">
                   <h3 class="category-name">{{ category.name }}</h3>
                   <span class="category-type">{{ category.type }}</span>
@@ -153,6 +155,38 @@
                           [class.selected]="newCategory.icon === icon"
                           matTooltip="{{ icon }}">
                     <mat-icon>{{ icon }}</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Color Field -->
+          <div class="form-field">
+            <label class="field-label">Category Color</label>
+            <div class="color-selector">
+              <button type="button"
+                      (click)="toggleColorPicker()"
+                      class="color-preview-button"
+                      [class.active]="showColorPicker"
+                      [style.background-color]="newCategory.color">
+                <div class="color-preview" [style.background-color]="newCategory.color"></div>
+                <span class="color-label">{{ newCategory.color }}</span>
+                <mat-icon class="dropdown-icon">expand_more</mat-icon>
+              </button>
+              
+              <!-- Color Picker Dropdown -->
+              <div *ngIf="showColorPicker" 
+                   class="color-picker-dropdown"
+                   (clickOutside)="closeColorPicker()">
+                <div class="color-grid">
+                  <button *ngFor="let color of availableColors"
+                          type="button"
+                          (click)="selectColor(color)"
+                          class="color-option"
+                          [class.selected]="newCategory.color === color"
+                          [style.background-color]="color"
+                          matTooltip="{{ color }}">
                   </button>
                 </div>
               </div>

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { UserService } from "src/app/util/service/user.service";
-import { User, CURRENCIES, DEFAULT_CURRENCY } from "src/app/util/models";
+import { User, CURRENCIES, DEFAULT_CURRENCY, defaultCategoriesForNewUser } from "src/app/util/models";
 import { CategoryService } from "src/app/util/service/category.service";
 import { AccountsService } from "src/app/util/service/accounts.service";
 
@@ -17,26 +17,8 @@ interface BankAccount {
 	accountNumber?: string;
 }
 
-interface Category {
-	id?: string;
-	name: string;
-	type: "income" | "expense";
-	color: string;
-	icon: string;
-}
+import { Category } from 'src/app/util/models';
 
-export const defaultCategories: Category[] = [
-	{ name: "Salary", type: "income", color: "#4CAF50", icon: "work" },
-	{ name: "Freelance", type: "income", color: "#2196F3", icon: "computer" },
-	{ name: "Investment", type: "income", color: "#FF9800", icon: "trending_up" },
-	{ name: "Food & Dining", type: "expense", color: "#F44336", icon: "restaurant" },
-	{ name: "Transportation", type: "expense", color: "#9C27B0", icon: "directions_car" },
-	{ name: "Shopping", type: "expense", color: "#E91E63", icon: "shopping_cart" },
-	{ name: "Bills & Utilities", type: "expense", color: "#607D8B", icon: "receipt" },
-	{ name: "Healthcare", type: "expense", color: "#00BCD4", icon: "local_hospital" },
-	{ name: "Entertainment", type: "expense", color: "#FF5722", icon: "movie" },
-	{ name: "Education", type: "expense", color: "#3F51B5", icon: "school" },
-];
 
 export const defaultBankAccounts: BankAccount[] = [
 	{ name: "Savings Account", type: "savings", balance: 0, currency: DEFAULT_CURRENCY ,institution:'Bank'},
@@ -118,7 +100,7 @@ export class RegistrationComponent implements OnInit {
 			this.addBankAccount();
 
 			// Add default categories
-			defaultCategories.forEach((category) => {
+			defaultCategoriesForNewUser.forEach((category: Category) => {
 				this.addCategory(category);
 			});
 		} else {
@@ -234,7 +216,7 @@ export class RegistrationComponent implements OnInit {
 
 				// 4. Create categories
 				for (const category of formValue.categories) {
-					await this.categoryService.createCategory(user?.uid, category.name, category.type, category.icon);
+					await this.categoryService.createCategory(user?.uid, category.name, category.type, category.icon, category.color);
 				}
 
 				this.notificationService.success("Registration successful! Welcome to Money Manager.");

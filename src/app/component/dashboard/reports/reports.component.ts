@@ -6,12 +6,14 @@ import { TransactionsService, Transaction } from '../../../util/service/transact
 import { AccountsService, Account } from '../../../util/service/accounts.service';
 import { CategoryService } from '../../../util/service/category.service';
 import { NotificationService } from '../../../util/service/notification.service';
+import { Category } from 'src/app/util/models';
 
 interface CategorySpending {
   category: string;
   amount: number;
   percentage: number;
   icon: string;
+  color: string;
 }
 
 interface MonthlyData {
@@ -37,7 +39,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   // Data arrays
   transactions: Transaction[] = [];
   accounts: Account[] = [];
-  categories: any[] = [];
+  categories: Category[] = [];
   topCategories: CategorySpending[] = [];
   recentTransactions: Transaction[] = [];
   monthlyTrends: MonthlyData[] = [];
@@ -201,7 +203,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
           category,
           amount,
           percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
-          icon: categoryData?.icon || 'category'
+          icon: categoryData?.icon || 'category',
+          color: categoryData?.color || '#2196F3'
         };
       })
       .sort((a, b) => b.amount - a.amount)
