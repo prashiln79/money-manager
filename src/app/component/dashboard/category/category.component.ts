@@ -45,7 +45,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     'arrow_forward_ios', 'arrow_upward_ios', 'arrow_downward_ios', 'arrow_drop_up_ios',
     'arrow_drop_down_ios', 'arrow_drop_left_ios', 'arrow_drop_right_ios', 'arrow_back_ios_new',
     'arrow_forward_ios_new', 'arrow_upward_ios_new', 'arrow_downward_ios_new', 'arrow_drop_up_ios_new',
-    'home', 'work', 'school', 'favorite', 'bookmark', 'star', 'thumb_up', 'thumb_down',
+    'home', 'favorite', 'bookmark', 'star', 'thumb_up', 'thumb_down',
     'check_circle', 'cancel', 'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
     'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
     'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'arrow_drop_up',

@@ -24,6 +24,24 @@ interface Category {
 	icon: string;
 }
 
+export const defaultCategories: Category[] = [
+	{ name: "Salary", type: "income", color: "#4CAF50", icon: "work" },
+	{ name: "Freelance", type: "income", color: "#2196F3", icon: "computer" },
+	{ name: "Investment", type: "income", color: "#FF9800", icon: "trending_up" },
+	{ name: "Food & Dining", type: "expense", color: "#F44336", icon: "restaurant" },
+	{ name: "Transportation", type: "expense", color: "#9C27B0", icon: "directions_car" },
+	{ name: "Shopping", type: "expense", color: "#E91E63", icon: "shopping_cart" },
+	{ name: "Bills & Utilities", type: "expense", color: "#607D8B", icon: "receipt" },
+	{ name: "Healthcare", type: "expense", color: "#00BCD4", icon: "local_hospital" },
+	{ name: "Entertainment", type: "expense", color: "#FF5722", icon: "movie" },
+	{ name: "Education", type: "expense", color: "#3F51B5", icon: "school" },
+];
+
+export const defaultBankAccounts: BankAccount[] = [
+	{ name: "Savings Account", type: "savings", balance: 0, currency: "USD" ,institution:'Bank'},
+	//add accountId, userId, createdAt 
+];
+
 @Component({
 	selector: "app-registration",
 	templateUrl: "./registration.component.html",
@@ -37,26 +55,10 @@ export class RegistrationComponent implements OnInit {
 	currentUser: any;
 
 	// Predefined categories for new users
-	defaultCategories: Category[] = [
-		{ name: "Salary", type: "income", color: "#4CAF50", icon: "work" },
-		{ name: "Freelance", type: "income", color: "#2196F3", icon: "computer" },
-		{ name: "Investment", type: "income", color: "#FF9800", icon: "trending_up" },
-		{ name: "Food & Dining", type: "expense", color: "#F44336", icon: "restaurant" },
-		{ name: "Transportation", type: "expense", color: "#9C27B0", icon: "directions_car" },
-		{ name: "Shopping", type: "expense", color: "#E91E63", icon: "shopping_cart" },
-		{ name: "Bills & Utilities", type: "expense", color: "#607D8B", icon: "receipt" },
-		{ name: "Healthcare", type: "expense", color: "#00BCD4", icon: "local_hospital" },
-		{ name: "Entertainment", type: "expense", color: "#FF5722", icon: "movie" },
-		{ name: "Education", type: "expense", color: "#3F51B5", icon: "school" },
-	];
+	
 
 	// Predefined bank account types
-	accountTypes = [
-		{ value: "checking", label: "Checking Account", icon: "account_balance" },
-		{ value: "savings", label: "Savings Account", icon: "savings" },
-		{ value: "credit", label: "Credit Card", icon: "credit_card" },
-		{ value: "investment", label: "Investment Account", icon: "trending_up" },
-	];
+	
 
 	currencies = [
 		{ code: "USD", symbol: "$", name: "US Dollar" },
@@ -123,7 +125,7 @@ export class RegistrationComponent implements OnInit {
 			this.addBankAccount();
 
 			// Add default categories
-			this.defaultCategories.forEach((category) => {
+			defaultCategories.forEach((category) => {
 				this.addCategory(category);
 			});
 		} else {
