@@ -30,8 +30,8 @@
         </th>
         <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
           <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center" [style.background-color]="getCategoryColor(element.category)">
-              <mat-icon class="text-white text-sm">{{ getCategoryIcon(element.category) }}</mat-icon>
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100">
+              <mat-icon class="text-sm" [style.color]="getCategoryColor(element.category)">{{ getCategoryIcon(element.category) }}</mat-icon>
             </div>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
               {{element.category}}

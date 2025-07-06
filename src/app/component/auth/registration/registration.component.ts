@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { UserService } from "src/app/util/service/user.service";
-import { User, CURRENCIES, DEFAULT_CURRENCY, defaultCategoriesForNewUser } from "src/app/util/models";
+import { User, CURRENCIES, DEFAULT_CURRENCY, Category, defaultCategoriesForNewUser } from "src/app/util/models";
 import { CategoryService } from "src/app/util/service/category.service";
 import { AccountsService } from "src/app/util/service/accounts.service";
 
@@ -16,8 +16,6 @@ interface BankAccount {
 	institution: string;
 	accountNumber?: string;
 }
-
-import { Category } from 'src/app/util/models';
 
 
 export const defaultBankAccounts: BankAccount[] = [

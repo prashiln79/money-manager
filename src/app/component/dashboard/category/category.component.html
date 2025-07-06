@@ -64,8 +64,8 @@
           <div class="category-content">
             <div class="category-info">
               <div class="category-icon-name">
-                <div class="category-icon-container" [style.background-color]="category.color">
-                  <mat-icon class="category-icon">{{ category.icon || 'category' }}</mat-icon>
+                <div class="category-icon-container">
+                  <mat-icon class="category-icon" [style.color]="category.color">{{ category.icon || 'category' }}</mat-icon>
                 </div>
                 <div class="category-details">
                   <h3 class="category-name">{{ category.name }}</h3>

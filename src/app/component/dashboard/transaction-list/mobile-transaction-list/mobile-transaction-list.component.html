@@ -249,8 +249,8 @@
         <div class="transaction-main">
           <!-- Icon Section -->
           <div class="transaction-icon">
-            <div class="icon-container" [style.background-color]="getCategoryColor(tx.category)">
-              <mat-icon>
+            <div class="icon-container">
+              <mat-icon [style.color]="getCategoryColor(tx.category)">
                 {{ getCategoryIcon(tx.category) }}
               </mat-icon>
             </div>
