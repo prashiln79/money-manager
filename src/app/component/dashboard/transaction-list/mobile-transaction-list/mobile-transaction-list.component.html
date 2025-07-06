@@ -1,6 +1,16 @@
 <div class="mobile-transaction-container">
   <!-- Mobile Filter Header -->
   <div class="mobile-filter-header" *ngIf="showFilters">
+    <!-- Active Filters Indicator -->
+    <div *ngIf="hasActiveFilters()" class="active-filters-indicator flex justify-between items-center">
+      <div class="filter-icon-container">
+        <mat-icon class="filter-icon">filter_alt</mat-icon>
+        <span class="filter-text">{{ getActiveFiltersCount() }} Filter{{ getActiveFiltersCount() > 1 ? 's' : '' }} Active</span>
+      </div>
+      <div class="">
+        <mat-icon class=" text-black relative top-1 !text-blue-700 text-sm" (click)="quickClearFilters()">clear</mat-icon>
+      </div>
+    </div>
     <!-- Search Bar -->
     <div class="search-container">
       <div class="search-input-wrapper">

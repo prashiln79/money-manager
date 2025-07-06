@@ -9,6 +9,7 @@ import { CategoryService } from "src/app/util/service/category.service";
 import { Auth } from "@angular/fire/auth";
 import { Category } from "../../category/category.component";
 import { ActivatedRoute, Route, Router } from "@angular/router";
+import { ConfirmDialogComponent } from "../../../../util/components/confirm-dialog/confirm-dialog.component";
 
 interface SortOption {
 	value: string;
@@ -56,7 +57,12 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	destroy$: Subject<void> = new Subject<void>();
 	categories: Category[] = [];
 
-	constructor(private readonly categoryService: CategoryService, private readonly auth: Auth, private readonly route: Router) {}
+	constructor(
+		private readonly categoryService: CategoryService, 
+		private readonly auth: Auth, 
+		private readonly route: Router,
+		private readonly dialog: MatDialog
+	) {}
 
 	ngOnInit() {
 		this.filterTransactions();
@@ -352,6 +358,25 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	}
 
 	clearAllFilters() {
+		// Show confirmation dialog
+		const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+			width: '300px',
+			data: {
+				title: 'Clear Filters',
+				message: 'Are you sure you want to clear all filters?',
+				confirmText: 'Clear',
+				cancelText: 'Cancel'
+			}
+		});
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result) {
+				this.performClearAllFilters();
+			}
+		});
+	}
+
+	private performClearAllFilters() {
 		this.searchTerm = "";
 		this.selectedCategory = ["all"];
 		this.selectedType = "all";
@@ -366,6 +391,23 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 		this.selectedDateRangeChange.emit(null);
 		
 		this.filterTransactions();
+	}
+
+	// Quick clear without confirmation (for obvious clear buttons)
+	quickClearFilters() {
+		this.performClearAllFilters();
+	}
+
+	getActiveFiltersCount(): number {
+		let count = 0;
+		
+		if (this.searchTerm) count++;
+		if (!this.selectedCategory.includes('all')) count++;
+		if (this.selectedType !== 'all') count++;
+		if (this.selectedDate) count++;
+		if (this.selectedDateRange) count++;
+		
+		return count;
 	}
 
 	isCategorySelected(category: string): boolean {
