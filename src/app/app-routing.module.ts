@@ -12,7 +12,6 @@ import { TransactionListComponent } from './component/dashboard/transaction-list
 import { LandingComponent } from './component/landing/landing.component';
 
 const routes: Routes = [
-  { path: '', component: LandingComponent },
   { path: 'landing', component: LandingComponent },
   { path: 'sign-in', component: SignInComponent },
   { path: 'sign-up', component: RegistrationComponent },
@@ -30,7 +29,7 @@ const routes: Routes = [
       { path: 'transactions', component: TransactionListComponent },
     ]
   },
-  { path: 'dashboard', redirectTo: '/dashboard/home', pathMatch: 'full' } // Dashboard default route
+ { path: '', redirectTo: '/dashboard', pathMatch: 'full' }// Dashboard default route
 ];
 
 @NgModule({
