@@ -9,8 +9,11 @@ import { CategoryComponent } from './component/dashboard/category/category.compo
 import { HomeComponent } from './component/dashboard/home/home.component';
 import { ReportsComponent } from './component/dashboard/reports/reports.component';
 import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
+import { LandingComponent } from './component/landing/landing.component';
 
 const routes: Routes = [
+  { path: '', component: LandingComponent },
+  { path: 'landing', component: LandingComponent },
   { path: 'sign-in', component: SignInComponent },
   { path: 'sign-up', component: RegistrationComponent },
   { path: 'register', component: RegistrationComponent },
@@ -27,7 +30,7 @@ const routes: Routes = [
       { path: 'transactions', component: TransactionListComponent },
     ]
   },
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' } // Default route
+  { path: 'dashboard', redirectTo: '/dashboard/home', pathMatch: 'full' } // Dashboard default route
 ];
 
 @NgModule({

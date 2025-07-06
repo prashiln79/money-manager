@@ -86,6 +86,7 @@ import { FooterComponent } from './component/dashboard/footer/footer.component';
 import { MobileAccountComponent } from './component/dashboard/accounts/mobile-account/mobile-account.component';
 import { AccountDialogComponent } from './component/dashboard/accounts/account-dialog/account-dialog.component';
 import { MobileAccountsListComponent } from './component/dashboard/accounts/mobile-accounts-list/mobile-accounts-list.component';
+import { LandingComponent } from './component/landing/landing.component';
 
 // PWA Components
 import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
@@ -140,7 +141,8 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     SkeletonLoaderComponent,
     MobileAccountComponent,
     AccountDialogComponent,
-    MobileAccountsListComponent
+    MobileAccountsListComponent,
+    LandingComponent
   ],
   imports: [
     BrowserModule,

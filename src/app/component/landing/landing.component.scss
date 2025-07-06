@@ -1,0 +1,335 @@
+/* Landing Page Styles */
+
+/* Animated background blobs */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Hero section enhancements */
+.hero-section {
+  position: relative;
+  background-attachment: fixed;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Feature cards hover effects */
+.feature-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Button hover effects */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+  }
+}
+
+/* Testimonial cards */
+.testimonial-card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Enhanced responsive typography */
+@media (max-width: 640px) {
+  .hero-section h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    word-spacing: -0.02em;
+  }
+  
+  .hero-section p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* Better mobile spacing */
+  section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Mobile button improvements */
+  button {
+    min-height: 48px; /* Better touch targets */
+    font-weight: 600;
+  }
+
+  /* Mobile grid improvements */
+  .grid {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hero-section h1 {
+    font-size: 3.5rem;
+    line-height: 1.1;
+  }
+
+  /* Tablet-specific improvements */
+  .container-responsive {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1025px) {
+  .hero-section h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+  }
+
+  /* Better spacing on large screens */
+  section {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Extra large screen optimizations */
+@media (min-width: 1280px) {
+  .hero-section h1 {
+    font-size: 4.5rem;
+  }
+}
+
+/* Gradient text animation */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Loading animation for stats */
+.stat-number {
+  animation: count-up 2s ease-out;
+}
+
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth section transitions */
+section {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animation for feature cards */
+.feature-card {
+  animation-delay: calc(var(--animation-order) * 0.1s);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* Focus states for accessibility */
+button:focus,
+a:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Better mobile navigation */
+  .hero-section {
+    min-height: 100vh;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  /* Mobile button stack improvements */
+  .flex-col {
+    gap: 1rem;
+  }
+
+  /* Mobile text improvements */
+  h1, h2, h3 {
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Mobile spacing improvements */
+  .mb-8 {
+    margin-bottom: 2rem;
+  }
+
+  .py-16 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  /* Mobile grid improvements */
+  .grid-cols-1 {
+    gap: 1.5rem;
+  }
+}
+
+/* Tablet-specific improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Better tablet layout */
+  .grid-cols-2 {
+    gap: 2rem;
+  }
+
+  /* Tablet spacing */
+  .py-20 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Sharper text rendering */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Print styles */
+@media print {
+  .hero-section,
+  .cta-section,
+  footer {
+    display: none;
+  }
+  
+  section {
+    page-break-inside: avoid;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  /* Add dark mode styles here if needed */
+}
+
+/* Landscape mobile improvements */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 100vh;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 0.9rem;
+  }
+} 
