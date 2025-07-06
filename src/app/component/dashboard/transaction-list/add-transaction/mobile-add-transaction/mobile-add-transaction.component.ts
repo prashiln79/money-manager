@@ -56,7 +56,7 @@ export class MobileAddTransactionComponent {
 				this.transactionForm.patchValue({
 					payee: this.dialogData.payee,
 					amount: this.dialogData.amount,
-					date: this.dialogData.date.toDate(),
+					date: moment(this.dialogData.date.toDate()).format('YYYY-MM-DD'),
 					description: this.dialogData.notes,
 					tag: this.dialogData.category,
 					type: this.dialogData.type,

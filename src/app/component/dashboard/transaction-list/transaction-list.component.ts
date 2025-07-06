@@ -7,6 +7,7 @@ import { Auth } from '@angular/fire/auth';
 import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { TransactionComponent } from './add-transaction/transaction/transaction.component';
+import { MobileAddTransactionComponent } from './add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
@@ -207,8 +208,25 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   editTransaction(transaction: Transaction) {
-    const dialogRef = this._dialog.open(TransactionComponent, {
-      data: transaction
+    let dialogRef;
+    if (this.isMobile) {
+      dialogRef = this._dialog.open(MobileAddTransactionComponent, {
+        width: '100vw',
+        height: '100vh',
+        maxWidth: '100vw',
+        panelClass: 'full-screen-dialog',
+        data: transaction
+      });
+    } else {
+      dialogRef = this._dialog.open(TransactionComponent, {
+        data: transaction
+      });
+    }
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadTransactions();
+      }
     });
   }
 
@@ -399,10 +417,23 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   addTransactionDialog(): void {
-    const dialogRef = this._dialog.open(TransactionComponent, {
-      width: '600px',
-      maxWidth: '95vw',
-    });
+    let dialogRef;
+    if (this.isMobile) {
+      dialogRef = this._dialog.open(MobileAddTransactionComponent, {
+        width: '100vw',
+        height: '100vh',
+        maxWidth: '100vw',
+        panelClass: 'full-screen-dialog',
+        data: null
+      });
+    } else {
+      dialogRef = this._dialog.open(TransactionComponent, {
+        width: '600px',
+        maxWidth: '95vw',
+        data: null
+      });
+    }
+
     dialogRef.afterClosed().subscribe((transaction: Transaction) => {
       if (transaction) {
         this.loadTransactions();
