@@ -38,7 +38,7 @@
 	<div class="p-4 space-y-6">
 		<form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="space-y-6">
 			
-			<!-- Amount and Description Field - Combined Card -->
+			<!-- Amount, Description, and Date Field - Combined Card -->
 			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm space-y-4">
 				<!-- Amount Field -->
 				<div>
@@ -80,6 +80,26 @@
 						</span>
 					</div>
 				</div>
+
+				<!-- Date Field -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Date *
+					</label>
+					<div class="relative">
+						<input 
+							type="date" 
+							formControlName="date" 
+							class="w-full py-3 px-4 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent [&::-webkit-calendar-picker-indicator]:bg-none [&::-webkit-calendar-picker-indicator]:bg-transparent [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:top-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+						/>
+						<mat-icon class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+							calendar_today
+						</mat-icon>
+					</div>
+					@if(getDateError()) {
+						<p class="text-red-500 text-sm mt-1">{{ getDateError() }}</p>
+					}
+				</div>
 			</div>
 
 			<!-- Account Field -->
@@ -88,6 +108,22 @@
 					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
 						Account *
 					</label>
+					<!-- @if(transactionForm.get('accountId')?.value) {
+						@for (account of accountList; track account.accountId) {
+							@if(account.accountId === transactionForm.get('accountId')?.value) {
+								<button 
+									matSuffix 
+									mat-icon-button 
+									type="button"
+									(click)="openEditAccountDialog(account)"
+									matTooltip="Edit {{ account.name }}"
+									class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+								>
+									<mat-icon class="text-sm">edit</mat-icon>
+								</button>
+							}
+						}
+					} -->
 					<button 
 						type="button"
 						(click)="openNewAccountDialog()"
@@ -96,6 +132,7 @@
 						<mat-icon class="text-sm">add</mat-icon>
 						Add New
 					</button>
+					
 				</div>
 				
 				<div class="space-y-2">
@@ -106,43 +143,16 @@
 								<mat-option [value]="account.accountId">{{ account.name }} ({{ account.type | titlecase }})</mat-option>
 							}
 						</mat-select>
+						
 						@if(transactionForm.get('accountId')?.hasError('required') && transactionForm.get('accountId')?.touched) {
 							<mat-error>Account is required</mat-error>
 						}
 					</mat-form-field>
 					
-					<!-- Edit Account Button - Only show if an account is selected -->
-					@if(transactionForm.get('accountId')?.value) {
-						@for (account of accountList; track account.accountId) {
-							@if(account.accountId === transactionForm.get('accountId')?.value) {
-								<button 
-									type="button"
-									(click)="openEditAccountDialog(account)"
-									class="w-full text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center justify-center gap-1 py-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-								>
-									<mat-icon class="text-sm">edit</mat-icon>
-									Edit "{{ account.name }}"
-								</button>
-							}
-						}
-					}
 				</div>
 			</div>
 
-			<!-- Date Field -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-					Date *
-				</label>
-				<input 
-					type="date" 
-					formControlName="date" 
-					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-				/>
-				@if(getDateError()) {
-					<p class="text-red-500 text-sm mt-1">{{ getDateError() }}</p>
-				}
-			</div>
+
 
 			<!-- Type and Category Fields -->
 			<div class="grid grid-cols-2 gap-4">
