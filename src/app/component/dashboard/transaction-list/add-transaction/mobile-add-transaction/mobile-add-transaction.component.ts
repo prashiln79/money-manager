@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
 import { Timestamp } from "@angular/fire/firestore";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -17,7 +17,9 @@ import moment from 'moment';
 	templateUrl: "./mobile-add-transaction.component.html",
 	styleUrl: "./mobile-add-transaction.component.scss",
 })
-export class MobileAddTransactionComponent {
+export class MobileAddTransactionComponent implements AfterViewInit {
+	@ViewChild('amountInput', { static: false }) amountInput!: ElementRef;
+	
 	transactionForm: FormGroup;
 	public tagList: Array<any> = [];
 	public accountList: Array<any> = [];
@@ -79,6 +81,15 @@ export class MobileAddTransactionComponent {
 			this.dialogRef.close();
 			event.preventDefault();
 		});
+	}
+
+	ngAfterViewInit(): void {
+		// Focus on amount field after view is initialized
+		setTimeout(() => {
+			if (this.amountInput) {
+				this.amountInput.nativeElement.focus();
+			}
+		}, 200);
 	}
 
 	async onSubmit(): Promise<void> {
