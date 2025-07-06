@@ -10,6 +10,7 @@ import { HomeComponent } from './component/dashboard/home/home.component';
 import { ReportsComponent } from './component/dashboard/reports/reports.component';
 import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
 import { LandingComponent } from './component/landing/landing.component';
+import { TaxComponent } from './component/dashboard/tax/tax.component';
 
 const routes: Routes = [
   { path: 'landing', component: LandingComponent },
@@ -27,6 +28,7 @@ const routes: Routes = [
       { path: 'category', component: CategoryComponent },
       { path: 'reports', component: ReportsComponent },
       { path: 'transactions', component: TransactionListComponent },
+      { path: 'tax', component: TaxComponent },
     ]
   },
  { path: '', redirectTo: '/dashboard', pathMatch: 'full' }// Dashboard default route
