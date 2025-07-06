@@ -32,8 +32,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
   // Color selection
   public availableColors: string[] = AVAILABLE_COLORS;
 
-  public showIconPicker: boolean = false;
-  public showColorPicker: boolean = false;
   public userId: string = '';
   private destroy$ = new Subject<void>();
 
@@ -269,8 +267,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.newCategory = this.getEmptyCategory();
     this.isEditMode = false;
     this.isLoading = false;
-    this.showIconPicker = false;
-    this.showColorPicker = false;
   }
 
   /**
@@ -296,45 +292,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Toggle icon picker visibility
-   */
-  public toggleIconPicker(): void {
-    this.showIconPicker = !this.showIconPicker;
-    if (this.showIconPicker) {
-      this.showColorPicker = false;
-    }
-  }
-
-  /**
-   * Close icon picker
-   */
-  public closeIconPicker(): void {
-    this.showIconPicker = false;
-  }
-
-  /**
    * Select an icon for the category
    */
   public selectIcon(icon: string): void {
     this.newCategory.icon = icon;
-    this.showIconPicker = false;
-  }
-
-  /**
-   * Toggle color picker visibility
-   */
-  public toggleColorPicker(): void {
-    this.showColorPicker = !this.showColorPicker;
-    if (this.showColorPicker) {
-      this.showIconPicker = false;
-    }
-  }
-
-  /**
-   * Close color picker
-   */
-  public closeColorPicker(): void {
-    this.showColorPicker = false;
   }
 
   /**
@@ -342,7 +303,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public selectColor(color: string): void {
     this.newCategory.color = color;
-    this.showColorPicker = false;
   }
 
   /**

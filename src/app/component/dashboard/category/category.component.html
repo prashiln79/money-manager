@@ -135,18 +135,15 @@
             <label class="field-label">Category Icon</label>
             <div class="icon-selector">
               <button type="button"
-                      (click)="toggleIconPicker()"
-                      class="icon-preview-button"
-                      [class.active]="showIconPicker">
+                      [matMenuTriggerFor]="iconMenu"
+                      class="icon-preview-button">
                 <mat-icon>{{ newCategory.icon }}</mat-icon>
                 <span class="icon-label">{{ newCategory.icon }}</span>
                 <mat-icon class="dropdown-icon">expand_more</mat-icon>
               </button>
               
-              <!-- Icon Picker Dropdown -->
-              <div *ngIf="showIconPicker" 
-                   class="icon-picker-dropdown"
-                   (clickOutside)="closeIconPicker()">
+              <!-- Icon Menu -->
+              <mat-menu #iconMenu="matMenu" class="icon-menu">
                 <div class="icon-grid">
                   <button *ngFor="let icon of availableIcons"
                           type="button"
@@ -157,7 +154,7 @@
                     <mat-icon>{{ icon }}</mat-icon>
                   </button>
                 </div>
-              </div>
+              </mat-menu>
             </div>
           </div>
 
@@ -166,19 +163,16 @@
             <label class="field-label">Category Color</label>
             <div class="color-selector">
               <button type="button"
-                      (click)="toggleColorPicker()"
+                      [matMenuTriggerFor]="colorMenu"
                       class="color-preview-button"
-                      [class.active]="showColorPicker"
                       [style.background-color]="newCategory.color">
                 <div class="color-preview" [style.background-color]="newCategory.color"></div>
                 <span class="color-label">{{ newCategory.color }}</span>
                 <mat-icon class="dropdown-icon">expand_more</mat-icon>
               </button>
               
-              <!-- Color Picker Dropdown -->
-              <div *ngIf="showColorPicker" 
-                   class="color-picker-dropdown"
-                   (clickOutside)="closeColorPicker()">
+              <!-- Color Menu -->
+              <mat-menu #colorMenu="matMenu" class="color-menu">
                 <div class="color-grid">
                   <button *ngFor="let color of availableColors"
                           type="button"
@@ -189,7 +183,7 @@
                           matTooltip="{{ color }}">
                   </button>
                 </div>
-              </div>
+              </mat-menu>
             </div>
           </div>
 
