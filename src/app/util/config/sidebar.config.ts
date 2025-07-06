@@ -24,7 +24,7 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
     children: [
       {
         label: 'dashboard',
-        route: 'dashboard',
+        route: 'home',
         icon: 'dashboard',
         order: 1
       },

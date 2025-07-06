@@ -131,6 +131,10 @@ export class MobileCategoryComponent implements OnInit {
     this.showIconPicker = false;
   }
 
+  selectType(type: 'income' | 'expense'): void {
+    this.categoryForm.patchValue({ type });
+  }
+
   closeIconPicker(): void {
     this.showIconPicker = false;
   }

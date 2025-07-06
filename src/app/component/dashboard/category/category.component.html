@@ -3,10 +3,10 @@
   <div *ngIf="errorMessage" 
        class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
     <p class="text-red-700 text-sm">{{ errorMessage }}</p>
-         <button mat-icon-button (click)="clearError()" 
-             class="error-close-button">
-       <mat-icon>close</mat-icon>
-     </button>
+    <button mat-icon-button (click)="clearError()" 
+            class="error-close-button">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 
   <!-- Loading Indicator -->
@@ -21,8 +21,10 @@
     <!-- Categories List Section -->
     <section class="categories-list">
       <div class="section-header">
-        <h2 class="section-title">Manage Categories</h2>
-        <p class="section-subtitle">{{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }}</p>
+        <div class="header-content">
+          <h2 class="section-title">Manage Categories</h2>
+          <p class="section-subtitle">{{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }}</p>
+        </div>
         <!-- Mobile Add Button -->
         <button *ngIf="isMobile"
                 mat-fab
@@ -42,6 +44,14 @@
         </div>
         <h3 class="empty-title">No categories yet</h3>
         <p class="empty-text">Add your first category to get started</p>
+        <button *ngIf="isMobile"
+                mat-raised-button
+                color="primary"
+                (click)="openAddMobileDialog()"
+                class="empty-state-button">
+          <mat-icon>add</mat-icon>
+          Add Category
+        </button>
       </div>
 
       <!-- Categories List -->
@@ -55,24 +65,26 @@
             <div class="category-info">
               <div class="category-icon-name">
                 <mat-icon class="category-icon">{{ category.icon || 'category' }}</mat-icon>
-                <h3 class="category-name">{{ category.name }}</h3>
+                <div class="category-details">
+                  <h3 class="category-name">{{ category.name }}</h3>
+                  <span class="category-type">{{ category.type }}</span>
+                </div>
               </div>
-              <span class="category-type">{{ category.type }}</span>
             </div>
-                          <div class="category-actions">
-                <button mat-icon-button (click)="editCategory(category)" 
-                        class="action-button edit-button"
-                        matTooltip="Edit category"
-                        [disabled]="isEditMode">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="deleteCategory(category)" 
-                        class="action-button delete-button"
-                        matTooltip="Delete category"
-                        [disabled]="isEditMode">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
+            <div class="category-actions">
+              <button mat-icon-button (click)="editCategory(category)" 
+                      class="action-button edit-button"
+                      matTooltip="Edit category"
+                      [disabled]="isEditMode">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deleteCategory(category)" 
+                      class="action-button delete-button"
+                      matTooltip="Delete category"
+                      [disabled]="isEditMode">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -147,27 +159,27 @@
             </div>
           </div>
 
-                      <!-- Action Buttons -->
-            <div class="form-actions">
-              <button mat-raised-button
-                      type="submit"
-                      color="primary"
-                      [disabled]="isLoading || !categoryForm.form.valid"
-                      class="submit-button">
-                <mat-spinner *ngIf="isLoading" diameter="16"></mat-spinner>
-                <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-                {{ isLoading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Category' : 'Add Category') }}
-              </button>
-              
-              <button *ngIf="isEditMode"
-                      mat-stroked-button
-                      type="button"
-                      (click)="cancelEdit()"
-                      class="cancel-button">
-                <mat-icon>cancel</mat-icon>
-                Cancel
-              </button>
-            </div>
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button mat-raised-button
+                    type="submit"
+                    color="primary"
+                    [disabled]="isLoading || !categoryForm.form.valid"
+                    class="submit-button">
+              <mat-spinner *ngIf="isLoading" diameter="16"></mat-spinner>
+              <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+              {{ isLoading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Category' : 'Add Category') }}
+            </button>
+            
+            <button *ngIf="isEditMode"
+                    mat-stroked-button
+                    type="button"
+                    (click)="cancelEdit()"
+                    class="cancel-button">
+              <mat-icon>cancel</mat-icon>
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </section>

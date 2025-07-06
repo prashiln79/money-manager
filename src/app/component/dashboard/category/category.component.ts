@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { MobileCategoryComponent } from './mobile-category/mobile-category.component';
 
 export interface Category {
@@ -67,9 +68,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private readonly auth: Auth,
     private readonly dialog: MatDialog,
     private readonly notificationService: NotificationService,
-    private readonly breakpointObserver: BreakpointObserver
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly hapticFeedback: HapticFeedbackService
   ) {
-    this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
+    this.breakpointObserver.observe(['(max-width: 768px)']).subscribe(result => {
       this.isMobile = result.matches;
     });
   }
@@ -166,6 +168,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public editCategory(category: Category): void {
     if (this.isMobile) {
+      this.hapticFeedback.lightVibration();
       this.openMobileDialog(category);
     } else {
       this.isEditMode = true;
@@ -228,8 +231,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
    * Delete a category with confirmation dialog
    */
   public deleteCategory(category: Category): void {
+    if (this.isMobile) {
+      this.hapticFeedback.warningVibration();
+    }
+    
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
+      width: this.isMobile ? '90vw' : '400px',
+      maxWidth: this.isMobile ? '400px' : '400px',
       data: {
         title: 'Delete Category',
         message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
@@ -338,13 +346,19 @@ export class CategoryComponent implements OnInit, OnDestroy {
       width: '100vw',
       height: '100vh',
       maxWidth: '100vw',
+      maxHeight: '100vh',
       panelClass: 'full-screen-dialog',
+      disableClose: false,
+      autoFocus: true,
       data: category || null
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadUserCategories();
+        if (this.isMobile) {
+          this.hapticFeedback.successVibration();
+        }
       }
     });
   }
@@ -353,6 +367,9 @@ export class CategoryComponent implements OnInit, OnDestroy {
    * Open mobile dialog for adding new category
    */
   public openAddMobileDialog(): void {
+    if (this.isMobile) {
+      this.hapticFeedback.lightVibration();
+    }
     this.openMobileDialog();
   }
 }

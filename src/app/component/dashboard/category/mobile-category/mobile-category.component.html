@@ -1,46 +1,46 @@
 <!-- Mobile Header -->
-<div class="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-  <div class="flex items-center justify-between px-4 py-3">
-    <h6 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-      {{ dialogData?.id ? 'Edit' : 'Add' }} Category
-    </h6>
-    <div class="flex items-center gap-2">
-      <!-- Save Button -->
-      <button 
-        mat-icon-button 
-        color="primary" 
-        (click)="onSubmit()" 
-        [disabled]="categoryForm.invalid || isSubmitting" 
-        matTooltip="Save Category" 
-        class="w-10 h-10 !bg-primary"
-      >
-        <mat-icon class="text-white">
-          {{ isSubmitting ? 'hourglass_empty' : 'check' }}
-        </mat-icon>
-      </button>
-
-      <!-- Close Button -->
+<div class="mobile-header">
+  <div class="header-content">
+    <div class="header-left">
       <button 
         mat-icon-button 
         type="button" 
         (click)="onClose()" 
         matTooltip="Close" 
-        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        class="close-button"
       >
-        <mat-icon>close</mat-icon>
+        <mat-icon>arrow_back</mat-icon>
       </button>
+      <h6 class="header-title">
+        {{ dialogData?.id ? 'Edit' : 'Add' }} Category
+      </h6>
     </div>
+    
+    <!-- Save Button -->
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()" 
+      [disabled]="categoryForm.invalid || isSubmitting" 
+      matTooltip="Save Category" 
+      class="save-button"
+    >
+      <mat-spinner *ngIf="isSubmitting" diameter="16"></mat-spinner>
+      <mat-icon *ngIf="!isSubmitting">check</mat-icon>
+      {{ isSubmitting ? 'Saving...' : 'Save' }}
+    </button>
   </div>
 </div>
 
 <!-- Mobile Form Content -->
-<div class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
-  <div class="p-4 space-y-6">
-    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="space-y-6">
+<div class="mobile-content">
+  <div class="form-container">
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="category-form">
       
       <!-- Category Name Field -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <div class="form-field">
+        <label class="field-label">
+          <mat-icon class="field-icon">label</mat-icon>
           Category Name *
         </label>
         <input 
@@ -49,76 +49,93 @@
           placeholder="e.g., Groceries"
           maxlength="50"
           autofocus
-          class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="form-input"
         />
-        <div class="flex justify-between items-center mt-1">
+        <div class="field-footer">
           @if(getNameError() && categoryForm.get('name')?.touched) {
-            <p class="text-red-500 text-sm">{{ getNameError() }}</p>
+            <p class="error-message">{{ getNameError() }}</p>
           }
-          <span class="text-xs text-gray-500">
+          <span class="character-count">
             {{ categoryForm.get('name')?.value?.length || 0 }}/50
           </span>
         </div>
       </div>
 
       <!-- Category Type Field -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <div class="form-field">
+        <label class="field-label">
+          <mat-icon class="field-icon">category</mat-icon>
           Category Type *
         </label>
-        <select 
-          formControlName="type" 
-          class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
+        <div class="type-selector">
+          <button 
+            type="button"
+            (click)="selectType('expense')"
+            class="type-option"
+            [class.selected]="categoryForm.get('type')?.value === 'expense'"
+          >
+            <mat-icon>trending_down</mat-icon>
+            <span>Expense</span>
+          </button>
+          <button 
+            type="button"
+            (click)="selectType('income')"
+            class="type-option"
+            [class.selected]="categoryForm.get('type')?.value === 'income'"
+          >
+            <mat-icon>trending_up</mat-icon>
+            <span>Income</span>
+          </button>
+        </div>
         @if(getTypeError() && categoryForm.get('type')?.touched) {
-          <p class="text-red-500 text-sm mt-1">{{ getTypeError() }}</p>
+          <p class="error-message">{{ getTypeError() }}</p>
         }
       </div>
 
       <!-- Category Icon Field -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <div class="form-field">
+        <label class="field-label">
+          <mat-icon class="field-icon">emoji_emotions</mat-icon>
           Category Icon *
         </label>
         <div class="icon-selector">
           <button type="button"
                   (click)="toggleIconPicker()"
-                  class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex items-center justify-between"
-                  [class.ring-2]="showIconPicker"
-                  [class.ring-blue-500]="showIconPicker">
-            <div class="flex items-center gap-3">
-              <mat-icon>{{ categoryForm.get('icon')?.value || 'category' }}</mat-icon>
-              <span class="text-gray-700 dark:text-gray-300">{{ categoryForm.get('icon')?.value || 'category' }}</span>
+                  class="icon-preview-button"
+                  [class.active]="showIconPicker">
+            <div class="icon-preview">
+              <mat-icon class="selected-icon">{{ categoryForm.get('icon')?.value || 'category' }}</mat-icon>
+              <span class="icon-name">{{ categoryForm.get('icon')?.value || 'category' }}</span>
             </div>
-            <mat-icon class="text-gray-400">expand_more</mat-icon>
+            <mat-icon class="dropdown-icon">expand_more</mat-icon>
           </button>
           
           <!-- Icon Picker Dropdown -->
           <div *ngIf="showIconPicker" 
-               class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+               class="icon-picker-dropdown"
                (clickOutside)="closeIconPicker()">
-            <div class="p-3">
-              <div class="grid grid-cols-6 gap-2">
-                <button *ngFor="let icon of availableIcons"
-                        type="button"
-                        (click)="selectIcon(icon)"
-                        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
-                        [class.bg-blue-100]="categoryForm.get('icon')?.value === icon"
-                        [class.text-blue-600]="categoryForm.get('icon')?.value === icon"
-                        matTooltip="{{ icon }}">
-                  <mat-icon class="text-lg">{{ icon }}</mat-icon>
-                </button>
-              </div>
+            <div class="icon-picker-header">
+              <h6>Select Icon</h6>
+              <button mat-icon-button (click)="closeIconPicker()" class="close-picker">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="icon-grid">
+              <button *ngFor="let icon of availableIcons"
+                      type="button"
+                      (click)="selectIcon(icon)"
+                      class="icon-option"
+                      [class.selected]="categoryForm.get('icon')?.value === icon"
+                      matTooltip="{{ icon }}">
+                <mat-icon>{{ icon }}</mat-icon>
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Bottom Spacing for Mobile -->
-      <div class="h-20"></div>
+      <div class="bottom-spacing"></div>
     </form>
   </div>
 </div> 
