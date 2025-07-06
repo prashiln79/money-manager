@@ -3,7 +3,7 @@
     <!-- Total Spend -->
     <div class="text-center">
       <div class="text-lg text-muted text-gray-500">You Expense | Income</div>
-      <div class="text-responsive-lg mt-1 font-bold text-primary">{{ totalSpendAmt | currency:'INR':'symbol':'1.0-0' }} | <span class="text-gray-500">{{ totalIncomeAmt | currency:'INR':'symbol':'1.0-0' }}</span></div>
+      <div class="text-responsive-lg mt-1 font-bold text-primary">{{ totalSpendAmt | currency:userCurrency:'symbol':'1.0-0' }} | <span class="text-gray-500">{{ totalIncomeAmt | currency:userCurrency:'symbol':'1.0-0' }}</span></div>
     </div>
     
   </div>

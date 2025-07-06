@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { UserService } from "src/app/util/service/user.service";
-import { User } from "src/app/util/models";
+import { User, CURRENCIES, DEFAULT_CURRENCY } from "src/app/util/models";
 import { CategoryService } from "src/app/util/service/category.service";
 import { AccountsService } from "src/app/util/service/accounts.service";
 
@@ -39,7 +39,7 @@ export const defaultCategories: Category[] = [
 ];
 
 export const defaultBankAccounts: BankAccount[] = [
-	{ name: "Savings Account", type: "savings", balance: 0, currency: "USD" ,institution:'Bank'},
+	{ name: "Savings Account", type: "savings", balance: 0, currency: DEFAULT_CURRENCY ,institution:'Bank'},
 	//add accountId, userId, createdAt 
 ];
 
@@ -61,15 +61,7 @@ export class RegistrationComponent implements OnInit {
 	// Predefined bank account types
 	
 
-	currencies = [
-		{ code: "USD", symbol: "$", name: "US Dollar" },
-		{ code: "EUR", symbol: "€", name: "Euro" },
-		{ code: "GBP", symbol: "£", name: "British Pound" },
-		{ code: "JPY", symbol: "¥", name: "Japanese Yen" },
-		{ code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-		{ code: "AUD", symbol: "A$", name: "Australian Dollar" },
-		{ code: "INR", symbol: "₹", name: "Indian Rupee" },
-	];
+	currencies = CURRENCIES;
 
 	constructor(
 		private fb: FormBuilder,
@@ -101,7 +93,7 @@ export class RegistrationComponent implements OnInit {
 
 			// Step 4: Preferences
 			preferences: this.fb.group({
-				defaultCurrency: ["USD", Validators.required],
+				defaultCurrency: [DEFAULT_CURRENCY, Validators.required],
 				timezone: ["UTC", Validators.required],
 				language: ["en", Validators.required],
 				notifications: [true],
@@ -150,7 +142,7 @@ export class RegistrationComponent implements OnInit {
 			name: [account?.name || "", Validators.required],
 			type: [account?.type || "checking", Validators.required],
 			balance: [account?.balance || 0, [Validators.required, Validators.min(0)]],
-			currency: [account?.currency || "USD", Validators.required],
+			currency: [account?.currency || DEFAULT_CURRENCY, Validators.required],
 		});
 
 		this.bankAccountsArray.push(bankAccountForm);

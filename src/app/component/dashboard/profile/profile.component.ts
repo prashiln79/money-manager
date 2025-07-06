@@ -4,7 +4,7 @@ import { Auth } from "@angular/fire/auth";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { UserService } from "src/app/util/service/user.service";
-import { User } from "src/app/util/models";
+import { User, CURRENCIES, getCurrencySymbol, DEFAULT_CURRENCY } from "src/app/util/models";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { MatDialog } from "@angular/material/dialog";
 import { ConfirmDialogComponent } from "src/app/util/components/confirm-dialog/confirm-dialog.component";
@@ -44,15 +44,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 	currentUser: any;
 	userProfile: UserProfile | null = null;
 
-	currencies = [
-		{ code: "USD", symbol: "$", name: "US Dollar" },
-		{ code: "EUR", symbol: "€", name: "Euro" },
-		{ code: "GBP", symbol: "£", name: "British Pound" },
-		{ code: "JPY", symbol: "¥", name: "Japanese Yen" },
-		{ code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-		{ code: "AUD", symbol: "A$", name: "Australian Dollar" },
-		{ code: "INR", symbol: "₹", name: "Indian Rupee" },
-	];
+	currencies = CURRENCIES;
 
 	timezones = [
 		{ value: "UTC", label: "UTC (Coordinated Universal Time)" },
@@ -93,7 +85,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       occupation: ['', [Validators.maxLength(100)]],
       monthlyIncome: [0, [Validators.min(0)]],
       preferences: this.fb.group({
-        defaultCurrency: ['USD', Validators.required],
+        				defaultCurrency: [DEFAULT_CURRENCY, Validators.required],
         timezone: ['UTC', Validators.required],
         language: ['en', Validators.required],
         notifications: [true],
@@ -152,7 +144,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 			occupation: user.occupation || "",
 			monthlyIncome: user.monthlyIncome || 0,
 			preferences: {
-				defaultCurrency: user.preferences?.defaultCurrency || "USD",
+				defaultCurrency: user.preferences?.defaultCurrency || DEFAULT_CURRENCY,
 				timezone: user.preferences?.timezone || "UTC",
 				language: user.preferences?.language || "en",
 				notifications: user.preferences?.notifications || true,
@@ -175,7 +167,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 			occupation: "",
 			monthlyIncome: 0,
 			preferences: {
-				defaultCurrency: "USD",
+				defaultCurrency: DEFAULT_CURRENCY,
 				timezone: "UTC",
 				language: "en",
 				notifications: true,
@@ -314,8 +306,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 	}
 
 	getCurrencySymbol(currencyCode: string): string {
-		const currency = this.currencies.find((c) => c.code === currencyCode);
-		return currency ? currency.symbol : "$";
+		return getCurrencySymbol(currencyCode);
 	}
 
 	getTimezoneLabel(timezoneValue: string): string {
@@ -338,7 +329,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 	getFormattedIncome(income: number): string {
 		return new Intl.NumberFormat("en-US", {
 			style: "currency",
-			currency: this.userProfile?.preferences.defaultCurrency || "USD",
+			currency: this.userProfile?.preferences.defaultCurrency || DEFAULT_CURRENCY,
 		}).format(income);
 	}
 }

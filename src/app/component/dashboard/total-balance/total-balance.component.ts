@@ -1,23 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { CurrencyService } from 'src/app/util/service/currency.service';
 
 @Component({
   selector: 'total-balance',
   templateUrl: './total-balance.component.html',
   styleUrl: './total-balance.component.scss'
 })
-export class TotalBalanceComponent {
+export class TotalBalanceComponent implements OnInit {
 
   totalSpendAmt = 0;
   totalIncomeAmt = 0;
+  userCurrency = this.currencyService.getDefaultCurrency();
   
   constructor(
     private transactionsService: TransactionsService, 
     private auth: Auth,
-    private notificationService: NotificationService
-  ) {
+    private notificationService: NotificationService,
+    private currencyService: CurrencyService
+  ) {}
+
+  ngOnInit() {
+    this.currencyService.currentCurrency$.subscribe(currency => {
+      this.userCurrency = currency;
+    });
     this.getTotalAmount();
   }
 
