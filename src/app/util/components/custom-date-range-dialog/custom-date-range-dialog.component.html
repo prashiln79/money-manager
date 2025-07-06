@@ -1,0 +1,154 @@
+<div class="custom-date-range-dialog">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <div class="header-content">
+      <h2 class="header-title">Select Date Range</h2>
+      <div class="header-actions">
+        <button 
+          mat-icon-button 
+          color="primary" 
+          (click)="applyDateRange()" 
+          [disabled]="!startDate || !endDate"
+          class="apply-btn"
+          matTooltip="Apply Range"
+        >
+          <mat-icon>check</mat-icon>
+        </button>
+        <button 
+          mat-icon-button 
+          (click)="onCancel()" 
+          class="close-btn"
+          matTooltip="Close"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Content -->
+  <div class="mobile-content">
+    <div class="content-wrapper">
+      
+      <!-- Date Range Card -->
+      <div class="date-range-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">calendar_today</mat-icon>
+          <span class="card-title">Date Range</span>
+        </div>
+        
+        <div class="date-inputs-container">
+          <!-- Start Date -->
+          <div class="date-input-group">
+            <label class="input-label">
+              <mat-icon class="label-icon">event</mat-icon>
+              <span>Start Date</span>
+            </label>
+            <div class="date-input-wrapper">
+              <input 
+                type="date" 
+                [(ngModel)]="startDate"
+                class="date-input"
+                aria-label="Start date"
+              />
+              <mat-icon class="input-icon">calendar_today</mat-icon>
+            </div>
+          </div>
+          
+          <!-- Date Separator -->
+          <div class="date-separator">
+            <div class="separator-line"></div>
+            <mat-icon class="separator-icon">arrow_downward</mat-icon>
+            <div class="separator-line"></div>
+          </div>
+          
+          <!-- End Date -->
+          <div class="date-input-group">
+            <label class="input-label">
+              <mat-icon class="label-icon">event</mat-icon>
+              <span>End Date</span>
+            </label>
+            <div class="date-input-wrapper">
+              <input 
+                type="date" 
+                [(ngModel)]="endDate"
+                class="date-input"
+                aria-label="End date"
+              />
+              <mat-icon class="input-icon">calendar_today</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-card" role="alert">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <span class="error-text">{{ errorMessage }}</span>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div class="quick-actions-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">flash_on</mat-icon>
+          <span class="card-title">Quick Select</span>
+        </div>
+        
+        <div class="quick-buttons">
+          <button 
+            mat-stroked-button 
+            (click)="selectLast7Days()" 
+            class="quick-btn"
+            aria-label="Select last 7 days"
+          >
+            <mat-icon>today</mat-icon>
+            <span>Last 7 days</span>
+          </button>
+          
+          <button 
+            mat-stroked-button 
+            (click)="selectLast30Days()" 
+            class="quick-btn"
+            aria-label="Select last 30 days"
+          >
+            <mat-icon>calendar_month</mat-icon>
+            <span>Last 30 days</span>
+          </button>
+          
+          <button 
+            mat-stroked-button 
+            (click)="selectThisMonth()" 
+            class="quick-btn"
+            aria-label="Select this month"
+          >
+            <mat-icon>date_range</mat-icon>
+            <span>This month</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button 
+          mat-button 
+          (click)="onCancel()" 
+          class="cancel-btn"
+          aria-label="Cancel date selection"
+        >
+          Cancel
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          [disabled]="!startDate || !endDate"
+          (click)="applyDateRange()"
+          class="apply-range-btn"
+          aria-label="Apply selected date range"
+        >
+          <mat-icon>check</mat-icon>
+          Apply Range
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -10,6 +10,7 @@ import { Auth } from "@angular/fire/auth";
 import { Category } from "../../category/category.component";
 import { ActivatedRoute, Route, Router } from "@angular/router";
 import { ConfirmDialogComponent } from "../../../../util/components/confirm-dialog/confirm-dialog.component";
+import { CustomDateRangeDialogComponent, CustomDateRangeData } from "../../../../util/components/custom-date-range-dialog";
 
 interface SortOption {
 	value: string;
@@ -412,5 +413,34 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 
 	isCategorySelected(category: string): boolean {
 		return this.selectedCategory.includes(category);
+	}
+
+	isCustomDateRange(): boolean {
+		if (!this.selectedDateRange) return false;
+		return !this.isCurrentMonth() && !this.isLastMonth() && !this.isCurrentYear();
+	}
+
+	openCustomDateRangeDialog() {
+		const dialogData: CustomDateRangeData = {
+			startDate: this.selectedDateRange?.start,
+			endDate: this.selectedDateRange?.end
+		};
+
+		const dialogRef = this.dialog.open(CustomDateRangeDialogComponent, {
+			width: '400px',
+			data: dialogData,
+			disableClose: false
+		});
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result) {
+				this.selectedDateRange = {
+					start: result.start,
+					end: result.end
+				};
+				this.selectedDateRangeChange.emit(this.selectedDateRange);
+				this.filterTransactions();
+			}
+		});
 	}
 }

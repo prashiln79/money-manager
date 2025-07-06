@@ -174,9 +174,19 @@
           [class.active-menu-item]="isCurrentYear()"
           (click)="onDateRangeChange('currentYear')"
         >
-          <mat-icon>calendar_view_year</mat-icon>
+          <mat-icon>calendar_today</mat-icon>
           <span>This Year</span>
           <mat-icon *ngIf="isCurrentYear()" class="check-icon">check</mat-icon>
+        </button>
+        <mat-divider></mat-divider>
+        <button 
+          mat-menu-item
+          [class.active-menu-item]="isCustomDateRange()"
+          (click)="openCustomDateRangeDialog()"
+        >
+          <mat-icon>date_range</mat-icon>
+          <span>Custom Range</span>
+          <mat-icon *ngIf="isCustomDateRange()" class="check-icon">check</mat-icon>
         </button>
       </mat-menu>
       
