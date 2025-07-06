@@ -10,6 +10,7 @@ import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.serv
 import { NotificationService } from "src/app/util/service/notification.service";
 import { Transaction, TransactionsService } from "src/app/util/service/transactions.service";
 import { AccountDialogComponent } from "src/app/component/dashboard/accounts/account-dialog/account-dialog.component";
+import { MobileCategoryComponent } from "src/app/component/dashboard/category/mobile-category/mobile-category.component";
 import moment from 'moment';
 import { LoaderService } from "src/app/util/service/loader.service";
 
@@ -209,6 +210,34 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 			if (!this.transactionForm.get('accountId')?.value && this.accountList.length > 0) {
 				this.transactionForm.patchValue({
 					accountId: this.accountList[0].accountId
+				});
+			}
+		});
+	}
+
+	openNewCategoryDialog(): void {
+		const dialogRef = this.dialog.open(MobileCategoryComponent, {
+			width: '90vw',
+			maxWidth: '400px',
+			data: null, // null for new category
+			disableClose: true,
+			panelClass: 'mobile-dialog'
+		});
+
+		dialogRef.afterClosed().subscribe((result) => {
+			if (result) {
+				this.refreshCategoryList();
+			}
+		});
+	}
+
+	private refreshCategoryList(): void {
+		this.categoryService.getCategories(this.auth.currentUser?.uid || "").subscribe((resp) => {
+			this.tagList = resp;
+			// If no category is selected and we have categories, select the first one
+			if (!this.transactionForm.get('tag')?.value && this.tagList.length > 0) {
+				this.transactionForm.patchValue({
+					tag: this.tagList[0].name
 				});
 			}
 		});

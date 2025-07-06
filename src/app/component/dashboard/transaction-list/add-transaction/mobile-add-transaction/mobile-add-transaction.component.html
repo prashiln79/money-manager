@@ -176,9 +176,18 @@
 
 				<!-- Category Field -->
 				<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-						Category
-					</label>
+					<div class="flex items-center justify-between mb-2">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+							Category
+						</label>
+						<button 
+							type="button"
+							(click)="openNewCategoryDialog()"
+							class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center gap-1"
+						>
+							<mat-icon class="text-sm">add</mat-icon>
+						</button>
+					</div>
 					<select 
 						formControlName="tag" 
 						class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
