@@ -1,22 +1,22 @@
 <!-- Hero Section -->
-<section class="hero-section min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+<section class="hero-section min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-white to-teal-100 relative overflow-hidden">
   <!-- Background decoration -->
   <div class="absolute inset-0 overflow-hidden">
-    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="absolute top-40 left-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+    <div class="absolute top-40 left-40 w-80 h-80 bg-primary/25 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
   </div>
 
   <div class="container-responsive relative z-10 text-center px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
       <!-- Logo/Brand -->
       <div class="mb-8 sm:mb-12">
-        <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-primary to-primary rounded-2xl mb-4 sm:mb-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-primary to-teal-600 rounded-2xl mb-4 sm:mb-6 shadow-lg">
           <span class="text-2xl sm:text-3xl">💰</span>
         </div>
         <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2">
           Take Control of Your
-          <span class="bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent block sm:inline">Finances</span>
+          <span class="bg-gradient-to-r from-primary to-teal-600 bg-clip-text text-transparent block sm:inline">Finances</span>
         </h2>
         <p class="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 mx-auto leading-relaxed px-4">
           The smart way to budget, track expenses, and achieve your financial goals. 
@@ -28,12 +28,12 @@
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4">
         <button 
           (click)="navigateToSignUp()"
-          class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-primary to-primary text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-base sm:text-lg">
+          class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-primary to-teal-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-base sm:text-lg hover:from-teal-600 hover:to-primary">
           Get Started Free
         </button>
         <button 
           (click)="scrollToFeatures()"
-          class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 text-base sm:text-lg">
+          class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-primary text-primary font-semibold rounded-xl hover:bg-primary hover:text-white transition-all duration-300 text-base sm:text-lg">
           Learn More
         </button>
       </div>
@@ -72,12 +72,12 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4">
       <div 
         *ngFor="let feature of features; let i = index" 
-        class="group p-6 sm:p-8 rounded-2xl border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+        class="group p-6 sm:p-8 rounded-2xl border border-gray-200 hover:border-primary hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-teal-50/30 hover:from-teal-50/50 hover:to-white"
         [style.--animation-order]="i">
         <div class="text-3xl sm:text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
           {{ feature.icon }}
         </div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3">{{ feature.title }}</h3>
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">{{ feature.title }}</h3>
         <p class="text-sm sm:text-base text-gray-600 leading-relaxed">{{ feature.description }}</p>
       </div>
     </div>
@@ -85,7 +85,7 @@
 </section>
 
 <!-- How It Works Section -->
-<section class="py-16 sm:py-20 bg-gray-50">
+<section class="py-16 sm:py-20 bg-gradient-to-br from-teal-50 to-white">
   <div class="container-responsive px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12 sm:mb-16">
       <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
@@ -97,19 +97,19 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 px-4">
-      <div class="text-center">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-primary text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6">1</div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Sign Up</h3>
+      <div class="text-center group">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-primary to-teal-600 text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">1</div>
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">Sign Up</h3>
         <p class="text-sm sm:text-base text-gray-600 leading-relaxed">Create your account in seconds with just your email</p>
       </div>
-      <div class="text-center">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-primary text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6">2</div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Add Your Accounts</h3>
+      <div class="text-center group">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-primary to-teal-600 text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">2</div>
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">Add Your Accounts</h3>
         <p class="text-sm sm:text-base text-gray-600 leading-relaxed">Connect your bank accounts or add them manually</p>
       </div>
-      <div class="text-center">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-green-600 text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6">3</div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Start Managing</h3>
+      <div class="text-center group">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">3</div>
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300">Start Managing</h3>
         <p class="text-sm sm:text-base text-gray-600 leading-relaxed">Track expenses, set budgets, and watch your savings grow</p>
       </div>
     </div>
@@ -131,7 +131,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4">
       <div 
         *ngFor="let testimonial of testimonials" 
-        class="bg-gray-50 p-6 sm:p-8 rounded-2xl hover:shadow-lg transition-shadow duration-300">
+        class="bg-gradient-to-br from-gray-50 to-teal-50/30 p-6 sm:p-8 rounded-2xl hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-primary/20">
         <div class="flex items-center mb-4 sm:mb-6">
           <div class="text-2xl sm:text-3xl mr-3 sm:mr-4">{{ testimonial.avatar }}</div>
           <div>
@@ -146,18 +146,18 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-16 sm:py-20 bg-gradient-to-r from-primary to-primary">
+<section class="py-16 sm:py-20 bg-gradient-to-r from-primary via-teal-600 to-primary">
   <div class="container-responsive text-center px-4 sm:px-6 lg:px-8">
     <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 px-4">
       Ready to Take Control?
     </h2>
-    <p class="text-lg sm:text-xl text-blue-100 mb-6 sm:mb-8 max-w-2xl mx-auto px-4 leading-relaxed">
+    <p class="text-lg sm:text-xl text-teal-100 mb-6 sm:mb-8 max-w-2xl mx-auto px-4 leading-relaxed">
       Join thousands of users who are already managing their finances smarter with our app.
     </p>
     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
       <button 
         (click)="navigateToSignUp()"
-        class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-base sm:text-lg">
+        class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-base sm:text-lg hover:bg-gray-50">
         Start Free Trial
       </button>
       <button 
@@ -170,12 +170,12 @@
 </section>
 
 <!-- Footer -->
-<footer class="py-12 bg-gray-900 text-white">
+<footer class="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
   <div class="container-responsive px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
       <div class="col-span-1 sm:col-span-2">
         <div class="flex items-center mb-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-primary to-primary rounded-lg flex items-center justify-center mr-3">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-primary to-teal-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
             <span class="text-sm sm:text-lg">💰</span>
           </div>
           <span class="text-lg sm:text-xl font-bold">Money Manager</span>
@@ -186,19 +186,19 @@
         </p>
       </div>
       <div>
-        <h3 class="font-semibold mb-4 text-sm sm:text-base">Product</h3>
+        <h3 class="font-semibold mb-4 text-sm sm:text-base text-primary">Product</h3>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-white transition-colors text-sm sm:text-base">Features</a></li>
-          <li><a href="#" class="hover:text-white transition-colors text-sm sm:text-base">Pricing</a></li>
-          <li><a href="#" class="hover:text-white transition-colors text-sm sm:text-base">Security</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Features</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Pricing</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Security</a></li>
         </ul>
       </div>
       <div>
-        <h3 class="font-semibold mb-4 text-sm sm:text-base">Support</h3>
+        <h3 class="font-semibold mb-4 text-sm sm:text-base text-primary">Support</h3>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-white transition-colors text-sm sm:text-base">Help Center</a></li>
-          <li><a href="#" class="hover:text-white transition-colors text-sm sm:text-base">Contact Us</a></li>
-          <li><a href="#" class="hover:text-white transition-colors text-sm sm:text-base">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Help Center</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Contact Us</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Privacy Policy</a></li>
         </ul>
       </div>
     </div>
