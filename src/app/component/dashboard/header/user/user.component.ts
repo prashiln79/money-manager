@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { UserService } from 'src/app/util/service/user.service';
+import { NotificationService } from 'src/app/util/service/notification.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
@@ -29,7 +30,10 @@ export class UserComponent {
   isOpen = false;
   public user = this.userService.getUser();
 
-  constructor(private userService: UserService) {
+  constructor(
+    private userService: UserService,
+    private notificationService: NotificationService
+  ) {
     this.user;
   }
 
@@ -47,18 +51,21 @@ export class UserComponent {
 
   viewProfile() {
     console.log('View profile clicked');
+    this.notificationService.info('Profile view feature coming soon');
     // TODO: Implement view profile functionality
     this.close();
   }
 
   openSettings() {
     console.log('Settings clicked');
+    this.notificationService.info('Settings feature coming soon');
     // TODO: Implement settings functionality
     this.close();
   }
 
   openCacheManager() {
     console.log('Cache management clicked');
+    this.notificationService.info('Opening cache management');
     // Show cache manager dialog or navigate to cache management page
     this.showCacheManagerDialog();
     this.close();
@@ -137,16 +144,17 @@ export class UserComponent {
             }
           });
         }
-        alert('Cache cleared successfully!');
+        this.notificationService.success('Cache cleared successfully!');
         dialog.remove();
       } catch (error) {
         console.error('Failed to clear cache:', error);
-        alert('Failed to clear cache. Please try again.');
+        this.notificationService.error('Failed to clear cache. Please try again.');
       }
     };
 
     (window as any).forceAppUpdate = () => {
       localStorage.setItem('app-version', new Date().toISOString().split('T')[0]);
+      this.notificationService.info('App update initiated');
       window.location.reload();
     };
 
@@ -162,14 +170,21 @@ export class UserComponent {
 
   openHelp() {
     console.log('Help clicked');
+    this.notificationService.info('Help feature coming soon');
     // TODO: Implement help functionality
     this.close();
   }
 
   async signOut(e: any) {
     console.log('signing out');
-    await this.userService.signOut();
-    e.stopPropagation();
-    this.close();
+    try {
+      await this.userService.signOut();
+      this.notificationService.success('Signed out successfully');
+      e.stopPropagation();
+      this.close();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      this.notificationService.error('Failed to sign out');
+    }
   }
 }

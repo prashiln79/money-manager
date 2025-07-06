@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { TransactionsService, Transaction } from '../../../util/service/transactions.service';
 import { AccountsService, Account } from '../../../util/service/accounts.service';
 import { CategoryService } from '../../../util/service/category.service';
+import { NotificationService } from '../../../util/service/notification.service';
 
 interface CategorySpending {
   category: string;
@@ -55,7 +56,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private transactionsService: TransactionsService,
     private accountsService: AccountsService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
@@ -70,14 +72,15 @@ export class ReportsComponent implements OnInit, OnDestroy {
     const currentUser = this.auth.currentUser;
     if (!currentUser) {
       this.isLoading = false;
+      this.notificationService.error('User not authenticated');
       return;
     }
 
     const userId = currentUser.uid;
 
     // Load transactions
-    const transactionsSub = this.transactionsService.getTransactions(userId).subscribe(
-      transactions => {
+    const transactionsSub = this.transactionsService.getTransactions(userId).subscribe({
+      next: (transactions) => {
         this.transactions = transactions;
         this.calculateFinancialMetrics();
         this.calculateTopCategories();
@@ -85,22 +88,35 @@ export class ReportsComponent implements OnInit, OnDestroy {
         this.calculateMonthlyTrends();
         this.isLoading = false;
         this.hasData = this.transactions.length > 0;
+      },
+      error: (error) => {
+        console.error('Error loading transactions:', error);
+        this.notificationService.error('Failed to load transaction data');
+        this.isLoading = false;
       }
-    );
+    });
 
     // Load accounts
-    const accountsSub = this.accountsService.getAccounts(userId).subscribe(
-      accounts => {
+    const accountsSub = this.accountsService.getAccounts(userId).subscribe({
+      next: (accounts) => {
         this.accounts = accounts;
+      },
+      error: (error) => {
+        console.error('Error loading accounts:', error);
+        this.notificationService.error('Failed to load account data');
       }
-    );
+    });
 
     // Load categories
-    const categoriesSub = this.categoryService.getCategories(userId).subscribe(
-      categories => {
+    const categoriesSub = this.categoryService.getCategories(userId).subscribe({
+      next: (categories) => {
         this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.notificationService.error('Failed to load category data');
       }
-    );
+    });
 
     this.subscriptions.push(transactionsSub, accountsSub, categoriesSub);
   }
@@ -234,18 +250,31 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   onPeriodChange(period: 'daily' | 'weekly' | 'monthly' | 'yearly'): void {
     this.selectedPeriod = period;
+    this.notificationService.info(`Report period changed to ${period}`);
     // TODO: Implement period-specific calculations
     console.log('Period changed to:', period);
   }
 
   exportReport(): void {
-    // TODO: Implement export functionality
-    console.log('Export report clicked');
+    try {
+      // TODO: Implement export functionality
+      console.log('Export report clicked');
+      this.notificationService.info('Export feature coming soon');
+    } catch (error) {
+      console.error('Error exporting report:', error);
+      this.notificationService.error('Failed to export report');
+    }
   }
 
   generateReport(): void {
-    // TODO: Implement report generation
-    console.log('Generate report clicked');
+    try {
+      // TODO: Implement report generation
+      console.log('Generate report clicked');
+      this.notificationService.info('Report generation feature coming soon');
+    } catch (error) {
+      console.error('Error generating report:', error);
+      this.notificationService.error('Failed to generate report');
+    }
   }
 
   addTransaction(): void {

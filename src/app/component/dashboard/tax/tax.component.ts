@@ -71,17 +71,17 @@ export class TaxComponent implements OnInit, OnDestroy {
   private loadTransactions(): void {
     const userId = this.auth.currentUser?.uid;
     if (userId) {
-      const sub = this.transactionsService.getTransactions(userId).subscribe(
-        transactions => {
+      const sub = this.transactionsService.getTransactions(userId).subscribe({
+        next: (transactions) => {
           this.transactions = transactions;
           this.totalIncome = this.taxService.calculateTotalIncome(transactions);
           this.taxForm.patchValue({ totalIncome: this.totalIncome });
         },
-        error => {
+        error: (error) => {
           console.error('Error loading transactions:', error);
           this.notificationService.error('Failed to load transaction data');
         }
-      );
+      });
       this.subscriptions.push(sub);
     }
   }

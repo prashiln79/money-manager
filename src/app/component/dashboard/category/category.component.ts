@@ -118,12 +118,14 @@ export class CategoryComponent implements OnInit, OnDestroy {
             this.errorMessage = 'Failed to load categories';
             this.isLoading = false;
             console.error('Error loading categories:', error);
+            this.notificationService.error('Failed to load categories');
           }
         });
     } catch (error) {
       this.errorMessage = 'Failed to load categories';
       this.isLoading = false;
       console.error('Error loading categories:', error);
+      this.notificationService.error('Failed to load categories');
     }
   }
 
@@ -132,7 +134,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public async createCategory(): Promise<void> {
     if (!this.isValidCategoryData()) {
-      this.errorMessage = 'Please enter a category name';
+      this.notificationService.warning('Please enter a category name');
       return;
     }
 
@@ -147,6 +149,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         this.newCategory.icon
       );
       
+      this.notificationService.success('Category created successfully');
       // Reset form and reload categories
       this.resetForm();
       await this.loadUserCategories();
@@ -154,6 +157,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.errorMessage = 'Failed to create category';
       this.isLoading = false;
       console.error('Error creating category:', error);
+      this.notificationService.error('Failed to create category');
     }
   }
 
@@ -180,12 +184,12 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public async updateCategory(): Promise<void> {
     if (!this.isValidCategoryData()) {
-      this.errorMessage = 'Please enter a category name';
+      this.notificationService.warning('Please enter a category name');
       return;
     }
 
     if (!this.newCategory.id) {
-      this.errorMessage = 'Invalid category';
+      this.notificationService.error('Invalid category');
       return;
     }
 
@@ -201,6 +205,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         this.newCategory.icon
       );
       
+      this.notificationService.success('Category updated successfully');
       // Reset form and reload categories
       this.resetForm();
       await this.loadUserCategories();
@@ -208,6 +213,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.errorMessage = 'Failed to update category';
       this.isLoading = false;
       console.error('Error updating category:', error);
+      this.notificationService.error('Failed to update category');
     }
   }
 

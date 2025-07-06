@@ -11,6 +11,11 @@ import { ReportsComponent } from './component/dashboard/reports/reports.componen
 import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
 import { LandingComponent } from './component/landing/landing.component';
 import { TaxComponent } from './component/dashboard/tax/tax.component';
+import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
+import { GoalsComponent } from './component/dashboard/goals/goals.component';
+import { BudgetsComponent } from './component/dashboard/budgets/budgets.component';
+import { NotesComponent } from './component/dashboard/notes/notes.component';
+import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction';
 
 const routes: Routes = [
   { path: 'landing', component: LandingComponent },
@@ -29,6 +34,13 @@ const routes: Routes = [
       { path: 'reports', component: ReportsComponent },
       { path: 'transactions', component: TransactionListComponent },
       { path: 'tax', component: TaxComponent },
+      { path: 'subscription', component: SubscriptionComponent },
+      { path: 'goals', component: GoalsComponent },
+      { path: 'budgets', component: BudgetsComponent },
+      { path: 'notes', component: NotesComponent },
+      { path: 'import', component: ImportTransactionsComponent },
+      
+
     ]
   },
  { path: '', redirectTo: '/dashboard', pathMatch: 'full' }// Dashboard default route

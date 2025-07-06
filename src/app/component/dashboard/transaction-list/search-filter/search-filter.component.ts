@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Transaction } from '../../../../util/service/transactions.service';
+import { NotificationService } from '../../../../util/service/notification.service';
 import moment from 'moment';
 
 @Component({
@@ -33,7 +34,7 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   availableYears: number[] = [];
   currentYear: number;
 
-  constructor() {
+  constructor(private notificationService: NotificationService) {
     this.currentYear = moment().year();
   }
 
@@ -67,19 +68,23 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   }
 
   onSearchChange(event: any) {
-    this.searchTermChange.emit(event.target.value);
+    const searchValue = event.target.value;
+    this.searchTermChange.emit(searchValue);
   }
 
   onCategoryChange(event: any) {
-    this.selectedCategoryChange.emit(event.target.value);
+    const category = event.target.value;
+    this.selectedCategoryChange.emit(category);
   }
 
   onTypeChange(event: any) {
-    this.selectedTypeChange.emit(event.target.value);
+    const type = event.target.value;
+    this.selectedTypeChange.emit(type);
   }
 
   onSelectedYearChange(event: any) {
-    this.selectedYearChange.emit(event.target.value);
+    const year = event.target.value;
+    this.selectedYearChange.emit(year);
   }
 
   onAddTransaction() {

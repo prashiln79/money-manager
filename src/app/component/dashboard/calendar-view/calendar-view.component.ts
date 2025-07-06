@@ -4,6 +4,7 @@ import { MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { TransactionsService, Transaction } from '../../../util/service/transactions.service';
 import { UserService } from '../../../util/service/user.service';
 import { DateSelectionService } from '../../../util/service/date-selection.service';
+import { NotificationService } from '../../../util/service/notification.service';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
 
@@ -35,7 +36,8 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
     private transactionsService: TransactionsService,
     private userService: UserService,
-    private dateSelectionService: DateSelectionService
+    private dateSelectionService: DateSelectionService,
+    private notificationService: NotificationService
   ) {
     this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
       this.isMobile = result.matches;
@@ -54,15 +56,18 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     const currentUser = this.userService.getUser();
     if (currentUser) {
       this.subscription.add(
-        this.transactionsService.getTransactions(currentUser.uid).subscribe(
-          (transactions) => {
+        this.transactionsService.getTransactions(currentUser.uid).subscribe({
+          next: (transactions) => {
             this.transactions = transactions;
           },
-          (error) => {
+          error: (error) => {
             console.error('Error loading transactions:', error);
+            this.notificationService.error('Failed to load calendar data');
           }
-        )
+        })
       );
+    } else {
+      this.notificationService.error('User not authenticated');
     }
   }
 
