@@ -1,0 +1,824 @@
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: 100vh;
+  background: var(--background-color);
+  color: var(--text-color);
+
+  @media (max-width: 1024px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
+}
+
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: var(--background-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+
+  @media (max-width: 1024px) {
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px 20px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+    margin-bottom: 20px;
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 16px;
+  }
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+
+  @media (max-width: 1024px) {
+    width: 70px;
+    height: 70px;
+  }
+
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+  }
+
+  @media (max-width: 480px) {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.avatar-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: white;
+
+  @media (max-width: 1024px) {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0; // Prevents text overflow
+}
+
+.user-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--text-color);
+  word-wrap: break-word;
+
+  @media (max-width: 1024px) {
+    font-size: 26px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 22px;
+  }
+}
+
+.user-email {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0 0 4px 0;
+  word-wrap: break-word;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
+}
+
+.user-role {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
+}
+
+.header-actions {
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.edit-btn {
+  min-width: 140px;
+  
+  @media (max-width: 1024px) {
+    min-width: 130px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  @media (max-width: 768px) {
+    gap: 24px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 20px;
+  }
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  @media (max-width: 768px) {
+    gap: 24px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 20px;
+  }
+}
+
+.form-section {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+
+  @media (max-width: 1024px) {
+    padding: 28px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-color);
+
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    gap: 8px;
+  }
+}
+
+.section-icon {
+  color: var(--primary-color);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.section-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 16px;
+  }
+}
+
+.form-field {
+  width: 100%;
+}
+
+.preferences-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 16px;
+    margin-top: 20px;
+  }
+}
+
+.preference-item {
+  padding: 20px;
+  background: var(--background-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 14px;
+  }
+}
+
+.preference-item mat-slide-toggle {
+  margin-bottom: 8px;
+}
+
+.preference-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
+}
+
+.toggle-label {
+  font-weight: 500;
+  color: var(--text-color);
+  
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  padding: 24px 0;
+  border-top: 1px solid var(--border-color);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 0;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px 0;
+    gap: 10px;
+  }
+}
+
+.cancel-btn {
+  min-width: 120px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+.save-btn {
+  min-width: 140px;
+  
+  @media (max-width: 1024px) {
+    min-width: 130px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+.account-actions-section {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+
+  @media (max-width: 1024px) {
+    padding: 28px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+  }
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 16px;
+    margin-top: 20px;
+  }
+}
+
+.action-card {
+  padding: 24px;
+  background: var(--background-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  &.danger {
+    border-color: var(--warn-color);
+    background: rgba(244, 67, 54, 0.05);
+
+    .action-icon {
+      color: var(--warn-color);
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
+}
+
+.action-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: var(--primary-color);
+  margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    margin-bottom: 10px;
+  }
+}
+
+.action-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+    margin: 0 0 10px 0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 15px;
+    margin: 0 0 8px 0;
+  }
+}
+
+.action-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin: 0 0 16px 0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin: 0 0 14px 0;
+  }
+}
+
+.action-btn {
+  min-width: 140px;
+
+  @media (max-width: 1024px) {
+    min-width: 130px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+// Dark theme adjustments
+:host-context(.dark-theme) {
+  .profile-container {
+    background: var(--dark-background);
+  }
+
+  .profile-header,
+  .form-section,
+  .account-actions-section {
+    background: var(--dark-card-background);
+    border-color: var(--dark-border-color);
+  }
+
+  .preference-item,
+  .action-card {
+    background: var(--dark-background);
+    border-color: var(--dark-border-color);
+  }
+
+  .user-name {
+    color: var(--dark-text-color);
+  }
+
+  .user-email {
+    color: var(--dark-text-secondary);
+  }
+
+  .user-role {
+    color: var(--dark-text-muted);
+  }
+
+  .section-header h2 {
+    color: var(--dark-text-color);
+  }
+
+  .action-card h3 {
+    color: var(--dark-text-color);
+  }
+
+  .action-card p {
+    color: var(--dark-text-secondary);
+  }
+
+  .preference-description {
+    color: var(--dark-text-secondary);
+  }
+}
+
+// Animation for form transitions
+.form-field {
+  transition: all 0.3s ease;
+}
+
+.form-field.mat-focused {
+  transform: scale(1.02);
+}
+
+// Loading animation
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading-overlay p {
+  animation: pulse 2s infinite;
+}
+
+// Additional responsive improvements for better alignment
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preferences-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Ensure proper text wrapping and overflow handling
+.user-info,
+.action-card,
+.preference-item {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+// Improve button responsiveness
+button {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Better spacing for mobile
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 12px;
+  }
+
+  .profile-header,
+  .form-section,
+  .account-actions-section {
+    padding: 20px 16px;
+  }
+
+  .user-name {
+    font-size: 22px;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .avatar-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  // Improve form field spacing on mobile
+  .form-field {
+    margin-bottom: 8px;
+  }
+
+  // Better button spacing
+  .form-actions button {
+    padding: 12px 16px;
+  }
+}
+
+// Landscape orientation improvements
+@media (max-width: 768px) and (orientation: landscape) {
+  .profile-container {
+    padding: 16px;
+  }
+
+  .header-content {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .avatar-section {
+    width: auto;
+  }
+
+  .header-actions {
+    width: auto;
+  }
+
+  .edit-btn {
+    width: auto;
+  }
+}
+
+// Extra small screen improvements
+@media (max-width: 360px) {
+  .profile-container {
+    padding: 8px;
+  }
+
+  .profile-header,
+  .form-section,
+  .account-actions-section {
+    padding: 16px 12px;
+  }
+
+  .user-name {
+    font-size: 20px;
+  }
+
+  .avatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .avatar-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .section-header h2 {
+    font-size: 15px;
+  }
+
+  .action-card h3 {
+    font-size: 14px;
+  }
+
+  .action-card p {
+    font-size: 11px;
+  }
+
+  .form-actions button {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+// Improve touch targets on mobile
+@media (max-width: 768px) {
+  .mat-slide-toggle {
+    min-height: 48px;
+  }
+
+  .action-btn,
+  .edit-btn,
+  .save-btn,
+  .cancel-btn {
+    min-height: 44px;
+  }
+
+  .mat-form-field {
+    margin-bottom: 8px;
+  }
+}
+
+// Better spacing for tablets
+@media (min-width: 769px) and (max-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .preferences-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+} 

@@ -2,7 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
-import { User, UserService } from "src/app/util/service/user.service";
+import { UserService } from "src/app/util/service/user.service";
+import { User } from "src/app/util/models";
 import { CategoryService } from "src/app/util/service/category.service";
 import { AccountsService } from "src/app/util/service/accounts.service";
 

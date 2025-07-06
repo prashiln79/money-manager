@@ -20,25 +20,8 @@ import { defaultBankAccounts, defaultCategories } from "src/app/component/auth/r
 import { CategoryService } from "./category.service";
 import { Account, AccountsService } from "./accounts.service";
 import { NotificationService } from "./notification.service";
-
-/**
- * User interface representing a user in the system
- */
-export interface User {
-	uid: string;
-	name: string;
-	email: string;
-	role: "free" | "premium" | "admin";
-	createdAt: Date;
-}
-
-/**
- * Firebase Auth error interface for better error handling
- */
-interface FirebaseAuthError {
-	code: string;
-	message: string;
-}
+import { User, FirebaseAuthError } from "../models";
+import { Timestamp } from "firebase/firestore";
 
 /**
  * Service responsible for user authentication and management
@@ -116,7 +99,7 @@ export class UserService {
 					name,
 					email,
 					role: "free",
-					createdAt: new Date(),
+					createdAt: Timestamp.now(),
 				};
 
 				await this.createUserInFirestore(userCredential.user.uid, newUser);
@@ -214,8 +197,6 @@ export class UserService {
 		} else {
 			await this.handleExistingGoogleUser(result.user, userSnap);
 		}
-
-		console.log("🚀 Navigating to dashboard...");
 		this.router.navigate(["/dashboard"]);
 	}
 
@@ -231,7 +212,7 @@ export class UserService {
 			name: firebaseUser.displayName || "Unknown User",
 			email: firebaseUser.email || "",
 			role: "free",
-			createdAt: new Date(),
+			createdAt: Timestamp.now(),
 		};
 
 		await this.createUserInFirestore(firebaseUser.uid, newUser);

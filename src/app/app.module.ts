@@ -88,6 +88,7 @@ import { AccountDialogComponent } from './component/dashboard/accounts/account-d
 import { MobileAccountsListComponent } from './component/dashboard/accounts/mobile-accounts-list/mobile-accounts-list.component';
 import { LandingComponent } from './component/landing/landing.component';
 import { CustomDateRangeDialogComponent } from './util/components/custom-date-range-dialog';
+import { ProfileComponent } from './component/dashboard/profile/profile.component';
 
 // PWA Components
 import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
@@ -144,7 +145,8 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     AccountDialogComponent,
     MobileAccountsListComponent,
     LandingComponent,
-    CustomDateRangeDialogComponent
+    CustomDateRangeDialogComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

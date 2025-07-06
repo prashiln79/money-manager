@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { UserService } from 'src/app/util/service/user.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
@@ -32,7 +33,8 @@ export class UserComponent {
 
   constructor(
     private userService: UserService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router
   ) {
     this.user;
   }
@@ -51,8 +53,7 @@ export class UserComponent {
 
   viewProfile() {
     console.log('View profile clicked');
-    this.notificationService.info('Profile view feature coming soon');
-    // TODO: Implement view profile functionality
+    this.router.navigate(['/dashboard/profile']);
     this.close();
   }
 

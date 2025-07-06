@@ -1,0 +1,258 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p class="mt-4 text-gray-600">Loading profile...</p>
+  </div>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="header-content">
+      <div class="avatar-section">
+        <div class="avatar">
+          <mat-icon class="avatar-icon">person</mat-icon>
+        </div>
+        <div class="user-info">
+          <h1 class="user-name">{{ getFullName() }}</h1>
+          <p class="user-email">{{ userProfile?.email }}</p>
+          <p class="user-role">Member since {{ getFormattedDate(userProfile?.createdAt) }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="toggleEdit()"
+          [disabled]="isLoading"
+          class="edit-btn"
+        >
+          <mat-icon>{{ isEditing ? 'close' : 'edit' }}</mat-icon>
+          {{ isEditing ? 'Cancel Edit' : 'Edit Profile' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-content" *ngIf="userProfile">
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+      
+      <!-- Personal Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">person</mat-icon>
+          <h2>Personal Information</h2>
+        </div>
+        
+        <div class="form-grid">
+          <!-- First Name -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>First Name *</mat-label>
+            <input matInput formControlName="firstName" [readonly]="!isEditing" autocomplete="given-name" />
+            <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">
+              First name is required
+            </mat-error>
+            <mat-error *ngIf="profileForm.get('firstName')?.hasError('minlength')">
+              First name must be at least 2 characters
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Last Name -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Last Name *</mat-label>
+            <input matInput formControlName="lastName" [readonly]="!isEditing" autocomplete="family-name" />
+            <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">
+              Last name is required
+            </mat-error>
+            <mat-error *ngIf="profileForm.get('lastName')?.hasError('minlength')">
+              Last name must be at least 2 characters
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Email -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Email *</mat-label>
+            <input matInput type="email" formControlName="email" [readonly]="!isEditing" autocomplete="email" />
+            <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+              Please enter a valid email
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Phone -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="phone" [readonly]="!isEditing" placeholder="+1 (555) 123-4567" autocomplete="tel" />
+            <mat-error *ngIf="profileForm.get('phone')?.hasError('pattern')">
+              Please enter a valid phone number
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Date of Birth -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Date of Birth</mat-label>
+            <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" [readonly]="!isEditing" autocomplete="bday" />
+            <mat-datepicker-toggle matSuffix [for]="dobPicker" [disabled]="!isEditing"></mat-datepicker-toggle>
+            <mat-datepicker #dobPicker></mat-datepicker>
+          </mat-form-field>
+
+          <!-- Occupation -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Occupation</mat-label>
+            <input matInput formControlName="occupation" [readonly]="!isEditing" placeholder="e.g., Software Engineer" autocomplete="organization-title" />
+          </mat-form-field>
+
+          <!-- Monthly Income -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Monthly Income</mat-label>
+            <input matInput type="number" formControlName="monthlyIncome" [readonly]="!isEditing" min="0" step="0.01" autocomplete="off" />
+            <span matTextPrefix>{{ getCurrencySymbol(userProfile.preferences.defaultCurrency || 'USD') }}&nbsp;</span>
+            <mat-error *ngIf="profileForm.get('monthlyIncome')?.hasError('min')">
+              Income cannot be negative
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Preferences Section -->
+      <div class="form-section"  formGroupName="preferences">
+        <div class="section-header">
+          <mat-icon class="section-icon">settings</mat-icon>
+          <h2>Preferences</h2>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Default Currency -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Default Currency *</mat-label>
+            <mat-select formControlName="defaultCurrency" [disabled]="!isEditing">
+              <mat-option *ngFor="let currency of currencies" [value]="currency.code">
+                {{ currency.symbol }} {{ currency.name }} ({{ currency.code }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Timezone -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Timezone *</mat-label>
+            <mat-select formControlName="timezone" [disabled]="!isEditing">
+              <mat-option *ngFor="let tz of timezones" [value]="tz.value">
+                {{ tz.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Language -->
+          <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Language *</mat-label>
+            <mat-select formControlName="language" [disabled]="!isEditing">
+              <mat-option *ngFor="let lang of languages" [value]="lang.code">
+                {{ lang.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="preferences-grid">
+          <div class="preference-item">
+            <mat-slide-toggle 
+              formControlName="notifications" 
+              [disabled]="!isEditing"
+              color="primary"
+            >
+              <span class="toggle-label">Push Notifications</span>
+            </mat-slide-toggle>
+            <p class="preference-description">Receive notifications about important updates</p>
+          </div>
+
+          <div class="preference-item">
+            <mat-slide-toggle 
+              formControlName="emailUpdates" 
+              [disabled]="!isEditing"
+              color="primary"
+            >
+              <span class="toggle-label">Email Updates</span>
+            </mat-slide-toggle>
+            <p class="preference-description">Receive weekly financial summaries via email</p>
+          </div>
+
+          <div class="preference-item">
+            <mat-slide-toggle 
+              formControlName="budgetAlerts" 
+              [disabled]="!isEditing"
+              color="primary"
+            >
+              <span class="toggle-label">Budget Alerts</span>
+            </mat-slide-toggle>
+            <p class="preference-description">Get notified when you exceed budget limits</p>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Action Buttons -->
+      <div class="form-actions" *ngIf="isEditing">
+        <button 
+          type="button" 
+          mat-stroked-button 
+          (click)="cancelEdit()"
+          [disabled]="isLoading"
+          class="cancel-btn"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          mat-raised-button 
+          color="primary"
+          [disabled]="profileForm.invalid || isLoading"
+          class="save-btn"
+        >
+          <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
+          <mat-icon *ngIf="!isLoading">save</mat-icon>
+          {{ isLoading ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Account Actions Section -->
+    <div class="account-actions-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">security</mat-icon>
+        <h2>Account Actions</h2>
+      </div>
+      
+      <div class="actions-grid">
+        <div class="action-card">
+          <mat-icon class="action-icon">lock</mat-icon>
+          <h3>Change Password</h3>
+          <p>Update your account password for better security</p>
+          <button mat-stroked-button (click)="changePassword()" class="action-btn">
+            Change Password
+          </button>
+        </div>
+
+        <div class="action-card">
+          <mat-icon class="action-icon">download</mat-icon>
+          <h3>Export Data</h3>
+          <p>Download all your financial data as a backup</p>
+          <button mat-stroked-button (click)="exportData()" class="action-btn">
+            Export Data
+          </button>
+        </div>
+
+        <div class="action-card danger">
+          <mat-icon class="action-icon">delete_forever</mat-icon>
+          <h3>Delete Account</h3>
+          <p>Permanently delete your account and all associated data</p>
+          <button mat-stroked-button color="warn" (click)="deleteAccount()" class="action-btn">
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

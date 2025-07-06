@@ -16,6 +16,7 @@ import { GoalsComponent } from './component/dashboard/goals/goals.component';
 import { BudgetsComponent } from './component/dashboard/budgets/budgets.component';
 import { NotesComponent } from './component/dashboard/notes/notes.component';
 import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction';
+import { ProfileComponent } from './component/dashboard/profile/profile.component';
 
 const routes: Routes = [
   { path: 'landing', component: LandingComponent },
@@ -39,6 +40,7 @@ const routes: Routes = [
       { path: 'budgets', component: BudgetsComponent },
       { path: 'notes', component: NotesComponent },
       { path: 'import', component: ImportTransactionsComponent },
+      { path: 'profile', component: ProfileComponent },
       
 
     ]

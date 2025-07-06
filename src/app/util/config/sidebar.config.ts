@@ -92,6 +92,27 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         order: 3
       }
     ]
+  },
+  {
+    label: 'Account',
+    icon: 'person',
+    order: 3,
+    isExpanded: true,
+    isCollapsible: true,
+    children: [
+      {
+        label: 'profile',
+        route: 'profile',
+        icon: 'account_circle',
+        order: 1
+      },
+      {
+        label: 'subscription',
+        route: 'subscription',
+        icon: 'card_membership',
+        order: 2
+      }
+    ]
   }
 ];
 
