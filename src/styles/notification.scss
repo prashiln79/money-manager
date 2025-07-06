@@ -1,0 +1,43 @@
+// Notification styles for snack bars
+.snack-bar-success {
+  background: #22c55e !important; /* green */
+  color: #fff !important;
+}
+.snack-bar-error {
+  background: #ef4444 !important; /* red */
+  color: #fff !important;
+}
+.snack-bar-warning {
+  background: #facc15 !important; /* yellow */
+  color: #333 !important;
+}
+.snack-bar-info {
+  background: #0ea5e9 !important; /* blue */
+  color: #fff !important;
+}
+
+/* Mobile notification positioning - slightly up from bottom */
+.mobile-notification {
+  margin-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+  border-radius: 10px !important;
+}
+
+/* Mobile notification overrides for snack bars */
+.mobile-notification.snack-bar-success,
+.mobile-notification.snack-bar-error,
+.mobile-notification.snack-bar-warning,
+.mobile-notification.snack-bar-info {
+  font-size: 1.1rem;
+  min-width: 80vw;
+  max-width: 95vw;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  border-radius: 10px !important;
+  .mat-mdc-snackbar-surface {
+    opacity: 0.9;
+    @apply bg-primary text-white;
+    padding-right:0 !important;
+    border-radius: 10px !important;
+  }
+} 

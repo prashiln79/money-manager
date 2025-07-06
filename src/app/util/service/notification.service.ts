@@ -7,7 +7,7 @@ import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 export class NotificationService {
   // Define a common snack bar config object
   private defaultConfig: MatSnackBarConfig = {
-    duration: 2000, // Duration for which the snack bar will stay visible
+    duration: 2000000, // Duration for which the snack bar will stay visible
     horizontalPosition: 'right', // Horizontal position of the snack bar
     verticalPosition: this.isMobile() ? 'bottom' : 'top', // Bottom on mobile, top on desktop
     panelClass: this.isMobile() ? ['snack-bar-success', 'mobile-notification'] : ['snack-bar-success'], // Add mobile class for custom positioning
@@ -33,6 +33,22 @@ export class NotificationService {
     this.snackBar.open(message, action, {
       ...this.defaultConfig,
       panelClass: this.isMobile() ? ['snack-bar-error', 'mobile-notification'] : ['snack-bar-error'],
+    });
+  }
+
+  // Show info message
+  info(message: string, action: string = "Close"): void {
+    this.snackBar.open(message, action, {
+      ...this.defaultConfig,
+      panelClass: this.isMobile() ? ['snack-bar-info', 'mobile-notification'] : ['snack-bar-info'],
+    });
+  }
+
+  // Show warning message
+  warning(message: string, action: string = "Close"): void {
+    this.snackBar.open(message, action, {
+      ...this.defaultConfig,
+      panelClass: this.isMobile() ? ['snack-bar-warning', 'mobile-notification'] : ['snack-bar-warning'],
     });
   }
 

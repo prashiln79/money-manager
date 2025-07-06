@@ -1,3 +1,5 @@
+@import './notification.scss';
+
 /* You can add global styles to this file, and also import other style files */
 @tailwind base;
 @tailwind components;
@@ -233,11 +235,6 @@ app-root {
   color: gray;
   font-family: 'Inter', system-ui, sans-serif;
   font-weight: 400;
-}
-
-/* Mobile notification positioning - slightly up from bottom */
-.mobile-notification {
-  margin-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
 }
 
 
