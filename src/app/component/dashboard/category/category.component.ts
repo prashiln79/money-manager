@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Subject, takeUntil } from 'rxjs';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { MobileCategoryComponent } from './mobile-category/mobile-category.component';
 
 export interface Category {
   id?: string;
@@ -25,6 +27,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public isLoading: boolean = false;
   public errorMessage: string = '';
   public isEditMode: boolean = false;
+  public isMobile: boolean = false;
   
   // Form data
   public newCategory: Category = this.getEmptyCategory();
@@ -63,8 +66,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private readonly categoryService: CategoryService,
     private readonly auth: Auth,
     private readonly dialog: MatDialog,
-    private readonly notificationService: NotificationService
-  ) {}
+    private readonly notificationService: NotificationService,
+    private readonly breakpointObserver: BreakpointObserver
+  ) {
+    this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
+      this.isMobile = result.matches;
+    });
+  }
 
   ngOnInit(): void {
     this.initializeComponent();
@@ -153,14 +161,18 @@ export class CategoryComponent implements OnInit, OnDestroy {
    * Edit an existing category
    */
   public editCategory(category: Category): void {
-    this.isEditMode = true;
-    this.newCategory = {
-      id: category.id,
-      name: category.name,
-      type: category.type,
-      icon: category.icon || 'category',
-      createdAt: category.createdAt
-    };
+    if (this.isMobile) {
+      this.openMobileDialog(category);
+    } else {
+      this.isEditMode = true;
+      this.newCategory = {
+        id: category.id,
+        name: category.name,
+        type: category.type,
+        icon: category.icon || 'category',
+        createdAt: category.createdAt
+      };
+    }
   }
 
   /**
@@ -310,5 +322,31 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public closeIconPicker(): void {
     this.showIconPicker = false;
+  }
+
+  /**
+   * Open mobile dialog for add/edit category
+   */
+  private openMobileDialog(category?: Category): void {
+    const dialogRef = this.dialog.open(MobileCategoryComponent, {
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      panelClass: 'full-screen-dialog',
+      data: category || null
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadUserCategories();
+      }
+    });
+  }
+
+  /**
+   * Open mobile dialog for adding new category
+   */
+  public openAddMobileDialog(): void {
+    this.openMobileDialog();
   }
 }

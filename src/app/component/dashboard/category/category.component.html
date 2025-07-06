@@ -23,6 +23,15 @@
       <div class="section-header">
         <h2 class="section-title">Manage Categories</h2>
         <p class="section-subtitle">{{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }}</p>
+        <!-- Mobile Add Button -->
+        <button *ngIf="isMobile"
+                mat-fab
+                color="primary"
+                (click)="openAddMobileDialog()"
+                class="mobile-add-button"
+                matTooltip="Add Category">
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
 
       <!-- Empty State -->
@@ -69,8 +78,8 @@
       </div>
     </section>
 
-    <!-- Add/Edit Category Form Section -->
-    <section class="add-category">
+    <!-- Add/Edit Category Form Section - Desktop Only -->
+    <section class="add-category" *ngIf="!isMobile">
       <div class="form-card">
         <div class="form-header">
           <h2 class="form-title">

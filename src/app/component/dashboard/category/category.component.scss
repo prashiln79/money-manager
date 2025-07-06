@@ -81,6 +81,7 @@
 .categories-list {
   .section-header {
     margin-bottom: 1.5rem;
+    position: relative;
     
     .section-title {
       font-size: clamp(1.25rem, 3vw, 2rem);
@@ -93,6 +94,20 @@
       color: #6b7280;
       font-size: clamp(0.75rem, 2vw, 1rem);
       margin: 0;
+    }
+
+    .mobile-add-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
     }
   }
   
