@@ -24,7 +24,7 @@ interface SortOption {
 export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChanges {
 	@Input() transactions: Transaction[] = [];
 	@Input() searchTerm: string = "";
-	@Input() selectedCategory: string = "all";
+	@Input() selectedCategory: string[] = ["all"];
 	@Input() selectedType: string = "all";
 	@Input() selectedDate: Date | null = null;
 	@Input() selectedDateRange: { start: Date; end: Date } | null = null;
@@ -34,7 +34,7 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	@Output() addTransaction = new EventEmitter<void>();
 	@Output() importTransactions = new EventEmitter<void>();
 	@Output() searchTermChange = new EventEmitter<string>();
-	@Output() selectedCategoryChange = new EventEmitter<string>();
+	@Output() selectedCategoryChange = new EventEmitter<string[]>();
 	@Output() selectedTypeChange = new EventEmitter<string>();
 	@Output() selectedDateRangeChange = new EventEmitter<{ start: Date; end: Date } | null>();
 
@@ -87,9 +87,9 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 			);
 		}
 
-		// Category filter
-		if (this.selectedCategory !== "all") {
-			filtered = filtered.filter((tx) => tx.category === this.selectedCategory);
+		// Category filter - handle multi-select
+		if (!this.selectedCategory.includes("all")) {
+			filtered = filtered.filter((tx) => this.selectedCategory.includes(tx.category));
 		}
 
 		// Type filter
@@ -161,8 +161,26 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	}
 
 	onCategoryChange(category: string) {
-		this.selectedCategory = category;
-		this.selectedCategoryChange.emit(category);
+		if (category === "all") {
+			// If "all" is selected, clear other selections
+			this.selectedCategory = ["all"];
+		} else {
+			// Remove "all" if it exists
+			this.selectedCategory = this.selectedCategory.filter(c => c !== "all");
+			
+			// Toggle the selected category
+			if (this.selectedCategory.includes(category)) {
+				this.selectedCategory = this.selectedCategory.filter(c => c !== category);
+				// If no categories selected, default to "all"
+				if (this.selectedCategory.length === 0) {
+					this.selectedCategory = ["all"];
+				}
+			} else {
+				this.selectedCategory.push(category);
+			}
+		}
+		
+		this.selectedCategoryChange.emit(this.selectedCategory);
 		this.filterTransactions();
 	}
 
@@ -224,7 +242,7 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	hasActiveFilters(): boolean {
 		return !!(
 			this.searchTerm || 
-			this.selectedCategory !== 'all' || 
+			!this.selectedCategory.includes('all') || 
 			this.selectedType !== 'all' ||
 			this.selectedDate ||
 			this.selectedDateRange
@@ -246,7 +264,13 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 	}
 
 	getCurrentCategoryLabel(): string {
-		return this.selectedCategory === 'all' ? 'All Categories' : this.selectedCategory;
+		if (this.selectedCategory.includes("all")) {
+			return "All Categories";
+		}
+		if (this.selectedCategory.length === 1) {
+			return this.selectedCategory[0];
+		}
+		return `${this.selectedCategory.length} Categories`;
 	}
 
 	getCurrentDateLabel(): string {
@@ -329,7 +353,7 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 
 	clearAllFilters() {
 		this.searchTerm = "";
-		this.selectedCategory = "all";
+		this.selectedCategory = ["all"];
 		this.selectedType = "all";
 		this.selectedDate = null;
 		this.selectedDateRange = null;
@@ -337,10 +361,14 @@ export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChan
 		
 		// Emit changes
 		this.searchTermChange.emit("");
-		this.selectedCategoryChange.emit("all");
+		this.selectedCategoryChange.emit(["all"]);
 		this.selectedTypeChange.emit("all");
 		this.selectedDateRangeChange.emit(null);
 		
 		this.filterTransactions();
+	}
+
+	isCategorySelected(category: string): boolean {
+		return this.selectedCategory.includes(category);
 	}
 }

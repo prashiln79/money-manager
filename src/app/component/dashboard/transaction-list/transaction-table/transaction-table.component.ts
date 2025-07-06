@@ -13,7 +13,7 @@ import moment from 'moment';
 export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @Input() transactions: Transaction[] = [];
   @Input() searchTerm: string = '';
-  @Input() selectedCategory: string = 'all';
+  @Input() selectedCategory: string[] = ['all'];
   @Input() selectedType: string = 'all';
   @Input() selectedDate: Date | null = null;
   @Input() selectedDateRange: { start: Date; end: Date } | null = null;
@@ -125,9 +125,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
       );
     }
 
-    // Apply category filter
-    if (this.selectedCategory !== 'all') {
-      filtered = filtered.filter(tx => tx.category === this.selectedCategory);
+    // Apply category filter - handle multi-select
+    if (!this.selectedCategory.includes('all')) {
+      filtered = filtered.filter(tx => this.selectedCategory.includes(tx.category));
     }
 
     // Apply type filter

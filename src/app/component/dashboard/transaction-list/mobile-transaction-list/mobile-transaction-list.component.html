@@ -101,23 +101,23 @@
       <mat-menu #categoryMenu="matMenu" class="filter-menu">
         <button 
           mat-menu-item
-          [class.active-menu-item]="selectedCategory === 'all'"
+          [class.active-menu-item]="selectedCategory.includes('all')"
           (click)="onCategoryChange('all')"
         >
           <mat-icon>list</mat-icon>
           <span>All Categories</span>
-          <mat-icon *ngIf="selectedCategory === 'all'" class="check-icon">check</mat-icon>
+          <mat-icon *ngIf="selectedCategory.includes('all')" class="check-icon">check</mat-icon>
         </button>
         <mat-divider></mat-divider>
         <button 
           *ngFor="let category of getCategoriesList()" 
           mat-menu-item
-          [class.active-menu-item]="selectedCategory === category"
+          [class.active-menu-item]="isCategorySelected(category)"
           (click)="onCategoryChange(category)"
         >
           <mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
           <span>{{ category }}</span>
-          <mat-icon *ngIf="selectedCategory === category" class="check-icon">check</mat-icon>
+          <mat-icon *ngIf="isCategorySelected(category)" class="check-icon">check</mat-icon>
         </button>
       </mat-menu>
 

@@ -9,7 +9,11 @@
   (editTransaction)="editTransaction($event)"
   (deleteTransaction)="deleteTransaction($event)"
   (addTransaction)="addTransactionDialog()"
-  (importTransactions)="openImportDialog()">
+  (importTransactions)="openImportDialog()"
+  (searchTermChange)="searchTerm = $event; onSearchChange()"
+  (selectedCategoryChange)="selectedCategory = $event; onCategoryChange()"
+  (selectedTypeChange)="selectedType = $event; onTypeChange()"
+  (selectedDateRangeChange)="selectedDateRange = $event; onCategoryChange()">
 </mobile-transaction-list>
 
 } @else {
@@ -30,14 +34,14 @@
 				<search-filter
 					[transactions]="allTransactions"
 					[searchTerm]="searchTerm"
-					[selectedCategory]="selectedCategory"
+					[selectedCategory]="selectedCategorySingle"
 					[selectedType]="selectedType"
 					[selectedDate]="selectedDate"
 					[selectedDateRange]="selectedDateRange"
 					[filteredCount]="getFilteredCount()"
 					[currentYearCount]="getCurrentYearCount()"
 					(searchTermChange)="searchTerm = $event; onSearchChange()"
-					(selectedCategoryChange)="selectedCategory = $event; onCategoryChange()"
+					(selectedCategoryChange)="selectedCategorySingle = $event; onCategoryChange()"
 					(selectedTypeChange)="selectedType = $event; onTypeChange()"
 					(addTransaction)="addTransactionDialog()"
 					(importTransactions)="openImportDialog()"

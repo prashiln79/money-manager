@@ -39,12 +39,21 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   
   // Search and filter properties
   searchTerm: string = '';
-  selectedCategory: string = 'all';
+  selectedCategory: string[] = ['all'];
   selectedType: string = 'all';
 
   // Table properties
   showFullTable: boolean = false;
 
+  // Getter for single category (for desktop components)
+  get selectedCategorySingle(): string {
+    return this.selectedCategory.includes('all') ? 'all' : this.selectedCategory[0] || 'all';
+  }
+
+  // Setter for single category (for desktop components)
+  set selectedCategorySingle(value: string) {
+    this.selectedCategory = [value];
+  }
 
   constructor(
     private loaderService: LoaderService, 
@@ -155,10 +164,10 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       );
     }
     
-    // Apply category filter
-    if (this.selectedCategory && this.selectedCategory !== 'all') {
+    // Apply category filter - handle multi-select
+    if (this.selectedCategory && !this.selectedCategory.includes('all')) {
       filtered = filtered.filter(transaction => 
-        transaction.category === this.selectedCategory
+        this.selectedCategory.includes(transaction.category)
       );
     }
     
@@ -200,7 +209,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.selectedDate = null;
     this.selectedDateRange = null;
     this.searchTerm = '';
-    this.selectedCategory = 'all';
+    this.selectedCategory = ['all'];
     this.selectedType = 'all';
     this.dateSelectionService.clearSelectedDate();
     this.applyDateFilter();
