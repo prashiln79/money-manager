@@ -1,10 +1,10 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <!-- Header Section -->
-  <div class="bg-white dark:bg-gray-800 ">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+  <div class="bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-6">
         <div class="flex-1">
-          <h4 class="text-lg sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h4 class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Financial Reports
           </h4>
           <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
@@ -26,97 +26,97 @@
   <!-- Main Content -->
   <div *ngIf="!isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <!-- Key Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
       <!-- Total Income -->
-      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-700">
+      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 sm:p-6 border border-green-200 dark:border-green-700">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-green-600 dark:text-green-400">Total Income</p>
-            <p class="text-2xl font-bold text-green-900 dark:text-green-100">{{ formatCurrency(totalIncome) }}</p>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-green-600 dark:text-green-400 truncate">Total Income</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-green-900 dark:text-green-100 truncate">{{ formatCurrency(totalIncome) }}</p>
           </div>
-          <div class="bg-green-500/10 p-3 rounded-lg">
-            <mat-icon class="text-green-600 dark:text-green-400">trending_up</mat-icon>
+          <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+            <mat-icon class="text-green-600 dark:text-green-400 text-lg sm:text-xl">trending_up</mat-icon>
           </div>
         </div>
       </div>
 
       <!-- Total Expenses -->
-      <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-6 border border-red-200 dark:border-red-700">
+      <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-4 sm:p-6 border border-red-200 dark:border-red-700">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-red-600 dark:text-red-400">Total Expenses</p>
-            <p class="text-2xl font-bold text-red-900 dark:text-red-100">{{ formatCurrency(totalExpenses) }}</p>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-red-600 dark:text-red-400 truncate">Total Expenses</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-red-900 dark:text-red-100 truncate">{{ formatCurrency(totalExpenses) }}</p>
           </div>
-          <div class="bg-red-500/10 p-3 rounded-lg">
-            <mat-icon class="text-red-600 dark:text-red-400">trending_down</mat-icon>
+          <div class="bg-red-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+            <mat-icon class="text-red-600 dark:text-red-400 text-lg sm:text-xl">trending_down</mat-icon>
           </div>
         </div>
       </div>
 
       <!-- Net Savings -->
-      <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 sm:p-6 border border-blue-200 dark:border-blue-700">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-blue-600 dark:text-blue-400">Net Savings</p>
-            <p class="text-2xl font-bold text-blue-900 dark:text-blue-100">{{ formatCurrency(netSavings) }}</p>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-blue-600 dark:text-blue-400 truncate">Net Savings</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-900 dark:text-blue-100 truncate">{{ formatCurrency(netSavings) }}</p>
           </div>
-          <div class="bg-blue-500/10 p-3 rounded-lg">
-            <mat-icon class="text-blue-600 dark:text-blue-400">account_balance_wallet</mat-icon>
+          <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+            <mat-icon class="text-blue-600 dark:text-blue-400 text-lg sm:text-xl">account_balance_wallet</mat-icon>
           </div>
         </div>
       </div>
 
       <!-- Monthly Change -->
-      <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-4 sm:p-6 border border-purple-200 dark:border-purple-700">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Monthly Change</p>
-            <p class="text-2xl font-bold text-purple-900 dark:text-purple-100" [ngClass]="getMonthlyChangeColor()">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-purple-600 dark:text-purple-400 truncate">Monthly Change</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-purple-900 dark:text-purple-100 truncate" [ngClass]="getMonthlyChangeColor()">
               {{ getMonthlyChangeDisplay() }}
             </p>
           </div>
-          <div class="bg-purple-500/10 p-3 rounded-lg">
-            <mat-icon [ngClass]="getMonthlyChangeColor()">{{ getMonthlyChangeIcon() }}</mat-icon>
+          <div class="bg-purple-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+            <mat-icon [ngClass]="getMonthlyChangeColor()" class="text-lg sm:text-xl">{{ getMonthlyChangeIcon() }}</mat-icon>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Reports Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
       <!-- Spending Overview Card -->
       <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Spending Overview</h3>
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Spending Overview</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your financial summary</p>
             </div>
-            <div class="bg-blue-500/10 p-3 rounded-lg">
+            <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
               <mat-icon class="text-blue-600 dark:text-blue-400">pie_chart</mat-icon>
             </div>
           </div>
-          <div class="space-y-4">
+          <div class="space-y-3 sm:space-y-4">
             <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span class="text-gray-700 dark:text-gray-300">Total Income</span>
+              <div class="flex items-center space-x-3 min-w-0 flex-1">
+                <div class="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
+                <span class="text-gray-700 dark:text-gray-300 truncate">Total Income</span>
               </div>
-              <span class="font-semibold text-green-600 dark:text-green-400">{{ formatCurrency(totalIncome) }}</span>
+              <span class="font-semibold text-green-600 dark:text-green-400 ml-3 text-right">{{ formatCurrency(totalIncome) }}</span>
             </div>
             <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span class="text-gray-700 dark:text-gray-300">Total Expenses</span>
+              <div class="flex items-center space-x-3 min-w-0 flex-1">
+                <div class="w-3 h-3 bg-red-500 rounded-full flex-shrink-0"></div>
+                <span class="text-gray-700 dark:text-gray-300 truncate">Total Expenses</span>
               </div>
-              <span class="font-semibold text-red-600 dark:text-red-400">{{ formatCurrency(totalExpenses) }}</span>
+              <span class="font-semibold text-red-600 dark:text-red-400 ml-3 text-right">{{ formatCurrency(totalExpenses) }}</span>
             </div>
             <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span class="text-gray-700 dark:text-gray-300">Net Savings</span>
+              <div class="flex items-center space-x-3 min-w-0 flex-1">
+                <div class="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+                <span class="text-gray-700 dark:text-gray-300 truncate">Net Savings</span>
               </div>
-              <span class="font-semibold text-blue-600 dark:text-blue-400">{{ formatCurrency(netSavings) }}</span>
+              <span class="font-semibold text-blue-600 dark:text-blue-400 ml-3 text-right">{{ formatCurrency(netSavings) }}</span>
             </div>
           </div>
         </div>
@@ -124,24 +124,24 @@
 
       <!-- Monthly Trends Card -->
       <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Monthly Trends</h3>
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Monthly Trends</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Compare monthly performance</p>
             </div>
-            <div class="bg-green-500/10 p-3 rounded-lg">
+            <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
               <mat-icon class="text-green-600 dark:text-green-400">trending_up</mat-icon>
             </div>
           </div>
-          <div class="space-y-4">
+          <div class="space-y-3 sm:space-y-4">
             <div *ngFor="let month of monthlyTrends.slice(-2)" class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <span class="text-gray-700 dark:text-gray-300">{{ month.month }}</span>
-              <span class="font-semibold text-gray-900 dark:text-white">{{ formatCurrency(month.savings) }}</span>
+              <span class="text-gray-700 dark:text-gray-300 truncate">{{ month.month }}</span>
+              <span class="font-semibold text-gray-900 dark:text-white ml-3 text-right">{{ formatCurrency(month.savings) }}</span>
             </div>
             <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
               <span class="text-gray-700 dark:text-gray-300">Change</span>
-              <span class="font-semibold text-green-600 dark:text-green-400">{{ getMonthlyChangeDisplay() }}</span>
+              <span class="font-semibold text-green-600 dark:text-green-400 ml-3 text-right">{{ getMonthlyChangeDisplay() }}</span>
             </div>
           </div>
         </div>
@@ -149,13 +149,13 @@
 
       <!-- Top Categories Card -->
       <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Top Spending Categories</h3>
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Top Spending Categories</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your highest expense areas</p>
             </div>
-            <div class="bg-purple-500/10 p-3 rounded-lg">
+            <div class="bg-purple-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
               <mat-icon class="text-purple-600 dark:text-purple-400">category</mat-icon>
             </div>
           </div>
@@ -163,23 +163,23 @@
           <!-- Categories List -->
           <div *ngIf="topCategories.length > 0" class="space-y-3">
             <div *ngFor="let category of topCategories" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center space-x-3">
-                <mat-icon class="text-gray-600 dark:text-gray-400">{{ category.icon }}</mat-icon>
-                <div>
-                  <span class="text-gray-700 dark:text-gray-300 font-medium">{{ category.category }}</span>
+              <div class="flex items-center space-x-3 min-w-0 flex-1">
+                <mat-icon class="text-gray-600 dark:text-gray-400 flex-shrink-0">{{ category.icon }}</mat-icon>
+                <div class="min-w-0 flex-1">
+                  <span class="text-gray-700 dark:text-gray-300 font-medium truncate block">{{ category.category }}</span>
                   <div class="text-xs text-gray-500 dark:text-gray-400">{{ category.percentage.toFixed(1) }}% of total</div>
                 </div>
               </div>
-              <span class="font-semibold text-gray-900 dark:text-white">{{ formatCurrency(category.amount) }}</span>
+              <span class="font-semibold text-gray-900 dark:text-white ml-3 text-right">{{ formatCurrency(category.amount) }}</span>
             </div>
           </div>
 
           <!-- No Data State -->
-          <div *ngIf="topCategories.length === 0" class="text-center py-12">
-            <div class="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <mat-icon class="text-gray-400 text-3xl">bar_chart</mat-icon>
+          <div *ngIf="topCategories.length === 0" class="text-center py-8 sm:py-12">
+            <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <mat-icon class="text-gray-400 text-2xl sm:text-3xl">bar_chart</mat-icon>
             </div>
-            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Available</h4>
+            <h4 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Available</h4>
             <p class="text-sm text-gray-500 dark:text-gray-400">Add transactions to see category breakdown</p>
           </div>
         </div>
@@ -187,13 +187,13 @@
 
       <!-- Recent Activity Card -->
       <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Recent Activity</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Latest transactions</p>
             </div>
-            <div class="bg-orange-500/10 p-3 rounded-lg">
+            <div class="bg-orange-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
               <mat-icon class="text-orange-600 dark:text-orange-400">schedule</mat-icon>
             </div>
           </div>
@@ -201,15 +201,15 @@
           <!-- Recent Transactions List -->
           <div *ngIf="recentTransactions.length > 0" class="space-y-3">
             <div *ngFor="let transaction of recentTransactions" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center space-x-3">
-                <mat-icon [ngClass]="getTransactionColor(transaction)">{{ getTransactionIcon(transaction) }}</mat-icon>
-                <div>
-                  <span class="text-gray-700 dark:text-gray-300 font-medium">{{ transaction.payee }}</span>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ transaction.category }}</div>
+              <div class="flex items-center space-x-3 min-w-0 flex-1">
+                <mat-icon [ngClass]="getTransactionColor(transaction)" class="flex-shrink-0">{{ getTransactionIcon(transaction) }}</mat-icon>
+                <div class="min-w-0 flex-1">
+                  <span class="text-gray-700 dark:text-gray-300 font-medium truncate block">{{ transaction.payee }}</span>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ transaction.category }}</div>
                 </div>
               </div>
-              <div class="text-right">
-                <span class="font-semibold" [ngClass]="getTransactionColor(transaction)">
+              <div class="text-right ml-3 flex-shrink-0">
+                <span class="font-semibold block" [ngClass]="getTransactionColor(transaction)">
                   {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                 </span>
                 <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -220,11 +220,11 @@
           </div>
 
           <!-- No Data State -->
-          <div *ngIf="recentTransactions.length === 0" class="text-center py-12">
-            <div class="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <mat-icon class="text-gray-400 text-3xl">receipt_long</mat-icon>
+          <div *ngIf="recentTransactions.length === 0" class="text-center py-8 sm:py-12">
+            <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <mat-icon class="text-gray-400 text-2xl sm:text-3xl">receipt_long</mat-icon>
             </div>
-            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Recent Transactions</h4>
+            <h4 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">No Recent Transactions</h4>
             <p class="text-sm text-gray-500 dark:text-gray-400">Your recent activity will appear here</p>
           </div>
         </div>
@@ -233,23 +233,23 @@
 
     <!-- Detailed Reports Section -->
     <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-      <div class="p-6">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
-          <div>
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Detailed Analysis</h3>
+      <div class="p-4 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 sm:mb-8">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Detailed Analysis</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Deep dive into your financial data</p>
           </div>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap gap-2 justify-center lg:justify-end">
             <button 
               mat-stroked-button 
-              class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              class="px-3 sm:px-4 py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               [class.bg-blue-50]="selectedPeriod === 'daily'"
               (click)="onPeriodChange('daily')">
               Daily
             </button>
             <button 
               mat-stroked-button 
-              class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              class="px-3 sm:px-4 py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               [class.bg-blue-50]="selectedPeriod === 'weekly'"
               (click)="onPeriodChange('weekly')">
               Weekly
@@ -257,14 +257,14 @@
             <button 
               mat-raised-button 
               color="primary" 
-              class="px-4 py-2 text-sm rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              class="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg shadow-md hover:shadow-lg transition-shadow"
               [class.bg-blue-600]="selectedPeriod === 'monthly'"
               (click)="onPeriodChange('monthly')">
               Monthly
             </button>
             <button 
               mat-stroked-button 
-              class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              class="px-3 sm:px-4 py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               [class.bg-blue-50]="selectedPeriod === 'yearly'"
               (click)="onPeriodChange('yearly')">
               Yearly
@@ -275,14 +275,14 @@
         <!-- Data Available State -->
         <div *ngIf="hasData" class="space-y-6">
           <!-- Monthly Trends Chart -->
-          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 sm:p-6">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Trends</h4>
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-              <div *ngFor="let month of monthlyTrends" class="text-center">
-                <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ month.month }}</div>
-                <div class="text-lg font-bold text-green-600 dark:text-green-400">{{ formatCurrency(month.income) }}</div>
-                <div class="text-sm text-red-600 dark:text-red-400">{{ formatCurrency(month.expenses) }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+              <div *ngFor="let month of monthlyTrends" class="text-center p-3 bg-white dark:bg-gray-600 rounded-lg">
+                <div class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 truncate">{{ month.month }}</div>
+                <div class="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400 truncate">{{ formatCurrency(month.income) }}</div>
+                <div class="text-xs sm:text-sm text-red-600 dark:text-red-400 truncate">{{ formatCurrency(month.expenses) }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
                   {{ month.savings >= 0 ? '+' : '' }}{{ formatCurrency(month.savings) }}
                 </div>
               </div>
@@ -290,19 +290,19 @@
           </div>
 
           <!-- Category Breakdown -->
-          <div *ngIf="topCategories.length > 0" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+          <div *ngIf="topCategories.length > 0" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 sm:p-6">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Category Breakdown</h4>
             <div class="space-y-3">
               <div *ngFor="let category of topCategories" class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <mat-icon class="text-gray-600 dark:text-gray-400">{{ category.icon }}</mat-icon>
-                  <span class="text-gray-700 dark:text-gray-300">{{ category.category }}</span>
+                <div class="flex items-center space-x-3 min-w-0 flex-1">
+                  <mat-icon class="text-gray-600 dark:text-gray-400 flex-shrink-0">{{ category.icon }}</mat-icon>
+                  <span class="text-gray-700 dark:text-gray-300 truncate">{{ category.category }}</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                  <div class="w-32 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                <div class="flex items-center space-x-3 sm:space-x-4 ml-3">
+                  <div class="w-20 sm:w-32 bg-gray-200 dark:bg-gray-600 rounded-full h-2 flex-shrink-0">
                     <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="category.percentage"></div>
                   </div>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white w-20 text-right">
+                  <span class="text-sm font-medium text-gray-900 dark:text-white w-16 sm:w-20 text-right truncate">
                     {{ formatCurrency(category.amount) }}
                   </span>
                 </div>
@@ -312,18 +312,18 @@
         </div>
 
         <!-- No Data State -->
-        <div *ngIf="!hasData" class="text-center py-16">
-          <div class="bg-gray-100 dark:bg-gray-700 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-            <mat-icon class="text-gray-400 text-5xl">analytics</mat-icon>
+        <div *ngIf="!hasData" class="text-center py-12 sm:py-16">
+          <div class="bg-gray-100 dark:bg-gray-700 w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+            <mat-icon class="text-gray-400 text-4xl sm:text-5xl">analytics</mat-icon>
           </div>
-          <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Data Available</h4>
-          <p class="text-base text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+          <h4 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">No Data Available</h4>
+          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
             Start adding transactions to see detailed reports and insights about your financial patterns.
           </p>
           <button 
             mat-raised-button 
             color="primary" 
-            class="flex items-center space-x-2 px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow mx-auto"
+            class="flex items-center space-x-2 px-4 sm:px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow mx-auto"
             (click)="addTransaction()">
             <mat-icon>add</mat-icon>
             <span>Add Transaction</span>
