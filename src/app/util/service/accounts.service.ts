@@ -2,15 +2,7 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
-
-export interface Account {
-    accountId: string;
-    userId: string;
-    name: string;
-    type: 'bank' | 'cash' | 'credit' | 'loan';
-    balance: number;
-    createdAt: string;
-}
+import { Account, CreateAccountRequest, UpdateAccountRequest } from '../models/account.model';
 
 @Injectable({
     providedIn: 'root'
@@ -19,9 +11,18 @@ export class AccountsService {
     constructor(private firestore: Firestore, private auth: Auth) { }
 
     // 🔹 Create a new account for the logged-in user
-    async createAccount(userId: string, account: Account): Promise<void> {
-        const accountRef = doc(this.firestore, `users/${userId}/accounts/${account.accountId}`);
+    async createAccount(userId: string, accountData: CreateAccountRequest): Promise<string> {
+        const accountId = this.generateAccountId();
+        const account: Account = {
+            accountId,
+            userId,
+            ...accountData,
+            createdAt: new Date() as any, // Firebase Timestamp
+            isActive: true
+        };
+        const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
         await setDoc(accountRef, account);
+        return accountId;
     }
 
     // 🔹 Get all accounts for the logged-in user
@@ -49,14 +50,23 @@ export class AccountsService {
     }
 
     // 🔹 Update an existing account's details
-    async updateAccount(userId: string, accountId: string, account: Partial<Account>): Promise<void> {
+    async updateAccount(userId: string, accountId: string, accountData: UpdateAccountRequest): Promise<void> {
         const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
-        await updateDoc(accountRef, account);
+        const updateData = {
+            ...accountData,
+            updatedAt: new Date() as any // Firebase Timestamp
+        };
+        await updateDoc(accountRef, updateData);
     }
 
     // 🔹 Delete an account
     async deleteAccount(userId: string, accountId: string): Promise<void> {
         const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
         await deleteDoc(accountRef);
+    }
+
+    // 🔹 Generate a unique account ID
+    private generateAccountId(): string {
+        return 'acc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 }

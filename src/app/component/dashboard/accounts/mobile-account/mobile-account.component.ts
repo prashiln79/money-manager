@@ -5,7 +5,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.service";
 import { NotificationService } from "src/app/util/service/notification.service";
-import { Account, AccountsService } from "src/app/util/service/accounts.service";
+import { Account } from "src/app/util/models/account.model";
+import { AccountsService } from "src/app/util/service/accounts.service";
 
 @Component({
 	selector: "app-mobile-account",
@@ -74,17 +75,11 @@ export class MobileAccountComponent {
 					this.notificationService.success("Account updated successfully");
 				} else {
 					// Create new account
-					const timestamp = new Date().getTime();
-					const newAccount: Account = {
-						accountId: `${this.userId}-${timestamp}`,
-						userId: this.userId,
+					await this.accountsService.createAccount(this.userId, {
 						name: formData.name.trim(),
 						type: formData.type,
 						balance: Number(formData.balance),
-						createdAt: new Date().toISOString(),
-					};
-					
-					await this.accountsService.createAccount(this.userId, newAccount);
+					});
 					this.notificationService.success("Account added successfully");
 					this.hapticFeedback.successVibration();
 				}

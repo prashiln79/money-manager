@@ -5,7 +5,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.service";
 import { NotificationService } from "src/app/util/service/notification.service";
-import { Account, AccountsService } from "src/app/util/service/accounts.service";
+import { Account } from "src/app/util/models/account.model";
+import { AccountsService } from "src/app/util/service/accounts.service";
 
 @Component({
 	selector: "app-account-dialog",
@@ -37,6 +38,7 @@ export class AccountDialogComponent {
 			name: ["", [Validators.required, Validators.maxLength(50)]],
 			type: ["bank", Validators.required],
 			balance: ["", [Validators.required, Validators.min(-999999), Validators.max(999999)]],
+			description: [""],
 		});
 
 		// If editing, populate form with existing data
@@ -45,6 +47,7 @@ export class AccountDialogComponent {
 				name: this.dialogData.name,
 				type: this.dialogData.type,
 				balance: this.dialogData.balance,
+				description: this.dialogData.description,
 			});
 		}
 	}
@@ -66,21 +69,18 @@ export class AccountDialogComponent {
 						name: formData.name.trim(),
 						type: formData.type,
 						balance: Number(formData.balance),
+						description: formData.description,
 					});
 					this.notificationService.success("Account updated successfully");
 				} else {
 					// Create new account
-					const timestamp = new Date().getTime();
-					const newAccount: Account = {
-						accountId: `${this.userId}-${timestamp}`,
-						userId: this.userId,
+					const timestamp = Date.now();
+					await this.accountsService.createAccount(this.userId, {
 						name: formData.name.trim(),
 						type: formData.type,
 						balance: Number(formData.balance),
-						createdAt: new Date().toISOString(),
-					};
-					
-					await this.accountsService.createAccount(this.userId, newAccount);
+						description: formData.description,
+					});
 					this.notificationService.success("Account added successfully");
 					this.hapticFeedback.successVibration();
 				}
@@ -88,6 +88,7 @@ export class AccountDialogComponent {
 				this.dialogRef.close(true);
 			} catch (error) {
 				this.notificationService.error("Failed to save account");
+				console.error("Error saving account:", error);
 			} finally {
 				this.isSubmitting = false;
 			}

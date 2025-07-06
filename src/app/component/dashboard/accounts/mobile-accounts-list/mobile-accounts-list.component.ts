@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { Account } from 'src/app/util/service/accounts.service';
+import { Account } from 'src/app/util/models/account.model';
 
 @Component({
 	selector: "mobile-accounts-list",

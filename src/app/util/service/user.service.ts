@@ -18,7 +18,8 @@ import { BehaviorSubject, timestamp } from "rxjs";
 
 import { defaultBankAccounts } from "src/app/component/auth/registration/registration.component";
 import { CategoryService } from "./category.service";
-import { Account, AccountsService } from "./accounts.service";
+import { Account } from "../models/account.model";
+import { AccountsService } from "./accounts.service";
 import { NotificationService } from "./notification.service";
 import { User, FirebaseAuthError, defaultCategoriesForNewUser } from "../models";
 import { Timestamp } from "firebase/firestore";
@@ -278,16 +279,16 @@ export class UserService {
 		for (const defaultAccount of defaultBankAccounts) {
 			// Map BankAccount type to Account type
 			const accountType = this.mapBankAccountType(defaultAccount.type);
+			const timestamp = Date.now();
 			
-			const account: Account = {
-				accountId: `${uid}-${timestamp}`,
-				userId: uid,
+			await this.accountsService.createAccount(uid, {
 				name: defaultAccount.name,
 				type: accountType,
 				balance: defaultAccount.balance,
-				createdAt: new Date().toISOString(),
-			};
-			await this.accountsService.createAccount(uid, account);
+				description: `${defaultAccount.type} account`,
+				institution: defaultAccount.institution,
+				currency: defaultAccount.currency
+			});
 		}
 
 		// Create default categories

@@ -6,6 +6,7 @@ import { UserService } from "src/app/util/service/user.service";
 import { User, CURRENCIES, DEFAULT_CURRENCY, Category, defaultCategoriesForNewUser } from "src/app/util/models";
 import { CategoryService } from "src/app/util/service/category.service";
 import { AccountsService } from "src/app/util/service/accounts.service";
+import { AccountType } from "src/app/util/models/account.model";
 
 interface BankAccount {
 	id?: string;
@@ -209,7 +210,15 @@ export class RegistrationComponent implements OnInit {
 
 				// 3. Create bank accounts
 				for (const account of formValue.bankAccounts) {
-					await this.accountsService.createAccount(user?.uid, account);
+					await this.accountsService.createAccount(user?.uid, {
+						name: account.name,
+						type: this.mapBankAccountType(account.type),
+						balance: account.balance,
+						description: `${account.type} account`,
+						institution: account.institution,
+						currency: account.currency,
+						accountNumber: account.accountNumber
+					});
 				}
 
 				// 4. Create categories
@@ -243,5 +252,22 @@ export class RegistrationComponent implements OnInit {
 			4: "Preferences",
 		};
 		return titles[step as keyof typeof titles] || "";
+	}
+
+	/**
+	 * Map BankAccount type to Account type
+	 */
+	private mapBankAccountType(bankAccountType: "checking" | "savings" | "credit" | "investment"): AccountType {
+		switch (bankAccountType) {
+			case "checking":
+			case "savings":
+				return "bank";
+			case "credit":
+				return "credit";
+			case "investment":
+				return "bank"; // Map investment to bank type
+			default:
+				return "bank";
+		}
 	}
 }
