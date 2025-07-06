@@ -2,13 +2,14 @@ import { Component, Inject } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
 import { Timestamp } from "@angular/fire/firestore";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { AccountsService } from "src/app/util/service/accounts.service";
 import { CategoryService } from "src/app/util/service/category.service";
 import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.service";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { Transaction, TransactionsService } from "src/app/util/service/transactions.service";
+import { AccountDialogComponent } from "src/app/component/dashboard/accounts/account-dialog/account-dialog.component";
 import moment from 'moment';
 
 @Component({
@@ -35,6 +36,7 @@ export class MobileAddTransactionComponent {
 		private notificationService: NotificationService,
 		private router: Router,
 		private hapticFeedback: HapticFeedbackService,
+		private dialog: MatDialog,
 	) {
 		this.transactionForm = this.fb.group({
 			payee: ["", Validators.required],
@@ -150,5 +152,49 @@ export class MobileAddTransactionComponent {
 			return 'Type is required';
 		}
 		return '';
+	}
+
+	openNewAccountDialog(): void {
+		const dialogRef = this.dialog.open(AccountDialogComponent, {
+			width: '90vw',
+			maxWidth: '400px',
+			data: null, // null for new account
+			disableClose: true,
+			panelClass: 'mobile-dialog'
+		});
+
+		dialogRef.afterClosed().subscribe((result) => {
+			if (result) {
+				this.refreshAccountList();
+			}
+		});
+	}
+
+	openEditAccountDialog(account: any): void {
+		const dialogRef = this.dialog.open(AccountDialogComponent, {
+			width: '90vw',
+			maxWidth: '400px',
+			data: account, // existing account data
+			disableClose: true,
+			panelClass: 'mobile-dialog'
+		});
+
+		dialogRef.afterClosed().subscribe((result) => {
+			if (result) {
+				this.refreshAccountList();
+			}
+		});
+	}
+
+	private refreshAccountList(): void {
+		this.accountsService.getAccounts(this.auth.currentUser?.uid || "").subscribe((resp) => {
+			this.accountList = resp;
+			// If no account is selected and we have accounts, select the first one
+			if (!this.transactionForm.get('accountId')?.value && this.accountList.length > 0) {
+				this.transactionForm.patchValue({
+					accountId: this.accountList[0].accountId
+				});
+			}
+		});
 	}
 } 

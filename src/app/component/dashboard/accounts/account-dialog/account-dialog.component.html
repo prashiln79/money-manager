@@ -1,65 +1,107 @@
-<div class="flex-1 overflow-y-auto">
-	<div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-		<form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-6">
-			<!-- Desktop Header -->
-			<div class="text-center pb-4">
-				<h5 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-					{{ dialogData?.accountId ? 'Edit' : 'Add' }} Account
-				</h5>
-				<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-					Enter account details below
-				</p>
-			</div>
+<!-- Mobile Header -->
+<div class="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+	<div class="flex items-center justify-between px-4 py-3">
+		<h6 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+			{{ dialogData?.accountId ? 'Edit' : 'Add' }} Account
+		</h6>
+		<div class="flex items-center gap-2">
+			<!-- Save Button -->
+			<button 
+				mat-icon-button 
+				color="primary" 
+				(click)="onSubmit()" 
+				[disabled]="accountForm.invalid || isSubmitting" 
+				matTooltip="Save Account" 
+				class="w-10 h-10 !bg-primary"
+			>
+				<mat-icon class="text-white">
+					{{ isSubmitting ? 'hourglass_empty' : 'check' }}
+				</mat-icon>
+			</button>
 
+			<!-- Close Button -->
+			<button 
+				mat-icon-button 
+				type="button" 
+				(click)="onClose()" 
+				matTooltip="Close" 
+				class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+			>
+				<mat-icon>close</mat-icon>
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- Mobile Form Content -->
+<div class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+	<div class="p-4 space-y-6">
+		<form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-6">
+			
 			<!-- Account Name Field -->
-			<mat-form-field appearance="fill" class="w-full">
-				<mat-label>Account Name</mat-label>
-				<input matInput formControlName="name" [maxlength]="50" placeholder="e.g., Chase Checking" />
-				<mat-hint align="end">{{ accountForm.get('name')?.value?.length || 0 }}/50</mat-hint>
-				<mat-error *ngIf="getNameError()">{{ getNameError() }}</mat-error>
-			</mat-form-field>
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Account Name *
+				</label>
+				<input 
+					type="text" 
+					formControlName="name" 
+					[maxlength]="50" 
+					placeholder="e.g., Chase Checking" 
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+				/>
+				<div class="flex justify-between items-center mt-1">
+					@if(accountForm.get('name')?.hasError('required') && accountForm.get('name')?.touched) {
+						<p class="text-red-500 text-sm">Account name is required</p>
+					}
+					@if(accountForm.get('name')?.hasError('maxlength')) {
+						<p class="text-red-500 text-sm">Account name must be less than 50 characters</p>
+					}
+					<span class="text-xs text-gray-500">
+						{{ accountForm.get('name')?.value?.length || 0 }}/50
+					</span>
+				</div>
+			</div>
 
 			<!-- Account Type Field -->
-			<mat-form-field appearance="fill" class="w-full">
-				<mat-label>Account Type</mat-label>
-				<mat-select formControlName="type">
-					<mat-option *ngFor="let type of accountTypes" [value]="type.value">
-						{{ type.label }}
-					</mat-option>
-				</mat-select>
-				<mat-error *ngIf="accountForm.get('type')?.hasError('required')">
-					Account type is required
-				</mat-error>
-			</mat-form-field>
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Account Type *
+				</label>
+				<mat-form-field appearance="fill" class="w-full">
+					<mat-label>Select account type</mat-label>
+					<mat-select formControlName="type">
+						@for (type of accountTypes; track type.value) {
+							<mat-option [value]="type.value">{{ type.label }}</mat-option>
+						}
+					</mat-select>
+					@if(accountForm.get('type')?.hasError('required') && accountForm.get('type')?.touched) {
+						<mat-error>Account type is required</mat-error>
+					}
+				</mat-form-field>
+			</div>
 
 			<!-- Balance Field -->
-			<mat-form-field appearance="fill" class="w-full">
-				<mat-label>Initial Balance</mat-label>
-				<input matInput type="number" formControlName="balance" placeholder="0.00" step="0.01" min="-999999" max="999999" />
-				<mat-error *ngIf="getBalanceError()">{{ getBalanceError() }}</mat-error>
-			</mat-form-field>
-
-			<!-- Action Buttons -->
-			<div class="flex justify-end space-x-3 pt-4">
-				<button 
-					type="button" 
-					mat-button 
-					(click)="onClose()"
-					class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-				>
-					Cancel
-				</button>
-				<button 
-					type="submit"
-					mat-raised-button 
-					color="primary"
-					[disabled]="accountForm.invalid || isSubmitting"
-					class="min-w-[100px]"
-				>
-					<mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
-					{{ isSubmitting ? 'Saving...' : (dialogData?.accountId ? 'Update' : 'Add') }}
-				</button>
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Initial Balance *
+				</label>
+				<input 
+					type="number" 
+					formControlName="balance" 
+					placeholder="0.00" 
+					step="0.01" 
+					min="-999999" 
+					max="999999"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+				/>
+				@if(getBalanceError()) {
+					<p class="text-red-500 text-sm mt-1">{{ getBalanceError() }}</p>
+				}
 			</div>
+
+			<!-- Bottom Spacing for Mobile -->
+			<div class="h-20"></div>
 		</form>
 	</div>
 </div> 
