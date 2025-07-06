@@ -11,6 +11,7 @@ import { NotificationService } from "src/app/util/service/notification.service";
 import { Transaction, TransactionsService } from "src/app/util/service/transactions.service";
 import { AccountDialogComponent } from "src/app/component/dashboard/accounts/account-dialog/account-dialog.component";
 import moment from 'moment';
+import { LoaderService } from "src/app/util/service/loader.service";
 
 @Component({
 	selector: "app-mobile-add-transaction",
@@ -39,6 +40,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 		private router: Router,
 		private hapticFeedback: HapticFeedbackService,
 		private dialog: MatDialog,
+		private loaderService: LoaderService
 	) {
 		this.transactionForm = this.fb.group({
 			payee: ["", Validators.required],
@@ -93,10 +95,12 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 	}
 
 	async onSubmit(): Promise<void> {
+		this.transactionForm.markAllAsTouched();
 		if (this.transactionForm.valid && !this.isSubmitting) {
 			this.isSubmitting = true;
 			
 			try {
+				this.loaderService.show();
 				if (this.dialogData?.id) {
 					await this.transactionsService.updateTransaction(this.userId, this.dialogData.id, {
 						payee: this.transactionForm.get("payee")?.value,
@@ -130,6 +134,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 				this.notificationService.error("Failed to save transaction");
 			} finally {
 				this.isSubmitting = false;
+				this.loaderService.hide();
 			}
 		}
 	}
