@@ -24,7 +24,7 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
     children: [
       {
         label: 'dashboard',
-        route: '',
+        route: 'dashboard',
         icon: 'dashboard',
         order: 1
       },
@@ -36,7 +36,7 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
       },
       {
         label: 'transactions',
-        route: 'transaction-list',
+        route: 'transactions',
         icon: 'receipt_long',
         order: 3
       },

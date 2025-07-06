@@ -265,9 +265,7 @@
               {{ tx.category }}
             </div> -->
             <div class="transaction-date text-base">
-              {{ tx.date.seconds * 1000 | date:'MMM dd, yyyy' }}
-              <span class="time-separator">•</span>
-              {{ tx.date.seconds * 1000 | date:'hh:mm a' }}
+              {{ tx.date.seconds * 1000 | date:'dd MMM - hh:mm' }}
             </div>
             <div *ngIf="tx.notes" class="transaction-notes text-base">
               {{ tx.notes }}
