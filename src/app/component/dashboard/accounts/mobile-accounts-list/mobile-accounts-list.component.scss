@@ -1,0 +1,333 @@
+.mobile-accounts-container {
+	padding: 16px;
+	background-color: #f9fafb;
+	min-height: 100vh;
+}
+
+.dark .mobile-accounts-container {
+	background-color: #111827;
+}
+
+/* Header */
+.accounts-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 24px;
+	padding: 16px;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .accounts-header {
+	background: #1f2937;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+	flex: 1;
+}
+
+.header-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #111827;
+	margin: 0 0 4px 0;
+}
+
+.dark .header-title {
+	color: #f9fafb;
+}
+
+.header-subtitle {
+	font-size: 0.875rem;
+	color: #6b7280;
+	margin: 0;
+}
+
+.dark .header-subtitle {
+	color: #9ca3af;
+}
+
+/* Header Add Button */
+.header-add-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	@apply bg-primary;
+	color: white;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #2563eb;
+		transform: scale(1.05);
+	}
+
+	mat-icon {
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
+	}
+}
+
+/* Empty State */
+.empty-state {
+	text-align: center;
+	padding: 48px 24px;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .empty-state {
+	background: #1f2937;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.empty-icon {
+	font-size: 3rem;
+	margin-bottom: 16px;
+}
+
+.empty-title {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #111827;
+	margin: 0 0 8px 0;
+}
+
+.dark .empty-title {
+	color: #f9fafb;
+}
+
+.empty-text {
+	font-size: 0.875rem;
+	color: #6b7280;
+	margin: 0 0 24px 0;
+}
+
+.dark .empty-text {
+	color: #9ca3af;
+}
+
+.empty-action {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Accounts List */
+.accounts-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.account-item {
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	transition: all 0.2s ease;
+	cursor: pointer;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+	&.selected {
+		border: 2px solid #3b82f6;
+	}
+
+	&.positive-balance {
+		border-left: 4px solid #10b981;
+	}
+
+	&.negative-balance {
+		border-left: 4px solid #ef4444;
+	}
+
+	&.loan-account {
+		border-left: 4px solid #f59e0b;
+	}
+}
+
+.dark .account-item {
+	background: #1f2937;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+	&:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+	}
+}
+
+.account-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px;
+}
+
+.account-info {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex: 1;
+}
+
+.account-icon {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	background: #f3f4f6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #6b7280;
+}
+
+.dark .account-icon {
+	background: #374151;
+	color: #9ca3af;
+}
+
+.account-details {
+	flex: 1;
+}
+
+.account-name {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #111827;
+	margin: 0 0 4px 0;
+}
+
+.dark .account-name {
+	color: #f9fafb;
+}
+
+.account-type {
+	font-size: 0.875rem;
+	color: #6b7280;
+	margin: 0;
+}
+
+.dark .account-type {
+	color: #9ca3af;
+}
+
+.account-balance {
+	text-align: right;
+	flex-shrink: 0;
+}
+
+.balance-amount {
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: #111827;
+}
+
+.dark .balance-amount {
+	color: #f9fafb;
+}
+
+.positive-balance .balance-amount {
+	color: #10b981;
+}
+
+.negative-balance .balance-amount {
+	color: #ef4444;
+}
+
+.loan-account .balance-amount {
+	color: #f59e0b;
+}
+
+/* Action Buttons */
+.account-actions {
+	background: #f8fafc;
+	border-top: 1px solid #e5e7eb;
+	padding: 8px 12px;
+	animation: slideDown 0.2s ease;
+}
+
+.dark .account-actions {
+	background: #374151;
+	border-top: 1px solid #4b5563;
+}
+
+.actions-container {
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+}
+
+.action-button {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	transition: all 0.2s ease;
+
+	&.edit-btn {
+		background: #dbeafe;
+		color: #2563eb;
+
+		&:hover {
+			background: #bfdbfe;
+			transform: scale(1.05);
+		}
+	}
+
+	&.delete-btn {
+		background: #fee2e2;
+		color: #dc2626;
+
+		&:hover {
+			background: #fecaca;
+			transform: scale(1.05);
+		}
+	}
+}
+
+/* Animations */
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+	.mobile-accounts-container {
+		padding: 12px;
+	}
+
+	.accounts-header {
+		padding: 12px;
+		margin-bottom: 16px;
+	}
+
+	.header-title {
+		font-size: 1.25rem;
+	}
+
+	.account-content {
+		padding: 12px;
+	}
+
+	.account-icon {
+		width: 36px;
+		height: 36px;
+	}
+
+	.balance-amount {
+		font-size: 1rem;
+	}
+} 

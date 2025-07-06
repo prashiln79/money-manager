@@ -1,0 +1,74 @@
+<div class="mobile-accounts-container">
+	<!-- Header -->
+	<div class="accounts-header">
+		<div class="header-content">
+			<h2 class="header-title">Your Accounts</h2>
+			<p class="header-subtitle">{{ accounts.length }} account{{ accounts.length !== 1 ? 's' : '' }}</p>
+		</div>
+		<button mat-icon-button 
+				color="primary" 
+				(click)="onAddAccount()"
+				matTooltip="Add Account"
+				class="header-add-btn">
+			<mat-icon>add</mat-icon>
+		</button>
+	</div>
+
+	<!-- Empty State -->
+	<div *ngIf="accounts.length === 0" class="empty-state">
+		<div class="empty-icon">💳</div>
+		<h3 class="empty-title">No accounts yet</h3>
+		<p class="empty-text">Add your first account to get started</p>
+		<button mat-raised-button 
+				color="primary" 
+				(click)="onAddAccount()"
+				class="empty-action">
+			<mat-icon>add</mat-icon>
+			Add Account
+		</button>
+	</div>
+
+	<!-- Accounts List -->
+	<div *ngIf="accounts.length > 0" class="accounts-list">
+		<div *ngFor="let account of accounts; trackBy: trackByAccountId"
+			 class="account-item"
+			 [class.selected]="selectedAccount?.accountId === account.accountId"
+			 [class]="getBalanceClass(account)"
+			 (click)="onAccountClick(account)">
+			
+			<div class="account-content">
+				<div class="account-info">
+					<div class="account-icon">
+						<mat-icon>{{ getAccountIcon(account.type) }}</mat-icon>
+					</div>
+					<div class="account-details">
+						<h3 class="account-name">{{ account.name }}</h3>
+						<p class="account-type">{{ account.type | titlecase }}</p>
+					</div>
+				</div>
+				
+				<div class="account-balance">
+					<span class="balance-amount">{{ account.balance | currency }}</span>
+				</div>
+			</div>
+
+			<!-- Action Buttons (shown when selected) -->
+			<div *ngIf="selectedAccount?.accountId === account.accountId" class="account-actions">
+				<div class="actions-container">
+					<button mat-icon-button 
+							class="action-button edit-btn" 
+							(click)="onEditAccount(account)"
+							matTooltip="Edit account">
+						<mat-icon>edit</mat-icon>
+					</button>
+					<button mat-icon-button 
+							class="action-button delete-btn" 
+							(click)="onDeleteAccount(account)"
+							matTooltip="Delete account">
+						<mat-icon>delete</mat-icon>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> 

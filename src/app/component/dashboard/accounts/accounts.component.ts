@@ -3,6 +3,13 @@ import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Account, AccountsService } from 'src/app/util/service/accounts.service';
+import { MatDialog } from '@angular/material/dialog';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { MobileAccountComponent } from './mobile-account/mobile-account.component';
+import { AccountDialogComponent } from './account-dialog/account-dialog.component';
+import { MobileAccountsListComponent } from './mobile-accounts-list/mobile-accounts-list.component';
+import { NotificationService } from 'src/app/util/service/notification.service';
+import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'user-accounts',
@@ -14,9 +21,9 @@ export class AccountsComponent implements OnInit, OnDestroy {
   public accounts: Account[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
+  public isMobile: boolean = false;
   
-  // Form data
-  public newAccount: Account = this.getEmptyAccount();
+
   
   // Private properties
   private userId: string = '';
@@ -25,11 +32,15 @@ export class AccountsComponent implements OnInit, OnDestroy {
   constructor(
     private readonly accountsService: AccountsService,
     private readonly auth: Auth,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.initializeComponent();
+    this.setupMobileDetection();
   }
 
   ngOnDestroy(): void {
@@ -81,73 +92,9 @@ export class AccountsComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Create a new account for the current user
-   */
-  public async createAccount(): Promise<void> {
-    if (!this.isValidAccountData()) {
-      this.errorMessage = 'Please fill in all required fields';
-      return;
-    }
 
-    try {
-      this.isLoading = true;
-      this.errorMessage = '';
 
-      const accountToCreate = this.prepareAccountForCreation();
-      await this.accountsService.createAccount(this.userId, accountToCreate);
-      
-      // Reset form and reload accounts
-      this.newAccount = this.getEmptyAccount();
-      await this.loadUserAccounts();
-    } catch (error) {
-      this.errorMessage = 'Failed to create account';
-      this.isLoading = false;
-      console.error('Error creating account:', error);
-    }
-  }
 
-  /**
-   * Validate the new account form data
-   */
-  private isValidAccountData(): boolean {
-    return !!(
-      this.newAccount.name?.trim() &&
-      this.newAccount.type &&
-      this.newAccount.balance !== null &&
-      this.newAccount.balance !== undefined
-    );
-  }
-
-  /**
-   * Prepare account data for creation with proper metadata
-   */
-  private prepareAccountForCreation(): Account {
-    const timestamp = new Date().getTime();
-    
-    return {
-      ...this.newAccount,
-      accountId: `${this.userId}-${timestamp}`,
-      userId: this.userId,
-      createdAt: new Date().toISOString(),
-      name: this.newAccount.name.trim(),
-      balance: Number(this.newAccount.balance)
-    };
-  }
-
-  /**
-   * Get an empty account template
-   */
-  private getEmptyAccount(): Account {
-    return {
-      accountId: '',
-      userId: '',
-      name: '',
-      type: 'bank',
-      balance: 0,
-      createdAt: ''
-    };
-  }
 
   /**
    * Clear any error messages
@@ -161,5 +108,88 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   public trackByAccountId(index: number, account: Account): string {
     return account.accountId;
+  }
+
+  /**
+   * Setup mobile detection using breakpoint observer
+   */
+  private setupMobileDetection(): void {
+    this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
+      this.isMobile = result.matches;
+    });
+  }
+
+  /**
+   * Open dialog for adding/editing accounts
+   */
+  public openAccountDialog(account?: Account): void {
+    let dialogRef;
+    
+    if (this.isMobile) {
+      dialogRef = this.dialog.open(MobileAccountComponent, {
+        width: '100vw',
+        height: '100vh',
+        maxWidth: '100vw',
+        panelClass: 'full-screen-dialog',
+        data: account || null
+      });
+    } else {
+      dialogRef = this.dialog.open(AccountDialogComponent, {
+        width: '500px',
+        data: account || null
+      });
+    }
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadUserAccounts();
+      }
+    });
+  }
+
+  /**
+   * Edit an existing account
+   */
+  public editAccount(account: Account): void {
+    this.openAccountDialog(account);
+  }
+
+  /**
+   * Delete an account
+   */
+  public async deleteAccount(account: Account): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Account',
+        message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        confirmColor: 'warn'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result) {
+        try {
+          this.isLoading = true;
+          await this.accountsService.deleteAccount(this.userId, account.accountId);
+          this.notificationService.success('Account deleted successfully');
+          await this.loadUserAccounts();
+        } catch (error) {
+          this.notificationService.error('Failed to delete account');
+          console.error('Error deleting account:', error);
+        } finally {
+          this.isLoading = false;
+        }
+      }
+    });
+  }
+
+  /**
+   * Add a new account
+   */
+  public addAccount(): void {
+    this.openAccountDialog();
   }
 }

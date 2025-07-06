@@ -1,0 +1,105 @@
+<!-- Mobile Header -->
+<div class="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+	<div class="flex items-center justify-between px-4 py-3">
+		<h6 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+			{{ dialogData?.accountId ? 'Edit' : 'Add' }} Account
+		</h6>
+		<div class="flex items-center gap-2">
+			<!-- Add Button -->
+			<button 
+				mat-icon-button 
+				color="primary" 
+				(click)="onSubmit()" 
+				[disabled]="accountForm.invalid || isSubmitting" 
+				matTooltip="Save Account" 
+				class="w-10 h-10 !bg-primary"
+			>
+				<mat-icon class="text-white">
+					{{ isSubmitting ? 'hourglass_empty' : 'check' }}
+				</mat-icon>
+			</button>
+
+			<!-- Close Button -->
+			<button 
+				mat-icon-button 
+				type="button" 
+				(click)="onClose()" 
+				matTooltip="Close" 
+				class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+			>
+				<mat-icon>close</mat-icon>
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- Mobile Form Content -->
+<div class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+	<div class="p-4 space-y-6">
+		<form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-6">
+			
+			<!-- Account Name Field -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Account Name *
+				</label>
+				<input 
+					type="text" 
+					formControlName="name" 
+					[maxlength]="50" 
+					placeholder="e.g., Chase Checking" 
+					autofocus
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+				/>
+				<div class="flex justify-between items-center mt-1">
+					@if(getNameError() && accountForm.get('name')?.touched) {
+						<p class="text-red-500 text-sm">{{ getNameError() }}</p>
+					}
+					<span class="text-xs text-gray-500">
+						{{ accountForm.get('name')?.value?.length || 0 }}/50
+					</span>
+				</div>
+			</div>
+
+			<!-- Account Type Field -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Account Type *
+				</label>
+				<select 
+					formControlName="type" 
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+				>
+					@for (type of accountTypes; track type.value) {
+						<option [value]="type.value">{{ type.label }}</option>
+					}
+				</select>
+				@if(accountForm.get('type')?.hasError('required') && accountForm.get('type')?.touched) {
+					<p class="text-red-500 text-sm mt-1">Account type is required</p>
+				}
+			</div>
+
+			<!-- Balance Field -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Initial Balance *
+				</label>
+				<input 
+					type="number" 
+					formControlName="balance" 
+					placeholder="0.00" 
+					step="0.01" 
+					min="-999999" 
+					max="999999"
+					class="w-full text-2xl font-bold text-center py-3 px-4 border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+				/>
+				@if(getBalanceError() && accountForm.get('balance')?.touched) {
+					<p class="text-red-500 text-sm mt-1">{{ getBalanceError() }}</p>
+				}
+			</div>
+
+			<!-- Bottom Spacing for Mobile -->
+			<div class="h-20"></div>
+		</form>
+	</div>
+</div> 

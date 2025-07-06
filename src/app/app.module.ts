@@ -83,6 +83,9 @@ import { RegistrationComponent } from './component/auth/registration/registratio
 import { OfflineIndicatorComponent } from './util/components/offline-indicator/offline-indicator.component';
 import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
 import { FooterComponent } from './component/dashboard/footer/footer.component';
+import { MobileAccountComponent } from './component/dashboard/accounts/mobile-account/mobile-account.component';
+import { AccountDialogComponent } from './component/dashboard/accounts/account-dialog/account-dialog.component';
+import { MobileAccountsListComponent } from './component/dashboard/accounts/mobile-accounts-list/mobile-accounts-list.component';
 
 // PWA Components
 import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
@@ -134,7 +137,10 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     PwaNavigationBarComponent,
     PwaInstallPromptComponent,
     AppShellComponent,
-    SkeletonLoaderComponent
+    SkeletonLoaderComponent,
+    MobileAccountComponent,
+    AccountDialogComponent,
+    MobileAccountsListComponent
   ],
   imports: [
     BrowserModule,

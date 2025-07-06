@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, getDoc, getDocs } from '@angular/fire/firestore';
+import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
@@ -52,5 +52,11 @@ export class AccountsService {
     async updateAccount(userId: string, accountId: string, account: Partial<Account>): Promise<void> {
         const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
         await updateDoc(accountRef, account);
+    }
+
+    // 🔹 Delete an account
+    async deleteAccount(userId: string, accountId: string): Promise<void> {
+        const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
+        await deleteDoc(accountRef);
     }
 }

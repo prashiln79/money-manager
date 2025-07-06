@@ -15,8 +15,18 @@
         <mat-spinner diameter="32"></mat-spinner>
     </div>
 
-    <!-- Main Content -->
-    <div *ngIf="!isLoading" class="accounts-grid">
+    <!-- Mobile View -->
+    <div *ngIf="!isLoading && isMobile">
+        <mobile-accounts-list
+            [accounts]="accounts"
+            (editAccount)="editAccount($event)"
+            (deleteAccount)="deleteAccount($event)"
+            (addAccount)="addAccount()">
+        </mobile-accounts-list>
+    </div>
+
+    <!-- Desktop View -->
+    <div *ngIf="!isLoading && !isMobile" class="accounts-grid">
         
         <!-- Accounts List Section -->
         <section class="accounts-list">
@@ -48,70 +58,42 @@
                         <div class="account-balance">
                             <span class="balance-amount">{{ account.balance | currency }}</span>
                         </div>
+                        <div class="account-actions">
+                            <button mat-icon-button 
+                                    (click)="editAccount(account)"
+                                    matTooltip="Edit account"
+                                    class="edit-btn">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button 
+                                    (click)="deleteAccount(account)"
+                                    matTooltip="Delete account"
+                                    class="delete-btn">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Add Account Form Section -->
+        <!-- Add Account Section -->
         <section class="add-account">
             <div class="form-card">
                 <div class="form-header">
                     <h2 class="form-title">Add New Account</h2>
+                    <p class="form-subtitle">Create a new account to track your finances</p>
                 </div>
-
-                <form (ngSubmit)="createAccount()" 
-                      #accountForm="ngForm" 
-                      class="account-form">
-                    
-                    <!-- Account Name Field -->
-                    <div class="form-field">
-                        <label class="field-label">Account Name</label>
-                        <input type="text" 
-                               [(ngModel)]="newAccount.name" 
-                               name="accountName" 
-                               required
-                               placeholder="e.g., Chase Checking"
-                               class="form-input"
-                               maxlength="50" />
-                    </div>
-
-                    <!-- Account Type Field -->
-                    <div class="form-field">
-                        <label class="field-label">Account Type</label>
-                        <select [(ngModel)]="newAccount.type" 
-                                name="accountType" 
-                                required
-                                class="form-select">
-                            <option value="bank">Bank Account</option>
-                            <option value="cash">Cash</option>
-                            <option value="credit">Credit Card</option>
-                            <option value="loan">Loan</option>
-                        </select>
-                    </div>
-
-                    <!-- Balance Field -->
-                    <div class="form-field">
-                        <label class="field-label">Initial Balance</label>
-                        <input type="number" 
-                               [(ngModel)]="newAccount.balance" 
-                               name="accountBalance" 
-                               required
-                               placeholder="0.00"
-                               step="0.01"
-                               class="form-input"
-                               min="-999999"
-                               max="999999" />
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit"
-                            [disabled]="isLoading || !accountForm.form.valid"
-                            class="submit-button">
-                        <span *ngIf="isLoading" class="loading-spinner"></span>
-                        {{ isLoading ? 'Adding...' : 'Add Account' }}
+                
+                <div class="add-account-content">
+                    <button mat-raised-button 
+                            color="primary" 
+                            (click)="addAccount()"
+                            class="add-account-btn">
+                        <mat-icon>add</mat-icon>
+                        Add New Account
                     </button>
-                </form>
+                </div>
             </div>
         </section>
     </div>
