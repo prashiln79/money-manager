@@ -39,7 +39,7 @@ export class AuthGuard implements CanActivate {
             // You could show a message to the user about the cache update
           }
           
-          this.router.navigate(['/sign-in'], {
+          this.router.navigate(['/landing'], {
             queryParams: { 
               session: 'expired', 
               redirect: state.url,
