@@ -546,4 +546,8 @@ export class MobileTransactionListComponent
       }
     });
   }
+
+  openImportDialog() {
+    this.importTransactions.emit();
+  }
 }

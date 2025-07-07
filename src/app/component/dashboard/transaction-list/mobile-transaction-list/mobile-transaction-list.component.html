@@ -1,4 +1,6 @@
 <div class="mobile-transaction-container">
+
+
   <!-- Mobile Filter Header -->
   <div class="mobile-filter-header" *ngIf="showFilters">
     <!-- Active Filters Indicator -->
@@ -35,6 +37,16 @@
 
     <!-- Filter Menu Buttons -->
     <div class="filter-menu-container">
+      <!-- Import Button -->
+      <button 
+        mat-icon-button 
+        class="filter-menu-btn import-btn"
+        (click)="openImportDialog()"
+        matTooltip="Import transactions"
+      >
+        <mat-icon>upload_file</mat-icon>
+      </button>
+
       <!-- Sort Menu -->
       <button 
         mat-icon-button 

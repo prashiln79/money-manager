@@ -13,6 +13,7 @@ import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
 import { DateSelectionService, DateRange } from 'src/app/util/service/date-selection.service';
 import { Subscription } from 'rxjs';
+import { Timestamp } from '@angular/fire/firestore';
 import moment from 'moment';
 
 @Component({
@@ -321,12 +322,68 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     });
     dialogRef.afterClosed().subscribe((imported: any[]) => {
       if (imported && imported.length) {
-        // Here you would call your service to add these transactions
-        // For now, just show a notification
-        this.notificationService.success(`${imported.length} transactions ready to import!`);
-        // TODO: Actually import to backend
+        this.importTransactions(imported);
       }
     });
+  }
+
+  private async importTransactions(transactions: any[]) {
+    this.loaderService.show();
+    const userId = this.auth.currentUser?.uid;
+    
+    if (!userId) {
+      this.notificationService.error('User not authenticated');
+      this.loaderService.hide();
+      return;
+    }
+
+    try {
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const tx of transactions) {
+        try {
+          // Convert date string to Firestore timestamp
+          const date = new Date(tx.date);
+          if (isNaN(date.getTime())) {
+            throw new Error('Invalid date format');
+          }
+
+          const transactionData = {
+            payee: tx.payee,
+            userId: userId,
+            accountId: 'default', // Default account ID - you might want to get this from user's accounts
+            amount: parseFloat(tx.amount),
+            type: tx.type,
+            category: tx.category,
+            date: Timestamp.fromDate(date),
+            notes: tx.narration || ''
+          };
+
+          await this.transactionsService.createTransaction(userId, transactionData);
+          successCount++;
+        } catch (error) {
+          console.error('Error importing transaction:', tx, error);
+          errorCount++;
+        }
+      }
+
+      this.loaderService.hide();
+      
+      if (successCount > 0) {
+        this.notificationService.success(`Successfully imported ${successCount} transactions`);
+        this.loadTransactions(); // Refresh the list
+      }
+      
+      if (errorCount > 0) {
+        this.notificationService.warning(`${errorCount} transactions failed to import`);
+      }
+      
+    } catch (error) {
+      this.loaderService.hide();
+      this.notificationService.error('Failed to import transactions');
+      console.error('Import error:', error);
+    }
   }
 
   exportToExcel() {

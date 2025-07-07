@@ -1,44 +1,164 @@
-<h2 mat-dialog-title>Import Transactions</h2>
-<div mat-dialog-content>
-  <div class="mb-4">
-    <button mat-stroked-button color="primary" (click)="downloadTemplate()">
-      <mat-icon>download</mat-icon>
-      Download Template
+<div class="import-dialog">
+  <h2 mat-dialog-title class="text-lg font-semibold mb-4">
+    <mat-icon class="mr-2">upload_file</mat-icon>
+    Import Transactions
+  </h2>
+  
+  <div mat-dialog-content class="max-h-[70vh] overflow-y-auto">
+    <!-- File Upload Section -->
+    <div class="mb-6">
+      <div class="mb-4">
+        <button mat-stroked-button color="primary" (click)="downloadTemplate()" class="w-full sm:w-auto">
+          <mat-icon>download</mat-icon>
+          Download Template
+        </button>
+      </div>
+      
+      <div class="file-upload-container" #fileUploadContainer [class.drag-over]="isDragOver">
+        <input 
+          type="file" 
+          accept=".csv,.xlsx,.xls" 
+          (change)="onFileSelected($event)"
+          class="file-input"
+          [disabled]="isLoading"
+        />
+        <div class="file-upload-overlay">
+          <mat-icon class="text-4xl mb-2">cloud_upload</mat-icon>
+          <p class="text-sm text-gray-600">
+            {{ isLoading ? 'Processing...' : 'Click to select file or drag and drop' }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Supports CSV, XLSX, XLS files</p>
+        </div>
+      </div>
+      
+      <div *ngIf="error" class="error-message">
+        <mat-icon class="text-red-500">error</mat-icon>
+        <span class="text-red-600 text-sm">{{ error }}</span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="mt-2 text-gray-600">Processing file...</p>
+    </div>
+
+    <!-- Transactions Preview -->
+    <div *ngIf="parsedTransactions.length && !isLoading" class="transactions-preview">
+      <div class="preview-header">
+        <h3 class="font-semibold mb-2">Preview & Select Transactions</h3>
+        <div class="preview-actions">
+          <button 
+            mat-button 
+            color="primary" 
+            (click)="toggleSelectAll()"
+            class="text-sm"
+          >
+            {{ selectedToImport.size === parsedTransactions.length ? 'Deselect All' : 'Select All' }}
+          </button>
+          <span class="text-sm text-gray-600">
+            {{ selectedToImport.size }} of {{ parsedTransactions.length }} selected
+          </span>
+        </div>
+      </div>
+
+      <!-- Mobile View -->
+      <div *ngIf="isMobile" class="mobile-transactions">
+        <div 
+          *ngFor="let tx of parsedTransactions" 
+          class="transaction-card"
+          [class.selected]="selectedToImport.has(tx._idx)"
+          (click)="toggleSelect(tx._idx)"
+        >
+          <div class="transaction-header">
+            <mat-checkbox 
+              [checked]="selectedToImport.has(tx._idx)" 
+              (change)="toggleSelect(tx._idx)"
+              (click)="$event.stopPropagation()"
+            ></mat-checkbox>
+            <div class="transaction-info">
+              <div class="payee">{{ tx.payee }}</div>
+              <div class="category">{{ tx.category }}</div>
+            </div>
+            <div class="amount-section">
+              <div class="amount" [class.income]="tx.type === 'income'" [class.expense]="tx.type === 'expense'">
+                {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.2-2' }}
+              </div>
+              <div class="date">{{ tx.date | date:'shortDate' }}</div>
+            </div>
+          </div>
+          <div *ngIf="tx.narration" class="transaction-details">
+            <small class="text-gray-500">{{ tx.narration }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop View -->
+      <div *ngIf="!isMobile" class="desktop-transactions">
+        <div class="table-container">
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th class="checkbox-col">
+                  <mat-checkbox 
+                    [checked]="selectedToImport.size === parsedTransactions.length"
+                    [indeterminate]="selectedToImport.size > 0 && selectedToImport.size < parsedTransactions.length"
+                    (change)="toggleSelectAll()"
+                  ></mat-checkbox>
+                </th>
+                <th>Payee</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th *ngIf="parsedTransactions[0]?.narration">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tx of parsedTransactions" class="transaction-row">
+                <td class="checkbox-col">
+                  <mat-checkbox 
+                    [checked]="selectedToImport.has(tx._idx)" 
+                    (change)="toggleSelect(tx._idx)"
+                  ></mat-checkbox>
+                </td>
+                <td class="payee-cell">{{ tx.payee }}</td>
+                <td class="amount-cell">
+                  <span [class.income]="tx.type === 'income'" [class.expense]="tx.type === 'expense'">
+                    {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.2-2' }}
+                  </span>
+                </td>
+                <td class="type-cell">
+                  <span class="type-badge" [class.income]="tx.type === 'income'" [class.expense]="tx.type === 'expense'">
+                    {{ tx.type }}
+                  </span>
+                </td>
+                <td class="category-cell">{{ tx.category }}</td>
+                <td class="date-cell">{{ tx.date | date:'shortDate' }}</td>
+                <td *ngIf="tx.narration" class="details-cell">
+                  <mat-icon class="text-gray-400 cursor-pointer" 
+                           matTooltip="{{ tx.narration }}"
+                           matTooltipPosition="above">info</mat-icon>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="close()" class="mr-2">Cancel</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="importSelected()" 
+      [disabled]="!parsedTransactions.length || selectedToImport.size === 0"
+      class="import-button"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      Import Selected ({{ selectedToImport.size }})
     </button>
   </div>
-  <div class="mb-4">
-    <input type="file" accept=".csv,.xlsx,.xls" (change)="onFileSelected($event)" />
-    <div *ngIf="error" class="text-red-600 text-sm mt-2">{{ error }}</div>
-  </div>
-  <div *ngIf="parsedTransactions.length">
-    <h3 class="font-semibold mb-2">Preview & Select Transactions</h3>
-    <table class="w-full border text-sm mb-2">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Payee</th>
-          <th>Amount</th>
-          <th>Type</th>
-          <th>Category</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let tx of parsedTransactions">
-          <td>
-            <mat-checkbox [checked]="selectedToImport.has(tx._idx)" (change)="toggleSelect(tx._idx)"></mat-checkbox>
-          </td>
-          <td>{{ tx.payee }}</td>
-          <td>{{ tx.amount }}</td>
-          <td>{{ tx.type }}</td>
-          <td>{{ tx.category }}</td>
-          <td>{{ tx.date }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="close()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="importSelected()" [disabled]="!parsedTransactions.length">Import Selected</button>
 </div> 

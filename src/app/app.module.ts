@@ -33,6 +33,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
+// ngx-papaparse
+import { Papa } from 'ngx-papaparse';
+
 // Firebase Imports
 import { environment } from '@env/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
@@ -196,6 +199,7 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
   providers: [
     provideAnimationsAsync(),
     provideHttpClient(),
+    Papa,
 
     // Firebase Initialization
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
