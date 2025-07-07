@@ -58,8 +58,7 @@
       <div *ngIf="categories.length > 0" class="categories-grid-list">
         <div *ngFor="let category of categories; trackBy: trackByCategoryId"
              class="category-item"
-             [class.income-type]="category.type === 'income'"
-             [class.expense-type]="category.type === 'expense'"
+             [style.border-left-color]="category.color"
              [class.editing]="isEditMode && newCategory.id === category.id">
           <div class="category-content">
             <div class="category-info">

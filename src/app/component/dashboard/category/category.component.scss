@@ -212,6 +212,7 @@
     border: 1px solid #e5e7eb;
     cursor: pointer;
     transition: all 0.2s ease;
+    border-left: 4px solid transparent;
     
     @media (max-width: 640px) {
       padding: 1rem;
@@ -224,13 +225,13 @@
       border-color: #d1d5db;
     }
     
-    &.income-type {
-      border-left: 4px solid #10b981;
-    }
+    // &.income-type {
+    //   border-left: 4px solid #10b981;
+    // }
     
-    &.expense-type {
-      border-left: 4px solid #ef4444;
-    }
+    // &.expense-type {
+    //   border-left: 4px solid #ef4444;
+    // }
     
     &.editing {
       border-color: #3b82f6;
@@ -812,7 +813,7 @@
       padding: 1rem;
       
       .category-content {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
         gap: 0.75rem;
       }
@@ -823,7 +824,7 @@
     }
     
     .categories-grid-list {
-      max-height: 50vh; // Smaller height on mobile
+      max-height: fit-content; // Smaller height on mobile
     }
   }
   
