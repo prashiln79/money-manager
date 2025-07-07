@@ -438,6 +438,39 @@
       color: #374151;
     }
     
+    .form-input-field {
+      width: 100%;
+      
+      ::ng-deep .mat-form-field-wrapper {
+        padding-bottom: 0;
+      }
+      
+      ::ng-deep .mat-form-field-outline {
+        border-radius: 8px;
+      }
+      
+      ::ng-deep .mat-form-field-outline-thick {
+        color: #3b82f6;
+      }
+      
+      ::ng-deep .mat-form-field-infix {
+        padding: 0.75rem 0;
+        min-height: 44px;
+        
+        @media (max-width: 640px) {
+          min-height: 48px;
+        }
+      }
+      
+      ::ng-deep .mat-form-field-label {
+        color: #6b7280;
+      }
+      
+      ::ng-deep .mat-form-field-label.mat-focused {
+        color: #3b82f6;
+      }
+    }
+    
     .form-input,
     .form-select {
       padding: 0.75rem;
@@ -835,3 +868,27 @@
 
 // Material Design components handle their own focus styles
 // Additional custom focus styles can be added here if needed
+
+// Autocomplete Styles
+::ng-deep .mat-autocomplete-panel {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  max-height: 200px;
+  
+  .mat-option {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #f3f4f6;
+    }
+    
+    &.mat-selected {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+  }
+}

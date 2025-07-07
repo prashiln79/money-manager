@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
@@ -10,7 +11,7 @@ import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.serv
 import { MobileCategoryComponent } from './mobile-category/mobile-category.component';
 import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
-import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS } from 'src/app/util/models';
+import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUser } from 'src/app/util/models';
 
 @Component({
   selector: 'transaction-category',
@@ -33,6 +34,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   // Color selection
   public availableColors: string[] = AVAILABLE_COLORS;
+
+  // Autocomplete properties
+  public categorySuggestions: string[] = [];
+  public filteredSuggestions: Observable<string[]> = new Observable<string[]>();
+  public categoryNameInput: string = '';
 
   public userId: string = '';
   private destroy$ = new Subject<void>();
@@ -96,6 +102,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (categories) => {
             this.categories = categories.sort((a, b) => a.name.localeCompare(b.name));
+            this.initializeCategorySuggestions();
             this.isLoading = false;
           },
           error: (error) => {
@@ -110,6 +117,54 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       console.error('Error loading categories:', error);
       this.notificationService.error('Failed to load categories');
+    }
+  }
+
+  /**
+   * Initialize category suggestions for autocomplete
+   */
+  private initializeCategorySuggestions(): void {
+    // Get existing category names
+    const existingCategoryNames = this.categories.map(cat => cat.name);
+    
+    // Get default category names
+    const defaultCategoryNames = defaultCategoriesForNewUser.map(cat => cat.name);
+    
+    // Combine and remove duplicates
+    this.categorySuggestions = [...new Set([...existingCategoryNames, ...defaultCategoryNames])];
+    
+    // Initialize filtered suggestions
+    this.filteredSuggestions = new Observable<string[]>();
+  }
+
+  /**
+   * Filter category suggestions based on input
+   */
+  public filterSuggestions(value: string): void {
+    const filterValue = value.toLowerCase();
+    this.filteredSuggestions = new Observable<string[]>().pipe(
+      startWith(''),
+      map(() => this.categorySuggestions.filter(suggestion => 
+        suggestion.toLowerCase().includes(filterValue)
+      ))
+    );
+  }
+
+  /**
+   * Select a suggestion from autocomplete
+   */
+  public selectSuggestion(suggestion: string): void {
+    this.newCategory.name = suggestion;
+    this.categoryNameInput = suggestion;
+  }
+
+  /**
+   * Handle category name input for autocomplete
+   */
+  public onCategoryNameInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target) {
+      this.filterSuggestions(target.value);
     }
   }
 
@@ -267,6 +322,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   private resetForm(): void {
     this.newCategory = this.getEmptyCategory();
+    this.categoryNameInput = '';
     this.isEditMode = false;
     this.isLoading = false;
   }

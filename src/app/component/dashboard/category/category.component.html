@@ -109,13 +109,24 @@
           <!-- Category Name Field -->
           <div class="form-field">
             <label class="field-label">Category Name</label>
-            <input type="text" 
-                   [(ngModel)]="newCategory.name" 
-                   name="categoryName" 
-                   required
-                   placeholder="e.g., Groceries"
-                   class="form-input"
-                   maxlength="50" />
+            <mat-form-field class="form-input-field" appearance="outline">
+              <input matInput
+                     [(ngModel)]="newCategory.name"
+                     [matAutocomplete]="auto"
+                     (input)="onCategoryNameInput($event)"
+                     name="categoryName"
+                     required
+                     placeholder="e.g., Groceries"
+                     maxlength="50"
+                     class="form-input" />
+              <mat-autocomplete #auto="matAutocomplete" 
+                               (optionSelected)="selectSuggestion($event.option.value)">
+                <mat-option *ngFor="let suggestion of filteredSuggestions | async" 
+                           [value]="suggestion">
+                  {{ suggestion }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
           </div>
 
           <!-- Category Type Field -->

@@ -32,6 +32,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // ngx-papaparse
 import { Papa } from 'ngx-papaparse';
@@ -188,6 +189,7 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatSlideToggleModule,
+    MatAutocompleteModule,
 
     // Utility
     IconModule,
