@@ -29,7 +29,7 @@ export interface User {
 	firstName?: string;
 	lastName?: string;
 	phone?: string;
-	dateOfBirth?: Date;
+	dateOfBirth?: Timestamp;
 	occupation?: string;
 	monthlyIncome?: number;
 	preferences?: UserPreferences;
