@@ -7,7 +7,7 @@ import { AccountsService } from 'src/app/util/service/accounts.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MobileAccountComponent } from './mobile-account/mobile-account.component';
-import { AccountDialogComponent } from './account-dialog/account-dialog.component';
+import { AddAccountDialogComponent } from './add-account-dialog/add-account-dialog.component';
 import { MobileAccountsListComponent } from './mobile-accounts-list/mobile-accounts-list.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
@@ -135,7 +135,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
         data: account || null
       });
     } else {
-      dialogRef = this.dialog.open(AccountDialogComponent, {
+      dialogRef = this.dialog.open(AddAccountDialogComponent, {
         width: '500px',
         data: account || null
       });

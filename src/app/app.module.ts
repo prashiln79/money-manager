@@ -90,7 +90,7 @@ import { OfflineIndicatorComponent } from './util/components/offline-indicator/o
 import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
 import { FooterComponent } from './component/dashboard/footer/footer.component';
 import { MobileAccountComponent } from './component/dashboard/accounts/mobile-account/mobile-account.component';
-import { AccountDialogComponent } from './component/dashboard/accounts/account-dialog/account-dialog.component';
+import { AddAccountDialogComponent } from './component/dashboard/accounts/add-account-dialog/add-account-dialog.component';
 import { MobileAccountsListComponent } from './component/dashboard/accounts/mobile-accounts-list/mobile-accounts-list.component';
 import { LandingComponent } from './component/landing/landing.component';
 import { CustomDateRangeDialogComponent } from './util/components/custom-date-range-dialog';
@@ -150,7 +150,7 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     AppShellComponent,
     SkeletonLoaderComponent,
     MobileAccountComponent,
-    AccountDialogComponent,
+    AddAccountDialogComponent,
     MobileAccountsListComponent,
     LandingComponent,
     CustomDateRangeDialogComponent,

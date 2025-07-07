@@ -2,14 +2,18 @@
 	<!-- Header -->
 	<div class="accounts-header">
 		<div class="header-content">
-			<h2 class="header-title">Your Accounts</h2>
-			<p class="header-subtitle">{{ accounts.length }} account{{ accounts.length !== 1 ? 's' : '' }}</p>
+			<h4 class="header-title">Your Accounts</h4>
+			<p class="header-subtitle">({{ accounts.length }} account{{ accounts.length !== 1 ? 's' : '' }})</p>
 		</div>
-		<button mat-icon-button 
+		<!-- <button mat-icon-button 
 				color="primary" 
 				(click)="onAddAccount()"
 				matTooltip="Add Account"
 				class="header-add-btn">
+			<mat-icon>add</mat-icon>
+		</button> -->
+		<!-- fab button -->
+		<button mat-fab color="primary" (click)="onAddAccount()" class="add-account-btn">
 			<mat-icon>add</mat-icon>
 		</button>
 	</div>

@@ -1,7 +1,7 @@
 .mobile-accounts-container {
-	padding: 16px;
+	padding: 0px 16px 16px 16px;
 	background-color: #f9fafb;
-	min-height: 100vh;
+	min-height: fit-content;
 }
 
 .dark .mobile-accounts-container {
@@ -14,8 +14,8 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 24px;
-	padding: 16px;
-	background: white;
+	padding: 5px;
+	background: #ffffff8a;
 	border-radius: 12px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -27,13 +27,17 @@
 
 .header-content {
 	flex: 1;
+	margin: 0;
+	
 }
 
 .header-title {
-	font-size: 1.5rem;
+	font-size: 1rem;
 	font-weight: 700;
 	color: #111827;
 	margin: 0 0 4px 0;
+	height: 24px;
+
 }
 
 .dark .header-title {
@@ -303,31 +307,8 @@
 	}
 }
 
-/* Responsive adjustments */
-@media (max-width: 480px) {
-	.mobile-accounts-container {
-		padding: 12px;
-	}
-
-	.accounts-header {
-		padding: 12px;
-		margin-bottom: 16px;
-	}
-
-	.header-title {
-		font-size: 1.25rem;
-	}
-
-	.account-content {
-		padding: 12px;
-	}
-
-	.account-icon {
-		width: 36px;
-		height: 36px;
-	}
-
-	.balance-amount {
-		font-size: 1rem;
-	}
-} 
+.add-account-btn {
+	position: absolute;
+	bottom: 8rem;
+	right: 1rem;
+}

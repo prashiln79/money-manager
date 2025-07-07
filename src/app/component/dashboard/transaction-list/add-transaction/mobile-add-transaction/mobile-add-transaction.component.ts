@@ -9,7 +9,7 @@ import { CategoryService } from "src/app/util/service/category.service";
 import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.service";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { Transaction, TransactionsService } from "src/app/util/service/transactions.service";
-import { AccountDialogComponent } from "src/app/component/dashboard/accounts/account-dialog/account-dialog.component";
+import { AddAccountDialogComponent } from "src/app/component/dashboard/accounts/add-account-dialog/add-account-dialog.component";
 import { MobileCategoryAddEditPopupComponent} from "src/app/component/dashboard/category/mobile-category-add-edit-popup/mobile-category-add-edit-popup.component";
 import moment from 'moment';
 import { LoaderService } from "src/app/util/service/loader.service";
@@ -172,7 +172,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 	}
 
 	openNewAccountDialog(): void {
-		const dialogRef = this.dialog.open(AccountDialogComponent, {
+		const dialogRef = this.dialog.open(AddAccountDialogComponent, {
 			width: '90vw',
 			maxWidth: '400px',
 			data: null, // null for new account
@@ -188,7 +188,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 	}
 
 	openEditAccountDialog(account: any): void {
-		const dialogRef = this.dialog.open(AccountDialogComponent, {
+		const dialogRef = this.dialog.open(AddAccountDialogComponent, {
 			width: '90vw',
 			maxWidth: '400px',
 			data: account, // existing account data

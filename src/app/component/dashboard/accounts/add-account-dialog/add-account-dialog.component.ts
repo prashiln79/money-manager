@@ -9,11 +9,11 @@ import { Account } from "src/app/util/models/account.model";
 import { AccountsService } from "src/app/util/service/accounts.service";
 
 @Component({
-	selector: "app-account-dialog",
-	templateUrl: "./account-dialog.component.html",
-	styleUrl: "./account-dialog.component.scss",
+	selector: "app-add-account-dialog",
+	templateUrl: "./add-account-dialog.component.html",
+	styleUrl: "./add-account-dialog.component.scss",
 })
-export class AccountDialogComponent {
+export class AddAccountDialogComponent {
 	accountForm: FormGroup;
 	public userId: any;
 	public isSubmitting = false;
@@ -28,7 +28,7 @@ export class AccountDialogComponent {
 		@Inject(MAT_DIALOG_DATA) public dialogData: Account | null,
 		private accountsService: AccountsService,
 		private fb: FormBuilder,
-		public dialogRef: MatDialogRef<AccountDialogComponent>,
+		public dialogRef: MatDialogRef<AddAccountDialogComponent>,
 		private auth: Auth,
 		private notificationService: NotificationService,
 		private router: Router,
@@ -37,7 +37,7 @@ export class AccountDialogComponent {
 		this.accountForm = this.fb.group({
 			name: ["", [Validators.required, Validators.maxLength(50)]],
 			type: ["bank", Validators.required],
-			balance: ["", [Validators.required, Validators.min(-999999), Validators.max(999999)]],
+			balance: [0, [Validators.required, Validators.min(-999999), Validators.max(999999)]],
 			description: [""],
 		});
 
@@ -46,7 +46,7 @@ export class AccountDialogComponent {
 			this.accountForm.patchValue({
 				name: this.dialogData.name,
 				type: this.dialogData.type,
-				balance: this.dialogData.balance,
+				balance: this.dialogData.balance || 0,
 				description: this.dialogData.description,
 			});
 		}
@@ -68,7 +68,7 @@ export class AccountDialogComponent {
 					await this.accountsService.updateAccount(this.userId, this.dialogData.accountId, {
 						name: formData.name.trim(),
 						type: formData.type,
-						balance: Number(formData.balance),
+						balance: Number(formData.balance) || 0,
 						description: formData.description,
 					});
 					this.notificationService.success("Account updated successfully");
@@ -78,7 +78,7 @@ export class AccountDialogComponent {
 					await this.accountsService.createAccount(this.userId, {
 						name: formData.name.trim(),
 						type: formData.type,
-						balance: Number(formData.balance),
+						balance: Number(formData.balance) || 0,
 						description: formData.description,
 					});
 					this.notificationService.success("Account added successfully");
