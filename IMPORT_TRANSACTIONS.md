@@ -1,7 +1,7 @@
 # Import Transactions Feature
 
 ## Overview
-The Import Transactions feature allows users to bulk import transactions from CSV files, with special support for HDFC Bank statement format.
+The Import Transactions feature allows users to bulk import transactions from CSV and Excel files, with special support for HDFC Bank statement format.
 
 ## Features
 
@@ -11,13 +11,14 @@ The Import Transactions feature allows users to bulk import transactions from CS
 - **Adaptive sizing**: Automatically adjusts based on screen size
 
 ### ✅ File Support
-- **CSV files**: Primary format with robust parsing
-- **Excel files**: Basic support (XLSX, XLS) - coming soon
+- **CSV files**: Primary format with robust parsing using ngx-papaparse
+- **Excel files**: Full support for XLSX and XLS formats using xlsx library
 - **Drag & Drop**: Intuitive file upload with visual feedback
 
 ### ✅ Smart Parsing
 - **HDFC Bank Statements**: Automatic detection and parsing of HDFC bank statement format
 - **Standard CSV**: Support for custom CSV formats
+- **Excel Files**: Parse Excel workbooks with multiple sheets
 - **Auto-categorization**: Intelligent categorization based on transaction descriptions
 - **Date parsing**: Handles multiple date formats (DD/MM/YY, YYYY-MM-DD)
 
@@ -46,6 +47,13 @@ For custom CSV files, the component expects:
 - `category`: Transaction category
 - `date`: Transaction date (YYYY-MM-DD format)
 
+### Excel Format
+For Excel files (XLSX, XLS), the component supports:
+- **Multiple sheets**: Automatically uses the first sheet
+- **Header row**: First row should contain column headers
+- **Same column structure**: As CSV format
+- **Data validation**: Handles empty cells and formatting issues
+
 ## Auto-Categorization
 
 The system automatically categorizes transactions based on keywords in the narration:
@@ -68,8 +76,8 @@ The system automatically categorizes transactions based on keywords in the narra
 ### For Users
 1. Navigate to the Transactions page
 2. Click the "Import" button
-3. Download the template (optional)
-4. Upload your CSV file or drag & drop
+3. Download the templates (CSV + Excel) (optional)
+4. Upload your file (CSV, XLSX, or XLS) or drag & drop
 5. Review and select transactions to import
 6. Click "Import Selected"
 
@@ -93,7 +101,8 @@ dialogRef.afterClosed().subscribe((imported: any[]) => {
 ## Technical Implementation
 
 ### Dependencies
-- **PapaParse**: CSV parsing library
+- **ngx-papaparse**: CSV parsing library with Angular integration
+- **xlsx**: Excel file parsing library
 - **Angular Material**: UI components
 - **Firebase**: Database storage
 
@@ -102,23 +111,50 @@ dialogRef.afterClosed().subscribe((imported: any[]) => {
 - `TransactionsService`: Handles database operations
 - Responsive CSS with Tailwind utilities
 
+### File Processing
+```typescript
+// CSV Processing
+this.papa.parse(file, {
+  header: true,
+  skipEmptyLines: true,
+  complete: (results) => { /* handle results */ }
+});
+
+// Excel Processing
+const workbook = XLSX.read(data, { type: 'array' });
+const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+```
+
 ### Error Handling
 - File format validation
 - Data validation before import
 - Graceful error recovery
 - User-friendly error messages
+- Excel-specific error handling (empty sheets, format issues)
+
+## Template Files
+
+The system provides downloadable templates:
+- **CSV Template**: `transaction_template.csv`
+- **Excel Template**: `transaction_template.xlsx`
+
+Both templates include sample data and proper column headers.
 
 ## Future Enhancements
-- [ ] Excel file support with xlsx library
-- [ ] More bank statement formats
+- [ ] Support for more bank statement formats
 - [ ] Custom category mapping
 - [ ] Import history
 - [ ] Duplicate detection
 - [ ] Batch processing for large files
+- [ ] Multiple sheet selection for Excel files
+- [ ] Advanced Excel formatting support
 
 ## Testing
 The component has been tested with:
 - HDFC Bank statement CSV (provided)
 - Standard CSV format
+- Excel files (XLSX, XLS)
 - Various screen sizes (mobile, tablet, desktop)
-- Error scenarios (invalid files, network issues) 
+- Error scenarios (invalid files, network issues)
+- Excel-specific scenarios (empty sheets, multiple sheets) 
