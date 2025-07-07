@@ -15,6 +15,10 @@
     <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
   </div>
 
+  <button mat-fab color="primary" *ngIf="isMobile" (click)="openAddMobileDialog()" class="add-category-btn">
+    <mat-icon>add</mat-icon>
+  </button>
+
   <!-- Main Content -->
   <div class="categories-grid" [class.loading]="isLoading">
     
@@ -23,17 +27,8 @@
       <div class="section-header">
         <div class="header-content">
           <h2 class="section-title">Manage Categories</h2>
-          <p class="section-subtitle">{{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }}</p>
+          <p class="section-subtitle">({{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }})</p>
         </div>
-        <!-- Mobile Add Button -->
-        <button *ngIf="isMobile"
-                mat-fab
-                color="primary"
-                (click)="openAddMobileDialog()"
-                class="mobile-add-button"
-                matTooltip="Add Category">
-          <mat-icon>add</mat-icon>
-        </button>
       </div>
 
       <!-- Empty State -->
