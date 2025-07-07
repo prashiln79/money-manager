@@ -7,10 +7,11 @@ import { Subject, Subscription, takeUntil } from "rxjs";
 import moment from "moment";
 import { CategoryService } from "src/app/util/service/category.service";
 import { Auth } from "@angular/fire/auth";
-import { Category } from "src/app/util/models";
+import { Account, Category } from "src/app/util/models";
 import { ActivatedRoute, Route, Router } from "@angular/router";
 import { ConfirmDialogComponent } from "../../../../util/components/confirm-dialog/confirm-dialog.component";
 import { CustomDateRangeDialogComponent, CustomDateRangeData } from "../../../../util/components/custom-date-range-dialog";
+import { AccountsService } from "../../../../util/service/accounts.service";
 
 interface SortOption {
 	value: string;
@@ -19,432 +20,530 @@ interface SortOption {
 }
 
 @Component({
-	selector: "mobile-transaction-list",
-	templateUrl: "./mobile-transaction-list.component.html",
-	styleUrls: ["./mobile-transaction-list.component.scss"],
+  selector: 'mobile-transaction-list',
+  templateUrl: './mobile-transaction-list.component.html',
+  styleUrls: ['./mobile-transaction-list.component.scss'],
 })
-export class MobileTransactionListComponent implements OnInit, OnDestroy, OnChanges {
-	@Input() transactions: Transaction[] = [];
-	@Input() searchTerm: string = "";
-	@Input() selectedCategory: string[] = ["all"];
-	@Input() selectedType: string = "all";
-	@Input() selectedDate: Date | null = null;
-	@Input() selectedDateRange: { start: Date; end: Date } | null = null;
+export class MobileTransactionListComponent
+  implements OnInit, OnDestroy, OnChanges
+{
+  @Input() transactions: Transaction[] = [];
+  @Input() searchTerm: string = '';
+  @Input() selectedCategory: string[] = ['all'];
+  @Input() selectedType: string = 'all';
+  @Input() selectedDate: Date | null = null;
+  @Input() selectedDateRange: { start: Date; end: Date } | null = null;
 
-	@Output() editTransaction = new EventEmitter<Transaction>();
-	@Output() deleteTransaction = new EventEmitter<Transaction>();
-	@Output() addTransaction = new EventEmitter<void>();
-	@Output() importTransactions = new EventEmitter<void>();
-	@Output() searchTermChange = new EventEmitter<string>();
-	@Output() selectedCategoryChange = new EventEmitter<string[]>();
-	@Output() selectedTypeChange = new EventEmitter<string>();
-	@Output() selectedDateRangeChange = new EventEmitter<{ start: Date; end: Date } | null>();
+  @Output() editTransaction = new EventEmitter<Transaction>();
+  @Output() deleteTransaction = new EventEmitter<Transaction>();
+  @Output() addTransaction = new EventEmitter<void>();
+  @Output() importTransactions = new EventEmitter<void>();
+  @Output() searchTermChange = new EventEmitter<string>();
+  @Output() selectedCategoryChange = new EventEmitter<string[]>();
+  @Output() selectedTypeChange = new EventEmitter<string>();
+  @Output() selectedDateRangeChange = new EventEmitter<{
+    start: Date;
+    end: Date;
+  } | null>();
 
-	selectedTx: Transaction | null = null;
-	filteredTransactions: Transaction[] = [];
-	selectedSort: string = 'date-desc';
-	showFilters: boolean = false;
+  selectedTx: Transaction | null = null;
+  filteredTransactions: Transaction[] = [];
+  selectedSort: string = 'date-desc';
+  showFilters: boolean = false;
+  accounts: Account[] = [];
 
-	sortOptions: SortOption[] = [
-		{ value: 'date-desc', label: 'Newest First', icon: 'schedule' },
-		{ value: 'date-asc', label: 'Oldest First', icon: 'schedule' },
-		{ value: 'amount-desc', label: 'Highest Amount', icon: 'trending_up' },
-		{ value: 'amount-asc', label: 'Lowest Amount', icon: 'trending_down' },
-		{ value: 'payee-asc', label: 'Payee A-Z', icon: 'sort_by_alpha' },
-		{ value: 'category-asc', label: 'Category A-Z', icon: 'category' }
-	];
+  sortOptions: SortOption[] = [
+    { value: 'date-desc', label: 'Newest First', icon: 'schedule' },
+    { value: 'date-asc', label: 'Oldest First', icon: 'schedule' },
+    { value: 'amount-desc', label: 'Highest Amount', icon: 'trending_up' },
+    { value: 'amount-asc', label: 'Lowest Amount', icon: 'trending_down' },
+    { value: 'payee-asc', label: 'Payee A-Z', icon: 'sort_by_alpha' },
+    { value: 'category-asc', label: 'Category A-Z', icon: 'category' },
+  ];
 
-	private subscription = new Subscription();
-	destroy$: Subject<void> = new Subject<void>();
-	categories: Category[] = [];
+  private subscription = new Subscription();
+  destroy$: Subject<void> = new Subject<void>();
+  categories: Category[] = [];
 
-	constructor(
-		private readonly categoryService: CategoryService, 
-		private readonly auth: Auth, 
-		private readonly route: Router,
-		private readonly dialog: MatDialog
-	) {}
+  constructor(
+    private readonly categoryService: CategoryService,
+    private readonly auth: Auth,
+    private readonly route: Router,
+    private readonly dialog: MatDialog,
+    private readonly accountsService: AccountsService
+  ) {}
 
-	ngOnInit() {
-		this.filterTransactions();
-		this.loadUserCategories();
-		if (this.route.url.includes("transactions")) {
-			this.showFilters = true;
-		}
-	}
+  ngOnInit() {
+    this.filterTransactions();
+    this.loadUserCategories();
+    this.loadUserAccounts();
+    if (this.route.url.includes('transactions')) {
+      this.showFilters = true;
+    }
+  }
 
-	ngOnDestroy() {
-		this.subscription.unsubscribe();
-	}
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
 
-	ngOnChanges(changes: SimpleChanges) {
-		this.filterTransactions();
-	}
+  ngOnChanges(changes: SimpleChanges) {
+    this.filterTransactions();
+  }
 
-	filterTransactions() {
-		let filtered = [...this.transactions];
+  filterTransactions() {
+    let filtered = [...this.transactions];
 
-		// Search filter
-		if (this.searchTerm) {
-			const searchLower = this.searchTerm.toLowerCase();
-			filtered = filtered.filter((tx) => 
-				tx?.payee?.toLowerCase().includes(searchLower) || 
-				tx?.category?.toString().toLowerCase().includes(searchLower) || 
-				(tx?.notes && tx?.notes?.toLowerCase().includes(searchLower))
-			);
-		}
+    // Search filter
+    if (this.searchTerm) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (tx) =>
+          tx?.payee?.toLowerCase().includes(searchLower) ||
+          tx?.category?.toString().toLowerCase().includes(searchLower) ||
+          (tx?.notes && tx?.notes?.toLowerCase().includes(searchLower))
+      );
+    }
 
-		// Category filter - handle multi-select
-		if (!this.selectedCategory.includes("all")) {
-			filtered = filtered.filter((tx) => this.selectedCategory.includes(tx.category));
-		}
+    // Category filter - handle multi-select
+    if (!this.selectedCategory.includes('all')) {
+      filtered = filtered.filter((tx) =>
+        this.selectedCategory.includes(tx.category)
+      );
+    }
 
-		// Type filter
-		if (this.selectedType !== "all") {
-			filtered = filtered.filter((tx) => tx.type === this.selectedType);
-		}
+    // Type filter
+    if (this.selectedType !== 'all') {
+      filtered = filtered.filter((tx) => tx.type === this.selectedType);
+    }
 
-		// Date filter
-		if (this.selectedDate) {
-			const selectedMoment = moment(this.selectedDate).startOf("day");
-			filtered = filtered.filter((tx) => {
-				const txMoment = moment(tx.date.toDate()).startOf("day");
-				return txMoment.isSame(selectedMoment, "day");
-			});
-		}
+    // Date filter
+    if (this.selectedDate) {
+      const selectedMoment = moment(this.selectedDate).startOf('day');
+      filtered = filtered.filter((tx) => {
+        const txMoment = moment(tx.date.toDate()).startOf('day');
+        return txMoment.isSame(selectedMoment, 'day');
+      });
+    }
 
-		// Date range filter
-		if (this.selectedDateRange) {
-			const startMoment = moment(this.selectedDateRange.start).startOf("day");
-			const endMoment = moment(this.selectedDateRange.end).endOf("day");
-			filtered = filtered.filter((tx) => {
-				const txMoment = moment(tx.date.toDate());
-				return txMoment.isBetween(startMoment, endMoment, "day", "[]");
-			});
-		}
+    // Date range filter
+    if (this.selectedDateRange) {
+      const startMoment = moment(this.selectedDateRange.start).startOf('day');
+      const endMoment = moment(this.selectedDateRange.end).endOf('day');
+      filtered = filtered.filter((tx) => {
+        const txMoment = moment(tx.date.toDate());
+        return txMoment.isBetween(startMoment, endMoment, 'day', '[]');
+      });
+    }
 
-		// Sort transactions
-		filtered = this.sortTransactions(filtered);
+    // Sort transactions
+    filtered = this.sortTransactions(filtered);
 
-		this.filteredTransactions = filtered;
-	}
+    this.filteredTransactions = filtered;
+  }
 
-	sortTransactions(transactions: Transaction[]): Transaction[] {
-		const sorted = [...transactions];
-		
-		switch (this.selectedSort) {
-			case 'date-desc':
-				return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
-			case 'date-asc':
-				return sorted.sort((a, b) => a.date.seconds - b.date.seconds);
-			case 'amount-desc':
-				return sorted.sort((a, b) => b.amount - a.amount);
-			case 'amount-asc':
-				return sorted.sort((a, b) => a.amount - b.amount);
-			case 'payee-asc':
-				return sorted.sort((a, b) => a.payee.localeCompare(b.payee));
-			case 'category-asc':
-				return sorted.sort((a, b) => a.category.localeCompare(b.category));
-			default:
-				return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
-		}
-	}
+  sortTransactions(transactions: Transaction[]): Transaction[] {
+    const sorted = [...transactions];
 
-	onSearchChange(term: string) {
-		this.searchTerm = term;
-		this.searchTermChange.emit(term);
-		this.filterTransactions();
-	}
+    switch (this.selectedSort) {
+      case 'date-desc':
+        return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
+      case 'date-asc':
+        return sorted.sort((a, b) => a.date.seconds - b.date.seconds);
+      case 'amount-desc':
+        return sorted.sort((a, b) => b.amount - a.amount);
+      case 'amount-asc':
+        return sorted.sort((a, b) => a.amount - b.amount);
+      case 'payee-asc':
+        return sorted.sort((a, b) => a.payee.localeCompare(b.payee));
+      case 'category-asc':
+        return sorted.sort((a, b) => a.category.localeCompare(b.category));
+      default:
+        return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
+    }
+  }
 
-	onSortChange(sortValue: string) {
-		this.selectedSort = sortValue;
-		this.filterTransactions();
-	}
+  onSearchChange(term: string) {
+    this.searchTerm = term;
+    this.searchTermChange.emit(term);
+    this.filterTransactions();
+  }
 
-	onTypeChange(type: string) {
-		this.selectedType = type;
-		this.selectedTypeChange.emit(type);
-		this.filterTransactions();
-	}
+  onSortChange(sortValue: string) {
+    this.selectedSort = sortValue;
+    this.filterTransactions();
+  }
 
-	onCategoryChange(category: string) {
-		if (category === "all") {
-			// If "all" is selected, clear other selections
-			this.selectedCategory = ["all"];
-		} else {
-			// Remove "all" if it exists
-			this.selectedCategory = this.selectedCategory.filter(c => c !== "all");
-			
-			// Toggle the selected category
-			if (this.selectedCategory.includes(category)) {
-				this.selectedCategory = this.selectedCategory.filter(c => c !== category);
-				// If no categories selected, default to "all"
-				if (this.selectedCategory.length === 0) {
-					this.selectedCategory = ["all"];
-				}
-			} else {
-				this.selectedCategory.push(category);
-			}
-		}
-		
-		this.selectedCategoryChange.emit(this.selectedCategory);
-		this.filterTransactions();
-	}
+  onTypeChange(type: string) {
+    this.selectedType = type;
+    this.selectedTypeChange.emit(type);
+    this.filterTransactions();
+  }
 
-	onDateRangeChange(range: string | null) {
-		if (!range) {
-			this.selectedDateRange = null;
-		} else {
-			const now = moment();
-			switch (range) {
-				case 'currentMonth':
-					this.selectedDateRange = {
-						start: now.startOf('month').toDate(),
-						end: now.endOf('month').toDate()
-					};
-					break;
-				case 'lastMonth':
-					this.selectedDateRange = {
-						start: now.subtract(1, 'month').startOf('month').toDate(),
-						end: now.subtract(1, 'month').endOf('month').toDate()
-					};
-					break;
-				case 'currentYear':
-					this.selectedDateRange = {
-						start: now.startOf('year').toDate(),
-						end: now.endOf('year').toDate()
-					};
-					break;
-			}
-		}
-		this.selectedDateRangeChange.emit(this.selectedDateRange);
-		this.filterTransactions();
-	}
+  onCategoryChange(category: string) {
+    if (category === 'all') {
+      // If "all" is selected, clear other selections
+      this.selectedCategory = ['all'];
+    } else {
+      // Remove "all" if it exists
+      this.selectedCategory = this.selectedCategory.filter((c) => c !== 'all');
 
-	isCurrentMonth(): boolean {
-		if (!this.selectedDateRange) return false;
-		const now = moment();
-		const start = moment(this.selectedDateRange.start);
-		const end = moment(this.selectedDateRange.end);
-		return start.isSame(now.startOf('month')) && end.isSame(now.endOf('month'));
-	}
+      // Toggle the selected category
+      if (this.selectedCategory.includes(category)) {
+        this.selectedCategory = this.selectedCategory.filter(
+          (c) => c !== category
+        );
+        // If no categories selected, default to "all"
+        if (this.selectedCategory.length === 0) {
+          this.selectedCategory = ['all'];
+        }
+      } else {
+        this.selectedCategory.push(category);
+      }
+    }
 
-	isLastMonth(): boolean {
-		if (!this.selectedDateRange) return false;
-		const now = moment();
-		const lastMonth = now.subtract(1, 'month');
-		const start = moment(this.selectedDateRange.start);
-		const end = moment(this.selectedDateRange.end);
-		return start.isSame(lastMonth.startOf('month')) && end.isSame(lastMonth.endOf('month'));
-	}
+    this.selectedCategoryChange.emit(this.selectedCategory);
+    this.filterTransactions();
+  }
 
-	isCurrentYear(): boolean {
-		if (!this.selectedDateRange) return false;
-		const now = moment();
-		const start = moment(this.selectedDateRange.start);
-		const end = moment(this.selectedDateRange.end);
-		return start.isSame(now.startOf('year')) && end.isSame(now.endOf('year'));
-	}
+  onDateRangeChange(range: string | null) {
+    if (!range) {
+      this.selectedDateRange = null;
+    } else {
+      const now = moment();
+      switch (range) {
+        case 'currentMonth':
+          this.selectedDateRange = {
+            start: now.startOf('month').toDate(),
+            end: now.endOf('month').toDate(),
+          };
+          break;
+        case 'lastMonth':
+          this.selectedDateRange = {
+            start: now.subtract(1, 'month').startOf('month').toDate(),
+            end: now.subtract(1, 'month').endOf('month').toDate(),
+          };
+          break;
+        case 'currentYear':
+          this.selectedDateRange = {
+            start: now.startOf('year').toDate(),
+            end: now.endOf('year').toDate(),
+          };
+          break;
+      }
+    }
+    this.selectedDateRangeChange.emit(this.selectedDateRange);
+    this.filterTransactions();
+  }
 
-	hasActiveFilters(): boolean {
-		return !!(
-			this.searchTerm || 
-			!this.selectedCategory.includes('all') || 
-			this.selectedType !== 'all' ||
-			this.selectedDate ||
-			this.selectedDateRange
-		);
-	}
+  isCurrentMonth(): boolean {
+    if (!this.selectedDateRange) return false;
+    const now = moment();
+    const start = moment(this.selectedDateRange.start);
+    const end = moment(this.selectedDateRange.end);
+    return start.isSame(now.startOf('month')) && end.isSame(now.endOf('month'));
+  }
 
-	getCurrentSortLabel(): string {
-		const option = this.sortOptions.find(opt => opt.value === this.selectedSort);
-		return option ? option.label : 'Sort';
-	}
+  isLastMonth(): boolean {
+    if (!this.selectedDateRange) return false;
+    const now = moment();
+    const lastMonth = now.subtract(1, 'month');
+    const start = moment(this.selectedDateRange.start);
+    const end = moment(this.selectedDateRange.end);
+    return (
+      start.isSame(lastMonth.startOf('month')) &&
+      end.isSame(lastMonth.endOf('month'))
+    );
+  }
 
-	getCurrentTypeLabel(): string {
-		switch (this.selectedType) {
-			case 'all': return 'All Types';
-			case 'income': return 'Income';
-			case 'expense': return 'Expense';
-			default: return 'All Types';
-		}
-	}
+  isCurrentYear(): boolean {
+    if (!this.selectedDateRange) return false;
+    const now = moment();
+    const start = moment(this.selectedDateRange.start);
+    const end = moment(this.selectedDateRange.end);
+    return start.isSame(now.startOf('year')) && end.isSame(now.endOf('year'));
+  }
 
-	getCurrentCategoryLabel(): string {
-		if (this.selectedCategory.includes("all")) {
-			return "All Categories";
-		}
-		if (this.selectedCategory.length === 1) {
-			return this.selectedCategory[0];
-		}
-		return `${this.selectedCategory.length} Categories`;
-	}
+  hasActiveFilters(): boolean {
+    return !!(
+      this.searchTerm ||
+      !this.selectedCategory.includes('all') ||
+      this.selectedType !== 'all' ||
+      this.selectedDate ||
+      this.selectedDateRange
+    );
+  }
 
-	getCurrentDateLabel(): string {
-		if (!this.selectedDateRange) return 'All Time';
-		if (this.isCurrentMonth()) return 'This Month';
-		if (this.isLastMonth()) return 'Last Month';
-		if (this.isCurrentYear()) return 'This Year';
-		return 'Custom Range';
-	}
+  getCurrentSortLabel(): string {
+    const option = this.sortOptions.find(
+      (opt) => opt.value === this.selectedSort
+    );
+    return option ? option.label : 'Sort';
+  }
 
-	onLongPress(transaction: Transaction) {
-		this.selectedTx = this.selectedTx?.id === transaction.id ? null : transaction;
-	}
+  getCurrentTypeLabel(): string {
+    switch (this.selectedType) {
+      case 'all':
+        return 'All Types';
+      case 'income':
+        return 'Income';
+      case 'expense':
+        return 'Expense';
+      default:
+        return 'All Types';
+    }
+  }
 
-	onEditTransaction(transaction: Transaction) {
-		this.editTransaction.emit(transaction);
-		this.selectedTx = null;
-	}
+  getCurrentCategoryLabel(): string {
+    if (this.selectedCategory.includes('all')) {
+      return 'All Categories';
+    }
+    if (this.selectedCategory.length === 1) {
+      return this.selectedCategory[0];
+    }
+    return `${this.selectedCategory.length} Categories`;
+  }
 
-	onDeleteTransaction(transaction: Transaction) {
-		this.deleteTransaction.emit(transaction);
-		this.selectedTx = null;
-	}
+  getCurrentDateLabel(): string {
+    if (!this.selectedDateRange) return 'All Time';
+    if (this.isCurrentMonth()) return 'This Month';
+    if (this.isLastMonth()) return 'Last Month';
+    if (this.isCurrentYear()) return 'This Year';
+    return 'Custom Range';
+  }
 
-	onAddTransaction() {
-		this.addTransaction.emit();
-	}
+  onLongPress(transaction: Transaction) {
+    this.selectedTx =
+      this.selectedTx?.id === transaction.id ? null : transaction;
+  }
 
-	onImportTransactions() {
-		this.importTransactions.emit();
-	}
+  onEditTransaction(transaction: Transaction) {
+    this.editTransaction.emit(transaction);
+    this.selectedTx = null;
+  }
 
-	getTotalIncome(): number {
-		return this.filteredTransactions.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-	}
+  onDeleteTransaction(transaction: Transaction) {
+    // this.deleteTransaction.emit(transaction);
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        width: '300px',
+        data: {
+          title: 'Delete Transaction',
+          message: 'Are you sure you want to delete this transaction?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+        },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.deleteTransaction.emit(transaction);
+        }
+      });
+    this.selectedTx = null;
+  }
 
-	getTotalExpenses(): number {
-		return this.filteredTransactions.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
-	}
+  onAddTransaction() {
+    this.addTransaction.emit();
+  }
 
-	getNetAmount(): number {
-		return this.getTotalIncome() - this.getTotalExpenses();
-	}
+  onImportTransactions() {
+    this.importTransactions.emit();
+  }
 
-	getCategoriesList(): string[] {
-		const categories = new Set(this.transactions.map((tx) => tx.category));
-		return Array.from(categories).sort();
-	}
+  getTotalIncome(): number {
+    return this.filteredTransactions
+      .filter((t) => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }
 
-	getFilteredCount(): number {
-		return this.filteredTransactions.length;
-	}
+  getTotalExpenses(): number {
+    return this.filteredTransactions
+      .filter((t) => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }
 
-	getTotalCount(): number {
-		return this.transactions.length;
-	}
+  getNetAmount(): number {
+    return this.getTotalIncome() - this.getTotalExpenses();
+  }
 
-	getCurrentYear(): number {
-		return moment().year();
-	}
+  getCategoriesList(): string[] {
+    const categories = new Set(this.transactions.map((tx) => tx.category));
+    return Array.from(categories).sort();
+  }
 
-	  getCategoryIcon(category: string): string {
-    return this.categories.find((c) => c.name === category)?.icon || "category";
+  getFilteredCount(): number {
+    return this.filteredTransactions.length;
+  }
+
+  getTotalCount(): number {
+    return this.transactions.length;
+  }
+
+  getCurrentYear(): number {
+    return moment().year();
+  }
+
+  getCategoryIcon(category: string): string {
+    return this.categories.find((c) => c.name === category)?.icon || 'category';
   }
 
   getCategoryColor(category: string): string {
-    return this.categories.find((c) => c.name === category)?.color || "#2196F3";
+    return this.categories.find((c) => c.name === category)?.color || '#2196F3';
   }
 
-	private async loadUserCategories(): Promise<void> {
-		const currentUser = this.auth.currentUser;
-		if (!currentUser) {
-			return;
-		}
-		this.categoryService
-			.getCategories(currentUser.uid)
-			.pipe(takeUntil(this.destroy$))
-			.subscribe({
-				next: (categories) => {
-					this.categories = categories || [];
-				},
-			});
-	}
+  private async loadUserCategories(): Promise<void> {
+    if (this.auth.currentUser?.uid) {
+      this.subscription.add(
+        this.categoryService.getCategories(this.auth.currentUser.uid).subscribe(
+          (categories) => {
+            this.categories = categories;
+          },
+          (error) => {
+            console.error('Error loading categories:', error);
+          }
+        )
+      );
+    }
+  }
 
-	clearAllFilters() {
-		// Show confirmation dialog
-		const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-			width: '300px',
-			data: {
-				title: 'Clear Filters',
-				message: 'Are you sure you want to clear all filters?',
-				confirmText: 'Clear',
-				cancelText: 'Cancel'
-			}
-		});
+  private async loadUserAccounts(): Promise<void> {
+    if (this.auth.currentUser?.uid) {
+      this.subscription.add(
+        this.accountsService.getAccounts(this.auth.currentUser.uid).subscribe(
+          (accounts) => {
+            this.accounts = accounts;
+          },
+          (error) => {
+            console.error('Error loading accounts:', error);
+          }
+        )
+      );
+    }
+  }
 
-		dialogRef.afterClosed().subscribe(result => {
-			if (result) {
-				this.performClearAllFilters();
-			}
-		});
-	}
+  getAccountName(accountId: string): string {
+    const account = this.accounts.find((acc) => acc.accountId === accountId);
+    return account ? account.name : 'Unknown Account';
+  }
 
-	private performClearAllFilters() {
-		this.searchTerm = "";
-		this.selectedCategory = ["all"];
-		this.selectedType = "all";
-		this.selectedDate = null;
-		this.selectedDateRange = null;
-		this.selectedSort = 'date-desc';
-		
-		// Emit changes
-		this.searchTermChange.emit("");
-		this.selectedCategoryChange.emit(["all"]);
-		this.selectedTypeChange.emit("all");
-		this.selectedDateRangeChange.emit(null);
-		
-		this.filterTransactions();
-	}
+  getAccountType(accountId: string): string {
+    const account = this.accounts.find((acc) => acc.accountId === accountId);
+    return account ? account.type : '';
+  }
 
-	// Quick clear without confirmation (for obvious clear buttons)
-	quickClearFilters() {
-		this.performClearAllFilters();
-	}
+  getRecurringInfo(transaction: Transaction): string {
+    if (!transaction.recurring) return '';
 
-	getActiveFiltersCount(): number {
-		let count = 0;
-		
-		if (this.searchTerm) count++;
-		if (!this.selectedCategory.includes('all')) count++;
-		if (this.selectedType !== 'all') count++;
-		if (this.selectedDate) count++;
-		if (this.selectedDateRange) count++;
-		
-		return count;
-	}
+    const interval = transaction.recurringInterval || 'monthly';
+    return `Recurring (${interval})`;
+  }
 
-	isCategorySelected(category: string): boolean {
-		return this.selectedCategory.includes(category);
-	}
+  getSyncStatusInfo(transaction: Transaction): string {
+    if (transaction.isPending) return 'Pending';
+    if (transaction.syncStatus === 'failed') return 'Sync Failed';
+    if (transaction.syncStatus === 'pending') return 'Syncing...';
+    return 'Synced';
+  }
 
-	isCustomDateRange(): boolean {
-		if (!this.selectedDateRange) return false;
-		return !this.isCurrentMonth() && !this.isLastMonth() && !this.isCurrentYear();
-	}
+  getSyncStatusIcon(transaction: Transaction): string {
+    if (transaction.isPending) return 'schedule';
+    if (transaction.syncStatus === 'failed') return 'error';
+    if (transaction.syncStatus === 'pending') return 'sync';
+    return 'check_circle';
+  }
 
-	openCustomDateRangeDialog() {
-		const dialogData: CustomDateRangeData = {
-			startDate: this.selectedDateRange?.start,
-			endDate: this.selectedDateRange?.end
-		};
+  getSyncStatusColor(transaction: Transaction): string {
+    if (transaction.isPending) return '#ff9800';
+    if (transaction.syncStatus === 'failed') return '#f44336';
+    if (transaction.syncStatus === 'pending') return '#2196f3';
+    return '#4caf50';
+  }
 
-		const dialogRef = this.dialog.open(CustomDateRangeDialogComponent, {
-			width: '400px',
-			data: dialogData,
-			disableClose: false
-		});
+  clearAllFilters() {
+    // Show confirmation dialog
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Clear Filters',
+        message: 'Are you sure you want to clear all filters?',
+        confirmText: 'Clear',
+        cancelText: 'Cancel',
+      },
+    });
 
-		dialogRef.afterClosed().subscribe(result => {
-			if (result) {
-				this.selectedDateRange = {
-					start: result.start,
-					end: result.end
-				};
-				this.selectedDateRangeChange.emit(this.selectedDateRange);
-				this.filterTransactions();
-			}
-		});
-	}
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.performClearAllFilters();
+      }
+    });
+  }
+
+  private performClearAllFilters() {
+    this.searchTerm = '';
+    this.selectedCategory = ['all'];
+    this.selectedType = 'all';
+    this.selectedDate = null;
+    this.selectedDateRange = null;
+    this.selectedSort = 'date-desc';
+
+    // Emit changes
+    this.searchTermChange.emit('');
+    this.selectedCategoryChange.emit(['all']);
+    this.selectedTypeChange.emit('all');
+    this.selectedDateRangeChange.emit(null);
+
+    this.filterTransactions();
+  }
+
+  // Quick clear without confirmation (for obvious clear buttons)
+  quickClearFilters() {
+    this.performClearAllFilters();
+  }
+
+  getActiveFiltersCount(): number {
+    let count = 0;
+
+    if (this.searchTerm) count++;
+    if (!this.selectedCategory.includes('all')) count++;
+    if (this.selectedType !== 'all') count++;
+    if (this.selectedDate) count++;
+    if (this.selectedDateRange) count++;
+
+    return count;
+  }
+
+  isCategorySelected(category: string): boolean {
+    return this.selectedCategory.includes(category);
+  }
+
+  isCustomDateRange(): boolean {
+    if (!this.selectedDateRange) return false;
+    return (
+      !this.isCurrentMonth() && !this.isLastMonth() && !this.isCurrentYear()
+    );
+  }
+
+  openCustomDateRangeDialog() {
+    const dialogData: CustomDateRangeData = {
+      startDate: this.selectedDateRange?.start,
+      endDate: this.selectedDateRange?.end,
+    };
+
+    const dialogRef = this.dialog.open(CustomDateRangeDialogComponent, {
+      width: '400px',
+      data: dialogData,
+      disableClose: false,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.selectedDateRange = {
+          start: result.start,
+          end: result.end,
+        };
+        this.selectedDateRangeChange.emit(this.selectedDateRange);
+        this.filterTransactions();
+      }
+    });
+  }
 }

@@ -300,6 +300,78 @@
             </button>
           </div>
         </div>
+
+        <!-- Expanded Details (shown when selected) -->
+        <div *ngIf="selectedTx?.id === tx.id" class="transaction-details-expanded">
+          <div class="details-container">
+            <!-- Account Information -->
+            <div class="detail-row">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">account_balance</mat-icon>
+                <span>Account</span>
+              </div>
+              <div class="detail-value">
+                <span class="account-name">{{ getAccountName(tx.accountId) }}</span>
+                <span class="account-type" *ngIf="getAccountType(tx.accountId)">({{ getAccountType(tx.accountId) }})</span>
+              </div>
+            </div>
+
+            <!-- Transaction ID -->
+            <div class="detail-row" *ngIf="tx.id">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">fingerprint</mat-icon>
+                <span>Transaction ID</span>
+              </div>
+              <div class="detail-value">
+                <span class="transaction-id">{{ tx.id }}</span>
+              </div>
+            </div>
+
+            <!-- Recurring Status -->
+            <div class="detail-row" *ngIf="tx.recurring">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">repeat</mat-icon>
+                <span>Recurring</span>
+              </div>
+              <div class="detail-value">
+                <span class="recurring-info">{{ getRecurringInfo(tx) }}</span>
+              </div>
+            </div>
+
+            <!-- Sync Status -->
+            <div class="detail-row">
+              <div class="detail-label">
+                <mat-icon class="detail-icon" [style.color]="getSyncStatusColor(tx)">{{ getSyncStatusIcon(tx) }}</mat-icon>
+                <span>Status</span>
+              </div>
+              <div class="detail-value">
+                <span class="sync-status" [style.color]="getSyncStatusColor(tx)">{{ getSyncStatusInfo(tx) }}</span>
+              </div>
+            </div>
+
+            <!-- Created Date -->
+            <div class="detail-row">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">schedule</mat-icon>
+                <span>Created</span>
+              </div>
+              <div class="detail-value">
+                <span class="created-date">{{ tx.date.seconds * 1000 | date:'fullDate' }}</span>
+              </div>
+            </div>
+
+            <!-- Notes (if available) -->
+            <div class="detail-row" *ngIf="tx.notes && tx.notes.trim()">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">note</mat-icon>
+                <span>Notes</span>
+              </div>
+              <div class="detail-value">
+                <span class="transaction-notes">{{ tx.notes }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

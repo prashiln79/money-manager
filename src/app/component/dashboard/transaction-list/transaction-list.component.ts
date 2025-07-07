@@ -77,6 +77,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    this.clearDateFilter();
     this.loadTransactions();
     this.subscribeToDateSelection();
   }
@@ -87,6 +88,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   loadTransactions() {
     this.loaderService.show();
+    
     this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
       this.allTransactions = transactions.sort((a: any, b: any) => b.date.toDate() - a.date.toDate());
       this.applyDateFilter();
