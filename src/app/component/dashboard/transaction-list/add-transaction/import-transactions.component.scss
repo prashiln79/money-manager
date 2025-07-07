@@ -359,51 +359,6 @@ mat-dialog-actions {
   }
 }
 
-// Dark theme support
-@media (prefers-color-scheme: dark) {
-  .file-upload-container {
-    border-color: #4b5563;
-    background: #1f2937;
-    
-    &:hover {
-      border-color: #60a5fa;
-      background: #1e3a8a;
-    }
-  }
-  
-  .transaction-card {
-    border-color: #4b5563;
-    background: #1f2937;
-    
-    &.selected {
-      background: #1e3a8a;
-    }
-  }
-  
-  .transactions-table {
-    th {
-      background: #374151;
-      color: #f9fafb;
-    }
-    
-    .transaction-row:hover {
-      background: #374151;
-    }
-  }
-  
-  .payee {
-    color: #f9fafb;
-  }
-  
-  .category {
-    color: #9ca3af;
-  }
-  
-  .date {
-    color: #9ca3af;
-  }
-}
-
 // Inline Editing Styles
 .edit-input {
   width: 100%;
@@ -476,25 +431,3 @@ mat-dialog-actions {
     }
   }
 }
-
-// Dark theme support for editing
-@media (prefers-color-scheme: dark) {
-  .edit-input {
-    background: #374151;
-    border-color: #60a5fa;
-    color: #f9fafb;
-    
-    &:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
-    }
-  }
-  
-  .desktop-transactions {
-    .payee-cell, .amount-cell, .date-cell, .type-cell, .category-cell {
-      &:hover {
-        background: #4b5563;
-      }
-    }
-  }
-} 
