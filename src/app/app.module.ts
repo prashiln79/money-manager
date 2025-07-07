@@ -61,7 +61,7 @@ import { HeaderComponent } from './component/dashboard/header/header.component';
 import { SideBarComponent } from './component/dashboard/side-bar/side-bar.component';
 import { TransactionComponent } from './component/dashboard/transaction-list/add-transaction/transaction/transaction.component';
 import { MobileAddTransactionComponent } from './component/dashboard/transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
-import { MobileCategoryComponent } from './component/dashboard/category/mobile-category/mobile-category.component';
+import { MobileCategoryAddEditPopupComponent } from './component/dashboard/category/mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
 import { IconSelectorDialogComponent } from './component/dashboard/category/icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './component/dashboard/category/color-selector-dialog/color-selector-dialog.component';
 import { SignInComponent } from './component/auth/sign-in/sign-in.component';
@@ -117,7 +117,7 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     SideBarComponent,
     TransactionComponent,
     MobileAddTransactionComponent,
-    MobileCategoryComponent,
+    MobileCategoryAddEditPopupComponent,
     IconSelectorDialogComponent,
     ColorSelectorDialogComponent,
     SignInComponent,

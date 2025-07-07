@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
-import { BreakpointObserver } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject, takeUntil, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
-import { MobileCategoryComponent } from './mobile-category/mobile-category.component';
+import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
 import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
 import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUser } from 'src/app/util/models';
@@ -50,11 +50,14 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private hapticFeedback: HapticFeedbackService,
     private breakpointObserver: BreakpointObserver
-  ) {}
+  ) {
+    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
+      this.isMobile = result.matches;
+    });
+  }
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.setupResponsiveDesign();
   }
 
   ngOnDestroy(): void {
@@ -75,18 +78,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     this.userId = currentUser.uid;
     await this.loadUserCategories();
-  }
-
-  /**
-   * Setup responsive design for mobile/desktop
-   */
-  private setupResponsiveDesign(): void {
-    this.breakpointObserver
-      .observe(['(max-width: 768px)'])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
-        this.isMobile = result.matches;
-      });
   }
 
   /**
@@ -419,7 +410,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    * Open mobile dialog for editing category
    */
   private openMobileDialog(category?: Category): void {
-    const dialogRef = this.dialog.open(MobileCategoryComponent, {
+    const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
       width: '90vw',
       maxWidth: '400px',
       data: category || null,

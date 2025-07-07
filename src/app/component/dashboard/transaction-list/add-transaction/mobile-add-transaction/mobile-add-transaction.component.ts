@@ -10,7 +10,7 @@ import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.serv
 import { NotificationService } from "src/app/util/service/notification.service";
 import { Transaction, TransactionsService } from "src/app/util/service/transactions.service";
 import { AccountDialogComponent } from "src/app/component/dashboard/accounts/account-dialog/account-dialog.component";
-import { MobileCategoryComponent } from "src/app/component/dashboard/category/mobile-category/mobile-category.component";
+import { MobileCategoryAddEditPopupComponent} from "src/app/component/dashboard/category/mobile-category-add-edit-popup/mobile-category-add-edit-popup.component";
 import moment from 'moment';
 import { LoaderService } from "src/app/util/service/loader.service";
 
@@ -216,7 +216,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 	}
 
 	openNewCategoryDialog(): void {
-		const dialogRef = this.dialog.open(MobileCategoryComponent, {
+		const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
 			width: '90vw',
 			maxWidth: '400px',
 			data: null, // null for new category

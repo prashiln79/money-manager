@@ -54,7 +54,7 @@
         [style.background-color]="color"
         [attr.aria-label]="'Select ' + color + ' color'">
         <div class="color-preview" [style.background-color]="color"></div>
-        <span class="color-name">{{ color }}</span>
+        <!-- <span class="color-name">{{ color }}</span> -->
         <mat-icon *ngIf="selectedColor === color" class="check-icon">check</mat-icon>
       </button>
     </div>
@@ -70,7 +70,6 @@
       color="primary" 
       (click)="selectColor(selectedColor)"
       class="select-button">
-      <mat-icon>check</mat-icon>
       Select Color
     </button>
   </div>

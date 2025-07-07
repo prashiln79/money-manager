@@ -12,7 +12,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 
-import { MobileCategoryComponent } from './mobile-category.component';
+import { MobileCategoryComponent } from './mobile-category-add-edit-popup.component';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';

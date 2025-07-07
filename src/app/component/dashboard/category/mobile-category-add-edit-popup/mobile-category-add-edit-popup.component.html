@@ -100,9 +100,9 @@
         </label>
         <div class="icon-selector">
           <button type="button"
-                  (click)="toggleIconPicker()"
+                  (click)="openIconSelectorDialog()"
                   class="icon-preview-button"
-                  [class.active]="showIconPicker">
+                  [class.active]="categoryForm.get('icon')?.value">
             <div class="icon-preview">
               <mat-icon class="selected-icon">{{ categoryForm.get('icon')?.value || 'category' }}</mat-icon>
               <span class="icon-name">{{ categoryForm.get('icon')?.value || 'category' }}</span>
@@ -110,27 +110,7 @@
             <mat-icon class="dropdown-icon">expand_more</mat-icon>
           </button>
           
-          <!-- Icon Picker Dropdown -->
-          <div *ngIf="showIconPicker" 
-               class="icon-picker-dropdown"
-               (clickOutside)="closeIconPicker()">
-            <div class="icon-picker-header">
-              <h6>Select Icon</h6>
-              <button mat-icon-button (click)="closeIconPicker()" class="close-picker">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
-            <div class="icon-grid">
-              <button *ngFor="let icon of availableIcons"
-                      type="button"
-                      (click)="selectIcon(icon)"
-                      class="icon-option"
-                      [class.selected]="categoryForm.get('icon')?.value === icon"
-                      matTooltip="{{ icon }}">
-                <mat-icon>{{ icon }}</mat-icon>
-              </button>
-            </div>
-          </div>
+      
         </div>
       </div>
 
@@ -142,9 +122,9 @@
         </label>
         <div class="color-selector">
           <button type="button"
-                  (click)="toggleColorPicker()"
+                  (click)="openColorSelectorDialog()"
                   class="color-preview-button"
-                  [class.active]="showColorPicker">
+                  [class.active]="categoryForm.get('color')?.value">
             <div class="color-preview">
               <div class="color-swatch" [style.background-color]="categoryForm.get('color')?.value || '#2196F3'"></div>
               <span class="color-name">{{ categoryForm.get('color')?.value || '#2196F3' }}</span>
@@ -152,27 +132,8 @@
             <mat-icon class="dropdown-icon">expand_more</mat-icon>
           </button>
           
-          <!-- Color Picker Dropdown -->
-          <div *ngIf="showColorPicker" 
-               class="color-picker-dropdown"
-               (clickOutside)="closeColorPicker()">
-            <div class="color-picker-header">
-              <h6>Select Color</h6>
-              <button mat-icon-button (click)="closeColorPicker()" class="close-picker">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
-            <div class="color-grid">
-              <button *ngFor="let color of availableColors"
-                      type="button"
-                      (click)="selectColor(color)"
-                      class="color-option"
-                      [class.selected]="categoryForm.get('color')?.value === color"
-                      [style.background-color]="color"
-                      matTooltip="{{ color }}">
-              </button>
-            </div>
-          </div>
+        <!-- color Picker -->
+        
         </div>
       </div>
 

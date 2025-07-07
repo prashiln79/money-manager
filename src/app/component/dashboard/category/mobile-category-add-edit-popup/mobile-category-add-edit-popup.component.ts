@@ -1,26 +1,34 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
-import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS } from 'src/app/util/models';
+import {
+  Category,
+  AVAILABLE_ICONS,
+  AVAILABLE_COLORS,
+} from 'src/app/util/models';
+import { IconSelectorDialogComponent } from '../icon-selector-dialog/icon-selector-dialog.component';
+import { ColorSelectorDialogComponent } from '../color-selector-dialog/color-selector-dialog.component';
 
 @Component({
-  selector: 'app-mobile-category',
-  templateUrl: './mobile-category.component.html',
-  styleUrls: ['./mobile-category.component.scss']
+  selector: 'app-mobile-category-add-edit-popup',
+  templateUrl: './mobile-category-add-edit-popup.component.html',
+  styleUrls: ['./mobile-category-add-edit-popup.component.scss'],
 })
-export class MobileCategoryComponent implements OnInit {
+export class MobileCategoryAddEditPopupComponent implements OnInit {
   categoryForm: FormGroup;
   public availableIcons: string[] = AVAILABLE_ICONS;
 
   public availableColors: string[] = AVAILABLE_COLORS;
 
-  public showIconPicker: boolean = false;
-  public showColorPicker: boolean = false;
   public isSubmitting: boolean = false;
   public userId: string = '';
 
@@ -28,11 +36,12 @@ export class MobileCategoryComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public dialogData: Category | null,
     private categoryService: CategoryService,
     private fb: FormBuilder,
-    public dialogRef: MatDialogRef<MobileCategoryComponent>,
+    public dialogRef: MatDialogRef<MobileCategoryAddEditPopupComponent>,
     private auth: Auth,
     private notificationService: NotificationService,
     private router: Router,
     private hapticFeedback: HapticFeedbackService,
+    private dialog: MatDialog
   ) {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
@@ -44,9 +53,9 @@ export class MobileCategoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid || '';
-    
+
     // Handle browser back button
-    window.addEventListener("popstate", (event) => {
+    window.addEventListener('popstate', (event) => {
       this.dialogRef.close();
       event.preventDefault();
     });
@@ -65,10 +74,10 @@ export class MobileCategoryComponent implements OnInit {
   async onSubmit(): Promise<void> {
     if (this.categoryForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      
+
       try {
         const formValue = this.categoryForm.value;
-        
+
         if (this.dialogData?.id) {
           // Update existing category
           await this.categoryService.updateCategory(
@@ -79,7 +88,7 @@ export class MobileCategoryComponent implements OnInit {
             formValue.icon,
             formValue.color
           );
-          this.notificationService.success("Category updated successfully");
+          this.notificationService.success('Category updated successfully');
         } else {
           // Create new category
           await this.categoryService.createCategory(
@@ -89,14 +98,14 @@ export class MobileCategoryComponent implements OnInit {
             formValue.icon,
             formValue.color
           );
-          this.notificationService.success("Category added successfully");
+          this.notificationService.success('Category added successfully');
           this.hapticFeedback.successVibration();
         }
 
         this.dialogRef.close(true);
-        this.router.navigate(["/dashboard/category"]);
+        this.router.navigate(['/dashboard/category']);
       } catch (error) {
-        this.notificationService.error("Failed to save category");
+        this.notificationService.error('Failed to save category');
         console.error('Error saving category:', error);
       } finally {
         this.isSubmitting = false;
@@ -106,38 +115,6 @@ export class MobileCategoryComponent implements OnInit {
 
   onCancel(): void {
     this.dialogRef.close(false);
-  }
-
-  toggleIconPicker(): void {
-    this.showIconPicker = !this.showIconPicker;
-    if (this.showIconPicker) {
-      this.showColorPicker = false;
-    }
-  }
-
-  closeIconPicker(): void {
-    this.showIconPicker = false;
-  }
-
-  selectIcon(icon: string): void {
-    this.categoryForm.patchValue({ icon });
-    this.showIconPicker = false;
-  }
-
-  toggleColorPicker(): void {
-    this.showColorPicker = !this.showColorPicker;
-    if (this.showColorPicker) {
-      this.showIconPicker = false;
-    }
-  }
-
-  closeColorPicker(): void {
-    this.showColorPicker = false;
-  }
-
-  selectColor(color: string): void {
-    this.categoryForm.patchValue({ color });
-    this.showColorPicker = false;
   }
 
   selectType(type: 'income' | 'expense'): void {
@@ -162,4 +139,49 @@ export class MobileCategoryComponent implements OnInit {
     }
     return '';
   }
-} 
+
+  openIconSelectorDialog(): void {
+    this.dialog
+      .open(IconSelectorDialogComponent, {
+        width: '90vw',
+        maxWidth: '500px',
+        height: '80vh',
+        maxHeight: '600px',
+        data: {
+          currentIcon: this.categoryForm.get('icon')?.value,
+          availableIcons: this.availableIcons,
+        },
+        disableClose: false,
+        autoFocus: false,
+      })
+      .afterClosed()
+      .subscribe((selectedIcon: string) => {
+        if (selectedIcon) {
+          this.categoryForm.patchValue({ icon: selectedIcon });
+          this.hapticFeedback.lightVibration();
+        }
+      });
+  }
+
+  openColorSelectorDialog(): void {
+    const dialogRef = this.dialog.open(ColorSelectorDialogComponent, {
+      width: '90vw',
+      maxWidth: '500px',
+      height: '80vh',
+      maxHeight: '600px',
+      data: {
+        currentColor: this.categoryForm.get('color')?.value,
+        availableColors: this.availableColors,
+      },
+      disableClose: false,
+      autoFocus: false,
+    });
+
+    dialogRef.afterClosed().subscribe((selectedColor: string) => {
+      if (selectedColor) {
+        this.categoryForm.patchValue({ color: selectedColor });
+        this.hapticFeedback.lightVibration();
+      }
+    });
+  }
+}
