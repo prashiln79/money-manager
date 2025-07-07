@@ -8,6 +8,8 @@ import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/c
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { MobileCategoryComponent } from './mobile-category/mobile-category.component';
+import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
+import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
 import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS } from 'src/app/util/models';
 
 @Component({
@@ -295,14 +297,66 @@ export class CategoryComponent implements OnInit, OnDestroy {
    * Select an icon for the category
    */
   public selectIcon(icon: string): void {
-    this.newCategory.icon = icon;
+    if (this.isMobile) {
+      this.openIconSelectorDialog();
+    } else {
+      this.newCategory.icon = icon;
+    }
+  }
+
+  public openIconSelectorDialog(): void {
+    const dialogRef = this.dialog.open(IconSelectorDialogComponent, {
+      width: '90vw',
+      maxWidth: '500px',
+      height: '80vh',
+      maxHeight: '600px',
+      data: {
+        currentIcon: this.newCategory.icon,
+        availableIcons: this.availableIcons
+      },
+      disableClose: false,
+      autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe((selectedIcon: string) => {
+      if (selectedIcon) {
+        this.newCategory.icon = selectedIcon;
+        this.hapticFeedback.lightVibration();
+      }
+    });
   }
 
   /**
    * Select a color for the category
    */
   public selectColor(color: string): void {
-    this.newCategory.color = color;
+    if (this.isMobile) {
+      this.openColorSelectorDialog();
+    } else {
+      this.newCategory.color = color;
+    }
+  }
+
+  public openColorSelectorDialog(): void {
+    const dialogRef = this.dialog.open(ColorSelectorDialogComponent, {
+      width: '90vw',
+      maxWidth: '500px',
+      height: '80vh',
+      maxHeight: '600px',
+      data: {
+        currentColor: this.newCategory.color,
+        availableColors: this.availableColors
+      },
+      disableClose: false,
+      autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe((selectedColor: string) => {
+      if (selectedColor) {
+        this.newCategory.color = selectedColor;
+        this.hapticFeedback.lightVibration();
+      }
+    });
   }
 
   /**

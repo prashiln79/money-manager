@@ -1,0 +1,77 @@
+<div class="color-selector-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      <mat-icon class="title-icon">palette</mat-icon>
+      Select Color
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-container">
+    <div class="search-input-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        placeholder="Search colors..."
+        class="search-input"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button 
+        *ngIf="searchTerm" 
+        mat-icon-button 
+        (click)="clearSearch()" 
+        class="clear-search-button"
+        type="button">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Colors Grid -->
+  <div class="colors-container">
+    <div *ngIf="filteredColors.length === 0" class="no-results">
+      <mat-icon class="no-results-icon">search_off</mat-icon>
+      <p class="no-results-text">No colors found for "{{ searchTerm }}"</p>
+      <button mat-stroked-button (click)="clearSearch()" class="clear-search-btn">
+        Clear Search
+      </button>
+    </div>
+
+    <div *ngIf="filteredColors.length > 0" class="colors-grid">
+      <button 
+        *ngFor="let color of filteredColors; trackBy: trackByColor"
+        type="button"
+        (click)="selectColor(color)"
+        class="color-option"
+        [class.selected]="selectedColor === color"
+        [style.background-color]="color"
+        [attr.aria-label]="'Select ' + color + ' color'">
+        <div class="color-preview" [style.background-color]="color"></div>
+        <span class="color-name">{{ color }}</span>
+        <mat-icon *ngIf="selectedColor === color" class="check-icon">check</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dialog Actions -->
+  <div class="dialog-actions">
+    <button mat-stroked-button (click)="onCancel()" class="cancel-button">
+      Cancel
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="selectColor(selectedColor)"
+      class="select-button">
+      <mat-icon>check</mat-icon>
+      Select Color
+    </button>
+  </div>
+</div> 
