@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { OfflineService, NetworkStatus } from '../../service/offline.service';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'app-offline-indicator',
@@ -33,7 +34,7 @@ export class OfflineIndicatorComponent implements OnInit, OnDestroy {
   showOnlineBanner = false;
   private subscriptions: Subscription[] = [];
 
-  constructor(private offlineService: OfflineService) {}
+  constructor(private offlineService: OfflineService, private notificationService: NotificationService) {}
 
   ngOnInit(): void {
     // Subscribe to network status changes
@@ -41,10 +42,15 @@ export class OfflineIndicatorComponent implements OnInit, OnDestroy {
       this.offlineService.networkStatus$.subscribe(status => {
         const wasOnline = this.isOnline;
         this.isOnline = status.online;
+
+        if(!this.isOnline){
+          this.notificationService.info('You are offline. Please check your internet connection.');
+        }
         
         // Show online banner when connection is restored
         if (!wasOnline && this.isOnline) {
           this.showOnlineBanner = true;
+          this.notificationService.info('Connection restored. Syncing data...');
           setTimeout(() => {
             this.showOnlineBanner = false;
           }, 5000); // Hide after 5 seconds
