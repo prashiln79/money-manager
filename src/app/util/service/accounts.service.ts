@@ -11,18 +11,24 @@ export class AccountsService {
     constructor(private firestore: Firestore, private auth: Auth) { }
 
     // 🔹 Create a new account for the logged-in user
-    async createAccount(userId: string, accountData: CreateAccountRequest): Promise<string> {
-        const accountId = this.generateAccountId();
-        const account: Account = {
-            accountId,
-            userId,
-            ...accountData,
-            createdAt: new Date() as any, // Firebase Timestamp
-            isActive: true
-        };
-        const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
-        await setDoc(accountRef, account);
-        return accountId;
+    createAccount(userId: string, accountData: CreateAccountRequest): Observable<string> {
+        return new Observable<string>(observer => {
+            const accountId = this.generateAccountId();
+            const account: Account = {
+                accountId,
+                userId,
+                ...accountData,
+                createdAt: new Date() as any, // Firebase Timestamp
+                isActive: true
+            };
+            const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
+            setDoc(accountRef, account).then(() => {
+                observer.next(accountId);
+                observer.complete();
+            }).catch(error => {
+                observer.error(error);
+            });
+        });
     }
 
     // 🔹 Get all accounts for the logged-in user
@@ -40,29 +46,50 @@ export class AccountsService {
     }
 
     // 🔹 Get a single account by its ID
-    async getAccount(userId: string, accountId: string): Promise<Account | undefined> {
-        const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
-        const accountSnap = await getDoc(accountRef);
-        if (accountSnap.exists()) {
-            return accountSnap.data() as Account;
-        }
-        return undefined;
+    getAccount(userId: string, accountId: string): Observable<Account | undefined> {
+        return new Observable<Account | undefined>(observer => {
+            const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
+            getDoc(accountRef).then(accountSnap => {
+                if (accountSnap.exists()) {
+                    observer.next(accountSnap.data() as Account);
+                } else {
+                    observer.next(undefined);
+                }
+                observer.complete();
+            }).catch(error => {
+                observer.error(error);
+            });
+        });
     }
 
     // 🔹 Update an existing account's details
-    async updateAccount(userId: string, accountId: string, accountData: UpdateAccountRequest): Promise<void> {
-        const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
-        const updateData = {
-            ...accountData,
-            updatedAt: new Date() as any // Firebase Timestamp
-        };
-        await updateDoc(accountRef, updateData);
+    updateAccount(userId: string, accountId: string, accountData: UpdateAccountRequest): Observable<void> {
+        return new Observable<void>(observer => {
+            const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
+            const updateData = {
+                ...accountData,
+                updatedAt: new Date() as any // Firebase Timestamp
+            };
+            updateDoc(accountRef, updateData).then(() => {
+                observer.next();
+                observer.complete();
+            }).catch(error => {
+                observer.error(error);
+            });
+        });
     }
 
     // 🔹 Delete an account
-    async deleteAccount(userId: string, accountId: string): Promise<void> {
-        const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
-        await deleteDoc(accountRef);
+    deleteAccount(userId: string, accountId: string): Observable<void> {
+        return new Observable<void>(observer => {
+            const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
+            deleteDoc(accountRef).then(() => {
+                observer.next();
+                observer.complete();
+            }).catch(error => {
+                observer.error(error);
+            });
+        });
     }
 
     // 🔹 Generate a unique account ID

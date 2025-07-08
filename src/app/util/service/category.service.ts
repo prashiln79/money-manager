@@ -41,25 +41,46 @@ export class CategoryService {
         });
     }
 
-    async createCategory(userId: string, name: string, type: 'income' | 'expense', icon: string, color: string): Promise<void> {
-        await addDoc(this.getUserCategoriesCollection(userId), {
-            name,
-            type,
-            icon,
-            color,
-            createdAt: Date.now()
+    createCategory(userId: string, name: string, type: 'income' | 'expense', icon: string, color: string): Observable<void> {
+        return new Observable<void>(observer => {
+            addDoc(this.getUserCategoriesCollection(userId), {
+                name,
+                type,
+                icon,
+                color,
+                createdAt: Date.now()
+            }).then(() => {
+                observer.next();
+                observer.complete();
+            }).catch(error => {
+                observer.error(error);
+            });
         });
     }
 
     /** Update a category */
-    async updateCategory(userId: string, categoryId: string, name: string, type: 'income' | 'expense', icon: string, color: string): Promise<void> {
-        const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
-        await updateDoc(categoryRef, { name, type, icon, color });
+    updateCategory(userId: string, categoryId: string, name: string, type: 'income' | 'expense', icon: string, color: string): Observable<void> {
+        return new Observable<void>(observer => {
+            const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
+            updateDoc(categoryRef, { name, type, icon, color }).then(() => {
+                observer.next();
+                observer.complete();
+            }).catch(error => {
+                observer.error(error);
+            });
+        });
     }
 
     /** Delete a category */
-    async deleteCategory(userId: string, categoryId: string): Promise<void> {
-        const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
-        await deleteDoc(categoryRef);
+    deleteCategory(userId: string, categoryId: string): Observable<void> {
+        return new Observable<void>(observer => {
+            const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
+            deleteDoc(categoryRef).then(() => {
+                observer.next();
+                observer.complete();
+            }).catch(error => {
+                observer.error(error);
+            });
+        });
     }
 }

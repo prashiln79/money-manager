@@ -150,37 +150,49 @@ export class TransactionsService {
         }
     }
 
-    async createTransaction(userId: string, transaction: Omit<Transaction, 'transactionId'>): Promise<void> {
-        const transactionData = {
-            ...transaction,
-            date: Timestamp.fromDate(transaction.date.toDate()),
-            syncStatus: 'synced' as const
-        };
+    createTransaction(userId: string, transaction: Omit<Transaction, 'transactionId'>): Observable<void> {
+        return new Observable<void>(observer => {
+            const transactionData = {
+                ...transaction,
+                date: Timestamp.fromDate(transaction.date.toDate()),
+                syncStatus: 'synced' as const
+            };
 
-        if (this.isOnline) {
-            try {
-                const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
-                await addDoc(transactionsCollection, transactionData);
-            } catch (error) {
-                console.error('Failed to create transaction online:', error);
-                // Fall back to offline mode
-                await this.addToOfflineQueue({
-                    type: 'create',
-                    data: transactionData
-                });
-            }
-        } else {
-            // Store offline
-            await this.addToOfflineQueue({
-                type: 'create',
-                data: { ...transactionData, syncStatus: 'pending' }
-            });
-            
-            // Update local cache
-            const currentTransactions = this.transactionsSubject.value;
-            const newTransaction = { ...transactionData, id: this.generateId(), isPending: true };
-            this.transactionsSubject.next([...currentTransactions, newTransaction]);
-        }
+            const createTransactionAsync = async () => {
+                try {
+                    if (this.isOnline) {
+                        try {
+                            const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
+                            await addDoc(transactionsCollection, transactionData);
+                        } catch (error) {
+                            console.error('Failed to create transaction online:', error);
+                            // Fall back to offline mode
+                            await this.addToOfflineQueue({
+                                type: 'create',
+                                data: transactionData
+                            });
+                        }
+                    } else {
+                        // Store offline
+                        await this.addToOfflineQueue({
+                            type: 'create',
+                            data: { ...transactionData, syncStatus: 'pending' }
+                        });
+                        
+                        // Update local cache
+                        const currentTransactions = this.transactionsSubject.value;
+                        const newTransaction = { ...transactionData, id: this.generateId(), isPending: true };
+                        this.transactionsSubject.next([...currentTransactions, newTransaction]);
+                    }
+                    observer.next();
+                    observer.complete();
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            createTransactionAsync();
+        });
     }
 
     // 🔹 Get all transactions for a user
@@ -212,69 +224,106 @@ export class TransactionsService {
     }
 
     // 🔹 Get a single transaction by its ID
-    async getTransaction(userId: string, transactionId: string): Promise<Transaction | undefined> {
-        const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-        const transactionSnap = await getDoc(transactionRef);
-        if (transactionSnap.exists()) {
-            return transactionSnap.data() as Transaction;
-        }
-        return undefined;
+    getTransaction(userId: string, transactionId: string): Observable<Transaction | undefined> {
+        return new Observable<Transaction | undefined>(observer => {
+            const getTransactionAsync = async () => {
+                try {
+                    const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
+                    const transactionSnap = await getDoc(transactionRef);
+                    if (transactionSnap.exists()) {
+                        const transaction = { id: transactionSnap.id, ...transactionSnap.data() } as Transaction;
+                        observer.next(transaction);
+                    } else {
+                        observer.next(undefined);
+                    }
+                    observer.complete();
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            getTransactionAsync();
+        });
     }
 
     // 🔹 Update an existing transaction
-    async updateTransaction(userId: string, transactionId: string, updatedTransaction: Partial<Transaction>): Promise<void> {
-        const updateData = { ...updatedTransaction, syncStatus: 'synced' as const };
+    updateTransaction(userId: string, transactionId: string, updatedTransaction: Partial<Transaction>): Observable<void> {
+        return new Observable<void>(observer => {
+            const updateData = { ...updatedTransaction, syncStatus: 'synced' as const };
 
-        if (this.isOnline) {
-            try {
-                const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                await updateDoc(transactionRef, updateData);
-            } catch (error) {
-                console.error('Failed to update transaction online:', error);
-                await this.addToOfflineQueue({
-                    type: 'update',
-                    data: { id: transactionId, ...updateData }
-                });
-            }
-        } else {
-            await this.addToOfflineQueue({
-                type: 'update',
-                data: { id: transactionId, ...updateData, syncStatus: 'pending' }
-            });
-            
-            // Update local cache
-            const currentTransactions = this.transactionsSubject.value;
-            const updatedTransactions = currentTransactions.map(t => 
-                t.id === transactionId ? { ...t, ...updateData, isPending: true } : t
-            );
-            this.transactionsSubject.next(updatedTransactions);
-        }
+            const updateTransactionAsync = async () => {
+                try {
+                    if (this.isOnline) {
+                        try {
+                            const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
+                            await updateDoc(transactionRef, updateData);
+                        } catch (error) {
+                            console.error('Failed to update transaction online:', error);
+                            await this.addToOfflineQueue({
+                                type: 'update',
+                                data: { id: transactionId, ...updateData }
+                            });
+                        }
+                    } else {
+                        await this.addToOfflineQueue({
+                            type: 'update',
+                            data: { id: transactionId, ...updateData, syncStatus: 'pending' }
+                        });
+                        
+                        // Update local cache
+                        const currentTransactions = this.transactionsSubject.value;
+                        const updatedTransactions = currentTransactions.map(t => 
+                            t.id === transactionId ? { ...t, ...updateData, isPending: true } : t
+                        );
+                        this.transactionsSubject.next(updatedTransactions);
+                    }
+                    observer.next();
+                    observer.complete();
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            updateTransactionAsync();
+        });
     }
 
     // 🔹 Delete a transaction
-    async deleteTransaction(userId: string, transactionId: string): Promise<void> {
-        if (this.isOnline) {
-            try {
-                const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                await deleteDoc(transactionRef);
-            } catch (error) {
-                console.error('Failed to delete transaction online:', error);
-                await this.addToOfflineQueue({
-                    type: 'delete',
-                    data: { id: transactionId }
-                });
-            }
-        } else {
-            await this.addToOfflineQueue({
-                type: 'delete',
-                data: { id: transactionId }
-            });
-            
-            // Update local cache
-            const currentTransactions = this.transactionsSubject.value;
-            const filteredTransactions = currentTransactions.filter(t => t.id !== transactionId);
-            this.transactionsSubject.next(filteredTransactions);
-        }
+    deleteTransaction(userId: string, transactionId: string): Observable<void> {
+        return new Observable<void>(observer => {
+            const deleteTransactionAsync = async () => {
+                try {
+                    if (this.isOnline) {
+                        try {
+                            const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
+                            await deleteDoc(transactionRef);
+                        } catch (error) {
+                            console.error('Failed to delete transaction online:', error);
+                            await this.addToOfflineQueue({
+                                type: 'delete',
+                                data: { id: transactionId }
+                            });
+                        }
+                    } else {
+                        await this.addToOfflineQueue({
+                            type: 'delete',
+                            data: { id: transactionId }
+                        });
+                        
+                        // Update local cache
+                        const currentTransactions = this.transactionsSubject.value;
+                        const filteredTransactions = currentTransactions.filter(t => t.id !== transactionId);
+                        this.transactionsSubject.next(filteredTransactions);
+                    }
+                    observer.next();
+                    observer.complete();
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            deleteTransactionAsync();
+        });
     }
 
     // 🔹 Get offline queue status

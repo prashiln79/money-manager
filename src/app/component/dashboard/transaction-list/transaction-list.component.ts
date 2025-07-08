@@ -292,11 +292,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       this.auth.currentUser?.uid || '', 
       element.id || '', 
       updateData
-    ).then(() => {
+    ).subscribe(() => {
       this.notificationService.success('Transaction updated successfully');
       element.isEditing = false;
       delete element.originalValues;
-    }).catch(error => {
+    }, error => {
       this.notificationService.error('Failed to update transaction');
       // Revert to original values
       element.payee = element.originalValues.payee;
