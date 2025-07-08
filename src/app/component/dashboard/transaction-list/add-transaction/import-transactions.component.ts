@@ -11,10 +11,12 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 import { Papa } from 'ngx-papaparse';
 import * as XLSX from 'xlsx';
 import { Auth } from '@angular/fire/auth';
-import { AccountsService } from 'src/app/util/service/accounts.service';
-import { CategoryService } from 'src/app/util/service/category.service';
 import { Account } from 'src/app/util/models/account.model';
 import { Category } from 'src/app/util/models';
+import { AppState } from 'src/app/store/app.state';
+import { Store } from '@ngrx/store';
+import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
+import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 
 @Component({
   selector: 'import-transactions',
@@ -52,8 +54,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
     private notificationService: NotificationService,
     private papa: Papa,
     private auth: Auth,
-    private accountsService: AccountsService,
-    private categoryService: CategoryService
+    private store: Store<AppState>,
   ) {
     this.checkScreenSize();
     window.addEventListener('resize', () => this.checkScreenSize());
@@ -74,7 +75,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
 
     try {
       // Load accounts
-      this.accountsService.getAccounts(userId).subscribe(accounts => {
+      this.store.select(selectAllAccounts).subscribe(accounts => {
         this.accounts = accounts;
         if (accounts.length > 0) {
           this.defaultAccountId = accounts[0].accountId;
@@ -82,7 +83,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
       });
 
       // Load categories
-      this.categoryService.getCategories(userId).subscribe(categories => {
+      this.store.select(selectAllCategories).subscribe(categories => {
         this.categories = categories;
         this.incomeCategories = categories.filter(cat => cat.type === 'income');
         this.expenseCategories = categories.filter(cat => cat.type === 'expense');

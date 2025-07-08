@@ -72,7 +72,7 @@ export const AVAILABLE_ICONS: string[] = [
 
 // Available colors for category selection
 export const AVAILABLE_COLORS: string[] = [
-  '#2196F3', '#4CAF50', '#FF9800', '#F44336', '#9C27B0', '#00BCD4', '#FF5722', '#795548',
+  '#46777f', '#4CAF50', '#FF9800', '#F44336', '#9C27B0', '#00BCD4', '#FF5722', '#795548',
   '#607D8B', '#E91E63', '#3F51B5', '#009688', '#FFC107', '#8BC34A', '#FFEB3B', '#CDDC39',
   '#FF4081', '#7C4DFF', '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE',
   '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40', '#FF3D00', '#D50000'

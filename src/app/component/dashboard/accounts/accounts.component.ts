@@ -3,12 +3,10 @@ import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, Observable, of } from 'rxjs';
 import { Account } from 'src/app/util/models/account.model';
-import { AccountsService } from 'src/app/util/service/accounts.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MobileAccountComponent } from './mobile-account/mobile-account.component';
 import { AddAccountDialogComponent } from './add-account-dialog/add-account-dialog.component';
-import { MobileAccountsListComponent } from './mobile-accounts-list/mobile-accounts-list.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { Store } from '@ngrx/store';
@@ -39,7 +37,6 @@ export class AccountsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private readonly accountsService: AccountsService,
     private readonly auth: Auth,
     private readonly router: Router,
     private readonly dialog: MatDialog,

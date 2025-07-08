@@ -12,7 +12,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Transaction } from '../../../../util/service/transactions.service';
 import { Subject, Subscription } from 'rxjs';
 import moment from 'moment';
-import { CategoryService } from 'src/app/util/service/category.service';
 import { Auth } from '@angular/fire/auth';
 import { Account, Category } from 'src/app/util/models';
 import { Router } from '@angular/router';
@@ -21,8 +20,11 @@ import {
   CustomDateRangeDialogComponent,
   CustomDateRangeData,
 } from '../../../../util/components/custom-date-range-dialog';
-import { AccountsService } from '../../../../util/service/accounts.service';
 import { DateService } from 'src/app/util/service/date.service';
+import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
+import { AppState } from 'src/app/store/app.state';
+import { Store } from '@ngrx/store';
+import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 
 interface SortOption {
   value: string;
@@ -77,12 +79,11 @@ export class MobileTransactionListComponent
   categories: Category[] = [];
 
   constructor(
-    private readonly categoryService: CategoryService,
     private readonly auth: Auth,
     private readonly route: Router,
     private readonly dialog: MatDialog,
-    private readonly accountsService: AccountsService,
-    public readonly dateService: DateService
+    public readonly dateService: DateService,
+    private readonly store: Store<AppState>
   ) {}
 
   ngOnInit() {
@@ -413,13 +414,13 @@ export class MobileTransactionListComponent
   }
 
   getCategoryColor(category: string): string {
-    return this.categories.find((c) => c.name === category)?.color || '#2196F3';
+    return this.categories.find((c) => c.name === category)?.color || '#46777f';
   }
 
   private async loadUserCategories(): Promise<void> {
     if (this.auth.currentUser?.uid) {
       this.subscription.add(
-        this.categoryService.getCategories(this.auth.currentUser.uid).subscribe(
+        this.store.select(selectAllCategories).subscribe(
           (categories) => {
             this.categories = categories;
           },
@@ -434,8 +435,8 @@ export class MobileTransactionListComponent
   private async loadUserAccounts(): Promise<void> {
     if (this.auth.currentUser?.uid) {
       this.subscription.add(
-        this.accountsService.getAccounts(this.auth.currentUser.uid).subscribe(
-          (accounts) => {
+        this.store.select(selectAllAccounts).subscribe(
+            (accounts) => {
             this.accounts = accounts;
           },
           (error) => {
@@ -480,7 +481,7 @@ export class MobileTransactionListComponent
   getSyncStatusColor(transaction: Transaction): string {
     if (transaction.isPending) return '#ff9800';
     if (transaction.syncStatus === 'failed') return '#f44336';
-    if (transaction.syncStatus === 'pending') return '#2196f3';
+    if (transaction.syncStatus === 'pending') return '#46777f';
     return '#4caf50';
   }
 

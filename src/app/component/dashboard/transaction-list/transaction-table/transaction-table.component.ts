@@ -2,11 +2,14 @@ import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, O
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { Transaction } from '../../../../util/service/transactions.service';
-import { CategoryService } from '../../../../util/service/category.service';
 import { Auth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
 import { DateService } from 'src/app/util/service/date.service';
+import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
+import { Category } from 'src/app/util/models';
+import { AppState } from 'src/app/store/app.state';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'transaction-table',
@@ -37,9 +40,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   categories: any[] = [];
 
   constructor(
-    private categoryService: CategoryService,
     private auth: Auth,
-    private dateService: DateService
+    private dateService: DateService,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit() {
@@ -239,7 +242,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   private loadCategories(): void {
     const userId = this.auth.currentUser?.uid;
     if (userId) {
-      this.categoryService.getCategories(userId).subscribe(categories => {
+      this.store.select(selectAllCategories).subscribe((categories: Category[]) => {
         this.categories = categories;
       });
     }
@@ -250,7 +253,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   }
 
   getCategoryColor(category: string): string {
-    return this.categories.find((c) => c.name === category)?.color || "#2196F3";
+    return this.categories.find((c) => c.name === category)?.color || "#46777f";
   }
 
   // Custom sort function for category column

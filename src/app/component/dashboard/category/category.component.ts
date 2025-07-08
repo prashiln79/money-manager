@@ -4,7 +4,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject, Observable, of } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
-import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
@@ -46,7 +45,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
   private isSubmitting: boolean = false;
 
   constructor(
-    private categoryService: CategoryService,
     private auth: Auth,
     private dialog: MatDialog,
     private notificationService: NotificationService,
@@ -168,7 +166,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         name: category.name,
         type: category.type,
         icon: category.icon || 'category',
-        color: category.color || '#2196F3',
+        color: category.color || '#46777f',
         createdAt: category.createdAt
       };
     }
@@ -344,7 +342,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       name: '',
       type: 'expense',
       icon: 'shopping_cart',
-      color: '#2196F3',
+      color: '#46777f',
       createdAt: Date.now()
     };
   }

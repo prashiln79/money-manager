@@ -7,7 +7,6 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { CategoryService } from 'src/app/util/service/category.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import {
@@ -17,6 +16,9 @@ import {
 } from 'src/app/util/models';
 import { IconSelectorDialogComponent } from '../icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from '../color-selector-dialog/color-selector-dialog.component';
+import { AppState } from 'src/app/store/app.state';
+import { Store } from '@ngrx/store';
+import { createCategory, updateCategory } from 'src/app/store/categories/categories.actions';
 
 @Component({
   selector: 'app-mobile-category-add-edit-popup',
@@ -34,7 +36,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: Category | null,
-    private categoryService: CategoryService,
+    private store: Store<AppState>,
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<MobileCategoryAddEditPopupComponent>,
     private auth: Auth,
@@ -47,7 +49,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(50)]],
       type: ['expense', Validators.required],
       icon: ['category', Validators.required],
-      color: ['#2196F3', Validators.required],
+      color: ['#46777f', Validators.required],
     });
   }
 
@@ -66,7 +68,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
         name: this.dialogData.name,
         type: this.dialogData.type,
         icon: this.dialogData.icon || 'category',
-        color: this.dialogData.color || '#2196F3',
+        color: this.dialogData.color || '#46777f',
       });
     }
   }
@@ -80,23 +82,27 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
 
         if (this.dialogData?.id) {
           // Update existing category
-          await this.categoryService.updateCategory(
-            this.userId,
-            this.dialogData.id,
-            formValue.name.trim(),
-            formValue.type,
-            formValue.icon,
-            formValue.color
+          await this.store.dispatch(
+            updateCategory({
+              userId: this.userId,
+              categoryId: this.dialogData.id,
+              name: formValue.name.trim(),
+              categoryType: formValue.type,
+              icon: formValue.icon,
+              color: formValue.color,
+            })
           );
           this.notificationService.success('Category updated successfully');
         } else {
           // Create new category
-          await this.categoryService.createCategory(
-            this.userId,
-            formValue.name.trim(),
-            formValue.type,
-            formValue.icon,
-            formValue.color
+          await this.store.dispatch(
+            createCategory({
+              userId: this.userId,
+              name: formValue.name.trim(),
+              categoryType: formValue.type,
+              icon: formValue.icon,
+              color: formValue.color,
+            })
           );
           this.notificationService.success('Category added successfully');
           this.hapticFeedback.successVibration();

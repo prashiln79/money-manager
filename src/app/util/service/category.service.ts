@@ -28,7 +28,7 @@ export class CategoryService {
                         name: data?.name,
                         type: data?.type,
                         icon: data?.icon || 'category',
-                        color: data?.color || '#2196F3', // Default blue color
+                        color: data?.color || '#46777f', // Default blue color
                         createdAt: data?.createdAt
                     };
                     categories.push(category);

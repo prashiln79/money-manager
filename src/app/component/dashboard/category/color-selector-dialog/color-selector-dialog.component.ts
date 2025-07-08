@@ -22,7 +22,7 @@ export class ColorSelectorDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ColorSelectorDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ColorSelectorDialogData
   ) {
-    this.selectedColor = data.currentColor || '#2196F3';
+    this.selectedColor = data.currentColor || '#46777f';
     this.filteredColors = [...this.availableColors];
   }
 

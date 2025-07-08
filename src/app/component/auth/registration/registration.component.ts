@@ -4,9 +4,11 @@ import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { UserService } from "src/app/util/service/user.service";
 import { User, CURRENCIES, DEFAULT_CURRENCY, Category, defaultCategoriesForNewUser } from "src/app/util/models";
-import { CategoryService } from "src/app/util/service/category.service";
-import { AccountsService } from "src/app/util/service/accounts.service";
 import { AccountType } from "src/app/util/models/account.model";
+import { AppState } from "src/app/store/app.state";
+import { Store } from "@ngrx/store";
+import { createAccount } from "src/app/store/accounts/accounts.actions";
+import { createCategory } from "src/app/store/categories/categories.actions";
 
 interface BankAccount {
 	id?: string;
@@ -48,9 +50,9 @@ export class RegistrationComponent implements OnInit {
 		private fb: FormBuilder,
 		private router: Router,
 		private userService: UserService,
-		private categoryService: CategoryService,
-		private accountsService: AccountsService,
-		private notificationService: NotificationService
+		private notificationService: NotificationService,
+		private store: Store<AppState>
+
 	) {
 		this.registrationForm = this.fb.group({
 			// Step 1: Basic Profile
@@ -140,7 +142,7 @@ export class RegistrationComponent implements OnInit {
 		const categoryForm = this.fb.group({
 			name: [category?.name || "", Validators.required],
 			type: [category?.type || "expense", Validators.required],
-			color: [category?.color || "#2196F3", Validators.required],
+			color: [category?.color || "#46777f", Validators.required],
 			icon: [category?.icon || "category", Validators.required],
 		});
 
@@ -210,20 +212,31 @@ export class RegistrationComponent implements OnInit {
 
 				// 3. Create bank accounts
 				for (const account of formValue.bankAccounts) {
-					await this.accountsService.createAccount(user?.uid, {
-						name: account.name,
-						type: this.mapBankAccountType(account.type),
-						balance: account.balance,
-						description: `${account.type} account`,
-						institution: account.institution,
-						currency: account.currency,
-						accountNumber: account.accountNumber
-					});
+					await this.store.dispatch(createAccount({
+						userId: user?.uid,
+						accountData: {
+							name: account.name,
+							type: this.mapBankAccountType(account.type),
+							balance: account.balance,
+							description: `${account.type} account`,
+							institution: account.institution,
+							currency: account.currency,
+							accountNumber: account.accountNumber
+						}
+					}));
 				}
 
 				// 4. Create categories
 				for (const category of formValue.categories) {
-					await this.categoryService.createCategory(user?.uid, category.name, category.type, category.icon, category.color);
+					await this.store.dispatch(
+						createCategory({
+							userId: user?.uid,
+							name: category.name,
+							categoryType: category.type,
+							icon: category.icon,
+							color: category.color,
+						})
+					);
 				}
 
 				this.notificationService.success("Registration successful! Welcome to Money Manager.");

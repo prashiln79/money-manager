@@ -3,13 +3,13 @@ import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { CategoryService } from 'src/app/util/service/category.service';
 import { DateService } from 'src/app/util/service/date.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsActions from '../../../../../store/transactions/transactions.actions';
+import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 
 @Component({
   selector: 'app-transaction',
@@ -44,12 +44,10 @@ export class TransactionComponent {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
-    private categoryService: CategoryService,
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<TransactionComponent>,
     private auth: Auth,
     private notificationService: NotificationService,
-    private router: Router,
     private hapticFeedback: HapticFeedbackService,
     private dateService: DateService,
     private store: Store<AppState>
@@ -63,8 +61,8 @@ export class TransactionComponent {
       type: ['expense'],
     });
 
-    this.categoryService
-      .getCategories(this.auth.currentUser?.uid || '')
+    this.store
+      .select(selectAllCategories)
       .subscribe((resp) => {
         this.tagList = resp;
         if (this.dialogData?.id) {
