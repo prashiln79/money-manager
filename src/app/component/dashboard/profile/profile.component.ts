@@ -94,7 +94,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private auth: Auth,
     private router: Router,
-    private userService: UserService,
     private notificationService: NotificationService,
     private dialog: MatDialog,
     private store: Store<AppState>
