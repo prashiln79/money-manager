@@ -43,7 +43,7 @@ export class MobileTransactionListComponent
   @Input() selectedCategory: string[] = ['all'];
   @Input() selectedType: string = 'all';
   @Input() selectedDate: Date | null = null;
-  @Input() selectedDateRange: { start: Date; end: Date } | null = null;
+  @Input() selectedDateRange: { startDate: Date; endDate: Date } | null = null;
 
   @Output() editTransaction = new EventEmitter<Transaction>();
   @Output() deleteTransaction = new EventEmitter<Transaction>();
@@ -53,8 +53,8 @@ export class MobileTransactionListComponent
   @Output() selectedCategoryChange = new EventEmitter<string[]>();
   @Output() selectedTypeChange = new EventEmitter<string>();
   @Output() selectedDateRangeChange = new EventEmitter<{
-    start: Date;
-    end: Date;
+    startDate: Date;
+    endDate: Date;
   } | null>();
 
   selectedTx: Transaction | null = null;
@@ -141,8 +141,8 @@ export class MobileTransactionListComponent
 
     // Date range filter
     if (this.selectedDateRange) {
-      const startMoment = moment(this.selectedDateRange.start).startOf('day');
-      const endMoment = moment(this.selectedDateRange.end).endOf('day');
+      const startMoment = moment(this.selectedDateRange.startDate).startOf('day');
+      const endMoment = moment(this.selectedDateRange.endDate).endOf('day');
       filtered = filtered.filter((tx) => {
         const txMoment = moment(this.dateService.toDate(tx.date));
         return txMoment.isBetween(startMoment, endMoment, 'day', '[]');
@@ -238,20 +238,20 @@ export class MobileTransactionListComponent
       switch (range) {
         case 'currentMonth':
           this.selectedDateRange = {
-            start: (moment().startOf('month')).toDate(),
-            end: (moment().endOf('month')).toDate(),
+            startDate: (moment().startOf('month')).toDate(),
+            endDate: (moment().endOf('month')).toDate(),
           };
           break;
         case 'lastMonth':
           this.selectedDateRange = {
-            start: (moment().subtract(1, 'month').startOf('month')).toDate(),
-            end: (moment().subtract(1, 'month').endOf('month')).toDate(),
+            startDate: (moment().subtract(1, 'month').startOf('month')).toDate(),
+            endDate: (moment().subtract(1, 'month').endOf('month')).toDate(),
           };
           break;
         case 'currentYear':
           this.selectedDateRange = {
-            start: (moment().startOf('year')).toDate(),
-            end: (moment().endOf('year')).toDate(),
+            startDate: (moment().startOf('year')).toDate(),
+            endDate: (moment().endOf('year')).toDate(),
           };
           break;
       }
@@ -263,8 +263,8 @@ export class MobileTransactionListComponent
   isCurrentMonth(): boolean {
     if (!this.selectedDateRange) return false;
     const now = moment();
-    const start = moment(this.selectedDateRange.start);
-    const end = moment(this.selectedDateRange.end);
+    const start = moment(this.selectedDateRange.startDate);
+    const end = moment(this.selectedDateRange.endDate);
     return start.isSame(now.startOf('month')) && end.isSame(now.endOf('month'));
   }
 
@@ -272,8 +272,8 @@ export class MobileTransactionListComponent
     if (!this.selectedDateRange) return false;
     const now = moment();
     const lastMonth = now.subtract(1, 'month');
-    const start = moment(this.selectedDateRange.start);
-    const end = moment(this.selectedDateRange.end);
+    const start = moment(this.selectedDateRange.startDate);
+    const end = moment(this.selectedDateRange.endDate);
     return (
       start.isSame(lastMonth.startOf('month')) &&
       end.isSame(lastMonth.endOf('month'))
@@ -283,8 +283,8 @@ export class MobileTransactionListComponent
   isCurrentYear(): boolean {
     if (!this.selectedDateRange) return false;
     const now = moment();
-    const start = moment(this.selectedDateRange.start);
-    const end = moment(this.selectedDateRange.end);
+    const start = moment(this.selectedDateRange.startDate);
+    const end = moment(this.selectedDateRange.endDate);
     return start.isSame(now.startOf('year')) && end.isSame(now.endOf('year'));
   }
 
@@ -550,8 +550,8 @@ export class MobileTransactionListComponent
 
   openCustomDateRangeDialog() {
     const dialogData: CustomDateRangeData = {
-      startDate: this.selectedDateRange?.start,
-      endDate: this.selectedDateRange?.end,
+      startDate: this.selectedDateRange?.startDate,
+      endDate: this.selectedDateRange?.endDate,
     };
 
     const dialogRef = this.dialog.open(CustomDateRangeDialogComponent, {
@@ -563,8 +563,8 @@ export class MobileTransactionListComponent
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.selectedDateRange = {
-          start: result.start,
-          end: result.end,
+          startDate: result.startDate,
+          endDate: result.endDate,
         };
         this.selectedDateRangeChange.emit(this.selectedDateRange);
         this.filterTransactions();
