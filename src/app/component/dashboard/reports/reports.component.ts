@@ -1,13 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { TransactionsService, Transaction } from '../../../util/service/transactions.service';
 import { AccountsService } from '../../../util/service/accounts.service';
 import { Account } from '../../../util/models/account.model';
 import { CategoryService } from '../../../util/service/category.service';
 import { NotificationService } from '../../../util/service/notification.service';
 import { Category } from 'src/app/util/models';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../store/app.state';
+import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
+import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
 
 interface CategorySpending {
   category: string;
@@ -30,6 +35,14 @@ interface MonthlyData {
   styleUrls: ['./reports.component.scss']
 })
 export class ReportsComponent implements OnInit, OnDestroy {
+  // Observables from store
+  transactions$: Observable<Transaction[]>;
+  accounts$: Observable<Account[]>;
+  categories$: Observable<Category[]>;
+  transactionsLoading$: Observable<boolean>;
+  accountsLoading$: Observable<boolean>;
+  categoriesLoading$: Observable<boolean>;
+  
   // Financial metrics
   totalIncome: number = 0;
   totalExpenses: number = 0;
@@ -60,8 +73,17 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private transactionsService: TransactionsService,
     private accountsService: AccountsService,
     private categoryService: CategoryService,
-    private notificationService: NotificationService
-  ) { }
+    private notificationService: NotificationService,
+    private store: Store<AppState>
+  ) {
+    // Initialize selectors
+    this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
+    this.accounts$ = this.store.select(AccountsSelectors.selectAllAccounts);
+    this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
+    this.transactionsLoading$ = this.store.select(TransactionsSelectors.selectTransactionsLoading);
+    this.accountsLoading$ = this.store.select(AccountsSelectors.selectAccountsLoading);
+    this.categoriesLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -79,46 +101,23 @@ export class ReportsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const userId = currentUser.uid;
-
-    // Load transactions
-    const transactionsSub = this.transactionsService.getTransactions(userId).subscribe({
-      next: (transactions) => {
-        this.transactions = transactions;
-        this.calculateFinancialMetrics();
-        this.calculateTopCategories();
-        this.getRecentTransactions();
-        this.calculateMonthlyTrends();
-        this.isLoading = false;
-        this.hasData = this.transactions.length > 0;
-      },
-      error: (error) => {
-        console.error('Error loading transactions:', error);
-        this.notificationService.error('Failed to load transaction data');
-        this.isLoading = false;
-      }
+    // Subscribe to store data
+    const transactionsSub = this.transactions$.subscribe(transactions => {
+      this.transactions = transactions;
+      this.calculateFinancialMetrics();
+      this.calculateTopCategories();
+      this.getRecentTransactions();
+      this.calculateMonthlyTrends();
+      this.isLoading = false;
+      this.hasData = this.transactions.length > 0;
     });
 
-    // Load accounts
-    const accountsSub = this.accountsService.getAccounts(userId).subscribe({
-      next: (accounts) => {
-        this.accounts = accounts;
-      },
-      error: (error) => {
-        console.error('Error loading accounts:', error);
-        this.notificationService.error('Failed to load account data');
-      }
+    const accountsSub = this.accounts$.subscribe(accounts => {
+      this.accounts = accounts;
     });
 
-    // Load categories
-    const categoriesSub = this.categoryService.getCategories(userId).subscribe({
-      next: (categories) => {
-        this.categories = categories;
-      },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-        this.notificationService.error('Failed to load category data');
-      }
+    const categoriesSub = this.categories$.subscribe(categories => {
+      this.categories = categories;
     });
 
     this.subscriptions.push(transactionsSub, accountsSub, categoriesSub);

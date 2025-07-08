@@ -8,12 +8,12 @@
 	</div>
 
 	<!-- Loading Indicator -->
-	<div *ngIf="isLoading$ | async" class="loading-indicator flex justify-center items-center py-12">
+	<!-- <div *ngIf="isLoading$ | async" class="loading-indicator flex justify-center items-center py-12">
 		<mat-spinner diameter="32"></mat-spinner>
-	</div>
+	</div> -->
 
 	<!-- Mobile View -->
-	<div *ngIf="!(isLoading$ | async) && isMobile">
+	<div *ngIf="isMobile">
 		<mobile-accounts-list [accounts]="(accounts$ | async) || []" (editAccount)="editAccount($event)" (deleteAccount)="deleteAccount($event)" (addAccount)="addAccount()"> </mobile-accounts-list>
 	</div>
 

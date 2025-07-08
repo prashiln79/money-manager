@@ -9,24 +9,65 @@ export interface Category {
 
 // Available icons for category selection
 export const AVAILABLE_ICONS: string[] = [
-  'shopping_cart', 'restaurant', 'local_gas_station', 'home', 'directions_car',
-  'flight', 'hotel', 'local_hospital', 'school', 'work', 'sports_esports',
-  'movie', 'music_note', 'fitness_center', 'pets', 'child_care', 'elderly',
-  'celebration', 'card_giftcard', 'local_offer', 'account_balance', 'trending_up',
-  'attach_money', 'account_balance_wallet', 'credit_card', 'savings', 'payments',
-  'receipt', 'receipt_long', 'description', 'category', 'label', 'bookmark',
-  'favorite', 'star', 'thumb_up', 'thumb_down', 'check_circle', 'cancel',
-  'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
-  'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
-  'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'arrow_drop_up',
-  'arrow_drop_down', 'arrow_drop_left', 'arrow_drop_right', 'arrow_back_ios',
-  'arrow_forward_ios', 'arrow_upward_ios', 'arrow_downward_ios', 'arrow_drop_up_ios',
-  'arrow_drop_down_ios', 'arrow_drop_left_ios', 'arrow_drop_right_ios', 'arrow_back_ios_new',
-  'arrow_forward_ios_new', 'arrow_upward_ios_new', 'arrow_downward_ios_new', 'arrow_drop_up_ios_new',
-  'home', 'favorite', 'bookmark', 'star', 'thumb_up', 'thumb_down',
-  'check_circle', 'cancel', 'warning', 'info', 'help', 'settings', 'build', 'tune', 'filter_list',
-  'add', 'remove', 'edit', 'delete', 'save', 'cancel', 'close', 'check',
-  'arrow_back', 'arrow_forward',
+  // 💰 Finance & Budgeting
+  'attach_money', 'savings', 'account_balance', 'payments', 'credit_card',
+  'account_balance_wallet', 'trending_up', 'receipt', 'receipt_long',
+  'monetization_on', 'request_quote', 'price_check',
+
+  // 🛒 Expenses & Purchases
+  'shopping_cart', 'local_offer', 'card_giftcard', 'store', 'shopping_bag',
+
+  // 🍽️ Food & Dining
+  'restaurant', 'fastfood', 'local_cafe', 'liquor',
+
+  // 🚗 Transportation & Travel
+  'local_gas_station', 'directions_car', 'commute', 'flight', 'airport_shuttle', 'two_wheeler', 'train',
+
+  // 🏠 Home & Bills
+  'home', 'electrical_services', 'water_drop', 'lightbulb', 'wifi', 'cable',
+
+  // 🧾 Utilities & Services
+  'plumbing', 'build', 'tune', 'settings', 'support',
+
+  // 🏥 Health & Insurance
+  'local_hospital', 'medication', 'vaccines', 'health_and_safety',
+
+  // 🎓 Education
+  'school', 'menu_book', 'backpack',
+
+  // 🧘‍♂️ Fitness & Lifestyle
+  'fitness_center', 'self_improvement', 'spa', 'emoji_people',
+
+  // 🧒 Family & Children
+  'child_friendly', 'family_restroom', 'child_care',
+
+  // 🎉 Entertainment & Leisure
+  'celebration', 'sports_esports', 'movie', 'music_note', 'theaters', 'event',
+
+  // 📈 Investment & Income
+  'show_chart', 'insights', 'bar_chart', 'stacked_line_chart', 'pie_chart',
+
+  // 💼 Work & Business
+  'work', 'business_center', 'badge',
+
+  // 🤝 Charity & Giving
+  'volunteer_activism', 'diversity_1', 'redeem',
+
+  // 🧾 Tax & Legal
+  'gavel', 'policy', 'description', 'fact_check',
+
+  // 🧠 Personal Growth
+  'psychology', 'lightbulb', 'star', 'bookmark', 'category', 'label',
+
+  // 🔧 Actions & Management
+  'add', 'remove', 'edit', 'delete', 'save', 'check', 'cancel', 'close', 'done', 'refresh',
+
+  // 🔔 Notifications & Status
+  'check_circle', 'warning', 'info', 'help', 'notifications', 'notifications_active',
+
+  // 🔽 Navigation
+  'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward',
+  'keyboard_arrow_up', 'keyboard_arrow_down', 'expand_more', 'expand_less'
 ];
 
 // Available colors for category selection
@@ -38,14 +79,24 @@ export const AVAILABLE_COLORS: string[] = [
 ]; 
 
 export const defaultCategoriesForNewUser: Category[] = [
-	{ name: "Salary", type: "income", color: "#4CAF50", icon: "work", createdAt: Date.now() },
-	{ name: "Freelance", type: "income", color: "#2196F3", icon: "computer", createdAt: Date.now() },
-	{ name: "Investment", type: "income", color: "#FF9800", icon: "trending_up", createdAt: Date.now() },
-	{ name: "Food & Dining", type: "expense", color: "#F44336", icon: "restaurant", createdAt: Date.now() },
-	{ name: "Transportation", type: "expense", color: "#9C27B0", icon: "directions_car", createdAt: Date.now() },
-	{ name: "Shopping", type: "expense", color: "#E91E63", icon: "shopping_cart", createdAt: Date.now() },
-	{ name: "Bills & Utilities", type: "expense", color: "#607D8B", icon: "receipt", createdAt: Date.now() },
-	{ name: "Healthcare", type: "expense", color: "#00BCD4", icon: "local_hospital", createdAt: Date.now() },
-	{ name: "Entertainment", type: "expense", color: "#FF5722", icon: "movie", createdAt: Date.now() },
-	{ name: "Education", type: "expense", color: "#3F51B5", icon: "school", createdAt: Date.now() },
+  // Income Categories
+  { name: "Salary", type: "income", color: "#4CAF50", icon: "work", createdAt: Date.now() },
+  { name: "Freelance", type: "income", color: "#00BCD4", icon: "computer", createdAt: Date.now() },
+  { name: "Investments", type: "income", color: "#FFC107", icon: "trending_up", createdAt: Date.now() },
+  { name: "Gifts & Rewards", type: "income", color: "#8BC34A", icon: "card_giftcard", createdAt: Date.now() },
+  { name: "Other Income", type: "income", color: "#9E9E9E", icon: "attach_money", createdAt: Date.now() },
+
+  // Expense Categories
+  { name: "Food & Dining", type: "expense", color: "#F44336", icon: "restaurant", createdAt: Date.now() },
+  { name: "Transport & Fuel", type: "expense", color: "#9C27B0", icon: "directions_car", createdAt: Date.now() },
+  { name: "Shopping", type: "expense", color: "#E91E63", icon: "shopping_cart", createdAt: Date.now() },
+  { name: "Bills & Utilities", type: "expense", color: "#607D8B", icon: "receipt_long", createdAt: Date.now() },
+  { name: "Healthcare", type: "expense", color: "#03A9F4", icon: "local_hospital", createdAt: Date.now() },
+  { name: "Entertainment", type: "expense", color: "#FF5722", icon: "sports_esports", createdAt: Date.now() },
+  { name: "Education", type: "expense", color: "#3F51B5", icon: "school", createdAt: Date.now() },
+  { name: "Travel", type: "expense", color: "#009688", icon: "flight", createdAt: Date.now() },
+  { name: "Family & Kids", type: "expense", color: "#CDDC39", icon: "family_restroom", createdAt: Date.now() },
+  { name: "Charity", type: "expense", color: "#795548", icon: "volunteer_activism", createdAt: Date.now() },
+  { name: "Other Expenses", type: "expense", color: "#9E9E9E", icon: "category", createdAt: Date.now() }
 ];
+

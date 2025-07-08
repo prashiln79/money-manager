@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, Observable, Subscription } from 'rxjs';
 import { UserService } from 'src/app/util/service/user.service';
 import {
   User,
@@ -15,6 +15,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import moment from 'moment';
 import { Timestamp } from 'firebase/firestore';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../store/app.state';
+import * as ProfileActions from '../../../store/profile/profile.actions';
+import * as ProfileSelectors from '../../../store/profile/profile.selectors';
 
 interface UserProfile {
   uid: string;
@@ -43,6 +47,11 @@ interface UserProfile {
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+  // Observables from store
+  profile$: Observable<User | null>;
+  profileLoading$: Observable<boolean>;
+  profileError$: Observable<any>;
+  
   profileForm: FormGroup;
   isLoading = false;
   isEditing = false;
@@ -79,15 +88,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ];
 
   private destroy$ = new Subject<void>();
+  private subscriptions = new Subscription();
 
-  constructor(
+    constructor(
     private fb: FormBuilder,
     private auth: Auth,
     private router: Router,
     private userService: UserService,
     private notificationService: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private store: Store<AppState>
   ) {
+    // Initialize selectors
+    this.profile$ = this.store.select(ProfileSelectors.selectProfile);
+    this.profileLoading$ = this.store.select(ProfileSelectors.selectProfileLoading);
+    this.profileError$ = this.store.select(ProfileSelectors.selectProfileError);
+    
     this.profileForm = this.fb.group({
       firstName: [
         '',
@@ -123,9 +139,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadUserProfile();
+    this.subscribeToStoreData();
   }
 
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -141,22 +159,41 @@ export class ProfileComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Load user profile from Firestore or create default
-      const userData = await this.userService.getCurrentUser();
-      if (userData) {
-        this.userProfile = this.mapUserToProfile(userData);
-        this.populateForm();
-      } else {
-        // Create default profile
-        this.userProfile = this.createDefaultProfile();
-        this.populateForm();
-      }
+      // Load user profile from store
+      this.store.dispatch(ProfileActions.loadProfile({ userId: this.currentUser.uid }));
     } catch (error) {
       console.error('Error loading profile:', error);
       this.notificationService.error('Failed to load profile');
     } finally {
       this.isLoading = false;
     }
+  }
+
+  // Subscribe to store data for backward compatibility
+  private subscribeToStoreData(): void {
+    this.subscriptions.add(
+      this.profile$.subscribe(profile => {
+        if (profile) {
+          this.userProfile = this.mapUserToProfile(profile);
+          this.populateForm();
+        }
+      })
+    );
+
+    this.subscriptions.add(
+      this.profileLoading$.subscribe(loading => {
+        this.isLoading = loading;
+      })
+    );
+
+    this.subscriptions.add(
+      this.profileError$.subscribe(error => {
+        if (error) {
+          console.error('Error loading profile:', error);
+          this.notificationService.error('Failed to load profile');
+        }
+      })
+    );
   }
 
   private mapUserToProfile(user: User): UserProfile {
@@ -250,11 +287,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
       const formValue = this.profileForm.value;
 
       if (this.userProfile) {
-        await this.userService.createOrUpdateUser({
+        const updatedUser = {
           uid: this.userProfile.uid,
           name: `${formValue.firstName} ${formValue.lastName}`.trim(),
           email: formValue.email,
-          role: 'free', // Keep existing role
+          role: 'free' as any, // Keep existing role
           createdAt: this.userProfile.createdAt,
           preferences: formValue.preferences,
           firstName: formValue.firstName,
@@ -262,8 +299,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
           phone: formValue.phone,
           dateOfBirth: formValue.dateOfBirth,
           occupation: formValue.occupation,
-          monthlyIncome: formValue.monthlyIncome,//change this to the current date and time
-        });
+          monthlyIncome: formValue.monthlyIncome,
+        };
+
+        this.store.dispatch(ProfileActions.updateProfile({ 
+          userId: this.currentUser.uid, 
+          profile: updatedUser 
+        }));
 
         this.notificationService.success('Profile updated successfully');
         this.isEditing = false;
