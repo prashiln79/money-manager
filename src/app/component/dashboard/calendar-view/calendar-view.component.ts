@@ -1,12 +1,16 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatCalendarCellClassFunction } from '@angular/material/datepicker';
-import { TransactionsService, Transaction } from '../../../util/service/transactions.service';
 import { UserService } from '../../../util/service/user.service';
 import { DateSelectionService } from '../../../util/service/date-selection.service';
 import { NotificationService } from '../../../util/service/notification.service';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
+import { DateService } from 'src/app/util/service/date.service';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import { Transaction } from 'src/app/util/service/transactions.service';
 
 @Component({
   selector: 'calendar-view',
@@ -34,10 +38,11 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private transactionsService: TransactionsService,
     private userService: UserService,
     private dateSelectionService: DateSelectionService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private dateService: DateService,
+    private store: Store<AppState>
   ) {
     this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
       this.isMobile = result.matches;
@@ -56,7 +61,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     const currentUser = this.userService.getUser();
     if (currentUser) {
       this.subscription.add(
-        this.transactionsService.getTransactions(currentUser.uid).subscribe({
+        this.store.select(TransactionsSelectors.selectAllTransactions).subscribe({
           next: (transactions) => {
             this.transactions = transactions;
           },
@@ -79,7 +84,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       
       // Check if date has transactions
       const hasTransactions = this.transactions.some(transaction => {
-        const transactionMoment = moment(transaction.date.toDate()).startOf('day');
+        const transactionMoment = moment(this.dateService.toDate(transaction.date)).startOf('day');
         return transactionMoment.isSame(cellMoment, 'day');
       });
       
@@ -165,7 +170,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     const targetMoment = moment(date).startOf('day');
     
     return this.transactions.filter(transaction => {
-      const transactionMoment = moment(transaction.date.toDate()).startOf('day');
+      const transactionMoment = moment(this.dateService.toDate(transaction.date)).startOf('day');
       return transactionMoment.isSame(targetMoment, 'day');
     });
   }
@@ -176,7 +181,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     const endMoment = moment(endDate).endOf('day');
     
     return this.transactions.filter(transaction => {
-      const transactionMoment = moment(transaction.date.toDate());
+      const transactionMoment = moment(this.dateService.toDate(transaction.date));
       return transactionMoment.isBetween(startMoment, endMoment, 'day', '[]'); // inclusive
     });
   }

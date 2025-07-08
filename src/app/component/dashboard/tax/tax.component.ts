@@ -3,9 +3,12 @@ import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { TransactionsService, Transaction } from '../../../util/service/transactions.service';
+import { Transaction } from '../../../util/service/transactions.service';
 import { TaxService, TaxCalculation, TaxDeduction, GSTCalculation } from '../../../util/service/tax.service';
 import { NotificationService } from '../../../util/service/notification.service';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 
 @Component({
   selector: 'app-tax',
@@ -38,11 +41,11 @@ export class TaxComponent implements OnInit, OnDestroy {
 
   constructor(
     private auth: Auth,
-    private transactionsService: TransactionsService,
     private taxService: TaxService,
     private notificationService: NotificationService,
     private dialog: MatDialog,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private store: Store<AppState>
   ) {
     this.taxForm = this.fb.group({
       totalIncome: [0, [Validators.required, Validators.min(0)]],
@@ -71,7 +74,7 @@ export class TaxComponent implements OnInit, OnDestroy {
   private loadTransactions(): void {
     const userId = this.auth.currentUser?.uid;
     if (userId) {
-      const sub = this.transactionsService.getTransactions(userId).subscribe({
+      const sub = this.store.select(TransactionsSelectors.selectAllTransactions).subscribe({
         next: (transactions) => {
           this.transactions = transactions;
           this.totalIncome = this.taxService.calculateTotalIncome(transactions);

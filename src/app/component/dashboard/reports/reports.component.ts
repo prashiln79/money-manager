@@ -2,10 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { Subscription, Observable } from 'rxjs';
-import { TransactionsService, Transaction } from '../../../util/service/transactions.service';
-import { AccountsService } from '../../../util/service/accounts.service';
+import { Transaction } from '../../../util/service/transactions.service';
 import { Account } from '../../../util/models/account.model';
-import { CategoryService } from '../../../util/service/category.service';
 import { NotificationService } from '../../../util/service/notification.service';
 import { Category } from 'src/app/util/models';
 import { Store } from '@ngrx/store';
@@ -13,6 +11,7 @@ import { AppState } from '../../../store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
 import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
+import { DateService } from 'src/app/util/service/date.service';
 
 interface CategorySpending {
   category: string;
@@ -70,11 +69,9 @@ export class ReportsComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private auth: Auth,
-    private transactionsService: TransactionsService,
-    private accountsService: AccountsService,
-    private categoryService: CategoryService,
     private notificationService: NotificationService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    public dateService: DateService
   ) {
     // Initialize selectors
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
@@ -132,14 +129,14 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
     // Filter transactions for current month
     const currentMonthTransactions = this.transactions.filter(t => {
-      const transactionDate = t.date.toDate();
+      const transactionDate = this.dateService.toDate(t.date);
       return transactionDate.getMonth() === currentMonth && 
              transactionDate.getFullYear() === currentYear;
     });
 
     // Filter transactions for last month
     const lastMonthTransactions = this.transactions.filter(t => {
-      const transactionDate = t.date.toDate();
+      const transactionDate = this.dateService.toDate(t.date);
       return transactionDate.getMonth() === lastMonth && 
              transactionDate.getFullYear() === lastYear;
     });
@@ -180,7 +177,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
     // Filter current month expense transactions
     const currentMonthExpenses = this.transactions.filter(t => {
-      const transactionDate = t.date.toDate();
+      const transactionDate = this.dateService.toDate(t.date);
       return t.type === 'expense' &&
              transactionDate.getMonth() === currentMonth && 
              transactionDate.getFullYear() === currentYear;
@@ -213,7 +210,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   private getRecentTransactions(): void {
     this.recentTransactions = this.transactions
-      .sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime())
+      .sort((a, b) => this.dateService.toDate(b.date).getTime() - this.dateService.toDate(a.date).getTime())
       .slice(0, 5); // Last 5 transactions
   }
 
@@ -227,7 +224,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       const monthName = month.toLocaleDateString('en-US', { month: 'short' });
       
       const monthTransactions = this.transactions.filter(t => {
-        const transactionDate = t.date.toDate();
+        const transactionDate = this.dateService.toDate(t.date);
         return transactionDate.getMonth() === month.getMonth() && 
                transactionDate.getFullYear() === month.getFullYear();
       });

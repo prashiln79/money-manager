@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, Timestamp } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
+import { DateService } from './date.service';
 
 export interface Goal {
     goalId: string;
@@ -17,14 +18,14 @@ export interface Goal {
 })
 export class GoalsService {
 
-    constructor(private firestore: Firestore, private auth: Auth) { }
+    constructor(private firestore: Firestore, private auth: Auth, private dateService: DateService) { }
 
     // 🔹 Create a new goal
     async createGoal(userId: string, goal: Goal): Promise<void> {
         const goalRef = doc(this.firestore, `users/${userId}/goals/${goal.goalId}`);
         await setDoc(goalRef, {
             ...goal,
-            deadline: Timestamp.fromDate(new Date(goal.deadline.toDate())),
+            deadline: this.dateService.toTimestamp(goal.deadline),
             currentAmount: 0, // Initialize currentAmount to 0
         });
     }

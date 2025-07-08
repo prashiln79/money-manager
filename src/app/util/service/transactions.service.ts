@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, Timestamp, addDoc, onSnapshot, writeBatch } from '@angular/fire/firestore';
+import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, addDoc, onSnapshot, writeBatch } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable, BehaviorSubject, from } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { OfflineService } from './offline.service';
+import { Timestamp } from 'firebase/firestore';
+import { DateService } from './date.service';
 
 export interface Transaction {
     id?: string;
@@ -13,13 +15,14 @@ export interface Transaction {
     amount: number;
     category: string;   // "Food", "Transport", etc.
     type: 'income' | 'expense';  // Income or expense
-    date: Timestamp;  // Timestamp for transaction date
+    date: Date;  // Timestamp for transaction date
     notes?: string;  // Optional notes for the transaction
     recurring?: boolean;  // Whether the transaction is recurring
     recurringInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';  // Interval for recurring transactions
     isPending?: boolean; // For offline operations
     syncStatus?: 'synced' | 'pending' | 'failed'; // Sync status
 }
+
 
 interface OfflineOperation {
     id: string;
@@ -40,7 +43,8 @@ export class TransactionsService {
     constructor(
         private firestore: Firestore, 
         private auth: Auth,
-        private offlineService: OfflineService
+        private offlineService: OfflineService,
+        private dateService: DateService
     ) {
         this.initializeOfflineHandling();
     }
@@ -154,7 +158,7 @@ export class TransactionsService {
         return new Observable<void>(observer => {
             const transactionData = {
                 ...transaction,
-                date: Timestamp.fromDate(transaction.date.toDate()),
+                date:  this.dateService.toDate(transaction.date),
                 syncStatus: 'synced' as const
             };
 
@@ -167,10 +171,11 @@ export class TransactionsService {
                         } catch (error) {
                             console.error('Failed to create transaction online:', error);
                             // Fall back to offline mode
-                            await this.addToOfflineQueue({
-                                type: 'create',
-                                data: transactionData
-                            });
+                           return observer.error(error);
+                            // await this.addToOfflineQueue({
+                            //     type: 'create',
+                            //     data: transactionData
+                            // });
                         }
                     } else {
                         // Store offline
@@ -181,7 +186,7 @@ export class TransactionsService {
                         
                         // Update local cache
                         const currentTransactions = this.transactionsSubject.value;
-                        const newTransaction = { ...transactionData, id: this.generateId(), isPending: true };
+                        const newTransaction = { ...transactionData, id: this.generateId(), isPending: true ,date: this.dateService.toDate(transaction.date)};
                         this.transactionsSubject.next([...currentTransactions, newTransaction]);
                     }
                     observer.next();

@@ -52,7 +52,7 @@ export const selectTransactionsByType = (type: 'income' | 'expense') => createSe
 export const selectTransactionsByDateRange = (startDate: Date, endDate: Date) => createSelector(
   selectAllTransactions,
   (transactions) => transactions.filter(t => {
-    const transactionDate = t.date.toDate();
+    const transactionDate = t.date  || new Date();
     return transactionDate >= startDate && transactionDate <= endDate;
   })
 );

@@ -1,6 +1,5 @@
 import { Component, Inject, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
-import { Timestamp } from "@angular/fire/firestore";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
@@ -8,11 +7,14 @@ import { AccountsService } from "src/app/util/service/accounts.service";
 import { CategoryService } from "src/app/util/service/category.service";
 import { HapticFeedbackService } from "src/app/util/service/haptic-feedback.service";
 import { NotificationService } from "src/app/util/service/notification.service";
-import { Transaction, TransactionsService } from "src/app/util/service/transactions.service";
 import { AddAccountDialogComponent } from "src/app/component/dashboard/accounts/add-account-dialog/add-account-dialog.component";
 import { MobileCategoryAddEditPopupComponent} from "src/app/component/dashboard/category/mobile-category-add-edit-popup/mobile-category-add-edit-popup.component";
 import moment from 'moment';
 import { LoaderService } from "src/app/util/service/loader.service";
+import { DateService } from "src/app/util/service/date.service";
+import { AppState } from "src/app/store/app.state";
+import { Store } from "@ngrx/store";
+import * as TransactionsActions from '../../../../../store/transactions/transactions.actions';
 
 @Component({
 	selector: "app-mobile-add-transaction",
@@ -33,7 +35,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 		@Inject(MAT_DIALOG_DATA) public dialogData: any,
 		private categoryService: CategoryService,
 		private accountsService: AccountsService,
-		private transactionsService: TransactionsService,
+		private store: Store<AppState>,
 		private fb: FormBuilder,
 		public dialogRef: MatDialogRef<MobileAddTransactionComponent>,
 		private auth: Auth,
@@ -41,7 +43,8 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 		private router: Router,
 		private hapticFeedback: HapticFeedbackService,
 		private dialog: MatDialog,
-		private loaderService: LoaderService
+		private loaderService: LoaderService,
+		private dateService: DateService
 	) {
 		this.transactionForm = this.fb.group({
 			payee: ["", Validators.required],
@@ -63,7 +66,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 				this.transactionForm.patchValue({
 					payee: this.dialogData.payee,
 					amount: this.dialogData.amount,
-					date: moment(this.dialogData.date.toDate()).format('YYYY-MM-DD'),
+					date: moment(this.dateService.toDate(this.dialogData.date)).format('YYYY-MM-DD'),
 					description: this.dialogData.notes,
 					tag: this.dialogData.category,
 					type: this.dialogData.type,
@@ -103,28 +106,35 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 			try {
 				this.loaderService.show();
 				if (this.dialogData?.id) {
-					await this.transactionsService.updateTransaction(this.userId, this.dialogData.id, {
-						payee: this.transactionForm.get("payee")?.value,
+					await this.store.dispatch(TransactionsActions.updateTransaction({
 						userId: this.userId,
-						accountId: this.transactionForm.get("accountId")?.value,
-						amount: this.transactionForm.get("amount")?.value,
-						category: this.transactionForm.get("tag")?.value,
-						type: this.transactionForm.get("type")?.value,
-						date: Timestamp.fromDate(moment(this.transactionForm.get("date")?.value).toDate()),
-						notes: this.transactionForm.get("description")?.value,
-					});
+						transactionId: this.dialogData.id,
+						transaction: {
+							payee: this.transactionForm.get("payee")?.value,
+							accountId: this.transactionForm.get("accountId")?.value,
+							amount: this.transactionForm.get("amount")?.value,
+							category: this.transactionForm.get("tag")?.value,
+							type: this.transactionForm.get("type")?.value,
+							date: this.transactionForm.get("date")?.value,
+							notes: this.transactionForm.get("description")?.value,
+						}
+					}));
+
 					this.notificationService.success("Transaction updated successfully");
 				} else {
-					await this.transactionsService.createTransaction(this.userId, {
-						payee: this.transactionForm.get("payee")?.value,
+					await this.store.dispatch(TransactionsActions.createTransaction({
 						userId: this.userId,
-						accountId: this.transactionForm.get("accountId")?.value,
-						amount: this.transactionForm.get("amount")?.value,
-						category: this.transactionForm.get("tag")?.value,
-						type: this.transactionForm.get("type")?.value,
-						date: Timestamp.fromDate(moment(this.transactionForm.get("date")?.value).toDate()),
-						notes: this.transactionForm.get("description")?.value,
-					});
+						transaction: {
+							userId: this.userId,
+							payee: this.transactionForm.get("payee")?.value,
+							accountId: this.transactionForm.get("accountId")?.value,
+							amount: this.transactionForm.get("amount")?.value,
+							category: this.transactionForm.get("tag")?.value,
+							type: this.transactionForm.get("type")?.value,
+							date: this.transactionForm.get("date")?.value,
+							notes: this.transactionForm.get("description")?.value,
+						}
+					}));
 					this.notificationService.success("Transaction added successfully");
 					this.hapticFeedback.successVibration();
 				}

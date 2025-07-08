@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { CurrencyService } from 'src/app/util/service/currency.service';
 import { Store } from '@ngrx/store';
@@ -29,8 +28,7 @@ export class TotalBalanceComponent implements OnInit, OnDestroy {
   userCurrency = this.currencyService.getDefaultCurrency();
   private subscriptions = new Subscription();
   
-  constructor(
-    private transactionsService: TransactionsService, 
+  constructor( 
     private auth: Auth,
     private notificationService: NotificationService,
     private currencyService: CurrencyService,

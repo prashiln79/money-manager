@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Timestamp } from 'firebase/firestore';
 import { Subscription, SubscriptionService } from 'src/app/util/service/subscription.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
   selector: 'app-subscription',
@@ -24,7 +25,8 @@ export class SubscriptionComponent implements OnInit {
     private subscriptionService: SubscriptionService,
     private auth: Auth,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    public dateService: DateService
   ) { }
 
   ngOnInit(): void {

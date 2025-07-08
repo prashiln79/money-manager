@@ -1,22 +1,33 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, OnChanges, SimpleChanges } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
-import { TransactionsService, Transaction } from "../../../../util/service/transactions.service";
-import { UserService } from "../../../../util/service/user.service";
-import { DateSelectionService } from "../../../../util/service/date-selection.service";
-import { Subject, Subscription, takeUntil } from "rxjs";
-import moment from "moment";
-import { CategoryService } from "src/app/util/service/category.service";
-import { Auth } from "@angular/fire/auth";
-import { Account, Category } from "src/app/util/models";
-import { ActivatedRoute, Route, Router } from "@angular/router";
-import { ConfirmDialogComponent } from "../../../../util/components/confirm-dialog/confirm-dialog.component";
-import { CustomDateRangeDialogComponent, CustomDateRangeData } from "../../../../util/components/custom-date-range-dialog";
-import { AccountsService } from "../../../../util/service/accounts.service";
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Transaction } from '../../../../util/service/transactions.service';
+import { Subject, Subscription } from 'rxjs';
+import moment from 'moment';
+import { CategoryService } from 'src/app/util/service/category.service';
+import { Auth } from '@angular/fire/auth';
+import { Account, Category } from 'src/app/util/models';
+import { Router } from '@angular/router';
+import { ConfirmDialogComponent } from '../../../../util/components/confirm-dialog/confirm-dialog.component';
+import {
+  CustomDateRangeDialogComponent,
+  CustomDateRangeData,
+} from '../../../../util/components/custom-date-range-dialog';
+import { AccountsService } from '../../../../util/service/accounts.service';
+import { DateService } from 'src/app/util/service/date.service';
 
 interface SortOption {
-	value: string;
-	label: string;
-	icon: string;
+  value: string;
+  label: string;
+  icon: string;
 }
 
 @Component({
@@ -70,7 +81,8 @@ export class MobileTransactionListComponent
     private readonly auth: Auth,
     private readonly route: Router,
     private readonly dialog: MatDialog,
-    private readonly accountsService: AccountsService
+    private readonly accountsService: AccountsService,
+    private readonly dateService: DateService
   ) {}
 
   ngOnInit() {
@@ -120,7 +132,9 @@ export class MobileTransactionListComponent
     if (this.selectedDate) {
       const selectedMoment = moment(this.selectedDate).startOf('day');
       filtered = filtered.filter((tx) => {
-        const txMoment = moment(tx.date.toDate()).startOf('day');
+        const txMoment = moment(this.dateService.toDate(tx.date)).startOf(
+          'day'
+        );
         return txMoment.isSame(selectedMoment, 'day');
       });
     }
@@ -130,7 +144,7 @@ export class MobileTransactionListComponent
       const startMoment = moment(this.selectedDateRange.start).startOf('day');
       const endMoment = moment(this.selectedDateRange.end).endOf('day');
       filtered = filtered.filter((tx) => {
-        const txMoment = moment(tx.date.toDate());
+        const txMoment = moment(this.dateService.toDate(tx.date));
         return txMoment.isBetween(startMoment, endMoment, 'day', '[]');
       });
     }
@@ -146,9 +160,9 @@ export class MobileTransactionListComponent
 
     switch (this.selectedSort) {
       case 'date-desc':
-        return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
+        return sorted.sort((a, b) => b.date.getTime() - a.date.getTime());
       case 'date-asc':
-        return sorted.sort((a, b) => a.date.seconds - b.date.seconds);
+        return sorted.sort((a, b) => a.date.getTime() - b.date.getTime());
       case 'amount-desc':
         return sorted.sort((a, b) => b.amount - a.amount);
       case 'amount-asc':
@@ -158,7 +172,7 @@ export class MobileTransactionListComponent
       case 'category-asc':
         return sorted.sort((a, b) => a.category.localeCompare(b.category));
       default:
-        return sorted.sort((a, b) => b.date.seconds - a.date.seconds);
+        return sorted.sort((a, b) => b.date.getTime() - a.date.getTime());
     }
   }
 
@@ -213,20 +227,24 @@ export class MobileTransactionListComponent
       switch (range) {
         case 'currentMonth':
           this.selectedDateRange = {
-            start: now.startOf('month').toDate(),
-            end: now.endOf('month').toDate(),
+            start: this.dateService.toDate(now.startOf('month')),
+            end: this.dateService.toDate(now.endOf('month')),
           };
           break;
         case 'lastMonth':
           this.selectedDateRange = {
-            start: now.subtract(1, 'month').startOf('month').toDate(),
-            end: now.subtract(1, 'month').endOf('month').toDate(),
+            start: this.dateService.toDate(
+              now.subtract(1, 'month').startOf('month')
+            ),
+            end: this.dateService.toDate(
+              now.subtract(1, 'month').endOf('month')
+            ),
           };
           break;
         case 'currentYear':
           this.selectedDateRange = {
-            start: now.startOf('year').toDate(),
-            end: now.endOf('year').toDate(),
+            start: this.dateService.toDate(now.startOf('year')),
+            end: this.dateService.toDate(now.endOf('year')),
           };
           break;
       }

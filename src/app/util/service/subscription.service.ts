@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, Timestamp } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
+import { DateService } from './date.service';
 
 export interface Subscription {
   userId: string;
@@ -15,15 +16,15 @@ export interface Subscription {
 })
 export class SubscriptionService {
 
-  constructor(private firestore: Firestore, private auth: Auth) {}
+  constructor(private firestore: Firestore, private auth: Auth, private dateService: DateService) {}
 
   // 🔹 Create a new subscription
   async createSubscription(userId: string, subscription: Subscription): Promise<void> {
     const subscriptionRef = doc(this.firestore, `users/${userId}/subscription`);
     await setDoc(subscriptionRef, {
       ...subscription,
-      startDate: Timestamp.fromDate(new Date(subscription.startDate.toDate())),
-      endDate: Timestamp.fromDate(new Date(subscription.endDate.toDate())),
+      startDate: this.dateService.toTimestamp(subscription.startDate),
+      endDate: this.dateService.toTimestamp(subscription.endDate),
     });
   }
 

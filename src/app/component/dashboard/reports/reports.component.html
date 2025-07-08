@@ -215,7 +215,7 @@
                   {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                 </span>
                 <div class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ transaction.date.toDate() | date:'MMM dd' }}
+                  {{ dateService.toDate(transaction.date) | date:'MMM dd' }}
                 </div>
               </div>
             </div>

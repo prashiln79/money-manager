@@ -6,6 +6,7 @@ import { CategoryService } from '../../../../util/service/category.service';
 import { Auth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
+import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
   selector: 'transaction-table',
@@ -37,7 +38,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   constructor(
     private categoryService: CategoryService,
-    private auth: Auth
+    private auth: Auth,
+    private dateService: DateService
   ) {}
 
   ngOnInit() {
@@ -79,7 +81,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     this.dataSource.sortingDataAccessor = (item: Transaction, property: string) => {
       switch (property) {
         case 'Date':
-          return (item?.date?.toDate() || new Date()).getTime();
+          return (this.dateService.toDate(item?.date) || new Date()).getTime();
         case 'Type':
           return (item?.category.toString().toLowerCase() || '');
         case 'Payee':
@@ -118,7 +120,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     // Filter to show only current year transactions
     const currentYear = moment().year();
     filtered = filtered.filter(tx => {
-      const txYear = moment(tx.date.toDate()).year();
+      const txYear = moment(this.dateService.toDate(tx.date)).year();
       return txYear === currentYear;
     });
 
@@ -146,7 +148,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     if (this.selectedDate) {
       const selectedMoment = moment(this.selectedDate).startOf('day');
       filtered = filtered.filter(tx => {
-        const txMoment = moment(tx.date.toDate()).startOf('day');
+        const txMoment = moment(this.dateService.toDate(tx.date)).startOf('day');
         return txMoment.isSame(selectedMoment, 'day');
       });
     }
@@ -156,7 +158,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
       const startMoment = moment(this.selectedDateRange.start).startOf('day');
       const endMoment = moment(this.selectedDateRange.end).endOf('day');
       filtered = filtered.filter(tx => {
-        const txMoment = moment(tx.date.toDate());
+        const txMoment = moment(this.dateService.toDate(tx.date));
         return txMoment.isBetween(startMoment, endMoment, 'day', '[]');
       });
     }
@@ -226,7 +228,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   // Custom sort function for date column
   sortDate(a: Transaction, b: Transaction): number {
-    return a.date.toDate().getTime() - b.date.toDate().getTime();
+    return this.dateService.toDate(a.date).getTime() - this.dateService.toDate(b.date).getTime();
   }
 
   // Custom sort function for payee column

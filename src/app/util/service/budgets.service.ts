@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, Timestamp } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
+import { DateService } from './date.service';
 
 export interface Budget {
   budgetId: string;
@@ -18,15 +19,15 @@ export interface Budget {
 })
 export class BudgetsService {
 
-  constructor(private firestore: Firestore, private auth: Auth) {}
+  constructor(private firestore: Firestore, private auth: Auth, private dateService: DateService) {}
 
   // 🔹 Create a new budget
   async createBudget(userId: string, budget: Budget): Promise<void> {
     const budgetRef = doc(this.firestore, `users/${userId}/budgets/${budget.budgetId}`);
     await setDoc(budgetRef, {
       ...budget,
-      startDate: Timestamp.fromDate(new Date(budget.startDate.toDate())),
-      endDate: Timestamp.fromDate(new Date(budget.endDate.toDate())),
+      startDate: this.dateService.toTimestamp(budget.startDate),
+      endDate: this.dateService.toTimestamp(budget.endDate),
       spent: 0, // Initialize spent to 0
     });
   }

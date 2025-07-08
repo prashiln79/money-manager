@@ -277,7 +277,7 @@
               {{ tx.category }}
             </div> -->
             <div class="transaction-date text-base">
-              {{ tx.date.seconds * 1000 | date:'dd MMM - hh:mm' }}
+              {{ tx.date | date:'dd MMM - hh:mm' }}
             </div>
             <div *ngIf="tx.notes" class="transaction-notes text-base">
               {{ tx.notes }}
@@ -368,7 +368,7 @@
                 <span>Created</span>
               </div>
               <div class="detail-value">
-                <span class="created-date">{{ tx.date.seconds * 1000 | date:'fullDate' }}</span>
+                <span class="created-date">{{ tx.date | date:'fullDate' }}</span>
               </div>
             </div>
 

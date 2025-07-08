@@ -7,7 +7,7 @@
         <p>Title: {{ goal.title }}</p>
         <p>Target Amount: {{ goal.targetAmount | currency }}</p>
         <p>Current Amount: {{ goal.currentAmount | currency }}</p>
-        <p>Deadline: {{ goal.deadline.toDate() | date: 'short' }}</p>
+        <p>Deadline: {{ dateService.toDate(goal.deadline) | date: 'short' }}</p>
         <button (click)="deleteGoal(goal.goalId)">Delete</button>
         <button (click)="updateCurrentAmount(goal.goalId, 100)">Add 100 to current amount</button> <!-- Example button -->
       </div>

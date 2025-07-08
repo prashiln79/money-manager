@@ -4,7 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Auth } from '@angular/fire/auth';
-import { Transaction, TransactionsService } from 'src/app/util/service/transactions.service';
+import { Transaction } from 'src/app/util/service/transactions.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { TransactionComponent } from './add-transaction/transaction/transaction.component';
 import { MobileAddTransactionComponent } from './add-transaction/mobile-add-transaction/mobile-add-transaction.component';
@@ -19,6 +19,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
   selector: 'transaction-list',
@@ -69,11 +70,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     private loaderService: LoaderService, 
     private _dialog: MatDialog, 
     private breakpointObserver: BreakpointObserver, 
-    private auth: Auth, 
-    private transactionsService: TransactionsService, 
+    private auth: Auth,  
     private notificationService: NotificationService,
     private dateSelectionService: DateSelectionService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private dateService: DateService
   ) {
     // Initialize selectors
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
@@ -116,7 +117,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     // Subscribe to store data for backward compatibility
     this.dateSubscription.add(
       this.transactions$.subscribe(transactions => {
-        this.allTransactions = transactions.sort((a: any, b: any) => b.date.toDate() - a.date.toDate());
+        this.allTransactions = transactions.sort((a: any, b: any) => {
+          const dateA = this.dateService.toDate(a.date);
+          const dateB = this.dateService.toDate(b.date);
+          return dateB?.getTime() - dateA?.getTime();
+        });
         this.applyDateFilter();
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
@@ -167,7 +172,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     if (this.selectedDate) {
       const selectedDateStr = this.formatDate(this.selectedDate);
       filteredData = filteredData.filter(transaction => {
-        const transactionDate = transaction.date.toDate();
+        const transactionDate = this.dateService.toDate(transaction.date);
         return this.formatDate(transactionDate) === selectedDateStr;
       });
       this.notificationService.success(`Showing transactions for ${moment(this.selectedDate).format('MMM DD, YYYY')}`);
@@ -177,7 +182,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       const endOfDay = moment(this.selectedDateRange.endDate).endOf('day').toDate();
       
       filteredData = filteredData.filter(transaction => {
-        const transactionDate = transaction.date.toDate();
+        const transactionDate = this.dateService.toDate(transaction.date);
         return transactionDate >= startOfDay && transactionDate <= endOfDay;
       });
       const startDate = moment(this.selectedDateRange.startDate).format('MMM DD, YYYY');
@@ -384,6 +389,8 @@ export class TransactionListComponent implements OnInit, OnDestroy {
             throw new Error('Invalid date format');
           }
 
+      
+
           const transactionData = {
             payee: tx.payee,
             userId: userId,
@@ -391,8 +398,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
             amount: parseFloat(tx.amount),
             type: tx.type,
             category: tx.category,
-            date: Timestamp.fromDate(date),
+            date: date,
             notes: tx.narration || ''
+            
           };
 
           this.store.dispatch(TransactionsActions.createTransaction({ userId, transaction: transactionData }));

@@ -10,6 +10,7 @@ import * as GoalsActions from '../../../store/goals/goals.actions';
 import * as GoalsSelectors from '../../../store/goals/goals.selectors';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
   selector: 'app-goals',
@@ -41,7 +42,8 @@ export class GoalsComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private router: Router,
     private notificationService: NotificationService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    public dateService: DateService
   ) {
     // Initialize selectors
     this.goals$ = this.store.select(GoalsSelectors.selectAllGoals);

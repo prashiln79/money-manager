@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { TransactionsService, Transaction } from './transactions.service';
+import { DateService } from './date.service';
+import { Transaction } from './transactions.service';
 
 export interface TaxSlab {
   minIncome: number;
@@ -59,7 +60,7 @@ export class TaxService {
   // Standard deductions for new regime
   private readonly NEW_REGIME_STANDARD_DEDUCTION = 50000;
 
-  constructor(private transactionsService: TransactionsService) {}
+  constructor( private dateService: DateService) {}
 
   /**
    * Calculate total income from transactions for a specific year
@@ -70,7 +71,7 @@ export class TaxService {
 
     return transactions
       .filter(t => {
-        const transactionDate = t.date.toDate();
+        const transactionDate = this.dateService.toDate(t.date) || new Date();
         return t.type === 'income' && 
                transactionDate >= startDate && 
                transactionDate <= endDate;
