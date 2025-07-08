@@ -56,7 +56,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
     private dateService: DateService
   ) {
     this.transactionForm = this.fb.group({
-      payee: ['', Validators.required],
+      payee: ['', [Validators.required, Validators.maxLength(45)]],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       date: [moment().format('YYYY-MM-DD'), Validators.required],
       description: [''],
@@ -85,6 +85,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
         });
       } else {
         this.transactionForm.patchValue({
+          payee: this.tagList.length > 0 ? this.tagList[0].name : '',
           tag: this.tagList.length > 0 ? this.tagList[0].name : '',
           accountId:
             this.accountList.length > 0 ? this.accountList[0].accountId : '',
