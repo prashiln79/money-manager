@@ -105,6 +105,9 @@ import { PwaInstallPromptComponent } from './util/components/pwa-install-prompt/
 import { AppShellComponent } from './util/components/app-shell/app-shell.component';
 import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-loader/skeleton-loader.component';
 
+// NgRx Store
+import { AppStoreModule } from './store';
+
 
 @NgModule({
   declarations: [
@@ -194,6 +197,9 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
     // Utility
     IconModule,
     TranslatePipe,
+    
+    // NgRx Store
+    AppStoreModule,
     
     // Enhanced Service Worker with offline support
     ServiceWorkerModule.register('ngsw-worker.js', {

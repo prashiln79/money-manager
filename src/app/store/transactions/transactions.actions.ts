@@ -1,0 +1,85 @@
+import { createAction, props } from '@ngrx/store';
+import { Transaction } from '../../util/service/transactions.service';
+
+// Load Transactions
+export const loadTransactions = createAction(
+  '[Transactions] Load Transactions',
+  props<{ userId: string }>()
+);
+
+export const loadTransactionsSuccess = createAction(
+  '[Transactions] Load Transactions Success',
+  props<{ transactions: Transaction[] }>()
+);
+
+export const loadTransactionsFailure = createAction(
+  '[Transactions] Load Transactions Failure',
+  props<{ error: any }>()
+);
+
+// Create Transaction
+export const createTransaction = createAction(
+  '[Transactions] Create Transaction',
+  props<{ userId: string; transaction: Omit<Transaction, 'id'> }>()
+);
+
+export const createTransactionSuccess = createAction(
+  '[Transactions] Create Transaction Success',
+  props<{ transaction: Transaction }>()
+);
+
+export const createTransactionFailure = createAction(
+  '[Transactions] Create Transaction Failure',
+  props<{ error: any }>()
+);
+
+// Update Transaction
+export const updateTransaction = createAction(
+  '[Transactions] Update Transaction',
+  props<{ userId: string; transactionId: string; transaction: Partial<Transaction> }>()
+);
+
+export const updateTransactionSuccess = createAction(
+  '[Transactions] Update Transaction Success',
+  props<{ transaction: Transaction }>()
+);
+
+export const updateTransactionFailure = createAction(
+  '[Transactions] Update Transaction Failure',
+  props<{ error: any }>()
+);
+
+// Delete Transaction
+export const deleteTransaction = createAction(
+  '[Transactions] Delete Transaction',
+  props<{ userId: string; transactionId: string }>()
+);
+
+export const deleteTransactionSuccess = createAction(
+  '[Transactions] Delete Transaction Success',
+  props<{ transactionId: string }>()
+);
+
+export const deleteTransactionFailure = createAction(
+  '[Transactions] Delete Transaction Failure',
+  props<{ error: any }>()
+);
+
+// Get Single Transaction
+export const getTransaction = createAction(
+  '[Transactions] Get Transaction',
+  props<{ userId: string; transactionId: string }>()
+);
+
+export const getTransactionSuccess = createAction(
+  '[Transactions] Get Transaction Success',
+  props<{ transaction: Transaction }>()
+);
+
+export const getTransactionFailure = createAction(
+  '[Transactions] Get Transaction Failure',
+  props<{ error: any }>()
+);
+
+// Clear State
+export const clearTransactions = createAction('[Transactions] Clear Transactions'); 
