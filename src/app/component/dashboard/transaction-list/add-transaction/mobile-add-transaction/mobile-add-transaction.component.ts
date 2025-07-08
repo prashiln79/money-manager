@@ -235,4 +235,9 @@ export class MobileAddTransactionComponent implements AfterViewInit {
       panelClass: 'mobile-dialog',
     });
   }
+
+  onCategoryChange(event: any): void {
+    console.log(event.target.value);
+    this.transactionForm.get('payee')?.setValue(event.target.value);
+  }
 }

@@ -38,7 +38,7 @@
 	<div class="p-4 space-y-6">
 		<form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" (keydown.enter)="onSubmit()" class="space-y-6">
 			
-			<!-- Amount, Description, and Date Field - Combined Card -->
+			<!-- Amount, Description, Category, and Date Field - Combined Card -->
 			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm space-y-4">
 				<!-- Amount Field -->
 				<div>
@@ -79,6 +79,30 @@
 							{{ transactionForm.get('payee')?.value?.length || 0 }}/45
 						</span>
 					</div>
+				</div>
+
+				<!-- Category Field -->
+				<div>
+					<div class="flex items-center justify-between mb-2">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+							Category
+						</label>
+						<button 
+							type="button"
+							(click)="openNewCategoryDialog()"
+							class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center gap-1"
+						>
+							<mat-icon class="text-sm">add</mat-icon>
+						</button>
+					</div>
+					<select 
+						formControlName="tag"  (change)="onCategoryChange($event)"
+						class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+					>
+						@for (item of tagList; track item) {
+							<option [value]="item.name">{{ item?.name }}</option>
+						}
+					</select>
 				</div>
 
 				<!-- Date Field -->
@@ -154,49 +178,22 @@
 
 
 
-			<!-- Type and Category Fields -->
-			<div class="grid grid-cols-2 gap-4">
-				<!-- Type Field -->
-				<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-						Type *
-					</label>
-					<select 
-						formControlName="type" 
-						class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					>
-						@for (item of typeList; track item) {
-							<option [value]="item">{{ item | titlecase }}</option>
-						}
-					</select>
-					@if(getTypeError()) {
-						<p class="text-red-500 text-sm mt-1">{{ getTypeError() }}</p>
+			<!-- Type Field -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Type *
+				</label>
+				<select 
+					formControlName="type" 
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+				>
+					@for (item of typeList; track item) {
+						<option [value]="item">{{ item | titlecase }}</option>
 					}
-				</div>
-
-				<!-- Category Field -->
-				<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-					<div class="flex items-center justify-between mb-2">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							Category
-						</label>
-						<button 
-							type="button"
-							(click)="openNewCategoryDialog()"
-							class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center gap-1"
-						>
-							<mat-icon class="text-sm">add</mat-icon>
-						</button>
-					</div>
-					<select 
-						formControlName="tag" 
-						class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					>
-						@for (item of tagList; track item) {
-							<option [value]="item.name">{{ item?.name }}</option>
-						}
-					</select>
-				</div>
+				</select>
+				@if(getTypeError()) {
+					<p class="text-red-500 text-sm mt-1">{{ getTypeError() }}</p>
+				}
 			</div>
 
 			<!-- Notes Field -->
