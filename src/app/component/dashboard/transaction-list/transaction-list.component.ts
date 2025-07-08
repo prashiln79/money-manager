@@ -176,7 +176,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
         return this.formatDate(transactionDate) === selectedDateStr;
       });
       this.notificationService.success(`Showing transactions for ${moment(this.selectedDate).format('MMM DD, YYYY')}`);
-    } else if (this.selectedDateRange) {
+    } else if (this.selectedDateRange && this.selectedDateRange?.startDate && this.selectedDateRange?.endDate) {
       // Use Moment.js for date range filtering
       const startOfDay = moment(this.selectedDateRange.startDate).startOf('day').toDate();
       const endOfDay = moment(this.selectedDateRange.endDate).endOf('day').toDate();

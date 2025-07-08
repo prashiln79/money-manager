@@ -235,28 +235,23 @@ export class MobileTransactionListComponent
     if (!range) {
       this.selectedDateRange = null;
     } else {
-      const now = moment();
       switch (range) {
         case 'currentMonth':
           this.selectedDateRange = {
-            start: this.dateService.toDate(now.startOf('month')),
-            end: this.dateService.toDate(now.endOf('month')),
+            start: (moment().startOf('month')).toDate(),
+            end: (moment().endOf('month')).toDate(),
           };
           break;
         case 'lastMonth':
           this.selectedDateRange = {
-            start: this.dateService.toDate(
-              now.subtract(1, 'month').startOf('month')
-            ),
-            end: this.dateService.toDate(
-              now.subtract(1, 'month').endOf('month')
-            ),
+            start: (moment().subtract(1, 'month').startOf('month')).toDate(),
+            end: (moment().subtract(1, 'month').endOf('month')).toDate(),
           };
           break;
         case 'currentYear':
           this.selectedDateRange = {
-            start: this.dateService.toDate(now.startOf('year')),
-            end: this.dateService.toDate(now.endOf('year')),
+            start: (moment().startOf('year')).toDate(),
+            end: (moment().endOf('year')).toDate(),
           };
           break;
       }
