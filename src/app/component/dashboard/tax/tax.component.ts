@@ -3,7 +3,7 @@ import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { Transaction } from '../../../util/service/transactions.service';
+import { Transaction } from '../../../util/models/transaction.model';
 import { TaxService, TaxCalculation, TaxDeduction, GSTCalculation } from '../../../util/service/tax.service';
 import { NotificationService } from '../../../util/service/notification.service';
 import { Store } from '@ngrx/store';

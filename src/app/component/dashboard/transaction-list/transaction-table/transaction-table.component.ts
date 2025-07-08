@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
-import { Transaction } from '../../../../util/service/transactions.service';
+import { Transaction } from '../../../../util/models/transaction.model';
 import { Auth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
@@ -231,7 +231,14 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   // Custom sort function for date column
   sortDate(a: Transaction, b: Transaction): number {
-    return this.dateService.toDate(a.date).getTime() - this.dateService.toDate(b.date).getTime();
+    const dateA = this.dateService.toDate(a.date);
+    const dateB = this.dateService.toDate(b.date);
+    
+    if (!dateA || !dateB) {
+      return 0;
+    }
+    
+    return dateA.getTime() - dateB.getTime();
   }
 
   // Custom sort function for payee column

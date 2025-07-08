@@ -4,7 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Auth } from '@angular/fire/auth';
-import { Transaction } from 'src/app/util/service/transactions.service';
+import { Transaction } from 'src/app/util/models/transaction.model';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { TransactionComponent } from './add-transaction/transaction/transaction.component';
 import { MobileAddTransactionComponent } from './add-transaction/mobile-add-transaction/mobile-add-transaction.component';
@@ -20,6 +20,7 @@ import { AppState } from '../../../store/app.state';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { DateService } from 'src/app/util/service/date.service';
+import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/models/enums';
 
 @Component({
   selector: 'transaction-list',
@@ -120,7 +121,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
         this.allTransactions = transactions.sort((a: any, b: any) => {
           const dateA = this.dateService.toDate(a.date);
           const dateB = this.dateService.toDate(b.date);
-          return dateB?.getTime() - dateA?.getTime();
+          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
         });
         this.applyDateFilter();
         this.dataSource.paginator = this.paginator;
@@ -172,7 +173,10 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     if (this.selectedDate) {
       const selectedDateStr = this.formatDate(this.selectedDate);
       filteredData = filteredData.filter(transaction => {
-        const transactionDate = this.dateService.toDate(transaction.date);
+        const transactionDate: Date | null = this.dateService.toDate(transaction.date);
+        if (!transactionDate) {
+          return false;
+        }
         return this.formatDate(transactionDate) === selectedDateStr;
       });
       this.notificationService.success(`Showing transactions for ${moment(this.selectedDate).format('MMM DD, YYYY')}`);
@@ -182,7 +186,10 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       const endOfDay = moment(this.selectedDateRange.endDate).endOf('day').toDate();
       
       filteredData = filteredData.filter(transaction => {
-        const transactionDate = this.dateService.toDate(transaction.date);
+        const transactionDate: Date | null = this.dateService.toDate(transaction.date);
+        if (!transactionDate) {
+          return false;
+        }
         return transactionDate >= startOfDay && transactionDate <= endOfDay;
       });
       const startDate = moment(this.selectedDateRange.startDate).format('MMM DD, YYYY');
@@ -394,13 +401,20 @@ export class TransactionListComponent implements OnInit, OnDestroy {
           const transactionData = {
             payee: tx.payee,
             userId: userId,
-            accountId: 'default', // Default account ID - you might want to get this from user's accounts
+            accountId: tx.accountId, // Default account ID - you might want to get this from user's accounts
             amount: parseFloat(tx.amount),
             type: tx.type,
             category: tx.category,
             date: date,
-            notes: tx.narration || ''
-            
+            notes: tx.narration || '',
+            isPending: false,
+            syncStatus: SyncStatus.PENDING,
+            lastSyncedAt: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            createdBy: userId,
+            updatedBy: userId,
+            status: TransactionStatus.COMPLETED,
           };
 
           this.store.dispatch(TransactionsActions.createTransaction({ userId, transaction: transactionData }));

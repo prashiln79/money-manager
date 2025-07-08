@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DateService } from './date.service';
-import { Transaction } from './transactions.service';
+import { Transaction } from '../models/transaction.model';
 
 export interface TaxSlab {
   minIncome: number;

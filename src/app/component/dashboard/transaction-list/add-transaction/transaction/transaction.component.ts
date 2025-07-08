@@ -10,6 +10,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsActions from '../../../../../store/transactions/transactions.actions';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
+import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/models/enums';
 
 @Component({
   selector: 'app-transaction',
@@ -124,6 +125,14 @@ export class TransactionComponent {
               type: this.transactionForm.get('type')?.value,
               date: this.transactionForm.get('date')?.value,
               notes: this.transactionForm.get('description')?.value,
+              isRecurring: false,
+              recurringInterval: RecurringInterval.MONTHLY,
+              status: TransactionStatus.COMPLETED,
+              syncStatus: SyncStatus.PENDING,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              createdBy: this.userId,
+              updatedBy: this.userId,
             },
           })
         );

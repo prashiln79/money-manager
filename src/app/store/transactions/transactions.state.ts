@@ -1,4 +1,4 @@
-import { Transaction } from '../../util/service/transactions.service';
+import { Transaction } from '../../util/models/transaction.model';
 
 export interface TransactionsState {
   entities: { [id: string]: Transaction };

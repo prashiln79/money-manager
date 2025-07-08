@@ -1,5 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { TransactionsState } from './transactions.state';
+import { Timestamp } from 'firebase/firestore';
 
 export const selectTransactionsState = createFeatureSelector<TransactionsState>('transactions');
 
@@ -49,7 +50,7 @@ export const selectTransactionsByType = (type: 'income' | 'expense') => createSe
   (transactions) => transactions.filter(t => t.type === type)
 );
 
-export const selectTransactionsByDateRange = (startDate: Date, endDate: Date) => createSelector(
+export const selectTransactionsByDateRange = (startDate: Date | Timestamp, endDate: Date | Timestamp) => createSelector(
   selectAllTransactions,
   (transactions) => transactions.filter(t => {
     const transactionDate = t.date  || new Date();

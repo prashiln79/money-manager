@@ -9,7 +9,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Transaction } from '../../../../util/service/transactions.service';
+import { Transaction } from '../../../../util/models/transaction.model';
 import { Subject, Subscription } from 'rxjs';
 import moment from 'moment';
 import { Auth } from '@angular/fire/auth';
@@ -25,6 +25,7 @@ import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
+import { RecurringInterval } from 'src/app/util/models/enums';
 
 interface SortOption {
   value: string;
@@ -164,13 +165,13 @@ export class MobileTransactionListComponent
         return sorted.sort((a, b) => {
           const dateA = this.dateService.toDate(a.date);
           const dateB = this.dateService.toDate(b.date);
-          return dateB.getTime() - dateA.getTime();
+          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
         });
       case 'date-asc':
         return sorted.sort((a, b) => {
           const dateA = this.dateService.toDate(a.date);
           const dateB = this.dateService.toDate(b.date);
-          return dateA.getTime() - dateB.getTime();
+          return (dateA?.getTime() ?? 0) - (dateB?.getTime() ?? 0);
         });
       case 'amount-desc':
         return sorted.sort((a, b) => b.amount - a.amount);
@@ -184,7 +185,7 @@ export class MobileTransactionListComponent
         return sorted.sort((a, b) => {
           const dateA = this.dateService.toDate(a.date);
           const dateB = this.dateService.toDate(b.date);
-          return dateB.getTime() - dateA.getTime();
+          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
         });
     }
   }
@@ -458,9 +459,9 @@ export class MobileTransactionListComponent
   }
 
   getRecurringInfo(transaction: Transaction): string {
-    if (!transaction.recurring) return '';
+    if (!transaction.isRecurring) return '';
 
-    const interval = transaction.recurringInterval || 'monthly';
+    const interval = transaction.recurringInterval || RecurringInterval.MONTHLY;
     return `Recurring (${interval})`;
   }
 

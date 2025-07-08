@@ -10,7 +10,7 @@ import { DateService } from 'src/app/util/service/date.service';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
-import { Transaction } from 'src/app/util/service/transactions.service';
+import { Transaction } from 'src/app/util/models/transaction.model';
 
 @Component({
   selector: 'calendar-view',

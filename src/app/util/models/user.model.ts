@@ -22,7 +22,6 @@ export interface UserPreferences {
  */
 export interface User {
 	uid: string;
-	name: string;
 	email: string;
 	role: UserRole;
 	createdAt: Date | Timestamp;
@@ -33,7 +32,7 @@ export interface User {
 	occupation?: string;
 	monthlyIncome?: number;
 	preferences?: UserPreferences;
-	updatedAt?: Date | Timestamp;
+	updatedAt?:  Date | Timestamp;
 }
 
 /**

@@ -13,33 +13,13 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import moment from 'moment';
-import { Timestamp } from 'firebase/firestore';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as ProfileActions from '../../../store/profile/profile.actions';
 import * as ProfileSelectors from '../../../store/profile/profile.selectors';
 import { DateService } from 'src/app/util/service/date.service';
+import { UserRole } from 'src/app/util/models/enums';
 
-interface UserProfile {
-  uid: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  dateOfBirth?: Date;
-  occupation?: string;
-  monthlyIncome?: number;
-  preferences: {
-    defaultCurrency: string;
-    timezone: string;
-    language: string;
-    notifications: boolean;
-    emailUpdates: boolean;
-    budgetAlerts: boolean;
-  };
-  createdAt: Date | Timestamp;
-  updatedAt: Date | Timestamp;
-}
 
 @Component({
   selector: 'app-profile',
@@ -56,7 +36,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   isLoading = false;
   isEditing = false;
   currentUser: any;
-  userProfile: UserProfile | null = null;
+  userProfile: User | null = null;
 
   currencies = CURRENCIES;
 
@@ -196,14 +176,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
     );
   }
 
-  private mapUserToProfile(user: User): UserProfile {
+  private mapUserToProfile(user: User): User {
     return {
       uid: user.uid,
-      firstName: user.name?.split(' ')[0] || '',
-      lastName: user.name?.split(' ').slice(1).join(' ') || '',
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
       email: user.email,
       phone: user.phone || '',
-      dateOfBirth: this.dateService.toDate(user.dateOfBirth || 0 ),
+      dateOfBirth: this.dateService.toDate(user.dateOfBirth || 0 ) || new Date(),
       occupation: user.occupation || '',
       monthlyIncome: user.monthlyIncome || 0,
       preferences: {
@@ -214,12 +194,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
         emailUpdates: user.preferences?.emailUpdates || true,
         budgetAlerts: user.preferences?.budgetAlerts || true,
       },
+	  role: user.role,
       createdAt: user.createdAt,
-      updatedAt: this.dateService.toTimestamp(user.updatedAt),
+      updatedAt: this.dateService.toTimestamp(user.updatedAt) || new Date(),
     };
   }
 
-  private createDefaultProfile(): UserProfile {
+  private createDefaultProfile(): User {
     return {
       uid: this.currentUser.uid,
       firstName: this.currentUser.displayName?.split(' ')[0] || '',
@@ -238,8 +219,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
         emailUpdates: true,
         budgetAlerts: true,
       },
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+	  role: UserRole.FREE,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
   }
 
@@ -254,12 +236,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
         occupation: this.userProfile.occupation || '',
         monthlyIncome: this.userProfile.monthlyIncome || 0,
         preferences: {
-          defaultCurrency: this.userProfile.preferences.defaultCurrency,
-          timezone: this.userProfile.preferences.timezone,
-          language: this.userProfile.preferences.language,
-          notifications: this.userProfile.preferences.notifications,
-          emailUpdates: this.userProfile.preferences.emailUpdates,
-          budgetAlerts: this.userProfile.preferences.budgetAlerts,
+          defaultCurrency: this.userProfile.preferences?.defaultCurrency || DEFAULT_CURRENCY,
+          timezone: this.userProfile.preferences?.timezone || 'UTC',
+          language: this.userProfile.preferences?.language || 'en',
+          notifications: this.userProfile.preferences?.notifications || true,
+          emailUpdates: this.userProfile.preferences?.emailUpdates || true,
+          budgetAlerts: this.userProfile.preferences?.budgetAlerts || true,
         },
       });
     }
@@ -292,7 +274,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           name: `${formValue.firstName} ${formValue.lastName}`.trim(),
           email: formValue.email,
           role: 'free' as any, // Keep existing role
-          createdAt: this.dateService.toTimestamp(this.userProfile.createdAt),
+          createdAt: this.dateService.toTimestamp(this.userProfile.createdAt) || new Date(),
           preferences: formValue.preferences,
           firstName: formValue.firstName,
           lastName: formValue.lastName,
@@ -300,7 +282,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
           dateOfBirth: formValue.dateOfBirth,
           occupation: formValue.occupation,
           monthlyIncome: formValue.monthlyIncome,
-		  updatedAt: this.dateService.toTimestamp(new Date()),
+		  updatedAt: this.dateService.toTimestamp(new Date()) || new Date(),
+		  
         };
 
         this.store.dispatch(ProfileActions.updateProfile({ 
@@ -402,7 +385,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency:
-        this.userProfile?.preferences.defaultCurrency || DEFAULT_CURRENCY,
+        this.userProfile?.preferences?.defaultCurrency || DEFAULT_CURRENCY,
     }).format(income);
   }
 }

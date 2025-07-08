@@ -13,10 +13,10 @@ export class DateService {
    * @param timestamp - Firebase timestamp or any date-like value
    * @returns Date object or null if conversion fails
    */
-  toDate(timestamp: any): Date {
+  toDate(timestamp: any): Date | null {
     try {
       if (!timestamp) {
-        return new Date();
+        return null;
       }
 
       // If it's already a Date object
@@ -42,7 +42,7 @@ export class DateService {
       // If it's a string, try to parse it
       if (typeof timestamp === 'string') {
         const parsed = new Date(timestamp);
-        return isNaN(parsed.getTime()) ? new Date() : parsed;
+        return isNaN(parsed.getTime()) ? null : parsed;
       }
 
       // If it's an object with toDate method
@@ -50,10 +50,10 @@ export class DateService {
         return timestamp.toDate();
       }
 
-      return new Date();
+      return null;
     } catch (error) {
       console.error('Error converting timestamp to date:', error, timestamp);
-      return new Date();
+      return null;
     }
   }
 
@@ -62,10 +62,10 @@ export class DateService {
    * @param dateValue - Date object, string, or number
    * @returns Firebase Timestamp or null if conversion fails
    */
-  toTimestamp(dateValue: any): Timestamp  {
+  toTimestamp(dateValue: any): Timestamp | null {
     try {
       if (!dateValue) {
-        return new Timestamp(0, 0);
+        return null;
       }
 
       // If it's already a Timestamp
@@ -96,10 +96,10 @@ export class DateService {
         return Timestamp.fromDate(dateValue.toDate());
       }
 
-      return new Timestamp(0, 0); 
+      return null;
     } catch (error) {
       console.error('Error converting date to timestamp:', error, dateValue);
-      return new Timestamp(0, 0); 
+      return null;
     }
   }
 

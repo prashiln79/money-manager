@@ -4,11 +4,11 @@ import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { UserService } from "src/app/util/service/user.service";
 import { User, CURRENCIES, DEFAULT_CURRENCY, Category, defaultCategoriesForNewUser } from "src/app/util/models";
-import { AccountType } from "src/app/util/models/account.model";
 import { AppState } from "src/app/store/app.state";
 import { Store } from "@ngrx/store";
 import { createAccount } from "src/app/store/accounts/accounts.actions";
 import { createCategory } from "src/app/store/categories/categories.actions";
+import { AccountType } from "src/app/util/models/enums";
 
 interface BankAccount {
 	id?: string;
@@ -274,13 +274,13 @@ export class RegistrationComponent implements OnInit {
 		switch (bankAccountType) {
 			case "checking":
 			case "savings":
-				return "bank";
+				return AccountType.BANK;
 			case "credit":
-				return "credit";
+				return AccountType.CREDIT;
 			case "investment":
-				return "bank"; // Map investment to bank type
+				return AccountType.INVESTMENT; // Map investment to bank type
 			default:
-				return "bank";
+				return AccountType.BANK;
 		}
 	}
 }

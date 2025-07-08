@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { Subscription, Observable } from 'rxjs';
-import { Transaction } from '../../../util/service/transactions.service';
+import { Transaction } from '../../../util/models/transaction.model';
 import { Account } from '../../../util/models/account.model';
 import { NotificationService } from '../../../util/service/notification.service';
 import { Category } from 'src/app/util/models';
@@ -130,15 +130,15 @@ export class ReportsComponent implements OnInit, OnDestroy {
     // Filter transactions for current month
     const currentMonthTransactions = this.transactions.filter(t => {
       const transactionDate = this.dateService.toDate(t.date);
-      return transactionDate.getMonth() === currentMonth && 
-             transactionDate.getFullYear() === currentYear;
+      return transactionDate?.getMonth() === currentMonth && 
+             transactionDate?.getFullYear() === currentYear;
     });
 
     // Filter transactions for last month
     const lastMonthTransactions = this.transactions.filter(t => {
       const transactionDate = this.dateService.toDate(t.date);
-      return transactionDate.getMonth() === lastMonth && 
-             transactionDate.getFullYear() === lastYear;
+      return transactionDate?.getMonth() === lastMonth && 
+             transactionDate?.getFullYear() === lastYear;
     });
 
     // Calculate current month metrics
@@ -179,8 +179,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
     const currentMonthExpenses = this.transactions.filter(t => {
       const transactionDate = this.dateService.toDate(t.date);
       return t.type === 'expense' &&
-             transactionDate.getMonth() === currentMonth && 
-             transactionDate.getFullYear() === currentYear;
+             transactionDate?.getMonth() === currentMonth && 
+             transactionDate?.getFullYear() === currentYear;
     });
 
     // Group by category and calculate totals
@@ -210,7 +210,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   private getRecentTransactions(): void {
     this.recentTransactions = this.transactions
-      .sort((a, b) => this.dateService.toDate(b.date).getTime() - this.dateService.toDate(a.date).getTime())
+      .sort((a, b) => (this.dateService.toDate(b.date)?.getTime() ?? 0) - (this.dateService.toDate(a.date)?.getTime() ?? 0))
       .slice(0, 5); // Last 5 transactions
   }
 
@@ -225,8 +225,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
       
       const monthTransactions = this.transactions.filter(t => {
         const transactionDate = this.dateService.toDate(t.date);
-        return transactionDate.getMonth() === month.getMonth() && 
-               transactionDate.getFullYear() === month.getFullYear();
+        return transactionDate?.getMonth() === month.getMonth() && 
+               transactionDate?.getFullYear() === month.getFullYear();
       });
 
       const income = monthTransactions

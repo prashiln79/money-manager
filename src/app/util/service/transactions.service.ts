@@ -6,22 +6,8 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import { OfflineService } from './offline.service';
 import { Timestamp } from 'firebase/firestore';
 import { DateService } from './date.service';
-
-export interface Transaction {
-    id?: string;
-    payee: string;
-    userId: string;
-    accountId: string;  // Reference to an account
-    amount: number;
-    category: string;   // "Food", "Transport", etc.
-    type: 'income' | 'expense';  // Income or expense
-    date: Date | Timestamp;  // Timestamp for transaction date
-    notes?: string;  // Optional notes for the transaction
-    recurring?: boolean;  // Whether the transaction is recurring
-    recurringInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';  // Interval for recurring transactions
-    isPending?: boolean; // For offline operations
-    syncStatus?: 'synced' | 'pending' | 'failed'; // Sync status
-}
+import { Transaction } from '../models/transaction.model';
+import { RecurringInterval, SyncStatus } from '../models/enums';
 
 
 interface OfflineOperation {
@@ -186,7 +172,26 @@ export class TransactionsService {
                         
                         // Update local cache
                         const currentTransactions = this.transactionsSubject.value;
-                        const newTransaction = { ...transactionData, id: this.generateId(), isPending: true ,date: this.dateService.toDate(transaction.date)};
+                        const newTransaction = { ...transactionData, 
+                            id: this.generateId(), 
+                            isPending: true ,
+                            date: this.dateService.toDate(transaction.date) as Date | Timestamp,
+                            syncStatus: SyncStatus.SYNCED,
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
+                            createdBy: userId,
+                            updatedBy: userId,
+                            lastSyncedAt: new Date(),
+                            nextOccurrence: new Date(),
+                            recurringInterval: 'daily' as RecurringInterval,
+                            recurringEndDate: new Date(),
+                            recurringStartDate: new Date(),
+                            recurringType: RecurringInterval.DAILY,
+                            recurringAmount: 0,
+                            recurringFrequency: 0,
+                            isRecurring: false,
+                            
+                        };
                         this.transactionsSubject.next([...currentTransactions, newTransaction]);
                     }
                     observer.next();
@@ -278,7 +283,18 @@ export class TransactionsService {
                         // Update local cache
                         const currentTransactions = this.transactionsSubject.value;
                         const updatedTransactions = currentTransactions.map(t => 
-                            t.id === transactionId ? { ...t, ...updateData, isPending: true } : t
+                            t.id === transactionId ? { 
+                                ...t,
+                                 ...updateData,
+                                  isPending: true,
+                                  syncStatus: SyncStatus.PENDING,
+                                  lastSyncedAt: new Date(),
+                                  nextOccurrence: new Date(),
+                                  recurringInterval: 'daily' as RecurringInterval,
+                                  recurringEndDate: new Date(),
+                                  recurringStartDate: new Date(),
+                                  recurringType: RecurringInterval.DAILY,
+                                } : t
                         );
                         this.transactionsSubject.next(updatedTransactions);
                     }

@@ -34,6 +34,7 @@ import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { createAccount } from 'src/app/store/accounts/accounts.actions';
 import { createCategory } from 'src/app/store/categories/categories.actions';
+import { AccountType } from '../models/enums';
 
 /**
  * Service responsible for user authentication and management
@@ -118,7 +119,8 @@ export class UserService {
 
         const newUser: User = {
           uid: userCredential.user.uid,
-          name,
+          firstName: name,
+          lastName: '',
           email,
           role: 'free',
           createdAt: new Date(),
@@ -236,7 +238,8 @@ export class UserService {
 
     const newUser: User = {
       uid: firebaseUser.uid,
-      name: firebaseUser.displayName || 'Unknown User',
+      firstName: firebaseUser.displayName || '',
+      lastName:  '',
       email: firebaseUser.email || '',
       role: 'free',
       createdAt: new Date(),
@@ -358,17 +361,17 @@ export class UserService {
    */
   private mapBankAccountType(
     bankAccountType: 'checking' | 'savings' | 'credit' | 'investment'
-  ): 'bank' | 'cash' | 'credit' | 'loan' {
+  ): AccountType {
     switch (bankAccountType) {
       case 'checking':
       case 'savings':
-        return 'bank';
+        return AccountType.BANK;
       case 'credit':
-        return 'credit';
+        return AccountType.CREDIT;
       case 'investment':
-        return 'bank'; // Map investment to bank type
+        return AccountType.INVESTMENT;
       default:
-        return 'bank';
+        return AccountType.BANK;
     }
   }
 

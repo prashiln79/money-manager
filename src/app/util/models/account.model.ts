@@ -1,9 +1,5 @@
 import { Timestamp } from "firebase/firestore";
-
-/**
- * Account type definitions
- */
-export type AccountType = "bank" | "cash" | "credit" | "loan";
+import { AccountType, SyncStatus } from "./enums";
 
 /**
  * Account interface representing a financial account in the system
@@ -22,6 +18,7 @@ export interface Account {
 	currency?: string;
 	isActive?: boolean;
 	lastSyncAt?: Timestamp;
+	syncStatus?: SyncStatus;
 }
 
 /**
