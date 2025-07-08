@@ -25,15 +25,15 @@ export interface User {
 	name: string;
 	email: string;
 	role: UserRole;
-	createdAt: Timestamp;
+	createdAt: Date | Timestamp;
 	firstName?: string;
 	lastName?: string;
 	phone?: string;
-	dateOfBirth?: Timestamp;
+	dateOfBirth?: Date | Timestamp;
 	occupation?: string;
 	monthlyIncome?: number;
 	preferences?: UserPreferences;
-	updatedAt?: Timestamp;
+	updatedAt?: Date | Timestamp;
 }
 
 /**

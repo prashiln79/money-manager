@@ -20,7 +20,7 @@ import {
   updateDoc,
 } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, timestamp } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 import { defaultBankAccounts } from 'src/app/component/auth/registration/registration.component';
 import { NotificationService } from './notification.service';
@@ -121,7 +121,7 @@ export class UserService {
           name,
           email,
           role: 'free',
-          createdAt: Timestamp.now(),
+          createdAt: new Date(),
         };
 
         await this.createUserInFirestore(userCredential.user.uid, newUser);
@@ -239,7 +239,7 @@ export class UserService {
       name: firebaseUser.displayName || 'Unknown User',
       email: firebaseUser.email || '',
       role: 'free',
-      createdAt: Timestamp.now(),
+      createdAt: new Date(),
     };
 
     await this.createUserInFirestore(firebaseUser.uid, newUser);

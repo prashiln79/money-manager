@@ -1,6 +1,14 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { loadAccounts } from 'src/app/store/accounts/accounts.actions';
+import { AppState } from 'src/app/store/app.state';
+import { loadBudgets } from 'src/app/store/budgets/budgets.actions';
+import { loadCategories } from 'src/app/store/categories/categories.actions';
+import { loadGoals } from 'src/app/store/goals/goals.actions';
+import { loadProfile } from 'src/app/store/profile/profile.actions';
+import { loadTransactions } from 'src/app/store/transactions/transactions.actions';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { UserService } from 'src/app/util/service/user.service';
 
@@ -14,7 +22,7 @@ export class SignInComponent {
   public isLoading = false;
   signInForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private notificationService: NotificationService) {
+  constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private notificationService: NotificationService, private store: Store<AppState>) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -29,6 +37,7 @@ export class SignInComponent {
       this.userService.signIn(this.signInForm.get('email')?.value, this.signInForm.get('password')?.value).then(() => {
         this.isLoading = false;
         this.notificationService.success('User logged in successfully');
+        this.getUserDetails();
         this.router.navigate(['/dashboard']);
       }).catch((error) => {
         this.isLoading = false;
@@ -38,6 +47,15 @@ export class SignInComponent {
     } else {
       this.notificationService.error('Please fill all the required fields');
     }
+  }
+
+  getUserDetails() {
+    this.store.dispatch(loadProfile({ userId: this.userService.getUser()?.uid }));
+    this.store.dispatch(loadAccounts({ userId: this.userService.getUser()?.uid }));
+    this.store.dispatch(loadCategories({ userId: this.userService.getUser()?.uid }));
+    this.store.dispatch(loadBudgets({ userId: this.userService.getUser()?.uid }));
+    this.store.dispatch(loadGoals({ userId: this.userService.getUser()?.uid }));
+    this.store.dispatch(loadTransactions({ userId: this.userService.getUser()?.uid }));
   }
 
   onSignUp() {
@@ -87,6 +105,7 @@ export class SignInComponent {
       await this.userService.signInWithGoogle();
       
       this.notificationService.success('Successfully signed in with Google!');
+      this.getUserDetails();
       
     } catch (error: any) {
       console.error('❌ Google sign-in failed in component:', error);

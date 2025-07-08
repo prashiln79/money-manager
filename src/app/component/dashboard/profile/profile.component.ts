@@ -2,8 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Subject, takeUntil, Observable, Subscription } from 'rxjs';
-import { UserService } from 'src/app/util/service/user.service';
+import { Subject, Observable, Subscription } from 'rxjs';
 import {
   User,
   CURRENCIES,
@@ -19,6 +18,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as ProfileActions from '../../../store/profile/profile.actions';
 import * as ProfileSelectors from '../../../store/profile/profile.selectors';
+import { DateService } from 'src/app/util/service/date.service';
 
 interface UserProfile {
   uid: string;
@@ -37,8 +37,8 @@ interface UserProfile {
     emailUpdates: boolean;
     budgetAlerts: boolean;
   };
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt: Date | Timestamp;
+  updatedAt: Date | Timestamp;
 }
 
 @Component({
@@ -96,6 +96,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     private notificationService: NotificationService,
     private dialog: MatDialog,
+	private dateService: DateService,
     private store: Store<AppState>
   ) {
     // Initialize selectors
@@ -202,7 +203,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       lastName: user.name?.split(' ').slice(1).join(' ') || '',
       email: user.email,
       phone: user.phone || '',
-      dateOfBirth: new Date((user.dateOfBirth?.seconds || 0 )* 1000),
+      dateOfBirth: this.dateService.toDate(user.dateOfBirth || 0 ),
       occupation: user.occupation || '',
       monthlyIncome: user.monthlyIncome || 0,
       preferences: {
@@ -214,7 +215,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         budgetAlerts: user.preferences?.budgetAlerts || true,
       },
       createdAt: user.createdAt,
-      updatedAt: user?.updatedAt || Timestamp.now(),
+      updatedAt: this.dateService.toTimestamp(user.updatedAt),
     };
   }
 
@@ -291,7 +292,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           name: `${formValue.firstName} ${formValue.lastName}`.trim(),
           email: formValue.email,
           role: 'free' as any, // Keep existing role
-          createdAt: this.userProfile.createdAt,
+          createdAt: this.dateService.toTimestamp(this.userProfile.createdAt),
           preferences: formValue.preferences,
           firstName: formValue.firstName,
           lastName: formValue.lastName,
@@ -299,6 +300,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           dateOfBirth: formValue.dateOfBirth,
           occupation: formValue.occupation,
           monthlyIncome: formValue.monthlyIncome,
+		  updatedAt: this.dateService.toTimestamp(new Date()),
         };
 
         this.store.dispatch(ProfileActions.updateProfile({ 
