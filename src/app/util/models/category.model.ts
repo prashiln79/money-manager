@@ -24,7 +24,7 @@ export const AVAILABLE_ICONS: string[] = [
   'local_gas_station', 'directions_car', 'commute', 'flight', 'airport_shuttle', 'two_wheeler', 'train',
 
   // 🏠 Home & Bills
-  'home', 'electrical_services', 'water_drop', 'lightbulb', 'wifi', 'cable',
+  'home', 'electrical_services', 'water_drop', 'lightbulb', 'wifi', 'cable','phone',
 
   // 🧾 Utilities & Services
   'plumbing', 'build', 'tune', 'settings', 'support',
