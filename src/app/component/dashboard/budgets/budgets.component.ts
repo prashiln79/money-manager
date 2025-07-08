@@ -1,16 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Timestamp } from 'firebase/firestore';
 import { Budget, BudgetsService } from 'src/app/util/service/budgets.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../store/app.state';
+import * as BudgetsActions from '../../../store/budgets/budgets.actions';
+import * as BudgetsSelectors from '../../../store/budgets/budgets.selectors';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-budgets',
   templateUrl: './budgets.component.html',
   styleUrls: ['./budgets.component.scss']
 })
-export class BudgetsComponent implements OnInit {
+export class BudgetsComponent implements OnInit, OnDestroy {
+  // Observables from store
+  budgets$: Observable<Budget[]>;
+  budgetsLoading$: Observable<boolean>;
+  budgetsError$: Observable<any>;
+  
   userId: string = '';
   budgets: Budget[] = [];
   newBudget: Budget = {
@@ -22,37 +33,63 @@ export class BudgetsComponent implements OnInit {
     startDate: Timestamp.fromDate(new Date()),
     endDate: Timestamp.fromDate(new Date()),
   };
+  
+  private destroy$ = new Subject<void>();
+  private subscriptions = new Subscription();
 
   constructor(
     private budgetsService: BudgetsService,
     private auth: Auth,
     private router: Router,
-    private notificationService: NotificationService
-  ) { }
+    private notificationService: NotificationService,
+    private store: Store<AppState>
+  ) {
+    // Initialize selectors
+    this.budgets$ = this.store.select(BudgetsSelectors.selectAllBudgets);
+    this.budgetsLoading$ = this.store.select(BudgetsSelectors.selectBudgetsLoading);
+    this.budgetsError$ = this.store.select(BudgetsSelectors.selectBudgetsError);
+  }
 
   ngOnInit(): void {
     this.loadBudgets();
+    this.subscribeToStoreData();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // Load budgets for the logged-in user
-  async loadBudgets() {
+  loadBudgets() {
     const user = this.auth.currentUser;
     if (user) {
       this.userId = user.uid;
-      this.budgetsService.getBudgets(this.userId).subscribe({
-        next: (budgets) => {
-          this.budgets = budgets;
-        },
-        error: (error) => {
-          console.error('Error loading budgets:', error);
-          this.notificationService.error('Failed to load budgets');
-        }
-      });
+      this.store.dispatch(BudgetsActions.loadBudgets({ userId: this.userId }));
     }
   }
 
+  // Subscribe to store data for backward compatibility
+  subscribeToStoreData() {
+    this.subscriptions.add(
+      this.budgets$.subscribe(budgets => {
+        this.budgets = budgets;
+      })
+    );
+
+    this.subscriptions.add(
+      this.budgetsError$.subscribe(error => {
+        if (error) {
+          console.error('Error loading budgets:', error);
+          this.notificationService.error('Failed to load budgets');
+        }
+      })
+    );
+  }
+
   // Create a new budget
-  async createBudget() {
+  createBudget() {
     if (!this.newBudget.category || !this.newBudget.limit) {
       this.notificationService.warning('Please fill in all required fields');
       return;
@@ -65,46 +102,40 @@ export class BudgetsComponent implements OnInit {
 
     const user = this.auth.currentUser;
     if (user) {
-      try {
-        this.newBudget.userId = user.uid;
-        this.newBudget.budgetId = `${this.newBudget.userId}-${new Date().getTime()}`;
-        await this.budgetsService.createBudget(user.uid, this.newBudget);
-        this.notificationService.success('Budget created successfully');
-        this.loadBudgets();  // Reload budgets after adding
-        // Reset form
-        this.newBudget = {
-          budgetId: '',
-          userId: '',
-          category: 'Groceries',
-          limit: 0,
-          spent: 0,
-          startDate: Timestamp.fromDate(new Date()),
-          endDate: Timestamp.fromDate(new Date()),
-        };
-      } catch (error) {
-        console.error('Error creating budget:', error);
-        this.notificationService.error('Failed to create budget');
-      }
+      this.newBudget.userId = user.uid;
+      this.newBudget.budgetId = `${this.newBudget.userId}-${new Date().getTime()}`;
+      
+      this.store.dispatch(BudgetsActions.createBudget({ 
+        userId: user.uid, 
+        budget: this.newBudget 
+      }));
+      
+      this.notificationService.success('Budget created successfully');
+      
+      // Reset form
+      this.newBudget = {
+        budgetId: '',
+        userId: '',
+        category: 'Groceries',
+        limit: 0,
+        spent: 0,
+        startDate: Timestamp.fromDate(new Date()),
+        endDate: Timestamp.fromDate(new Date()),
+      };
     }
   }
 
   // Delete a budget
-  async deleteBudget(budgetId: string) {
+  deleteBudget(budgetId: string) {
     const user = this.auth.currentUser;
     if (user) {
-      try {
-        await this.budgetsService.deleteBudget(user.uid, budgetId);
-        this.notificationService.success('Budget deleted successfully');
-        this.loadBudgets();  // Reload budgets after deletion
-      } catch (error) {
-        console.error('Error deleting budget:', error);
-        this.notificationService.error('Failed to delete budget');
-      }
+      this.store.dispatch(BudgetsActions.deleteBudget({ userId: user.uid, budgetId }));
+      this.notificationService.success('Budget deleted successfully');
     }
   }
 
   // Update the spent amount for a budget
-  async updateSpent(budgetId: string, amount: number) {
+  updateSpent(budgetId: string, amount: number) {
     if (amount < 0) {
       this.notificationService.warning('Spent amount cannot be negative');
       return;
@@ -112,14 +143,8 @@ export class BudgetsComponent implements OnInit {
 
     const user = this.auth.currentUser;
     if (user) {
-      try {
-        await this.budgetsService.updateSpent(user.uid, budgetId, amount);
-        this.notificationService.success('Budget spent amount updated successfully');
-        this.loadBudgets();  // Reload budgets after updating spent
-      } catch (error) {
-        console.error('Error updating budget spent:', error);
-        this.notificationService.error('Failed to update budget spent amount');
-      }
+      this.store.dispatch(BudgetsActions.updateSpent({ userId: user.uid, budgetId, amount }));
+      this.notificationService.success('Budget spent amount updated successfully');
     }
   }
 }

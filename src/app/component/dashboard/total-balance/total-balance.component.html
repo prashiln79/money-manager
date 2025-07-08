@@ -1,9 +1,17 @@
 <div class="text-center mb-2 pt-5 md:pt-0 mt-2">
   <div class="grid grid-cols-1 gap-4">
-    <!-- Total Spend -->
-    <div class="text-center">
+    <!-- Loading State -->
+    <div *ngIf="transactionsLoading$ | async" class="text-center">
+      <div class="text-lg text-muted text-gray-500">Loading...</div>
+    </div>
+    
+    <!-- Total Spend and Income -->
+    <div *ngIf="!(transactionsLoading$ | async)" class="text-center">
       <div class="text-lg text-muted text-gray-500">You Expense | Income</div>
-      <div class="text-responsive-lg mt-1 font-bold text-primary">{{ totalSpendAmt | currency:userCurrency:'symbol':'1.0-0' }} &nbsp;&nbsp;  |  &nbsp;&nbsp;<span class="text-gray-500 ">{{ totalIncomeAmt | currency:userCurrency:'symbol':'1.0-0' }}</span></div>
+      <div class="text-responsive-lg mt-1 font-bold text-primary">
+        {{ totalExpenses$ | async | currency:userCurrency:'symbol':'1.0-0' }} &nbsp;&nbsp; | &nbsp;&nbsp;
+        <span class="text-gray-500">{{ totalIncome$ | async | currency:userCurrency:'symbol':'1.0-0' }}</span>
+      </div>
     </div>
     
   </div>

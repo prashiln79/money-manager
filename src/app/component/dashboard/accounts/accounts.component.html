@@ -1,100 +1,87 @@
 <div class="accounts-container">
-    <!-- Error Message Display -->
-    <div *ngIf="errorMessage" 
-         class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
-        <p class="text-red-700 text-sm">{{ errorMessage }}</p>
-        <button (click)="clearError()" 
-                class="text-red-500 hover:text-red-700 text-lg font-bold">
-            ×
-        </button>
-    </div>
+	<!-- Error Message Display -->
+	<div *ngIf="errorMessage" class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+		<p class="text-red-700 text-sm">{{ errorMessage }}</p>
+		<button (click)="clearError()" class="text-red-500 hover:text-red-700 text-lg font-bold">
+			×
+		</button>
+	</div>
 
-    <!-- Loading Indicator -->
-    <div *ngIf="isLoading" 
-         class="loading-indicator flex justify-center items-center py-12">
-        <mat-spinner diameter="32"></mat-spinner>
-    </div>
+	<!-- Loading Indicator -->
+	<div *ngIf="isLoading$ | async" class="loading-indicator flex justify-center items-center py-12">
+		<mat-spinner diameter="32"></mat-spinner>
+	</div>
 
-    <!-- Mobile View -->
-    <div *ngIf="!isLoading && isMobile">
-        <mobile-accounts-list
-            [accounts]="accounts"
-            (editAccount)="editAccount($event)"
-            (deleteAccount)="deleteAccount($event)"
-            (addAccount)="addAccount()">
-        </mobile-accounts-list>
-    </div>
+	<!-- Mobile View -->
+	<div *ngIf="!(isLoading$ | async) && isMobile">
+		<mobile-accounts-list [accounts]="(accounts$ | async) || []" (editAccount)="editAccount($event)" (deleteAccount)="deleteAccount($event)" (addAccount)="addAccount()"> </mobile-accounts-list>
+	</div>
 
-    <!-- Desktop View -->
-    <div *ngIf="!isLoading && !isMobile" class="accounts-grid">
-        
-        <!-- Accounts List Section -->
-        <section class="accounts-list">
-            <div class="section-header">
-                <h2 class="section-title">Your Accounts</h2>
-                <p class="section-subtitle">{{ accounts.length }} account{{ accounts.length !== 1 ? 's' : '' }}</p>
-            </div>
+	<!-- Desktop View -->
+	<div *ngIf="!(isLoading$ | async) && !isMobile" class="accounts-grid">
+		<!-- Accounts List Section -->
+		<section class="accounts-list">
+			<div class="section-header">
+				<h2 class="section-title">Your Accounts</h2>
+				<p class="section-subtitle">{{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }}</p>
+			</div>
 
-            <!-- Empty State -->
-            <div *ngIf="accounts.length === 0" 
-                 class="empty-state">
-                <div class="empty-icon">💳</div>
-                <h3 class="empty-title">No accounts yet</h3>
-                <p class="empty-text">Add your first account to get started</p>
-            </div>
+			<!-- Empty State -->
+			<div *ngIf="(accounts$ | async)?.length === 0" class="empty-state">
+				<div class="empty-icon">💳</div>
+				<h3 class="empty-title">No accounts yet</h3>
+				<p class="empty-text">Add your first account to get started</p>
+			</div>
 
-            <!-- Accounts List -->
-            <div *ngIf="accounts.length > 0" class="accounts-grid-list">
-                <div *ngFor="let account of accounts; trackBy: trackByAccountId"
-                     class="account-item"
-                     [class.positive-balance]="account.balance >= 0 && account.type !== 'loan'"
-                     [class.negative-balance]="account.balance < 0 && account.type !== 'loan'"
-                     [class.loan-account]="account.type === 'loan'">
-                    <div class="account-content">
-                        <div class="account-info">
-                            <h3 class="account-name">{{ account.name }}</h3>
-                            <span class="account-type">{{ account.type }}</span>
-                        </div>
-                        <div class="account-balance">
-                            <span class="balance-amount">{{ account.balance | currency }}</span>
-                        </div>
-                        <div class="account-actions">
-                            <button mat-icon-button 
-                                    (click)="editAccount(account)"
-                                    matTooltip="Edit account"
-                                    class="edit-btn">
-                                <mat-icon>edit</mat-icon>
-                            </button>
-                            <button mat-icon-button 
-                                    (click)="deleteAccount(account)"
-                                    matTooltip="Delete account"
-                                    class="delete-btn">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+			<!-- Accounts List -->
+			<ng-container *ngIf="accounts$ | async as accounts">
+				<div *ngIf="accounts.length > 0" class="accounts-grid-list">
+					<ng-container *ngIf="accounts$ | async as accounts">
+						<div
+							*ngFor="let account of accounts; trackBy: trackByAccountId"
+							class="account-item"
+							[class.positive-balance]="account.balance >= 0 && account.type !== 'loan'"
+							[class.negative-balance]="account.balance < 0 && account.type !== 'loan'"
+							[class.loan-account]="account.type === 'loan'"
+						>
+							<div class="account-content">
+								<div class="account-info">
+									<h3 class="account-name">{{ account.name }}</h3>
+									<span class="account-type">{{ account.type }}</span>
+								</div>
+								<div class="account-balance">
+									<span class="balance-amount">{{ account.balance | currency }}</span>
+								</div>
+								<div class="account-actions">
+									<button mat-icon-button (click)="editAccount(account)" matTooltip="Edit account" class="edit-btn">
+										<mat-icon>edit</mat-icon>
+									</button>
+									<button mat-icon-button (click)="deleteAccount(account)" matTooltip="Delete account" class="delete-btn">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							</div>
+						</div>
+					</ng-container>
+				</div>
+			</ng-container>
+		</section>
 
-        <!-- Add Account Section -->
-        <section class="add-account">
-            <div class="form-card">
-                <div class="form-header">
-                    <h2 class="form-title">Add New Account</h2>
-                    <p class="form-subtitle">Create a new account to track your finances</p>
-                </div>
-                
-                <div class="add-account-content">
-                    <button mat-raised-button 
-                            color="primary" 
-                            (click)="addAccount()"
-                            class="add-account-btn">
-                        <mat-icon>add</mat-icon>
-                        Add New Account
-                    </button>
-                </div>
-            </div>
-        </section>
-    </div>
+		<!-- Add Account Section -->
+		<section class="add-account">
+			<div class="form-card">
+				<div class="form-header">
+					<h2 class="form-title">Add New Account</h2>
+					<p class="form-subtitle">Create a new account to track your finances</p>
+				</div>
+
+				<div class="add-account-content">
+					<button mat-raised-button color="primary" (click)="addAccount()" class="add-account-btn">
+						<mat-icon>add</mat-icon>
+						Add New Account
+					</button>
+				</div>
+			</div>
+		</section>
+	</div>
 </div>

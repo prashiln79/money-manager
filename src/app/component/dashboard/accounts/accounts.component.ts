@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, Observable, of } from 'rxjs';
 import { Account } from 'src/app/util/models/account.model';
 import { AccountsService } from 'src/app/util/service/accounts.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,6 +11,10 @@ import { AddAccountDialogComponent } from './add-account-dialog/add-account-dial
 import { MobileAccountsListComponent } from './mobile-accounts-list/mobile-accounts-list.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../store/app.state';
+import * as AccountsActions from '../../../store/accounts/accounts.actions';
+import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
 
 @Component({
   selector: 'user-accounts',
@@ -18,13 +22,17 @@ import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/c
   styleUrls: ['./accounts.component.scss']
 })
 export class AccountsComponent implements OnInit, OnDestroy {
+  // Observables from store
+  public accounts$: Observable<Account[]> = of([]);
+  public isLoading$: Observable<boolean>;
+  public error$: Observable<any>;
+  public totalBalance$: Observable<number>;
+  
   // Component state
   public accounts: Account[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
   public isMobile: boolean = false;
-  
-
   
   // Private properties
   private userId: string = '';
@@ -36,8 +44,15 @@ export class AccountsComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly dialog: MatDialog,
     private readonly breakpointObserver: BreakpointObserver,
-    private readonly notificationService: NotificationService
-  ) {}
+    private readonly notificationService: NotificationService,
+    private readonly store: Store<AppState>
+  ) {
+    // Initialize selectors
+    this.accounts$ = this.store.select(AccountsSelectors.selectAllAccounts) || of([]);
+    this.isLoading$ = this.store.select(AccountsSelectors.selectAccountsLoading);
+    this.error$ = this.store.select(AccountsSelectors.selectAccountsError);
+    this.totalBalance$ = this.store.select(AccountsSelectors.selectTotalBalance);
+  }
 
   ngOnInit(): void {
     this.initializeComponent();
@@ -61,36 +76,36 @@ export class AccountsComponent implements OnInit, OnDestroy {
     }
 
     this.userId = currentUser.uid;
-    await this.loadUserAccounts();
+    this.loadUserAccounts();
   }
 
   /**
    * Load all accounts for the current user
    */
-  private async loadUserAccounts(): Promise<void> {
-    try {
-      this.isLoading = true;
-      this.errorMessage = '';
+  private loadUserAccounts(): void {
+    this.store.dispatch(AccountsActions.loadAccounts({ userId: this.userId }));
+    
+    // Subscribe to store data for backward compatibility
+    this.accounts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(accounts => {
+        this.accounts = accounts;
+      });
 
-      this.accountsService
-        .getAccounts(this.userId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (accounts) => {
-            this.accounts = accounts;
-            this.isLoading = false;
-          },
-          error: (error) => {
-            this.errorMessage = 'Failed to load accounts';
-            this.isLoading = false;
-            console.error('Error loading accounts:', error);
-          }
-        });
-    } catch (error) {
-      this.errorMessage = 'Failed to load accounts';
-      this.isLoading = false;
-      console.error('Error loading accounts:', error);
-    }
+    this.isLoading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(loading => {
+        this.isLoading = loading;
+      });
+
+    this.error$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(error => {
+        if (error) {
+          this.errorMessage = 'Failed to load accounts';
+          console.error('Error loading accounts:', error);
+        }
+      });
   }
 
 
@@ -143,7 +158,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadUserAccounts();
+        this.store.dispatch(AccountsActions.loadAccounts({ userId: this.userId }));
       }
     });
   }
@@ -173,15 +188,11 @@ export class AccountsComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result) {
         try {
-          this.isLoading = true;
-          await this.accountsService.deleteAccount(this.userId, account.accountId);
+          this.store.dispatch(AccountsActions.deleteAccount({ userId: this.userId, accountId: account.accountId }));
           this.notificationService.success('Account deleted successfully');
-          await this.loadUserAccounts();
         } catch (error) {
           this.notificationService.error('Failed to delete account');
           console.error('Error deleting account:', error);
-        } finally {
-          this.isLoading = false;
         }
       }
     });

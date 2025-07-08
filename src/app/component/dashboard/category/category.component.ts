@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Subject, takeUntil, Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { Subject, Observable, of } from 'rxjs';
+import { map, startWith, takeUntil } from 'rxjs/operators';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
@@ -12,6 +12,10 @@ import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-
 import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
 import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUser } from 'src/app/util/models';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../store/app.state';
+import * as CategoriesActions from '../../../store/categories/categories.actions';
+import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
 
 @Component({
   selector: 'transaction-category',
@@ -19,29 +23,27 @@ import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUse
   styleUrls: ['./category.component.scss']
 })
 export class CategoryComponent implements OnInit, OnDestroy {
-  // Component state
+  public categories$: Observable<Category[]>;
+  public isLoading$: Observable<boolean>;
+  public error$: Observable<any>;
+
   public categories: Category[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
   public isEditMode: boolean = false;
   public isMobile: boolean = false;
-  
-  // Form data
-  public newCategory: Category = this.getEmptyCategory();
-  
-  // Icon selection
-  public availableIcons: string[] = AVAILABLE_ICONS;
 
-  // Color selection
+  public newCategory: Category = this.getEmptyCategory();
+  public availableIcons: string[] = AVAILABLE_ICONS;
   public availableColors: string[] = AVAILABLE_COLORS;
 
-  // Autocomplete properties
   public categorySuggestions: string[] = [];
-  public filteredSuggestions: Observable<string[]> = new Observable<string[]>();
+  public filteredSuggestions: Observable<string[]> = of([]);
   public categoryNameInput: string = '';
 
   public userId: string = '';
   private destroy$ = new Subject<void>();
+  private isSubmitting: boolean = false;
 
   constructor(
     private categoryService: CategoryService,
@@ -49,8 +51,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private notificationService: NotificationService,
     private hapticFeedback: HapticFeedbackService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private store: Store<AppState>
   ) {
+    this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
+    this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
+    this.error$ = this.store.select(CategoriesSelectors.selectCategoriesError);
+
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
     });
@@ -58,6 +65,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeComponent();
+    this.subscribeToStoreData();
   }
 
   ngOnDestroy(): void {
@@ -65,93 +73,61 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Initialize the component by loading user categories
-   */
   private async initializeComponent(): Promise<void> {
-    const currentUser = this.auth.currentUser;
-    
+    const currentUser = await this.auth.currentUser;
     if (!currentUser) {
       this.errorMessage = 'User not authenticated';
       return;
     }
 
     this.userId = currentUser.uid;
-    await this.loadUserCategories();
+    this.loadUserCategories();
   }
 
-  /**
-   * Load categories for the current user
-   */
-  private async loadUserCategories(): Promise<void> {
-    try {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      this.categoryService.getCategories(this.userId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (categories) => {
-            this.categories = categories.sort((a, b) => a.name.localeCompare(b.name));
-            this.initializeCategorySuggestions();
-            this.isLoading = false;
-          },
-          error: (error) => {
-            this.errorMessage = 'Failed to load categories';
-            this.isLoading = false;
-            console.error('Error loading categories:', error);
-            this.notificationService.error('Failed to load categories');
-          }
-        });
-    } catch (error) {
-      this.errorMessage = 'Failed to load categories';
-      this.isLoading = false;
-      console.error('Error loading categories:', error);
-      this.notificationService.error('Failed to load categories');
-    }
+  private loadUserCategories(): void {
+    this.store.dispatch(CategoriesActions.loadCategories({ userId: this.userId }));
   }
 
-  /**
-   * Initialize category suggestions for autocomplete
-   */
+  private subscribeToStoreData(): void {
+    this.categories$.pipe(takeUntil(this.destroy$)).subscribe(categories => {
+      this.categories = categories.sort((a, b) => a.name.localeCompare(b.name));
+      this.initializeCategorySuggestions();
+    });
+
+    this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe(loading => {
+      this.isLoading = loading;
+    });
+
+    this.error$.pipe(takeUntil(this.destroy$)).subscribe(error => {
+      if (error) {
+        this.errorMessage = 'Failed to load categories';
+        console.error('Error loading categories:', error);
+        this.notificationService.error('Failed to load categories');
+      }
+    });
+  }
+
   private initializeCategorySuggestions(): void {
-    // Get existing category names
     const existingCategoryNames = this.categories.map(cat => cat.name);
-    
-    // Get default category names
     const defaultCategoryNames = defaultCategoriesForNewUser.map(cat => cat.name);
-    
-    // Combine and remove duplicates
     this.categorySuggestions = [...new Set([...existingCategoryNames, ...defaultCategoryNames])];
-    
-    // Initialize filtered suggestions
-    this.filteredSuggestions = new Observable<string[]>();
+    this.filteredSuggestions = of([]);
   }
 
-  /**
-   * Filter category suggestions based on input
-   */
   public filterSuggestions(value: string): void {
     const filterValue = value.toLowerCase();
-    this.filteredSuggestions = new Observable<string[]>().pipe(
-      startWith(''),
-      map(() => this.categorySuggestions.filter(suggestion => 
+    this.filteredSuggestions = of(
+      this.categorySuggestions.filter(suggestion =>
         suggestion.toLowerCase().includes(filterValue)
-      ))
+      )
     );
   }
 
-  /**
-   * Select a suggestion from autocomplete
-   */
   public selectSuggestion(suggestion: string): void {
     this.newCategory.name = suggestion;
     this.categoryNameInput = suggestion;
   }
 
-  /**
-   * Handle category name input for autocomplete
-   */
   public onCategoryNameInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     if (target) {
@@ -159,42 +135,28 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Create a new category for the current user
-   */
-  public async createCategory(): Promise<void> {
+  public createCategory(): void {
     if (!this.isValidCategoryData()) {
       this.notificationService.warning('Please enter a category name');
       return;
     }
 
-    try {
-      this.isLoading = true;
-      this.errorMessage = '';
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
 
-      await this.categoryService.createCategory(
-        this.userId, 
-        this.newCategory.name.trim(), 
-        this.newCategory.type,
-        this.newCategory.icon,
-        this.newCategory.color
-      );
-      
-      this.notificationService.success('Category created successfully');
-      // Reset form and reload categories
-      this.resetForm();
-      await this.loadUserCategories();
-    } catch (error) {
-      this.errorMessage = 'Failed to create category';
-      this.isLoading = false;
-      console.error('Error creating category:', error);
-      this.notificationService.error('Failed to create category');
-    }
+    this.store.dispatch(CategoriesActions.createCategory({
+      userId: this.userId,
+      name: this.newCategory.name.trim(),
+      categoryType: this.newCategory.type,
+      icon: this.newCategory.icon,
+      color: this.newCategory.color
+    }));
+
+    this.notificationService.success('Category created successfully');
+    this.resetForm();
+    this.isSubmitting = false;
   }
 
-  /**
-   * Edit an existing category
-   */
   public editCategory(category: Category): void {
     if (this.isMobile) {
       this.hapticFeedback.lightVibration();
@@ -212,10 +174,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Update an existing category
-   */
-  public async updateCategory(): Promise<void> {
+  public updateCategory(): void {
     if (!this.isValidCategoryData()) {
       this.notificationService.warning('Please enter a category name');
       return;
@@ -226,42 +185,31 @@ export class CategoryComponent implements OnInit, OnDestroy {
       return;
     }
 
-    try {
-      this.isLoading = true;
-      this.errorMessage = '';
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
 
-      await this.categoryService.updateCategory(
-        this.userId, 
-        this.newCategory.id, 
-        this.newCategory.name.trim(), 
-        this.newCategory.type,
-        this.newCategory.icon,
-        this.newCategory.color
-      );
-      
-      this.notificationService.success('Category updated successfully');
-      // Reset form and reload categories
-      this.resetForm();
-      await this.loadUserCategories();
-    } catch (error) {
-      this.errorMessage = 'Failed to update category';
-      this.isLoading = false;
-      console.error('Error updating category:', error);
-      this.notificationService.error('Failed to update category');
-    }
+    this.store.dispatch(CategoriesActions.updateCategory({
+      userId: this.userId,
+      categoryId: this.newCategory.id,
+      name: this.newCategory.name.trim(),
+      categoryType: this.newCategory.type,
+      icon: this.newCategory.icon,
+      color: this.newCategory.color
+    }));
+
+    this.notificationService.success('Category updated successfully');
+    this.resetForm();
+    this.isSubmitting = false;
   }
 
-  /**
-   * Delete a category with confirmation dialog
-   */
   public deleteCategory(category: Category): void {
     if (this.isMobile) {
       this.hapticFeedback.warningVibration();
     }
-    
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: this.isMobile ? '90vw' : '400px',
-      maxWidth: this.isMobile ? '400px' : '400px',
+      maxWidth: '400px',
       data: {
         title: 'Delete Category',
         message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
@@ -271,78 +219,43 @@ export class CategoryComponent implements OnInit, OnDestroy {
       }
     });
 
-    dialogRef.afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
-        if (result) {
-          this.performDelete(category.id!);
-        }
-      });
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
+      if (result && category.id) {
+        this.performDelete(category.id);
+      }
+    });
   }
 
-  /**
-   * Perform the actual deletion of a category
-   */
-  private async performDelete(categoryId: string): Promise<void> {
-    try {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      await this.categoryService.deleteCategory(this.userId, categoryId);
-      
-      this.notificationService.success('Category deleted successfully');
-      await this.loadUserCategories();
-    } catch (error) {
-      this.errorMessage = 'Failed to delete category';
-      this.isLoading = false;
-      console.error('Error deleting category:', error);
-      this.notificationService.error('Failed to delete category');
-    }
+  private performDelete(categoryId: string): void {
+    this.store.dispatch(CategoriesActions.deleteCategory({ userId: this.userId, categoryId }));
+    this.notificationService.success('Category deleted successfully');
   }
 
-  /**
-   * Cancel edit mode and reset form
-   */
   public cancelEdit(): void {
     this.isEditMode = false;
     this.resetForm();
   }
 
-  /**
-   * Reset the form to empty state
-   */
   private resetForm(): void {
     this.newCategory = this.getEmptyCategory();
     this.categoryNameInput = '';
     this.isEditMode = false;
-    this.isLoading = false;
+    this.isSubmitting = false;
   }
 
-  /**
-   * Validate category data before submission
-   */
   private isValidCategoryData(): boolean {
-    return this.newCategory.name.trim().length > 0 && 
-           this.newCategory.name.trim().length <= 50;
+    return this.newCategory.name.trim().length > 0 &&
+      this.newCategory.name.trim().length <= 50;
   }
 
-  /**
-   * Track categories by ID for ngFor optimization
-   */
   public trackByCategoryId(index: number, category: Category): string | number {
     return category.id || index;
   }
 
-  /**
-   * Clear error message
-   */
   public clearError(): void {
     this.errorMessage = '';
   }
 
-  /**
-   * Select an icon for the category
-   */
   public selectIcon(icon: string): void {
     if (this.isMobile) {
       this.openIconSelectorDialog();
@@ -373,9 +286,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Select a color for the category
-   */
   public selectColor(color: string): void {
     if (this.isMobile) {
       this.openColorSelectorDialog();
@@ -406,9 +316,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Open mobile dialog for editing category
-   */
   private openMobileDialog(category?: Category): void {
     const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
       width: '90vw',
@@ -418,18 +325,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
       panelClass: 'mobile-dialog'
     });
 
-    dialogRef.afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
-        if (result) {
-          this.loadUserCategories();
-        }
-      });
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
+      if (result) {
+        this.loadUserCategories();
+      }
+    });
   }
 
-  /**
-   * Open mobile dialog for adding new category
-   */
   public openAddMobileDialog(): void {
     if (this.isMobile) {
       this.hapticFeedback.lightVibration();
@@ -437,9 +339,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.openMobileDialog();
   }
 
-  /**
-   * Get an empty category template
-   */
   private getEmptyCategory(): Category {
     return {
       name: '',

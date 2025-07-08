@@ -7,11 +7,13 @@ import { environment } from '../../environments/environment';
 import { transactionsReducer } from './transactions/transactions.reducer';
 import { categoriesReducer } from './categories/categories.reducer';
 import { accountsReducer } from './accounts/accounts.reducer';
+import { budgetsReducer } from './budgets/budgets.reducer';
 // import { profileReducer } from './profile/profile.reducer';
 
 import { TransactionsEffects } from './transactions/transactions.effects';
 import { CategoriesEffects } from './categories/categories.effects';
 import { AccountsEffects } from './accounts/accounts.effects';
+import { BudgetsEffects } from './budgets/budgets.effects';
 // import { ProfileEffects } from './profile/profile.effects';
 
 @NgModule({
@@ -20,12 +22,14 @@ import { AccountsEffects } from './accounts/accounts.effects';
       transactions: transactionsReducer,
       categories: categoriesReducer,
       accounts: accountsReducer,
+      budgets: budgetsReducer,
       // profile: profileReducer
     }),
     EffectsModule.forRoot([
       TransactionsEffects,
       CategoriesEffects,
       AccountsEffects,
+      BudgetsEffects,
       // ProfileEffects
     ]),
     StoreDevtoolsModule.instrument({

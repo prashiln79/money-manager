@@ -12,9 +12,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
 import { DateSelectionService, DateRange } from 'src/app/util/service/date-selection.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { Timestamp } from '@angular/fire/firestore';
 import moment from 'moment';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../store/app.state';
+import * as TransactionsActions from '../../../store/transactions/transactions.actions';
+import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 
 @Component({
   selector: 'transaction-list',
@@ -25,6 +29,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild("tableSort", { static: false }) sort!: MatSort;
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
+
+  // Observables from store
+  transactions$: Observable<Transaction[]>;
+  transactionsLoading$: Observable<boolean>;
+  transactionsError$: Observable<any>;
 
   isMobile = false;
   displayedColumns: string[] = ['Payee', 'Amount', 'Status', 'Type', 'Date', 'Actions'];
@@ -63,8 +72,13 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     private auth: Auth, 
     private transactionsService: TransactionsService, 
     private notificationService: NotificationService,
-    private dateSelectionService: DateSelectionService
+    private dateSelectionService: DateSelectionService,
+    private store: Store<AppState>
   ) {
+    // Initialize selectors
+    this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
+    this.transactionsLoading$ = this.store.select(TransactionsSelectors.selectTransactionsLoading);
+    this.transactionsError$ = this.store.select(TransactionsSelectors.selectTransactionsError);
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
@@ -81,6 +95,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.clearDateFilter();
     this.loadTransactions();
     this.subscribeToDateSelection();
+    this.subscribeToStoreData();
   }
 
   ngOnDestroy() {
@@ -90,13 +105,35 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   loadTransactions() {
     this.loaderService.show();
     
-    this.transactionsService.getTransactions(this.auth.currentUser?.uid || '').subscribe(transactions => {
-      this.allTransactions = transactions.sort((a: any, b: any) => b.date.toDate() - a.date.toDate());
-      this.applyDateFilter();
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-      this.loaderService.hide();
-    });
+    // Load transactions from store
+    const userId = this.auth.currentUser?.uid;
+    if (userId) {
+      this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
+    }
+  }
+
+  subscribeToStoreData() {
+    // Subscribe to store data for backward compatibility
+    this.dateSubscription.add(
+      this.transactions$.subscribe(transactions => {
+        this.allTransactions = transactions.sort((a: any, b: any) => b.date.toDate() - a.date.toDate());
+        this.applyDateFilter();
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.loaderService.hide();
+      })
+    );
+
+    // Handle errors
+    this.dateSubscription.add(
+      this.transactionsError$.subscribe(error => {
+        if (error) {
+          console.error('Error loading transactions:', error);
+          this.notificationService.error('Failed to load transactions');
+          this.loaderService.hide();
+        }
+      })
+    );
   }
 
   subscribeToDateSelection() {
@@ -243,8 +280,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   async deleteTransaction(transaction: Transaction) {
-    await this.transactionsService.deleteTransaction(this.auth.currentUser?.uid || '', transaction.id || '');
-    this.notificationService.success('Transaction deleted successfully');
+    const userId = this.auth.currentUser?.uid;
+    if (userId && transaction.id) {
+      this.store.dispatch(TransactionsActions.deleteTransaction({ userId, transactionId: transaction.id }));
+      this.notificationService.success('Transaction deleted successfully');
+    }
   }
 
   onLongPress(tx: any) {
@@ -287,23 +327,18 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       type: element.type
     };
 
-    // Save to database
-    this.transactionsService.updateTransaction(
-      this.auth.currentUser?.uid || '', 
-      element.id || '', 
-      updateData
-    ).subscribe(() => {
+    // Save to database using store
+    const userId = this.auth.currentUser?.uid;
+    if (userId && element.id) {
+      this.store.dispatch(TransactionsActions.updateTransaction({ 
+        userId, 
+        transactionId: element.id, 
+        transaction: updateData 
+      }));
       this.notificationService.success('Transaction updated successfully');
       element.isEditing = false;
       delete element.originalValues;
-    }, error => {
-      this.notificationService.error('Failed to update transaction');
-      // Revert to original values
-      element.payee = element.originalValues.payee;
-      element.amount = element.originalValues.amount;
-      element.type = element.originalValues.type;
-      element.isEditing = false;
-    });
+    }
   }
 
   cancelRowEdit(element: any) {
@@ -360,7 +395,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
             notes: tx.narration || ''
           };
 
-          await this.transactionsService.createTransaction(userId, transactionData);
+          this.store.dispatch(TransactionsActions.createTransaction({ userId, transaction: transactionData }));
           successCount++;
         } catch (error) {
           console.error('Error importing transaction:', tx, error);
@@ -372,7 +407,8 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       
       if (successCount > 0) {
         this.notificationService.success(`Successfully imported ${successCount} transactions`);
-        this.loadTransactions(); // Refresh the list
+        // Refresh the list by dispatching load action
+        this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
       }
       
       if (errorCount > 0) {
@@ -470,8 +506,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   refreshTransactions(): void {
-    this.loadTransactions();
-    this.notificationService.success('Transactions refreshed');
+    const userId = this.auth.currentUser?.uid;
+    if (userId) {
+      this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
+      this.notificationService.success('Transactions refreshed');
+    }
   }
 
   openFilterDialog(): void {
@@ -504,7 +543,10 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((transaction: Transaction) => {
       if (transaction) {
-        this.loadTransactions();
+        const userId = this.auth.currentUser?.uid;
+        if (userId) {
+          this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
+        }
       }
     });
   }
