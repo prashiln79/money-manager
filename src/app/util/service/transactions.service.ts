@@ -15,7 +15,7 @@ export interface Transaction {
     amount: number;
     category: string;   // "Food", "Transport", etc.
     type: 'income' | 'expense';  // Income or expense
-    date: Date;  // Timestamp for transaction date
+    date: Date | Timestamp;  // Timestamp for transaction date
     notes?: string;  // Optional notes for the transaction
     recurring?: boolean;  // Whether the transaction is recurring
     recurringInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';  // Interval for recurring transactions

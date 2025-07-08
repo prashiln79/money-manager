@@ -82,7 +82,7 @@ export class MobileTransactionListComponent
     private readonly route: Router,
     private readonly dialog: MatDialog,
     private readonly accountsService: AccountsService,
-    private readonly dateService: DateService
+    public readonly dateService: DateService
   ) {}
 
   ngOnInit() {
@@ -160,9 +160,17 @@ export class MobileTransactionListComponent
 
     switch (this.selectedSort) {
       case 'date-desc':
-        return sorted.sort((a, b) => b.date.getTime() - a.date.getTime());
+        return sorted.sort((a, b) => {
+          const dateA = this.dateService.toDate(a.date);
+          const dateB = this.dateService.toDate(b.date);
+          return dateB.getTime() - dateA.getTime();
+        });
       case 'date-asc':
-        return sorted.sort((a, b) => a.date.getTime() - b.date.getTime());
+        return sorted.sort((a, b) => {
+          const dateA = this.dateService.toDate(a.date);
+          const dateB = this.dateService.toDate(b.date);
+          return dateA.getTime() - dateB.getTime();
+        });
       case 'amount-desc':
         return sorted.sort((a, b) => b.amount - a.amount);
       case 'amount-asc':
@@ -172,7 +180,11 @@ export class MobileTransactionListComponent
       case 'category-asc':
         return sorted.sort((a, b) => a.category.localeCompare(b.category));
       default:
-        return sorted.sort((a, b) => b.date.getTime() - a.date.getTime());
+        return sorted.sort((a, b) => {
+          const dateA = this.dateService.toDate(a.date);
+          const dateB = this.dateService.toDate(b.date);
+          return dateB.getTime() - dateA.getTime();
+        });
     }
   }
 
