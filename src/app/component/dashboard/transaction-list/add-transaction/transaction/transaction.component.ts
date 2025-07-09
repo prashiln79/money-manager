@@ -40,7 +40,6 @@ export class TransactionComponent {
   ];
   public tagList: Array<any> = [];
   public statusList: string[] = ['Pending', 'Completed', 'Cancelled'];
-  public typeList: string[] = ['income', 'expense'];
   public userId: any;
 
   constructor(
@@ -59,7 +58,6 @@ export class TransactionComponent {
       date: [new Date(), Validators.required],
       description: [''],
       tag: [''],
-      type: ['expense'],
     });
 
     this.store
@@ -73,7 +71,6 @@ export class TransactionComponent {
             date: this.dateService.toDate(this.dialogData.date),
             description: this.dialogData.notes,
             tag: this.dialogData.category,
-            type: this.dialogData.type,
           });
         } else {
           this.transactionForm.patchValue({
@@ -94,6 +91,12 @@ export class TransactionComponent {
   async onSubmit(): Promise<void> {
     if (this.transactionForm.valid) {
       this.dialogRef.close(true);
+      
+      // Get the selected category to determine the type
+      const selectedCategoryName = this.transactionForm.get('tag')?.value;
+      const selectedCategory = this.tagList.find(cat => cat.name === selectedCategoryName);
+      const transactionType = selectedCategory?.type || 'expense';
+      
       if (this.dialogData?.id) {
         await this.store.dispatch(
           TransactionsActions.updateTransaction({
@@ -105,7 +108,7 @@ export class TransactionComponent {
               accountId: '',
               amount: this.transactionForm.get('amount')?.value,
               category: this.transactionForm.get('tag')?.value,
-              type: this.transactionForm.get('type')?.value,
+              type: transactionType,
               date: this.transactionForm.get('date')?.value,
               notes: this.transactionForm.get('description')?.value,
             },
@@ -122,7 +125,7 @@ export class TransactionComponent {
               accountId: '',
               amount: this.transactionForm.get('amount')?.value,
               category: this.transactionForm.get('tag')?.value,
-              type: this.transactionForm.get('type')?.value,
+              type: transactionType,
               date: this.transactionForm.get('date')?.value,
               notes: this.transactionForm.get('description')?.value,
               isRecurring: false,

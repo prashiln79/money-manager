@@ -178,23 +178,7 @@
 
 
 
-			<!-- Type Field -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-					Type *
-				</label>
-				<select 
-					formControlName="type" 
-					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-				>
-					@for (item of typeList; track item) {
-						<option [value]="item">{{ item | titlecase }}</option>
-					}
-				</select>
-				@if(getTypeError()) {
-					<p class="text-red-500 text-sm mt-1">{{ getTypeError() }}</p>
-				}
-			</div>
+
 
 			<!-- Notes Field -->
 			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">

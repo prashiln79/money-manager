@@ -42,7 +42,6 @@ export class MobileAddTransactionComponent implements AfterViewInit {
   transactionForm: FormGroup;
   public tagList: Array<any> = [];
   public accountList: Array<any> = [];
-  public typeList: string[] = ['income', 'expense'];
   public userId: any;
   public isSubmitting = false;
 
@@ -65,7 +64,6 @@ export class MobileAddTransactionComponent implements AfterViewInit {
       date: [moment().format('YYYY-MM-DD'), Validators.required],
       description: [''],
       tag: [''],
-      type: ['expense'],
       accountId: ['', Validators.required],
     });
 
@@ -84,7 +82,6 @@ export class MobileAddTransactionComponent implements AfterViewInit {
           ),
           description: this.dialogData.notes,
           tag: this.dialogData.category,
-          type: this.dialogData.type,
           accountId: this.dialogData.accountId,
         });
       } else {
@@ -122,6 +119,12 @@ export class MobileAddTransactionComponent implements AfterViewInit {
 
       try {
         this.loaderService.show();
+        
+        // Get the selected category to determine the type
+        const selectedCategoryName = this.transactionForm.get('tag')?.value;
+        const selectedCategory = this.tagList.find(cat => cat.name === selectedCategoryName);
+        const transactionType = selectedCategory?.type || 'expense';
+
         if (this.dialogData?.id) {
           await this.store.dispatch(
             TransactionsActions.updateTransaction({
@@ -132,7 +135,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
                 accountId: this.transactionForm.get('accountId')?.value,
                 amount: this.transactionForm.get('amount')?.value,
                 category: this.transactionForm.get('tag')?.value,
-                type: this.transactionForm.get('type')?.value,
+                type: transactionType,
                 date: this.transactionForm.get('date')?.value,
                 notes: this.transactionForm.get('description')?.value,
               },
@@ -150,7 +153,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
                 accountId: this.transactionForm.get('accountId')?.value,
                 amount: this.transactionForm.get('amount')?.value,
                 category: this.transactionForm.get('tag')?.value,
-                type: this.transactionForm.get('type')?.value,
+                type: transactionType,
                 date: new Date(this.transactionForm.get('date')?.value + ' ' + this.dateService.now().toDate().toLocaleTimeString()),
                 notes: this.transactionForm.get('description')?.value,
                 isRecurring: false,
@@ -202,13 +205,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
     return '';
   }
 
-  getTypeError(): string {
-    const typeControl = this.transactionForm.get('type');
-    if (typeControl?.hasError('required')) {
-      return 'Type is required';
-    }
-    return '';
-  }
+
 
   openNewAccountDialog(): void {
     this.dialog.open(AddAccountDialogComponent, {

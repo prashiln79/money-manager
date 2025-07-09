@@ -40,35 +40,15 @@
 				</mat-error>
 			</mat-form-field>
 
-			<!-- Type and Tag Fields - Side by Side on Desktop -->
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				<!-- Type Field -->
-				<mat-form-field appearance="fill" class="w-full">
-					<mat-label>Type *</mat-label>
-					<mat-select formControlName="type" placeholder="Select type">
-						@for (item of typeList; track item) {
-						<mat-option [value]="item">
-							<div class="flex items-center gap-2">
-								{{ item | titlecase }}
-							</div>
-						</mat-option>
-						}
-					</mat-select>
-					<mat-error *ngIf="transactionForm.get('type')?.hasError('required')">
-						Type is required
-					</mat-error>
-				</mat-form-field>
-
-				<!-- Tag Field -->
-				<mat-form-field appearance="fill" class="w-full">
-					<mat-label>Category</mat-label>
-					<mat-select formControlName="tag" placeholder="Select category">
-						@for (item of tagList; track item) {
-						<mat-option [value]="item.name">{{ item?.name }}</mat-option>
-						}
-					</mat-select>
-				</mat-form-field>
-			</div>
+			<!-- Category Field -->
+			<mat-form-field appearance="fill" class="w-full">
+				<mat-label>Category</mat-label>
+				<mat-select formControlName="tag" placeholder="Select category">
+					@for (item of tagList; track item) {
+					<mat-option [value]="item.name">{{ item?.name }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
 
 			<!-- Notes Field -->
 			<mat-form-field appearance="fill" class="w-full">
