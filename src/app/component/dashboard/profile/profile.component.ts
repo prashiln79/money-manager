@@ -5,9 +5,6 @@ import { Router } from '@angular/router';
 import { Subject, Observable, Subscription } from 'rxjs';
 import {
   User,
-  CURRENCIES,
-  getCurrencySymbol,
-  DEFAULT_CURRENCY,
 } from 'src/app/util/models';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -364,9 +361,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return 'User';
   }
 
-  getCurrencySymbol(currencyCode: string): string {
-    return APP_CONFIG.CURRENCY.SYMBOLS[currencyCode as CurrencyCode] || currencyCode;
-  }
+  // getCurrencySymbol(currencyCode: string): string {
+  //   return CurrencyPipe.getCurrencySymbol(currencyCode);
+  // }
 
   getTimezoneLabel(timezoneValue: string): string {
     const timezone = this.timezones.find((t) => t.value === timezoneValue);
@@ -384,16 +381,4 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return moment(date?.seconds * 1000).format('MMM DD, YYYY');
   }
 
-  getFormattedIncome(income: number): string {
-    const currency = this.userProfile?.preferences?.defaultCurrency || this.defaultCurrency;
-    const symbol = this.getCurrencySymbol(currency);
-    const decimalPlaces = APP_CONFIG.CURRENCY.DECIMAL_PLACES[currency as CurrencyCode] || 2;
-    
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: decimalPlaces,
-      maximumFractionDigits: decimalPlaces,
-    }).format(income);
-  }
 }

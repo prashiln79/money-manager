@@ -365,10 +365,21 @@
             <div class="detail-row">
               <div class="detail-label">
                 <mat-icon class="detail-icon">schedule</mat-icon>
-                <span>Created</span>
+                <span>Created Date</span>
               </div>
               <div class="detail-value">
                 <span class="created-date">{{ dateService.toDate(tx.date) | date:'fullDate' }}</span>
+              </div>
+            </div>
+
+            <!-- Created Time -->
+            <div class="detail-row">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">schedule</mat-icon>
+                <span>Created Time</span>
+              </div>
+              <div class="detail-value">
+                <span class="created-time">{{ dateService.toDate(tx.date) | date:'shortTime' }}</span>
               </div>
             </div>
 

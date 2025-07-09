@@ -61,7 +61,7 @@ export const APP_CONFIG = {
 
   // Currency configuration
   CURRENCY: {
-    DEFAULT: CurrencyCode.USD,
+    DEFAULT: CurrencyCode.INR,
     SUPPORTED: [
       CurrencyCode.USD,
       CurrencyCode.EUR,
@@ -96,7 +96,7 @@ export const APP_CONFIG = {
 
   // Language configuration
   LANGUAGE: {
-    DEFAULT: LanguageCode.EN,
+    DEFAULT: LanguageCode.IN_EN,
     SUPPORTED: [
       LanguageCode.EN,
       LanguageCode.ES,
@@ -107,11 +107,13 @@ export const APP_CONFIG = {
     ],
     NAMES: {
       [LanguageCode.EN]: 'English',
+      [LanguageCode.IN_EN]: 'English (India)',
       [LanguageCode.ES]: 'Español',
       [LanguageCode.FR]: 'Français',
       [LanguageCode.DE]: 'Deutsch',
       [LanguageCode.HI]: 'हिंदी',
-      [LanguageCode.ZH]: '中文'
+      [LanguageCode.ZH]: '中文',
+     
     }
   },
 

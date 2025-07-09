@@ -107,6 +107,7 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
 
 // NgRx Store
 import { AppStoreModule } from './store';
+import { CurrencyPipe } from './util/pipes';
 
 
 @NgModule({
@@ -197,6 +198,7 @@ import { AppStoreModule } from './store';
     // Utility
     IconModule,
     TranslatePipe,
+    CurrencyPipe,
     
     // NgRx Store
     AppStoreModule,
