@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
-import { GoalType, GoalStatus, SyncStatus } from './enums';
+import { GoalType, GoalStatus, SyncStatus } from '../config/enums';
 
 /**
  * Goal interface representing a financial goal in the system

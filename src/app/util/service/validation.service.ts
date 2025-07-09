@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IValidationService } from './interfaces';
-import { APP_CONFIG, ERROR_MESSAGES } from '../models/config';
+import { APP_CONFIG, ERROR_MESSAGES } from '../config/config';
 
 /**
  * Validation result interface

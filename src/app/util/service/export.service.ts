@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { IExportService } from './interfaces';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { ExportFormat, CurrencyCode } from '../models/enums';
-import { APP_CONFIG, ERROR_MESSAGES } from '../models/config';
+import { ExportFormat, CurrencyCode } from '../config/enums';
+import { APP_CONFIG, ERROR_MESSAGES } from '../config/config';
 
 /**
  * Export options interface

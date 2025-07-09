@@ -8,7 +8,7 @@ import { AppState } from "src/app/store/app.state";
 import { Store } from "@ngrx/store";
 import { createAccount } from "src/app/store/accounts/accounts.actions";
 import { createCategory } from "src/app/store/categories/categories.actions";
-import { AccountType } from "src/app/util/models/enums";
+import { AccountType } from "src/app/util/config/enums";
 
 interface BankAccount {
 	id?: string;

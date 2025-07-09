@@ -18,7 +18,7 @@ import { AppState } from '../../../store/app.state';
 import * as ProfileActions from '../../../store/profile/profile.actions';
 import * as ProfileSelectors from '../../../store/profile/profile.selectors';
 import { DateService } from 'src/app/util/service/date.service';
-import { UserRole } from 'src/app/util/models/enums';
+import { UserRole } from 'src/app/util/config/enums';
 
 
 @Component({

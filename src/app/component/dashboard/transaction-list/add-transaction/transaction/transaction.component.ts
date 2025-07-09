@@ -10,7 +10,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsActions from '../../../../../store/transactions/transactions.actions';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
-import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/models/enums';
+import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'app-transaction',

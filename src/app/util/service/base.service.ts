@@ -3,8 +3,8 @@ import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDo
 import { Auth } from '@angular/fire/auth';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { APP_CONFIG, ERROR_MESSAGES } from '../models/config';
-import { SyncStatus } from '../models/enums';
+import { APP_CONFIG, ERROR_MESSAGES } from '../config/config';
+import { SyncStatus } from '../config/enums';
 
 /**
  * Base service class providing common functionality for all services

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ICacheService } from './interfaces';
-import { APP_CONFIG } from '../models/config';
+import { APP_CONFIG } from '../config/config';
 
 /**
  * Cache entry interface

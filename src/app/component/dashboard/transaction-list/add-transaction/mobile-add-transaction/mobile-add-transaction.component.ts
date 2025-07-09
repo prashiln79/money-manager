@@ -25,7 +25,11 @@ import { Store } from '@ngrx/store';
 import * as TransactionsActions from '../../../../../store/transactions/transactions.actions';
 import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
-import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/models/enums';
+import {
+  RecurringInterval,
+  SyncStatus,
+  TransactionStatus,
+} from 'src/app/util/config/enums';
 
 @Component({
   selector: 'app-mobile-add-transaction',
@@ -149,14 +153,14 @@ export class MobileAddTransactionComponent implements AfterViewInit {
                 type: this.transactionForm.get('type')?.value,
                 date: this.transactionForm.get('date')?.value,
                 notes: this.transactionForm.get('description')?.value,
-				isRecurring: false,
-				recurringInterval: RecurringInterval.MONTHLY,
-				status: TransactionStatus.COMPLETED,
-				syncStatus: SyncStatus.PENDING,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				createdBy: this.userId,
-				updatedBy: this.userId,
+                isRecurring: false,
+                recurringInterval: RecurringInterval.MONTHLY,
+                status: TransactionStatus.COMPLETED,
+                syncStatus: SyncStatus.PENDING,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                createdBy: this.userId,
+                updatedBy: this.userId,
               },
             })
           );

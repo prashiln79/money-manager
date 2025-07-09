@@ -20,7 +20,7 @@ import { AppState } from '../../../store/app.state';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { DateService } from 'src/app/util/service/date.service';
-import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/models/enums';
+import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'transaction-list',

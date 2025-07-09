@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
-import { BudgetPeriod, SyncStatus } from './enums';
+import { BudgetPeriod, SyncStatus } from '../config/enums';
 
 /**
  * Budget interface representing a budget in the system

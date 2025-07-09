@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
-import { TransactionType, RecurringInterval, SyncStatus, TransactionStatus, PaymentMethod } from './enums';
+import { TransactionType, RecurringInterval, SyncStatus, TransactionStatus, PaymentMethod } from '../config/enums';
 
 /**
  * Base transaction interface

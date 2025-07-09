@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase/firestore";
-import { AccountType, SyncStatus } from "./enums";
+import { AccountType, SyncStatus } from "../config/enums";
 
 /**
  * Account interface representing a financial account in the system

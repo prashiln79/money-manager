@@ -25,7 +25,7 @@ import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
-import { RecurringInterval } from 'src/app/util/models/enums';
+import { RecurringInterval } from 'src/app/util/config/enums';
 
 interface SortOption {
   value: string;

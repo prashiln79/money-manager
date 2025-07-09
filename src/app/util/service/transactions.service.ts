@@ -7,7 +7,7 @@ import { OfflineService } from './offline.service';
 import { Timestamp } from 'firebase/firestore';
 import { DateService } from './date.service';
 import { Transaction } from '../models/transaction.model';
-import { RecurringInterval, SyncStatus } from '../models/enums';
+import { RecurringInterval, SyncStatus } from '../config/enums';
 
 
 interface OfflineOperation {
