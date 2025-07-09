@@ -1,27 +1,61 @@
-# [MoneyManager](https://prashiln79.github.io/money-manager/)
+# 💰 Money Manager – Personal Finance Tracker
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6.
+[![PWA](https://img.shields.io/badge/PWA-Ready-green)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
+[![Made with Angular](https://img.shields.io/badge/Made%20with-Angular-DD0031?logo=angular)](https://angular.io)
+[![Firebase](https://img.shields.io/badge/Backend-Firebase-ffca28?logo=firebase)](https://firebase.google.com/)
+[![Live Demo](https://img.shields.io/badge/Demo-Live-blue)](https://prashiln79.github.io/wallet/#/landing)
 
-## Development server
+**Money Manager** is a simple and powerful personal finance tracker built using Angular and Firebase. It helps you manage your income, expenses, and budget visually and effectively—accessible on both desktop and mobile devices.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+---
 
-## Code scaffolding
+## 🚀 Features
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Add, edit, and delete income/expenses
+- Real-time charts and data visualization
+- Google authentication via Firebase
+- Responsive design & PWA support
+- Import bank statements (CSV)
+- Date & category-based filters
+- Auto-categorized default entries
+- Cloud-sync across devices
 
-## Build
+---
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## 🌐 Live Demo
 
-## Running unit tests
+👉 [Try Now](https://prashiln79.github.io/wallet/#/landing)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+---
 
-## Running end-to-end tests
+## 📸 Screenshots
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+![Dashboard Screenshot](https://your-screenshot-url.com/dashboard.png)
+<!-- Replace with your hosted image URLs -->
 
-## Further help
+---
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🛠️ Tech Stack
+
+| Layer       | Technology                      |
+|-------------|----------------------------------|
+| Frontend    | Angular, Angular Material, SCSS  |
+| Backend     | Firebase Firestore, Firebase Auth|
+| Data Import | PapaParse (CSV to JSON)          |
+| Charts      | ngx-charts                       |
+| Hosting     | GitHub Pages                     |
+
+---
+
+## 📦 Installation & Development
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/money-manager.git
+cd money-manager
+
+# Install dependencies
+npm install
+
+# Run the app locally
+ng serve
