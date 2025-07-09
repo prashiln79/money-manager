@@ -17,6 +17,7 @@ import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
+import { APP_CONFIG } from 'src/app/util/config/config';
 
 @Component({
   selector: 'import-transactions',
@@ -618,7 +619,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
     try {
       // CSV Template
       const csv =
-        'payee,amount,type,category,date\nSample Payee,1000,income,Salary,2024-06-01\nSample Expense,500,expense,Food,2024-06-01';
+        `payee,amount,type,category,date\nSample Payee,${APP_CONFIG.VALIDATION.MIN_AMOUNT * 1000},income,Salary,2024-06-01\nSample Expense,${APP_CONFIG.VALIDATION.MIN_AMOUNT * 500},expense,Food,2024-06-01`;
       const csvBlob = new Blob([csv], { type: 'text/csv' });
       const csvUrl = window.URL.createObjectURL(csvBlob);
       const csvLink = document.createElement('a');
@@ -630,8 +631,8 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
       // Excel Template
       const excelData = [
         ['payee', 'amount', 'type', 'category', 'date'],
-        ['Sample Payee', 1000, 'income', 'Salary', '2024-06-01'],
-        ['Sample Expense', 500, 'expense', 'Food', '2024-06-01'],
+        ['Sample Payee', APP_CONFIG.VALIDATION.MIN_AMOUNT * 1000, 'income', 'Salary', '2024-06-01'],
+        ['Sample Expense', APP_CONFIG.VALIDATION.MIN_AMOUNT * 500, 'expense', 'Food', '2024-06-01'],
       ];
 
       const ws = XLSX.utils.aoa_to_sheet(excelData);

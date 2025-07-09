@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { OfflineService, NetworkStatus } from '../../service/offline.service';
 import { NotificationService } from '../../service/notification.service';
+import { APP_CONFIG } from '../../config/config';
 
 @Component({
   selector: 'app-offline-indicator',
@@ -53,7 +54,7 @@ export class OfflineIndicatorComponent implements OnInit, OnDestroy {
           this.notificationService.info('Connection restored. Syncing data...');
           setTimeout(() => {
             this.showOnlineBanner = false;
-          }, 5000); // Hide after 5 seconds
+          }, APP_CONFIG.NOTIFICATIONS.AUTO_HIDE_DELAY); // Use config duration
         }
       })
     );

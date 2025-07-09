@@ -138,7 +138,7 @@ export const APP_CONFIG = {
 
   // Notification configuration
   NOTIFICATIONS: {
-    AUTO_HIDE_DELAY: 5000, // 5 seconds
+    AUTO_HIDE_DELAY: 3000, // 5 seconds
     MAX_NOTIFICATIONS: 5,
     POSITION: 'top-right'
   },

@@ -2,6 +2,7 @@ import { Injectable, ErrorHandler, Injector } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
+import { APP_CONFIG } from '../config/config';
 
 export interface ErrorLog {
   timestamp: Date;
@@ -18,7 +19,7 @@ export interface ErrorLog {
 })
 export class ErrorHandlerService implements ErrorHandler {
   private errorLogs: ErrorLog[] = [];
-  private readonly MAX_LOGS = 100;
+  private readonly MAX_LOGS = APP_CONFIG.PERFORMANCE.CACHE_SIZE; // Use config value
 
   constructor(
     private injector: Injector,
@@ -124,14 +125,14 @@ export class ErrorHandlerService implements ErrorHandler {
 
   private handleWarningError(error: Error): void {
     // Show warning message
-    this.showUserMessage(error, 'warning');
+    this.showUserMessage(error);
   }
 
   private showUserMessage(error: Error, type: 'error' | 'warning' | 'info' = 'error'): void {
     const userMessage = this.getUserFriendlyMessage(error);
     
     this.snackBar.open(userMessage, 'Close', {
-      duration: 5000,
+      duration: APP_CONFIG.NOTIFICATIONS.AUTO_HIDE_DELAY, // Use config duration
       panelClass: [`snackbar-${type}`],
       horizontalPosition: 'center',
       verticalPosition: 'bottom'

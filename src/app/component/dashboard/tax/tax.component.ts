@@ -9,6 +9,7 @@ import { NotificationService } from '../../../util/service/notification.service'
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import { APP_CONFIG } from '../../../util/config/config';
 
 @Component({
   selector: 'app-tax',
@@ -50,10 +51,10 @@ export class TaxComponent implements OnInit, OnDestroy {
     this.taxForm = this.fb.group({
       totalIncome: [0, [Validators.required, Validators.min(0)]],
       gstBaseAmount: [0, [Validators.min(0)]],
-      section80C: [0, [Validators.min(0), Validators.max(150000)]],
-      section80D: [0, [Validators.min(0), Validators.max(25000)]],
-      section80G: [0, [Validators.min(0), Validators.max(100000)]],
-      section80TTA: [0, [Validators.min(0), Validators.max(10000)]],
+      section80C: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
+      section80D: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
+      section80G: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
+      section80TTA: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
       hraExemption: [0, [Validators.min(0)]],
       ltaExemption: [0, [Validators.min(0)]]
     });

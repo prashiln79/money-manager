@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DateService } from './date.service';
 import { Transaction } from '../models/transaction.model';
+import { APP_CONFIG } from '../config/config';
 
 export interface TaxSlab {
   minIncome: number;
@@ -58,7 +59,7 @@ export class TaxService {
   ];
 
   // Standard deductions for new regime
-  private readonly NEW_REGIME_STANDARD_DEDUCTION = 50000;
+  private readonly NEW_REGIME_STANDARD_DEDUCTION = APP_CONFIG.VALIDATION.MAX_AMOUNT * 0.05; // 5% of max amount as standard deduction
 
   constructor( private dateService: DateService) {}
 
@@ -128,7 +129,7 @@ export class TaxService {
 
     return {
       totalIncome,
-      deductions: [{ section: 'Standard', description: 'Standard Deduction', maxAmount: 50000, currentAmount: 50000 }],
+      deductions: [{ section: 'Standard', description: 'Standard Deduction', maxAmount: this.NEW_REGIME_STANDARD_DEDUCTION, currentAmount: this.NEW_REGIME_STANDARD_DEDUCTION }],
       totalDeductions: this.NEW_REGIME_STANDARD_DEDUCTION,
       taxableIncome,
       incomeTax,

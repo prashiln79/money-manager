@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { PwaSwService } from '../../service/pwa-sw.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
+import { APP_CONFIG } from '../../config/config';
 
 @Component({
   selector: 'app-pwa-install-prompt',
@@ -305,8 +306,9 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
       const dismissedAt = parseInt(dismissedTime);
       const daysSinceDismissed = (now - dismissedAt) / (1000 * 60 * 60 * 24);
       
-      // Show prompt again after 7 days
-      if (daysSinceDismissed < 7) {
+      // Show prompt again after configurable days (default 7)
+      const daysToWait = APP_CONFIG.SECURITY.LOCKOUT_DURATION / (1000 * 60 * 60 * 24);
+      if (daysSinceDismissed < daysToWait) {
         this.showInstallPrompt = false;
       }
     }

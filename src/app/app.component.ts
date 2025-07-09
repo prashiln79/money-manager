@@ -5,6 +5,7 @@ import { LoaderService } from './util/service/loader.service';
 import { PwaNavigationService, NavigationState } from './util/service/pwa-navigation.service';
 import { OfflineService } from './util/service/offline.service';
 import { Subject, takeUntil } from 'rxjs';
+import { APP_CONFIG } from './util/config/config';
 
 @Component({
   selector: 'app-root',
@@ -118,7 +119,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private refreshDataIfNeeded(): void {
     const lastRefresh = localStorage.getItem('last-data-refresh');
     const now = Date.now();
-    const refreshInterval = 5 * 60 * 1000; // 5 minutes
+    const refreshInterval = APP_CONFIG.OFFLINE.SYNC_INTERVAL; // Use config sync interval
 
     if (!lastRefresh || (now - parseInt(lastRefresh)) > refreshInterval) {
       // Trigger data refresh

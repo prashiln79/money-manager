@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { APP_CONFIG } from '../config/config';
 
 export interface HapticFeedbackOptions {
   duration?: number;
@@ -204,10 +205,10 @@ export class HapticFeedbackService {
     
     setTimeout(() => {
       this.mediumVibration();
-    }, 500);
+    }, APP_CONFIG.PERFORMANCE.DEBOUNCE_DELAY); // Use config delay
     
     setTimeout(() => {
       this.heavyVibration();
-    }, 1000);
+    }, APP_CONFIG.PERFORMANCE.DEBOUNCE_DELAY * 2); // Use config delay * 2
   }
 } 

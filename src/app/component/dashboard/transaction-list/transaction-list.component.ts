@@ -21,6 +21,7 @@ import * as TransactionsActions from '../../../store/transactions/transactions.a
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { DateService } from 'src/app/util/service/date.service';
 import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/config/enums';
+import { APP_CONFIG } from 'src/app/util/config/config';
 
 @Component({
   selector: 'transaction-list',
@@ -39,7 +40,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   isMobile = false;
   displayedColumns: string[] = ['Payee', 'Amount', 'Status', 'Type', 'Date', 'Actions'];
-  public pageSizeOptions: number[] = [10, 25, 100];
+  public pageSizeOptions: number[] = [...APP_CONFIG.PAGINATION.PAGE_SIZE_OPTIONS]; // Use config values and make mutable
   selectedTx: any = null;
   longPressTimeout: any;
   

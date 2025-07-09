@@ -8,6 +8,7 @@ import { CalendarVisibilityService } from '../../../util/service/calendar-visibi
 import { HapticFeedbackService } from '../../../util/service/haptic-feedback.service';
 import { filter } from 'rxjs/operators';
 import { MobileAddTransactionComponent } from '../transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
+import { APP_CONFIG } from '../../../util/config/config';
 
 @Component({
   selector: 'app-footer',
@@ -39,7 +40,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     });
 
     // Update battery level every 5 minutes
-    this.batterySubscription = interval(300000).subscribe(() => {
+    this.batterySubscription = interval(APP_CONFIG.OFFLINE.SYNC_INTERVAL).subscribe(() => {
       this.updateBatteryLevel();
     });
 
