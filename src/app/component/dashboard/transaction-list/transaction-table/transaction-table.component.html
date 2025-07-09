@@ -1,20 +1,21 @@
 <!-- Table Container -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col max-h-[50vh]">
-  <div class="flex-1 overflow-auto table-container max-h-full">
-    <table mat-table [dataSource]="dataSource" matSort class="w-full">
+  <!-- Desktop/Tablet Table View -->
+  <div class="hidden sm:flex flex-1 overflow-auto table-container max-h-full">
+    <table mat-table [dataSource]="dataSource" matSort class="w-full min-w-[800px]">
       <!-- Date Column -->
       <ng-container matColumnDef="Date">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-6 py-4">
-          <div class="flex items-center space-x-2">
-            <mat-icon class="text-gray-500 text-sm">schedule</mat-icon>
-            <span class="font-semibold text-gray-700">Date & Time</span>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-3 py-4 md:px-6">
+          <div class="flex items-center space-x-1 md:space-x-2">
+            <mat-icon class="text-gray-500 text-xs md:text-sm">schedule</mat-icon>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Date & Time</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-          <div class="text-sm text-gray-600">
+        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6">
+          <div class="text-xs md:text-sm text-gray-600">
             {{ element.date.seconds * 1000 | date:'MMM dd, yyyy' }}
           </div>
-          <div class="text-xs text-gray-400">
+          <div class="text-xs text-gray-400 hidden md:block">
             {{ element.date.seconds * 1000 | date:'hh:mm a' }}
           </div>
         </td>
@@ -22,18 +23,18 @@
 
       <!-- Type Column -->
       <ng-container matColumnDef="Type">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4">
-          <div class="flex items-center space-x-2">
-            <mat-icon class="text-gray-500 text-sm">category</mat-icon>
-            <span class="font-semibold text-gray-700">Category</span>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-3 py-4 md:px-6 hidden sm:table-cell">
+          <div class="flex items-center space-x-1 md:space-x-2">
+            <mat-icon class="text-gray-500 text-xs md:text-sm">category</mat-icon>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Category</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-          <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100">
-              <mat-icon class="text-sm" [style.color]="getCategoryColor(element.category)">{{ getCategoryIcon(element.category) }}</mat-icon>
+        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6 hidden sm:table-cell">
+          <div class="flex items-center space-x-1 md:space-x-2">
+            <div class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center bg-gray-100">
+              <mat-icon class="text-xs md:text-sm" [style.color]="getCategoryColor(element.category)">{{ getCategoryIcon(element.category) }}</mat-icon>
             </div>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <span class="inline-flex items-center px-1.5 md:px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
               {{element.category}}
             </span>
           </div>
@@ -42,18 +43,18 @@
 
       <!-- Payee Column -->
       <ng-container matColumnDef="Payee">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4">
-          <div class="flex items-center space-x-2">
-            <mat-icon class="text-gray-500 text-sm">person</mat-icon>
-            <span class="font-semibold text-gray-700">Payee</span>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-3 py-4 md:px-6">
+          <div class="flex items-center space-x-1 md:space-x-2">
+            <mat-icon class="text-gray-500 text-xs md:text-sm">person</mat-icon>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Payee</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-          <span *ngIf="!element.isEditing" class="font-medium text-gray-900 max-w-[100px] text-wrap !block">{{element.payee}}</span>
+        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6">
+          <span *ngIf="!element.isEditing" class="font-medium text-gray-900 max-w-[80px] md:max-w-[100px] text-wrap !block text-xs md:text-sm truncate">{{element.payee}}</span>
           <input
             *ngIf="element.isEditing"
             [(ngModel)]="element.payee"
-            class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter payee name"
           />
         </td>
@@ -61,21 +62,21 @@
 
       <!-- Amount Column -->
       <ng-container matColumnDef="Amount">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-6 py-4">
-          <div class="flex items-center space-x-2">
-            <mat-icon class="text-gray-500 text-sm">account_balance_wallet</mat-icon>
-            <span class="font-semibold text-gray-700">Amount</span>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-3 py-4 md:px-6">
+          <div class="flex items-center space-x-1 md:space-x-2">
+            <mat-icon class="text-gray-500 text-xs md:text-sm">account_balance_wallet</mat-icon>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Amount</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
-          <span *ngIf="!element.isEditing" class="font-bold text-sm" [class]="element.type === 'income' ? 'text-green-700' : 'text-red-800'">
+        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6">
+          <span *ngIf="!element.isEditing" class="font-bold text-xs md:text-sm" [class]="element.type === 'income' ? 'text-green-700' : 'text-red-800'">
             {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
           </span>
           <input
             *ngIf="element.isEditing"
             [(ngModel)]="element.amount"
             type="number"
-            class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter amount"
           />
         </td>
@@ -83,15 +84,15 @@
 
       <!-- Status Column -->
       <ng-container matColumnDef="Status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-6 py-4">
-          <div class="flex items-center space-x-2">
-            <mat-icon class="text-gray-500 text-sm">swap_horiz</mat-icon>
-            <span class="font-semibold text-gray-700">Type</span>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-3 py-4 md:px-6 hidden md:table-cell">
+          <div class="flex items-center space-x-1 md:space-x-2">
+            <mat-icon class="text-gray-500 text-xs md:text-sm">swap_horiz</mat-icon>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Type</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100">
+        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6 hidden md:table-cell">
           <span *ngIf="!element.isEditing">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" [class]="element.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+            <span class="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs font-medium" [class]="element.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
               <mat-icon class="text-xs mr-1">{{element.type === 'income' ? 'trending_up' : 'trending_down'}}</mat-icon>
               {{element.type}}
             </span>
@@ -99,7 +100,7 @@
           <select
             *ngIf="element.isEditing"
             [(ngModel)]="element.type"
-            class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="income">Income</option>
             <option value="expense">Expense</option>
@@ -109,25 +110,25 @@
 
       <!-- Actions Column -->
       <ng-container matColumnDef="Actions">
-        <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-6 py-4 text-center">
-          <div class="flex items-center justify-center space-x-2">
-            <mat-icon class="text-gray-500 text-sm">settings</mat-icon>
-            <span class="font-semibold text-gray-700">Actions</span>
+        <th mat-header-cell *matHeaderCellDef class="bg-gray-50 px-3 py-4 md:px-6 text-center">
+          <div class="flex items-center justify-center space-x-1 md:space-x-2">
+            <mat-icon class="text-gray-500 text-xs md:text-sm">settings</mat-icon>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Actions</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-6 py-4 border-b border-gray-100 text-center">
+        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 text-center md:px-6">
           <!-- Normal state -->
-          <div *ngIf="!element.isEditing" class="flex justify-center space-x-2">
+          <div *ngIf="!element.isEditing" class="flex justify-center space-x-1 md:space-x-2">
             <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="onStartRowEdit(element)" matTooltip="Edit transaction">
-              <mat-icon>edit</mat-icon>
+              <mat-icon class="text-sm md:text-base">edit</mat-icon>
             </button>
             <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="onDeleteTransaction(element)" matTooltip="Delete transaction">
-              <mat-icon>delete</mat-icon>
+              <mat-icon class="text-sm md:text-base">delete</mat-icon>
             </button>
           </div>
 
           <!-- Editing state -->
-          <div *ngIf="element.isEditing" class="flex justify-center space-x-2">
+          <div *ngIf="element.isEditing" class="flex justify-center space-x-1 md:space-x-2">
             <button
               mat-icon-button
               color="primary"
@@ -135,29 +136,73 @@
               (click)="onSaveRowEdit(element)"
               matTooltip="Save changes"
             >
-              <mat-icon>check</mat-icon>
+              <mat-icon class="text-sm md:text-base">check</mat-icon>
             </button>
             <button mat-icon-button color="warn" class="bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition-colors" (click)="onCancelRowEdit(element)" matTooltip="Cancel editing">
-              <mat-icon>close</mat-icon>
+              <mat-icon class="text-sm md:text-base">close</mat-icon>
             </button>
           </div>
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-16"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-12 md:h-16"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
     </table>
+  </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!dataSource.data?.length" class="text-center py-12">
-      <mat-icon class="text-gray-400 text-6xl mb-4">receipt_long</mat-icon>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">No transactions for {{ getCurrentYear() }}</h3>
-      <p class="text-gray-500 mb-4">No transactions found for the current year. Start by adding your first transaction to track your finances.</p>
-      <button mat-raised-button color="primary" class="flex items-center space-x-2 mx-auto" (click)="onAddTransaction()">
-        <mat-icon>add</mat-icon>
-        <span>Add Transaction</span>
-      </button>
+  <!-- Mobile Card View -->
+  <div class="sm:hidden flex-1 overflow-auto max-h-full mobile-card-view">
+    <div class="p-4 space-y-3">
+      <div *ngFor="let element of dataSource.data" class="transaction-card">
+        <!-- Header Row -->
+        <div class="card-header">
+          <div class="left-section">
+            <div class="category-icon">
+              <mat-icon [style.color]="getCategoryColor(element.category)">{{ getCategoryIcon(element.category) }}</mat-icon>
+            </div>
+            <div class="transaction-info">
+              <div class="payee-name">{{element.payee}}</div>
+              <div class="category-name">{{element.category}}</div>
+            </div>
+          </div>
+          <div class="right-section">
+            <div class="amount" [class]="element.type === 'income' ? 'income' : 'expense'">
+              {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
+            </div>
+            <div class="date">{{ getDateDisplay(element.date) }}</div>
+          </div>
+        </div>
+
+        <!-- Footer Row -->
+        <div class="card-footer">
+          <span class="type-badge" [class]="element.type === 'income' ? 'income' : 'expense'">
+            <mat-icon>{{element.type === 'income' ? 'trending_up' : 'trending_down'}}</mat-icon>
+            {{element.type}}
+          </span>
+
+          <!-- Actions -->
+          <div class="action-buttons">
+            <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="onStartRowEdit(element)" matTooltip="Edit transaction">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="onDeleteTransaction(element)" matTooltip="Delete transaction">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!dataSource.data?.length" class="text-center py-8 md:py-12 px-4">
+    <mat-icon class="text-gray-400 text-4xl md:text-6xl mb-4">receipt_long</mat-icon>
+    <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">No transactions for {{ getCurrentYear() }}</h3>
+    <p class="text-gray-500 mb-4 text-sm md:text-base">No transactions found for the current year. Start by adding your first transaction to track your finances.</p>
+    <button mat-raised-button color="primary" class="flex items-center space-x-2 mx-auto text-sm md:text-base" (click)="onAddTransaction()">
+      <mat-icon>add</mat-icon>
+      <span>Add Transaction</span>
+    </button>
   </div>
 </div>
 

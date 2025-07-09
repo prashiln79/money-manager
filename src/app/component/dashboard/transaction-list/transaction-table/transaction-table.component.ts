@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, HostListener } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { Transaction } from '../../../../util/models/transaction.model';
@@ -35,6 +35,10 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   dataSource: MatTableDataSource<Transaction> = new MatTableDataSource<Transaction>();
   displayedColumns: string[] = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+  
+  // Responsive breakpoints
+  private readonly MOBILE_BREAKPOINT = 640; // sm
+  private readonly TABLET_BREAKPOINT = 768; // md
 
   private subscription = new Subscription();
   categories: any[] = [];
@@ -49,6 +53,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     this.setupDataSource();
     this.filterTransactions();
     this.loadCategories();
+    this.updateColumnVisibility();
   }
 
   ngOnDestroy() {
@@ -61,6 +66,26 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   ngAfterViewInit() {
     this.setupSorting();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.updateColumnVisibility();
+  }
+
+  private updateColumnVisibility() {
+    const screenWidth = window.innerWidth;
+    
+    if (screenWidth < this.MOBILE_BREAKPOINT) {
+      // Mobile: Show only essential columns
+      this.displayedColumns = ['Date', 'Payee', 'Amount', 'Actions'];
+    } else if (screenWidth < this.TABLET_BREAKPOINT) {
+      // Small tablet: Show more columns but hide status
+      this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Actions'];
+    } else {
+      // Desktop: Show all columns
+      this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+    }
   }
 
   private setupDataSource() {
@@ -261,6 +286,17 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   getCategoryColor(category: string): string {
     return this.categories.find((c) => c.name === category)?.color || "#46777f";
+  }
+
+  getDateDisplay(date: Date | any): string {
+    if (date && typeof date === 'object' && 'seconds' in date) {
+      // Handle Timestamp
+      return new Date(date.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } else if (date instanceof Date) {
+      // Handle Date
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    return '';
   }
 
   // Custom sort function for category column
