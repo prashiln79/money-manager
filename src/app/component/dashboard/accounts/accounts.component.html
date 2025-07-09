@@ -67,21 +67,12 @@
 			</ng-container>
 		</section>
 
-		<!-- Add Account Section -->
-		<section class="add-account">
-			<div class="form-card">
-				<div class="form-header">
-					<h2 class="form-title">Add New Account</h2>
-					<p class="form-subtitle">Create a new account to track your finances</p>
-				</div>
+		<!-- Fab button -->
+		<div class="fab-button">
+			<button mat-fab color="primary" (click)="addAccount()" class="desktop-fab-btn">
+				<mat-icon>add</mat-icon>
+			</button>
+		</div>
 
-				<div class="add-account-content">
-					<button mat-raised-button color="primary" (click)="addAccount()" class="add-account-btn">
-						<mat-icon>add</mat-icon>
-						Add New Account
-					</button>
-				</div>
-			</div>
-		</section>
 	</div>
 </div>
