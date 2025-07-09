@@ -131,10 +131,106 @@
             </div>
             <mat-icon class="dropdown-icon">expand_more</mat-icon>
           </button>
-          
-        <!-- color Picker -->
-        
         </div>
+      </div>
+
+      <!-- Budget Section Toggle -->
+      <div class="form-field">
+        <div class="budget-toggle-section">
+          <button type="button"
+                  (click)="toggleBudgetSection()"
+                  class="budget-toggle-button"
+                  [class.active]="showBudgetSection">
+            <mat-icon class="toggle-icon">{{ showBudgetSection ? 'expand_less' : 'expand_more' }}</mat-icon>
+            <span class="toggle-text">Set Budget (Optional)</span>
+            <mat-icon class="budget-icon">account_balance_wallet</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Budget Section -->
+      <div class="budget-section" *ngIf="showBudgetSection">
+        <form [formGroup]="budgetForm" class="budget-form">
+          
+          <!-- Enable Budget Toggle -->
+          <div class="form-field">
+            <div class="budget-enable-toggle">
+              <mat-slide-toggle 
+                formControlName="hasBudget" 
+                color="primary"
+                class="budget-toggle">
+                <span class="toggle-label">Set budget for this category</span>
+              </mat-slide-toggle>
+            </div>
+          </div>
+
+          <!-- Budget Amount -->
+          <div class="form-field" *ngIf="budgetForm.get('hasBudget')?.value">
+            <label class="field-label">
+              <mat-icon class="field-icon">attach_money</mat-icon>
+              Budget Amount *
+            </label>
+            <input 
+              type="number"
+              formControlName="budgetAmount"
+              placeholder="0.00"
+              min="0.01"
+              step="0.01"
+              class="form-input"
+            />
+            @if(getBudgetAmountError() && budgetForm.get('budgetAmount')?.touched) {
+              <p class="error-message">{{ getBudgetAmountError() }}</p>
+            }
+          </div>
+
+          <!-- Budget Period -->
+          <div class="form-field" *ngIf="budgetForm.get('hasBudget')?.value">
+            <label class="field-label">
+              <mat-icon class="field-icon">schedule</mat-icon>
+              Budget Period *
+            </label>
+            <select formControlName="budgetPeriod" class="form-select">
+              <option *ngFor="let period of budgetPeriods" [value]="period.value">
+                {{ period.label }}
+              </option>
+            </select>
+            @if(getBudgetPeriodError() && budgetForm.get('budgetPeriod')?.touched) {
+              <p class="error-message">{{ getBudgetPeriodError() }}</p>
+            }
+          </div>
+
+          <!-- Alert Threshold -->
+          <div class="form-field" *ngIf="budgetForm.get('hasBudget')?.value">
+            <label class="field-label">
+              <mat-icon class="field-icon">notifications</mat-icon>
+              Alert Threshold (%)
+            </label>
+            <input 
+              type="number"
+              formControlName="budgetAlertThreshold"
+              placeholder="80"
+              min="0"
+              max="100"
+              class="form-input"
+            />
+            <div class="field-hint">Get notified when you reach this percentage of your budget</div>
+            @if(getBudgetThresholdError() && budgetForm.get('budgetAlertThreshold')?.touched) {
+              <p class="error-message">{{ getBudgetThresholdError() }}</p>
+            }
+          </div>
+
+          <!-- Enable Alerts -->
+          <div class="form-field" *ngIf="budgetForm.get('hasBudget')?.value">
+            <div class="alert-toggle-section">
+              <mat-slide-toggle 
+                formControlName="budgetAlertEnabled" 
+                color="primary"
+                class="alert-toggle">
+                <span class="toggle-label">Enable budget alerts</span>
+              </mat-slide-toggle>
+            </div>
+          </div>
+        </form>
       </div>
 
       <!-- Bottom Spacing for Mobile -->

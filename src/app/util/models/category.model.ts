@@ -5,6 +5,17 @@ export interface Category {
   icon: string;
   color: string;
   createdAt: number;
+  // Budget-related fields
+  hasBudget?: boolean;
+  budgetAmount?: number;
+  budgetPeriod?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  budgetStartDate?: number; // timestamp
+  budgetEndDate?: number; // timestamp
+  budgetSpent?: number;
+  budgetRemaining?: number;
+  budgetProgressPercentage?: number;
+  budgetAlertThreshold?: number; // percentage (e.g., 80 for 80%)
+  budgetAlertEnabled?: boolean;
 }
 
 // Available icons for category selection

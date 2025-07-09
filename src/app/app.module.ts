@@ -64,6 +64,7 @@ import { MobileAddTransactionComponent } from './component/dashboard/transaction
 import { MobileCategoryAddEditPopupComponent } from './component/dashboard/category/mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
 import { IconSelectorDialogComponent } from './component/dashboard/category/icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './component/dashboard/category/color-selector-dialog/color-selector-dialog.component';
+import { CategoryBudgetDialogComponent } from './component/dashboard/category/category-budget-dialog/category-budget-dialog.component';
 import { SignInComponent } from './component/auth/sign-in/sign-in.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
 import { UserComponent } from './component/dashboard/header/user/user.component';
@@ -124,6 +125,7 @@ import { CurrencyPipe } from './util/pipes';
     MobileCategoryAddEditPopupComponent,
     IconSelectorDialogComponent,
     ColorSelectorDialogComponent,
+    CategoryBudgetDialogComponent,
     SignInComponent,
     RegistrationComponent,
     DashboardComponent,

@@ -19,6 +19,7 @@ import { ColorSelectorDialogComponent } from '../color-selector-dialog/color-sel
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { createCategory, updateCategory } from 'src/app/store/categories/categories.actions';
+import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 
 @Component({
   selector: 'app-mobile-category-add-edit-popup',
@@ -27,12 +28,13 @@ import { createCategory, updateCategory } from 'src/app/store/categories/categor
 })
 export class MobileCategoryAddEditPopupComponent implements OnInit {
   categoryForm: FormGroup;
+  budgetForm: FormGroup;
   public availableIcons: string[] = AVAILABLE_ICONS;
-
   public availableColors: string[] = AVAILABLE_COLORS;
-
+  public budgetPeriods: Array<{ value: string; label: string }>;
   public isSubmitting: boolean = false;
   public userId: string = '';
+  public showBudgetSection: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: Category | null,
@@ -43,7 +45,8 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     private notificationService: NotificationService,
     private router: Router,
     private hapticFeedback: HapticFeedbackService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private budgetService: CategoryBudgetService
   ) {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
@@ -51,6 +54,9 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       icon: ['category', Validators.required],
       color: ['#46777f', Validators.required],
     });
+    
+    this.budgetForm = this.budgetService.createBudgetForm();
+    this.budgetPeriods = this.budgetService.getBudgetPeriods();
   }
 
   ngOnInit(): void {
@@ -70,15 +76,22 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
         icon: this.dialogData.icon || 'category',
         color: this.dialogData.color || '#46777f',
       });
+      
+      // Initialize budget form if category has budget
+      if (this.dialogData.hasBudget) {
+        this.showBudgetSection = true;
+        this.budgetService.initializeBudgetForm(this.budgetForm, this.dialogData);
+      }
     }
   }
 
   async onSubmit(): Promise<void> {
-    if (this.categoryForm.valid && !this.isSubmitting) {
+    if (this.categoryForm.valid && this.budgetService.isBudgetFormValid(this.budgetForm) && !this.isSubmitting) {
       this.isSubmitting = true;
 
       try {
         const formValue = this.categoryForm.value;
+        const budgetData = this.budgetService.getBudgetDataFromForm(this.budgetForm);
 
         if (this.dialogData?.id) {
           // Update existing category
@@ -90,6 +103,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
               categoryType: formValue.type,
               icon: formValue.icon,
               color: formValue.color,
+              budgetData: budgetData
             })
           );
           this.notificationService.success('Category updated successfully');
@@ -123,6 +137,22 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     this.dialogRef.close(false);
   }
 
+  toggleBudgetSection(): void {
+    this.showBudgetSection = !this.showBudgetSection;
+    if (!this.showBudgetSection) {
+      // Reset budget form when hiding
+      this.budgetForm.reset({
+        hasBudget: false,
+        budgetAmount: 0,
+        budgetPeriod: 'monthly',
+        budgetStartDate: new Date(),
+        budgetEndDate: null,
+        budgetAlertThreshold: 80,
+        budgetAlertEnabled: true
+      });
+    }
+  }
+
   selectType(type: 'income' | 'expense'): void {
     this.categoryForm.patchValue({ type });
   }
@@ -142,6 +172,36 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     const typeControl = this.categoryForm.get('type');
     if (typeControl?.hasError('required')) {
       return 'Category type is required';
+    }
+    return '';
+  }
+
+  getBudgetAmountError(): string {
+    const control = this.budgetForm.get('budgetAmount');
+    if (control?.hasError('required')) {
+      return 'Budget amount is required';
+    }
+    if (control?.hasError('min')) {
+      return 'Budget amount must be greater than 0';
+    }
+    return '';
+  }
+
+  getBudgetPeriodError(): string {
+    const control = this.budgetForm.get('budgetPeriod');
+    if (control?.hasError('required')) {
+      return 'Budget period is required';
+    }
+    return '';
+  }
+
+  getBudgetThresholdError(): string {
+    const control = this.budgetForm.get('budgetAlertThreshold');
+    if (control?.hasError('min')) {
+      return 'Threshold must be at least 0%';
+    }
+    if (control?.hasError('max')) {
+      return 'Threshold cannot exceed 100%';
     }
     return '';
   }

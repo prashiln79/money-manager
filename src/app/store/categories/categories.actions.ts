@@ -48,7 +48,8 @@ export const updateCategory = createAction(
     name: string; 
     categoryType: 'income' | 'expense'; 
     icon: string; 
-    color: string 
+    color: string;
+    budgetData?: any;
   }>()
 );
 

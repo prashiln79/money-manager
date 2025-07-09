@@ -32,8 +32,8 @@ export class CategoriesEffects {
 
   updateCategory$ = createEffect(() => this.actions$.pipe(
     ofType(CategoriesActions.updateCategory),
-    mergeMap(({ userId, categoryId, name, categoryType, icon, color }) => 
-      this.categoryService.updateCategory(userId, categoryId, name, categoryType, icon, color)
+    mergeMap(({ userId, categoryId, name, categoryType, icon, color, budgetData }) => 
+      this.categoryService.updateCategory(userId, categoryId, name, categoryType, icon, color, budgetData)
         .pipe(
           map(() => {
             // Reload categories to get the updated data

@@ -58,12 +58,46 @@
                   <mat-icon class="category-icon" [style.color]="category.color">{{ category.icon || 'category' }}</mat-icon>
                 </div>
                 <div class="category-details">
-                  <h3 class="category-name">{{ category.name }}</h3>
-                  <span class="category-type">{{ category.type }}</span>
+                  <div class="category-header">
+                    <h3 class="category-name">{{ category.name }}</h3>
+                    <span class="category-type">{{ category.type }}</span>
+                  </div>
+                  
+                  <!-- Budget Information -->
+                  <div *ngIf="category.hasBudget" class="budget-info">
+                    <div class="budget-amount">
+                      <span class="budget-label">Budget:</span>
+                      <span class="budget-value">{{ formatBudgetAmount(category.budgetAmount) | currency }}</span>
+                      <span class="budget-period">/ {{ formatBudgetPeriod(category.budgetPeriod) }}</span>
+                    </div>
+                    
+                    <div class="budget-progress" *ngIf="category.budgetProgressPercentage !== undefined">
+                      <div class="progress-bar">
+                        <div class="progress-fill" 
+                             [style.width.%]="Math.min(category.budgetProgressPercentage || 0, 100)"
+                             [style.background-color]="getBudgetProgressColor(category)"></div>
+                      </div>
+                      <span class="progress-text">
+                        {{ formatBudgetAmount(category.budgetSpent) | currency }} / {{ formatBudgetAmount(category.budgetAmount) | currency }}
+                        ({{ (category.budgetProgressPercentage || 0).toFixed(1) }}%)
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- No Budget Indicator -->
+                  <!-- <div *ngIf="!category.hasBudget" class="no-budget">
+                    <span class="no-budget-text">No budget set</span>
+                  </div> -->
                 </div>
               </div>
             </div>
             <div class="category-actions">
+              <button mat-icon-button (click)="openBudgetDialog(category)" 
+                      class="action-button budget-button"
+                      matTooltip="Set budget"
+                      [disabled]="isEditMode">
+                <mat-icon>account_balance_wallet</mat-icon>
+              </button>
               <button mat-icon-button (click)="editCategory(category)" 
                       class="action-button edit-button"
                       matTooltip="Edit category"

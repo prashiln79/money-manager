@@ -10,7 +10,9 @@ import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.serv
 import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
 import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
+import { CategoryBudgetDialogComponent } from './category-budget-dialog/category-budget-dialog.component';
 import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUser } from 'src/app/util/models';
+import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as CategoriesActions from '../../../store/categories/categories.actions';
@@ -25,6 +27,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public categories$: Observable<Category[]>;
   public isLoading$: Observable<boolean>;
   public error$: Observable<any>;
+  public Math = Math; // Make Math available in template
 
   public categories: Category[] = [];
   public isLoading: boolean = false;
@@ -50,7 +53,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private hapticFeedback: HapticFeedbackService,
     private breakpointObserver: BreakpointObserver,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private budgetService: CategoryBudgetService
   ) {
     this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
     this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
@@ -335,6 +339,68 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.hapticFeedback.lightVibration();
     }
     this.openMobileDialog();
+  }
+
+  public openBudgetDialog(category: Category): void {
+    const dialogRef = this.dialog.open(CategoryBudgetDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
+      data: {
+        category: category,
+        isEdit: category.hasBudget || false
+      },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.updateCategoryBudget(category, result);
+      }
+    });
+  }
+
+  private updateCategoryBudget(category: Category, budgetData: any): void {
+    const updatedCategory: Category = {
+      ...category,
+      hasBudget: budgetData.hasBudget,
+      budgetAmount: budgetData.budgetAmount,
+      budgetPeriod: budgetData.budgetPeriod,
+      budgetStartDate: budgetData.budgetStartDate,
+      budgetEndDate: (budgetData.budgetEndDate) ? budgetData.budgetEndDate : null,
+      budgetSpent: budgetData.budgetSpent,
+      budgetRemaining: budgetData.budgetRemaining,
+      budgetProgressPercentage: budgetData.budgetProgressPercentage,
+      budgetAlertThreshold: budgetData.budgetAlertThreshold,
+      budgetAlertEnabled: budgetData.budgetAlertEnabled
+    };
+
+    this.store.dispatch(CategoriesActions.updateCategory({
+      userId: this.userId,
+      categoryId: category.id!,
+      name: category.name,
+      categoryType: category.type,
+      icon: category.icon,
+      color: category.color,
+      budgetData: budgetData
+    }));
+
+    this.notificationService.success(
+      budgetData.hasBudget 
+        ? 'Budget set successfully for ' + category.name
+        : 'Budget removed from ' + category.name
+    );
+  }
+
+  public getBudgetProgressColor(category: Category): string {
+    return this.budgetService.getBudgetProgressColor(category);
+  }
+
+  public formatBudgetAmount(amount: number | undefined): string {
+    return this.budgetService.formatBudgetAmount(amount);
+  }
+
+  public formatBudgetPeriod(period: string | undefined): string {
+    return this.budgetService.formatBudgetPeriod(period);
   }
 
   private getEmptyCategory(): Category {
