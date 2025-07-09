@@ -30,7 +30,10 @@
 
 ## 📸 Screenshots
 
-![Dashboard Screenshot](https://your-screenshot-url.com/dashboard.png)
+![Dashboard Screenshot](https://prashiln79.github.io/wallet/assets/images/screenshot/img1.png)
+https://prashiln79.github.io/wallet/assets/images/screenshot/img2.png
+https://prashiln79.github.io/wallet/assets/images/screenshot/img3.png
+https://prashiln79.github.io/wallet/assets/images/screenshot/img4.png
 <!-- Replace with your hosted image URLs -->
 
 ---
