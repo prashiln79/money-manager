@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "cache-bust": "node deploy-cache-bust.js",
-    "deploy": "npm run cache-bust && npm run build"
+    "deploy": "npm run cache-bust && npm run build",
+    "postbuild": "cp README.md dist/money-manager/README.md"
   },
   "private": true,
   "dependencies": {
