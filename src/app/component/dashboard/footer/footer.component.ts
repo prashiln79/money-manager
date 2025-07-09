@@ -180,7 +180,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   private updateTime(): void {
     const now = new Date();
-    this.currentTime = now.toLocaleTimeString('en-US', { 
+    this.currentTime = now.toLocaleTimeString(APP_CONFIG.LANGUAGE.DEFAULT, { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: false 

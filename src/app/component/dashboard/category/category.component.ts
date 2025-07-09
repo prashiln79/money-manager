@@ -395,10 +395,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
     return this.budgetService.getBudgetProgressColor(category);
   }
 
-  public formatBudgetAmount(amount: number | undefined): string {
-    return this.budgetService.formatBudgetAmount(amount);
-  }
-
   public formatBudgetPeriod(period: string | undefined): string {
     return this.budgetService.formatBudgetPeriod(period);
   }

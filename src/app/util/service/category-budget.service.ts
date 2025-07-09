@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Category } from '../models/category.model';
+import { APP_CONFIG } from '../config/config';
 
 export interface BudgetFormData {
   hasBudget: boolean;
@@ -139,7 +140,7 @@ export class CategoryBudgetService {
    */
   formatBudgetAmount(amount: number | undefined): string {
     if (!amount) return '0';
-    return amount.toLocaleString('en-US', {
+    return amount.toLocaleString(APP_CONFIG.LANGUAGE.DEFAULT, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });

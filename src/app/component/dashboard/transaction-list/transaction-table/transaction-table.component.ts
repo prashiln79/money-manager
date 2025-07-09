@@ -10,6 +10,7 @@ import { selectAllCategories } from 'src/app/store/categories/categories.selecto
 import { Category } from 'src/app/util/models';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
+import { APP_CONFIG } from 'src/app/util/config/config';
 
 @Component({
   selector: 'transaction-table',
@@ -291,10 +292,10 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   getDateDisplay(date: Date | any): string {
     if (date && typeof date === 'object' && 'seconds' in date) {
       // Handle Timestamp
-      return new Date(date.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return new Date(date.seconds * 1000).toLocaleDateString(APP_CONFIG.LANGUAGE.DEFAULT, { month: 'short', day: 'numeric' });
     } else if (date instanceof Date) {
       // Handle Date
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString(APP_CONFIG.LANGUAGE.DEFAULT, { month: 'short', day: 'numeric' });
     }
     return '';
   }

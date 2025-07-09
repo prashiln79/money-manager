@@ -67,7 +67,7 @@
                   <div *ngIf="category.hasBudget" class="budget-info">
                     <div class="budget-amount">
                       <span class="budget-label">Budget:</span>
-                      <span class="budget-value">{{ formatBudgetAmount(category.budgetAmount) | currency }}</span>
+                      <span class="budget-value">{{ category.budgetAmount | currency }}</span>
                       <span class="budget-period">/ {{ formatBudgetPeriod(category.budgetPeriod) }}</span>
                     </div>
                     
@@ -78,7 +78,7 @@
                              [style.background-color]="getBudgetProgressColor(category)"></div>
                       </div>
                       <span class="progress-text">
-                        {{ formatBudgetAmount(category.budgetSpent) | currency }} / {{ formatBudgetAmount(category.budgetAmount) | currency }}
+                        {{ category.budgetSpent | currency }} / {{ category.budgetAmount | currency }}
                         ({{ (category.budgetProgressPercentage || 0).toFixed(1) }}%)
                       </span>
                     </div>

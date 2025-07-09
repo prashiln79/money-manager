@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CURRENCIES, Currency, DEFAULT_CURRENCY, getCurrencyByCode, getCurrencySymbol } from '../models/currency.model';
 import { UserService } from './user.service';
+import { APP_CONFIG } from '../config/config';
 
 @Injectable({
   providedIn: 'root'
@@ -58,7 +59,7 @@ export class CurrencyService {
 
   formatAmount(amount: number, currencyCode?: string): string {
     const code = currencyCode || this.getCurrentCurrency();
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(APP_CONFIG.LANGUAGE.DEFAULT, {
       style: 'currency',
       currency: code,
     }).format(amount);

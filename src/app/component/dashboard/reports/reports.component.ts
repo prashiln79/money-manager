@@ -12,6 +12,7 @@ import * as TransactionsSelectors from '../../../store/transactions/transactions
 import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
 import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
 import { DateService } from 'src/app/util/service/date.service';
+import { APP_CONFIG } from 'src/app/util/config/config';
 
 interface CategorySpending {
   category: string;
@@ -221,7 +222,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     // Calculate data for last 6 months
     for (let i = 5; i >= 0; i--) {
       const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthName = month.toLocaleDateString('en-US', { month: 'short' });
+      const monthName = month.toLocaleDateString(APP_CONFIG.LANGUAGE.DEFAULT, { month: 'short' });
       
       const monthTransactions = this.transactions.filter(t => {
         const transactionDate = this.dateService.toDate(t.date);
