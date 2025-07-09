@@ -18,8 +18,18 @@ import { AppState } from '../../../store/app.state';
 import * as ProfileActions from '../../../store/profile/profile.actions';
 import * as ProfileSelectors from '../../../store/profile/profile.selectors';
 import { DateService } from 'src/app/util/service/date.service';
-import { UserRole } from 'src/app/util/config/enums';
-
+import { 
+  APP_CONFIG, 
+  ERROR_MESSAGES, 
+  SUCCESS_MESSAGES, 
+  TIMEZONES
+} from 'src/app/util/config/config';
+import { 
+  UserRole, 
+  CurrencyCode, 
+  LanguageCode 
+} from 'src/app/util/config/enums';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-profile',
@@ -38,47 +48,36 @@ export class ProfileComponent implements OnInit, OnDestroy {
   currentUser: any;
   userProfile: User | null = null;
 
-  currencies = CURRENCIES;
+  // Use configurations from config.ts
+  currencies = Object.values(CurrencyCode);
+  defaultCurrency = APP_CONFIG.CURRENCY.DEFAULT;
 
-  timezones = [
-    { value: 'UTC', label: 'UTC (Coordinated Universal Time)' },
-    { value: 'America/New_York', label: 'Eastern Time (ET)' },
-    { value: 'America/Chicago', label: 'Central Time (CT)' },
-    { value: 'America/Denver', label: 'Mountain Time (MT)' },
-    { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-    { value: 'Europe/London', label: 'London (GMT)' },
-    { value: 'Europe/Paris', label: 'Paris (CET)' },
-    { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
-    { value: 'Asia/Kolkata', label: 'Mumbai (IST)' },
-    { value: 'Australia/Sydney', label: 'Sydney (AEST)' },
-  ];
+ 
 
-  languages = [
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Español' },
-    { code: 'fr', name: 'Français' },
-    { code: 'de', name: 'Deutsch' },
-    { code: 'it', name: 'Italiano' },
-    { code: 'pt', name: 'Português' },
-    { code: 'ru', name: 'Русский' },
-    { code: 'ja', name: '日本語' },
-    { code: 'ko', name: '한국어' },
-    { code: 'zh', name: '中文' },
-    { code: 'hi', name: 'हिन्दी' },
-  ];
+  languages = Object.entries(APP_CONFIG.LANGUAGE.NAMES).map(([code, name]) => ({
+    code,
+    name
+  }));
+
+  // Validation constants from config
+  validation = APP_CONFIG.VALIDATION;
+  timezones = TIMEZONES;
+  isMobile = false;
 
   private destroy$ = new Subject<void>();
   private subscriptions = new Subscription();
 
-    constructor(
+  constructor(
     private fb: FormBuilder,
     private auth: Auth,
     private router: Router,
     private notificationService: NotificationService,
     private dialog: MatDialog,
-	private dateService: DateService,
-    private store: Store<AppState>
+    private dateService: DateService,
+    private store: Store<AppState>,
+    private breakpointObserver: BreakpointObserver
   ) {
+    this.isMobile = this.breakpointObserver.isMatched('(max-width: 600px)');
     // Initialize selectors
     this.profile$ = this.store.select(ProfileSelectors.selectProfile);
     this.profileLoading$ = this.store.select(ProfileSelectors.selectProfileLoading);
@@ -89,27 +88,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
         '',
         [
           Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(50),
+          Validators.minLength(this.validation.MIN_NAME_LENGTH),
+          Validators.maxLength(this.validation.MAX_NAME_LENGTH),
         ],
       ],
       lastName: [
         '',
         [
           Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(50),
+          Validators.minLength(this.validation.MIN_NAME_LENGTH),
+          Validators.maxLength(this.validation.MAX_NAME_LENGTH),
         ],
       ],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.pattern(/^\+?[\d\s-()]+$/)]],
       dateOfBirth: [''],
       occupation: ['', [Validators.maxLength(100)]],
-      monthlyIncome: [0, [Validators.min(0)]],
+      monthlyIncome: [0, [Validators.min(this.validation.MIN_AMOUNT)]],
       preferences: this.fb.group({
-        defaultCurrency: [DEFAULT_CURRENCY, Validators.required],
+        defaultCurrency: [this.defaultCurrency, Validators.required],
         timezone: ['UTC', Validators.required],
-        language: ['en', Validators.required],
+        language: [APP_CONFIG.LANGUAGE.DEFAULT, Validators.required],
         notifications: [true],
         emailUpdates: [true],
         budgetAlerts: [true],
@@ -134,7 +133,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.currentUser = this.auth.currentUser;
 
       if (!this.currentUser) {
-        this.notificationService.error('User not authenticated');
+        this.notificationService.error(ERROR_MESSAGES.AUTH.USER_NOT_FOUND);
         this.router.navigate(['/sign-in']);
         return;
       }
@@ -143,7 +142,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.store.dispatch(ProfileActions.loadProfile({ userId: this.currentUser.uid }));
     } catch (error) {
       console.error('Error loading profile:', error);
-      this.notificationService.error('Failed to load profile');
+      this.notificationService.error(ERROR_MESSAGES.NETWORK.SERVER_ERROR);
     } finally {
       this.isLoading = false;
     }
@@ -170,7 +169,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.profileError$.subscribe(error => {
         if (error) {
           console.error('Error loading profile:', error);
-          this.notificationService.error('Failed to load profile');
+          this.notificationService.error(ERROR_MESSAGES.NETWORK.SERVER_ERROR);
         }
       })
     );
@@ -187,14 +186,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
       occupation: user.occupation || '',
       monthlyIncome: user.monthlyIncome || 0,
       preferences: {
-        defaultCurrency: user.preferences?.defaultCurrency || DEFAULT_CURRENCY,
+        defaultCurrency: user.preferences?.defaultCurrency || this.defaultCurrency,
         timezone: user.preferences?.timezone || 'UTC',
-        language: user.preferences?.language || 'en',
+        language: user.preferences?.language || APP_CONFIG.LANGUAGE.DEFAULT,
         notifications: user.preferences?.notifications || true,
         emailUpdates: user.preferences?.emailUpdates || true,
         budgetAlerts: user.preferences?.budgetAlerts || true,
       },
-	  role: user.role,
+      role: user.role,
       createdAt: user.createdAt,
       updatedAt: this.dateService.toTimestamp(user.updatedAt) || new Date(),
     };
@@ -212,14 +211,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
       occupation: '',
       monthlyIncome: 0,
       preferences: {
-        defaultCurrency: DEFAULT_CURRENCY,
+        defaultCurrency: this.defaultCurrency,
         timezone: 'UTC',
-        language: 'en',
+        language: APP_CONFIG.LANGUAGE.DEFAULT,
         notifications: true,
         emailUpdates: true,
         budgetAlerts: true,
       },
-	  role: UserRole.FREE,
+      role: UserRole.FREE,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -236,9 +235,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
         occupation: this.userProfile.occupation || '',
         monthlyIncome: this.userProfile.monthlyIncome || 0,
         preferences: {
-          defaultCurrency: this.userProfile.preferences?.defaultCurrency || DEFAULT_CURRENCY,
+          defaultCurrency: this.userProfile.preferences?.defaultCurrency || this.defaultCurrency,
           timezone: this.userProfile.preferences?.timezone || 'UTC',
-          language: this.userProfile.preferences?.language || 'en',
+          language: this.userProfile.preferences?.language || APP_CONFIG.LANGUAGE.DEFAULT,
           notifications: this.userProfile.preferences?.notifications || true,
           emailUpdates: this.userProfile.preferences?.emailUpdates || true,
           budgetAlerts: this.userProfile.preferences?.budgetAlerts || true,
@@ -253,13 +252,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.notificationService.info('Edit mode enabled');
     } else {
       this.notificationService.info('Edit mode disabled');
+      this.saveProfile();
     }
   }
 
   async saveProfile(): Promise<void> {
     if (this.profileForm.invalid) {
       this.notificationService.warning(
-        'Please fill in all required fields correctly'
+        ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD
       );
       return;
     }
@@ -269,12 +269,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
       const formValue = this.profileForm.value;
 
       if (this.userProfile) {
-        const updatedUser = {
+        const updatedUser: User = {
           uid: this.userProfile.uid,
-          name: `${formValue.firstName} ${formValue.lastName}`.trim(),
           email: formValue.email,
-          role: 'free' as any, // Keep existing role
-          createdAt: this.dateService.toTimestamp(this.userProfile.createdAt) || new Date(),
+          role: UserRole.FREE, // Keep existing role
+          createdAt: this.userProfile.createdAt,
           preferences: formValue.preferences,
           firstName: formValue.firstName,
           lastName: formValue.lastName,
@@ -282,8 +281,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           dateOfBirth: formValue.dateOfBirth,
           occupation: formValue.occupation,
           monthlyIncome: formValue.monthlyIncome,
-		  updatedAt: this.dateService.toTimestamp(new Date()) || new Date(),
-		  
+          updatedAt: new Date(),
         };
 
         this.store.dispatch(ProfileActions.updateProfile({ 
@@ -291,12 +289,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
           profile: updatedUser 
         }));
 
-        this.notificationService.success('Profile updated successfully');
+        this.notificationService.success(SUCCESS_MESSAGES.GENERAL.UPDATED);
         this.isEditing = false;
       }
     } catch (error) {
       console.error('Error saving profile:', error);
-      this.notificationService.error('Failed to save profile');
+      this.notificationService.error(ERROR_MESSAGES.NETWORK.SERVER_ERROR);
     } finally {
       this.isLoading = false;
     }
@@ -331,7 +329,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.router.navigate(['/sign-in']);
         } catch (error) {
           console.error('Error deleting account:', error);
-          this.notificationService.error('Failed to delete account');
+          this.notificationService.error(ERROR_MESSAGES.NETWORK.SERVER_ERROR);
         } finally {
           this.isLoading = false;
         }
@@ -345,11 +343,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   async exportData(): Promise<void> {
     try {
+      // Check if export functionality is enabled
+      if (!APP_CONFIG.FEATURES.EXPORT_FUNCTIONALITY) {
+        this.notificationService.warning(ERROR_MESSAGES.PERMISSION.FEATURE_NOT_AVAILABLE);
+        return;
+      }
+      
       // TODO: Implement data export functionality
       this.notificationService.info('Data export feature coming soon');
     } catch (error) {
       console.error('Error exporting data:', error);
-      this.notificationService.error('Failed to export data');
+      this.notificationService.error(ERROR_MESSAGES.NETWORK.SERVER_ERROR);
     }
   }
 
@@ -361,7 +365,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   getCurrencySymbol(currencyCode: string): string {
-    return getCurrencySymbol(currencyCode);
+    return APP_CONFIG.CURRENCY.SYMBOLS[currencyCode as CurrencyCode] || currencyCode;
   }
 
   getTimezoneLabel(timezoneValue: string): string {
@@ -370,8 +374,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   getLanguageName(languageCode: string): string {
-    const language = this.languages.find((l) => l.code === languageCode);
-    return language ? language.name : languageCode;
+    return APP_CONFIG.LANGUAGE.NAMES[languageCode as LanguageCode] || languageCode;
   }
 
   getFormattedDate(date: any): string {
@@ -382,10 +385,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   getFormattedIncome(income: number): string {
+    const currency = this.userProfile?.preferences?.defaultCurrency || this.defaultCurrency;
+    const symbol = this.getCurrencySymbol(currency);
+    const decimalPlaces = APP_CONFIG.CURRENCY.DECIMAL_PLACES[currency as CurrencyCode] || 2;
+    
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency:
-        this.userProfile?.preferences?.defaultCurrency || DEFAULT_CURRENCY,
+      currency: currency,
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces,
     }).format(income);
   }
 }

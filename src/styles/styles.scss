@@ -442,3 +442,10 @@ app-footer {
     }
   }
 }
+
+.mobile-fab-btn {
+	position: absolute !important;
+	bottom: 8rem !important;
+	right: 1rem !important;
+	z-index: 999 !important;
+}
