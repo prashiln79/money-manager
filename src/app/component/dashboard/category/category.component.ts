@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -25,6 +25,8 @@ import { TransactionType } from 'src/app/util/config/enums';
   styleUrls: ['./category.component.scss']
 })
 export class CategoryComponent implements OnInit, OnDestroy {
+
+  @Input() home: boolean = false;
   public categories$: Observable<Category[]>;
   public isLoading$: Observable<boolean>;
   public error$: Observable<any>;

@@ -20,7 +20,7 @@
     
     <!-- Categories List Section -->
     <section class="categories-list">
-      <div class="section-header">
+      <div class="section-header" *ngIf="!home">
         <div class="header-content">
           <h2 class="section-title">Manage Categories</h2>
           <p class="section-subtitle">({{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }})</p>
@@ -47,7 +47,8 @@
 
       <!-- Categories List -->
       <div *ngIf="categories.length > 0" class="categories-grid-list">
-        <div *ngFor="let category of categories; trackBy: trackByCategoryId"
+        @for (category of categories; track category.id) {
+        <div *ngIf="home && category.budget?.hasBudget || !home"
              class="category-item"
              [style.border-left-color]="category.color"
              [class.editing]="isEditMode && newCategory.id === category.id">
@@ -113,8 +114,16 @@
             </div>
           </div>
         </div>
+        }
       </div>
+
+    <div *ngIf="home" class="flex justify-center mt-2">
+      <a routerLink="/dashboard/category" class="text-primary text-sm hover:underline ">View All Categories</a>
+    </div>
     </section>
+
+   
+
 
     <!-- Add/Edit Category Form Section - Desktop Only -->
     <section class="add-category" *ngIf="!isMobile">
