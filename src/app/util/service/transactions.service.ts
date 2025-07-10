@@ -161,11 +161,11 @@ export class TransactionsService {
                             await addDoc(transactionsCollection, transactionData);
                             // update category budget
 
-                            // this.store.dispatch(CategoriesActions.updateBudgetSpent({
-                            //     userId: userId,
-                            //     categoryId: transaction.category,
-                            //     budgetSpent: transaction.amount
-                            // }));
+                            this.store.dispatch(CategoriesActions.updateBudgetSpent({
+                                userId: userId,
+                                categoryId: transaction.category,
+                                budgetSpent: transaction.amount
+                            }));
                                     
                           
                         } catch (error) {

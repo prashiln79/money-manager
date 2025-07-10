@@ -20,6 +20,7 @@ import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { createCategory, updateCategory } from 'src/app/store/categories/categories.actions';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
+import { TransactionType } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'app-mobile-category-add-edit-popup',
@@ -153,7 +154,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     }
   }
 
-  selectType(type: 'income' | 'expense'): void {
+  selectType(type: any): void {
     this.categoryForm.patchValue({ type });
   }
 

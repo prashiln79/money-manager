@@ -11,6 +11,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { Transaction } from 'src/app/util/models/transaction.model';
+import { TransactionType } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'calendar-view',
@@ -194,7 +195,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   // Get total income for selected date
   getTotalIncome(): number {
     return this.selectedDateTransactions
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === TransactionType.INCOME)
       .reduce((sum, t) => sum + t.amount, 0);
   }
 
@@ -243,7 +244,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   // Get total income for date range
   getRangeTotalIncome(): number {
     return this.rangeTransactions
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === TransactionType.INCOME)
       .reduce((sum, t) => sum + t.amount, 0);
   }
 

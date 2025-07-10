@@ -20,7 +20,7 @@ import { AppState } from '../../../store/app.state';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { DateService } from 'src/app/util/service/date.service';
-import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/config/enums';
+import { RecurringInterval, SyncStatus, TransactionStatus, TransactionType } from 'src/app/util/config/enums';
 import { APP_CONFIG } from 'src/app/util/config/config';
 
 @Component({
@@ -405,7 +405,8 @@ export class TransactionListComponent implements OnInit, OnDestroy {
             accountId: tx.accountId, // Default account ID - you might want to get this from user's accounts
             amount: parseFloat(tx.amount),
             type: tx.type,
-            category: tx.category,
+            category: tx?.category || '',
+            categoryId: tx?.categoryId || '',
             date: date,
             notes: tx.narration || '',
             isPending: false,
@@ -525,7 +526,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   getTypesList(): string[] {
-    return ['income', 'expense'];
+    return [TransactionType.INCOME, TransactionType.EXPENSE];
   }
 
   refreshTransactions(): void {

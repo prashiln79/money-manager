@@ -30,6 +30,7 @@ import {
   SyncStatus,
   TransactionStatus,
 } from 'src/app/util/config/enums';
+import { Category } from 'src/app/util/models';
 
 @Component({
   selector: 'app-mobile-add-transaction',
@@ -40,7 +41,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
   @ViewChild('amountInput', { static: false }) amountInput!: ElementRef;
 
   transactionForm: FormGroup;
-  public tagList: Array<any> = [];
+  public categoryList: Array<Category> = [];
   public accountList: Array<any> = [];
   public userId: any;
   public isSubmitting = false;
@@ -63,12 +64,14 @@ export class MobileAddTransactionComponent implements AfterViewInit {
       amount: ['', [Validators.required, Validators.min(0.01)]],
       date: [moment().format('YYYY-MM-DD'), Validators.required],
       description: [''],
-      tag: [''],
+      categoryId: [''],
+      categoryName: [''],
+      categoryType: [''],
       accountId: ['', Validators.required],
     });
 
     this.store.select(selectAllCategories).subscribe((resp) => {
-      this.tagList = resp;
+      this.categoryList = resp;
     });
 
     this.store.select(selectAllAccounts).subscribe((resp) => {
@@ -81,16 +84,22 @@ export class MobileAddTransactionComponent implements AfterViewInit {
             'YYYY-MM-DD'
           ),
           description: this.dialogData.notes,
-          tag: this.dialogData.category,
+          categoryId: this.dialogData.categoryId,
+          categoryName: this.dialogData.categoryName,
+          categoryType: this.dialogData.categoryType,
           accountId: this.dialogData.accountId,
         });
       } else {
+        if(this.categoryList.length > 0) {
         this.transactionForm.patchValue({
-          payee: this.tagList.length > 0 ? this.tagList[0].name : '',
-          tag: this.tagList.length > 0 ? this.tagList[0].name : '',
-          accountId:
-            this.accountList.length > 0 ? this.accountList[0].accountId : '',
-        });
+          payee: this.categoryList.length > 0 ? this.categoryList[0].name : '',
+          categoryId: this.categoryList[0].id,
+          categoryName: this.categoryList[0].name,
+          categoryType: this.categoryList[0].type,
+            accountId:
+              this.accountList.length > 0 ? this.accountList[0].accountId : '',
+          });
+        }
       }
     });
   }
@@ -120,11 +129,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
       try {
         this.loaderService.show();
         
-        // Get the selected category to determine the type
-        const selectedCategoryName = this.transactionForm.get('tag')?.value;
-        const selectedCategory = this.tagList.find(cat => cat.name === selectedCategoryName);
-        const transactionType = selectedCategory?.type || 'expense';
-
+        
         if (this.dialogData?.id) {
           await this.store.dispatch(
             TransactionsActions.updateTransaction({
@@ -134,8 +139,9 @@ export class MobileAddTransactionComponent implements AfterViewInit {
                 payee: this.transactionForm.get('payee')?.value,
                 accountId: this.transactionForm.get('accountId')?.value,
                 amount: this.transactionForm.get('amount')?.value,
-                category: this.transactionForm.get('tag')?.value,
-                type: transactionType,
+                category: this.transactionForm.get('categoryName')?.value,
+                categoryId: this.transactionForm.get('categoryId')?.value,
+                type: this.transactionForm.get('categoryType')?.value,
                 date: this.transactionForm.get('date')?.value,
                 notes: this.transactionForm.get('description')?.value,
               },
@@ -152,8 +158,9 @@ export class MobileAddTransactionComponent implements AfterViewInit {
                 payee: this.transactionForm.get('payee')?.value,
                 accountId: this.transactionForm.get('accountId')?.value,
                 amount: this.transactionForm.get('amount')?.value,
-                category: this.transactionForm.get('tag')?.value,
-                type: transactionType,
+                category: this.transactionForm.get('categoryName')?.value,
+                categoryId: this.transactionForm.get('categoryId')?.value,
+                type: this.transactionForm.get('categoryType')?.value,
                 date: new Date(this.transactionForm.get('date')?.value + ' ' + this.dateService.now().toDate().toLocaleTimeString()),
                 notes: this.transactionForm.get('description')?.value,
                 isRecurring: false,
@@ -238,7 +245,11 @@ export class MobileAddTransactionComponent implements AfterViewInit {
   }
 
   onCategoryChange(event: any): void {
-    console.log(event.target.value);
-    this.transactionForm.get('payee')?.setValue(event.target.value);
+    const category = this.categoryList.find(cat => cat.id === event.target.value);
+    if(category) {
+      this.transactionForm.get('categoryName')?.setValue(category.name);
+      this.transactionForm.get('categoryType')?.setValue(category.type);
+      this.transactionForm.get('categoryId')?.setValue(category.id);
+    }
   }
 }

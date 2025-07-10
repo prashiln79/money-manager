@@ -7,54 +7,106 @@ import * as CategoriesActions from './categories.actions';
 
 @Injectable()
 export class CategoriesEffects {
-  
-  loadCategories$ = createEffect(() => this.actions$.pipe(
-    ofType(CategoriesActions.loadCategories),
-    mergeMap(({ userId }) => this.categoryService.getCategories(userId)
-      .pipe(
-        map(categories => CategoriesActions.loadCategoriesSuccess({ categories })),
-        catchError(error => of(CategoriesActions.loadCategoriesFailure({ error })))
-      ))
-  ));
+  loadCategories$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CategoriesActions.loadCategories),
+      mergeMap(({ userId }) =>
+        this.categoryService.getCategories(userId).pipe(
+          map((categories) =>
+            CategoriesActions.loadCategoriesSuccess({ categories })
+          ),
+          catchError((error) =>
+            of(CategoriesActions.loadCategoriesFailure({ error }))
+          )
+        )
+      )
+    )
+  );
 
-  createCategory$ = createEffect(() => this.actions$.pipe(
-    ofType(CategoriesActions.createCategory),
-    mergeMap(({ userId, name, categoryType, icon, color }) => 
-      this.categoryService.createCategory(userId, name, categoryType, icon, color)
-        .pipe(
-          map(() => {
-            // Reload categories to get the updated list
-            return CategoriesActions.loadCategories({ userId });
-          }),
-          catchError(error => of(CategoriesActions.createCategoryFailure({ error })))
-        ))
-  ));
+  createCategory$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CategoriesActions.createCategory),
+      mergeMap(({ userId, name, categoryType, icon, color }) =>
+        this.categoryService
+          .createCategory(userId, name, categoryType, icon, color)
+          .pipe(
+            map(() => {
+              // Reload categories to get the updated list
+              return CategoriesActions.loadCategories({ userId });
+            }),
+            catchError((error) =>
+              of(CategoriesActions.createCategoryFailure({ error }))
+            )
+          )
+      )
+    )
+  );
 
-  updateCategory$ = createEffect(() => this.actions$.pipe(
-    ofType(CategoriesActions.updateCategory),
-    mergeMap(({ userId, categoryId, name, categoryType, icon, color, budgetData }) => 
-      this.categoryService.updateCategory(userId, categoryId, name, categoryType, icon, color, budgetData)
-        .pipe(
-          map(() => {
-            // Reload categories to get the updated data
-            return CategoriesActions.loadCategories({ userId });
-          }),
-          catchError(error => of(CategoriesActions.updateCategoryFailure({ error })))
-        ))
-  ));
+  updateCategory$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CategoriesActions.updateCategory),
+      mergeMap(
+        ({ userId, categoryId, name, categoryType, icon, color, budgetData }) =>
+          this.categoryService
+            .updateCategory(
+              userId,
+              categoryId,
+              name,
+              categoryType,
+              icon,
+              color,
+              budgetData
+            )
+            .pipe(
+              map(() => {
+                // Reload categories to get the updated data
+                return CategoriesActions.loadCategories({ userId });
+              }),
+              catchError((error) =>
+                of(CategoriesActions.updateCategoryFailure({ error }))
+              )
+            )
+      )
+    )
+  );
 
-  deleteCategory$ = createEffect(() => this.actions$.pipe(
-    ofType(CategoriesActions.deleteCategory),
-    mergeMap(({ userId, categoryId }) => 
-      this.categoryService.deleteCategory(userId, categoryId)
-        .pipe(
+  deleteCategory$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CategoriesActions.deleteCategory),
+      mergeMap(({ userId, categoryId }) =>
+        this.categoryService.deleteCategory(userId, categoryId).pipe(
           map(() => CategoriesActions.deleteCategorySuccess({ categoryId })),
-          catchError(error => of(CategoriesActions.deleteCategoryFailure({ error })))
-        ))
-  ));
+          catchError((error) =>
+            of(CategoriesActions.deleteCategoryFailure({ error }))
+          )
+        )
+      )
+    )
+  );
+
+  updateBudgetSpent$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CategoriesActions.updateBudgetSpent),
+      mergeMap(({ userId, categoryId, budgetSpent }) =>
+        this.categoryService
+          .updateBudgetSpent(userId, categoryId, budgetSpent)
+          .pipe(
+            map(() =>
+              CategoriesActions.updateBudgetSpentSuccess({
+                categoryId,
+                budgetSpent,
+              })
+            ),
+            catchError((error) =>
+              of(CategoriesActions.updateBudgetSpentFailure({ error }))
+            )
+          )
+      )
+    )
+  );
 
   constructor(
     private actions$: Actions,
     private categoryService: CategoryService
   ) {}
-} 
+}

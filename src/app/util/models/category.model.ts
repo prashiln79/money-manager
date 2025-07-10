@@ -1,9 +1,10 @@
 import { Timestamp } from 'firebase/firestore';
+import { TransactionType } from '../config/enums';
 
 export interface Category {
   id?: string;
   name: string;
-  type: 'income' | 'expense';
+  type: TransactionType;
   icon: string;
   color: string;
   createdAt: number;
@@ -209,35 +210,35 @@ export const defaultCategoriesForNewUser: Category[] = [
   // Income Categories
   {
     name: 'Salary',
-    type: 'income',
+    type: TransactionType.INCOME,
     color: '#4CAF50',
     icon: 'work',
     createdAt: Date.now(),
   },
   {
     name: 'Freelance',
-    type: 'income',
+    type: TransactionType.INCOME,
     color: '#00BCD4',
     icon: 'computer',
     createdAt: Date.now(),
   },
   {
     name: 'Investments',
-    type: 'income',
+    type: TransactionType.INCOME,
     color: '#FFC107',
     icon: 'trending_up',
     createdAt: Date.now(),
   },
   {
     name: 'Gifts & Rewards',
-    type: 'income',
+    type: TransactionType.INCOME,
     color: '#8BC34A',
     icon: 'card_giftcard',
     createdAt: Date.now(),
   },
   {
     name: 'Other Income',
-    type: 'income',
+    type: TransactionType.INCOME,
     color: '#9E9E9E',
     icon: 'attach_money',
     createdAt: Date.now(),
@@ -246,77 +247,77 @@ export const defaultCategoriesForNewUser: Category[] = [
   // Expense Categories
   {
     name: 'Food & Dining',
-    type: 'expense',
+    type: TransactionType.EXPENSE,
     color: '#F44336',
     icon: 'restaurant',
     createdAt: Date.now(),
   },
   {
     name: 'Transport & Fuel',
-    type: 'expense',
+    type: TransactionType.EXPENSE,
     color: '#9C27B0',
     icon: 'directions_car',
     createdAt: Date.now(),
   },
   {
     name: 'Shopping',
-    type: 'expense',
+    type: TransactionType.EXPENSE,
     color: '#E91E63',
     icon: 'shopping_cart',
     createdAt: Date.now(),
   },
   {
     name: 'Bills & Utilities',
-    type: 'expense',
+    type: TransactionType.EXPENSE,
     color: '#607D8B',
     icon: 'receipt_long',
     createdAt: Date.now(),
   },
   {
     name: 'Healthcare',
-    type: 'expense',
+    type:  TransactionType.EXPENSE,
     color: '#03A9F4',
     icon: 'local_hospital',
     createdAt: Date.now(),
   },
   {
     name: 'Entertainment',
-    type: 'expense',
+    type:  TransactionType.EXPENSE,
     color: '#FF5722',
     icon: 'sports_esports',
     createdAt: Date.now(),
   },
   {
     name: 'Education',
-    type: 'expense',
+    type:  TransactionType.EXPENSE,
     color: '#3F51B5',
     icon: 'school',
     createdAt: Date.now(),
   },
   {
     name: 'Travel',
-    type: 'expense',
+    type:  TransactionType.EXPENSE,
     color: '#009688',
     icon: 'flight',
     createdAt: Date.now(),
   },
   {
     name: 'Family & Kids',
-    type: 'expense',
+    type: TransactionType.EXPENSE,
     color: '#CDDC39',
     icon: 'family_restroom',
     createdAt: Date.now(),
   },
   {
     name: 'Charity',
-    type: 'expense',
+    type: TransactionType.EXPENSE,
     color: '#795548',
     icon: 'volunteer_activism',
     createdAt: Date.now(),
   },
   {
     name: 'Other Expenses',
-    type: 'expense',
+    type: TransactionType.EXPENSE,
     color: '#9E9E9E',
     icon: 'category',
     createdAt: Date.now(),

@@ -43,9 +43,9 @@
 			<!-- Category Field -->
 			<mat-form-field appearance="fill" class="w-full">
 				<mat-label>Category</mat-label>
-				<mat-select formControlName="tag" placeholder="Select category">
-					@for (item of tagList; track item) {
-					<mat-option [value]="item.name">{{ item?.name }}</mat-option>
+				<mat-select formControlName="category" placeholder="Select category">
+					@for (item of categoryList; track item) {
+					<mat-option [value]="{id: item.id, name: item.name, type: item.type}">{{ item?.name }}</mat-option>
 					}
 				</mat-select>
 			</mat-form-field>

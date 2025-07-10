@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, doc, updateDoc, deleteDoc, collectionData, getDocs } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, doc, updateDoc, deleteDoc, collectionData, getDocs, getDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Category } from 'src/app/util/models';
+import { TransactionType } from '../config/enums';
 
 @Injectable({
     providedIn: 'root'
@@ -42,7 +43,7 @@ export class CategoryService {
         });
     }
 
-    createCategory(userId: string, name: string, type: 'income' | 'expense', icon: string, color: string): Observable<void> {
+    createCategory(userId: string, name: string, type: TransactionType, icon: string, color: string): Observable<void> {
         return new Observable<void>(observer => {
             addDoc(this.getUserCategoriesCollection(userId), {
                 name,
@@ -60,7 +61,7 @@ export class CategoryService {
     }
 
     /** Update a category */
-    updateCategory(userId: string, categoryId: string, name: string, type: 'income' | 'expense', icon: string, color: string, budgetData?: any): Observable<void> {
+    updateCategory(userId: string, categoryId: string, name: string, type: TransactionType, icon: string, color: string, budgetData?: any): Observable<void> {
         return new Observable<void>(observer => {
             const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
             
@@ -90,6 +91,41 @@ export class CategoryService {
             }).catch(error => {
                 observer.error(error);
             });
+        });
+    }
+
+    updateBudgetSpent(userId: string, categoryId: string, budgetSpent: number): Observable<void> {
+        return new Observable<void>(observer => {
+            const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
+
+            getDoc(categoryRef).then(categoryData => {
+                const data = categoryData.data();
+                if (
+                    categoryData.exists() &&
+                    data &&
+                    typeof data['budget'] === 'object' &&
+                    data['budget'] !== null &&
+                    (data['budget'] as any).hasBudget
+                ) {
+                    const category = data as Category;
+                    if (category.budget) {
+                        category.budget.budgetSpent = budgetSpent;
+                        updateDoc(categoryRef, { budget: category.budget }).then(() => {
+                            observer.next();
+                            observer.complete();
+                        }).catch(error => {
+                            observer.error(error);
+                        });
+                    } else {
+                        observer.error(new Error('Category budget not found'));
+                    }
+                } else {
+                    observer.error(new Error('Category not found or has no budget'));
+                }
+            }).catch(error => {
+                observer.error(error);
+            });
+                
         });
     }
 }

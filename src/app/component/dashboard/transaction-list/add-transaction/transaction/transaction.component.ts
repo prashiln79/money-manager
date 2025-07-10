@@ -10,7 +10,8 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsActions from '../../../../../store/transactions/transactions.actions';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
-import { RecurringInterval, SyncStatus, TransactionStatus } from 'src/app/util/config/enums';
+import { RecurringInterval, SyncStatus, TransactionStatus, TransactionType } from 'src/app/util/config/enums';
+import { Category } from 'src/app/util/models';
 
 @Component({
   selector: 'app-transaction',
@@ -38,7 +39,7 @@ export class TransactionComponent {
     '=',
     '+',
   ];
-  public tagList: Array<any> = [];
+  public categoryList: Array<Category> = [];
   public statusList: string[] = ['Pending', 'Completed', 'Cancelled'];
   public userId: any;
 
@@ -57,25 +58,27 @@ export class TransactionComponent {
       amount: ['', [Validators.required, Validators.min(0.01)]],
       date: [new Date(), Validators.required],
       description: [''],
-      tag: [''],
+      category: [''],
     });
 
     this.store
       .select(selectAllCategories)
       .subscribe((resp) => {
-        this.tagList = resp;
+        this.categoryList = resp;
         if (this.dialogData?.id) {
           this.transactionForm.patchValue({
             payee: this.dialogData.payee,
             amount: this.dialogData.amount,
             date: this.dateService.toDate(this.dialogData.date),
             description: this.dialogData.notes,
-            tag: this.dialogData.category,
+            category: this.dialogData.category,
           });
         } else {
-          this.transactionForm.patchValue({
-            tag: this.tagList.length > 0 ? this.tagList[0].name : '',
-          });
+          if(this.categoryList.length > 0) {
+            this.transactionForm.patchValue({
+              category:{id: this.categoryList[0].id, name: this.categoryList[0].name},
+            });
+          }
         }
       });
   }
@@ -91,11 +94,7 @@ export class TransactionComponent {
   async onSubmit(): Promise<void> {
     if (this.transactionForm.valid) {
       this.dialogRef.close(true);
-      
-      // Get the selected category to determine the type
-      const selectedCategoryName = this.transactionForm.get('tag')?.value;
-      const selectedCategory = this.tagList.find(cat => cat.name === selectedCategoryName);
-      const transactionType = selectedCategory?.type || 'expense';
+    
       
       if (this.dialogData?.id) {
         await this.store.dispatch(
@@ -107,8 +106,9 @@ export class TransactionComponent {
               userId: this.userId,
               accountId: '',
               amount: this.transactionForm.get('amount')?.value,
-              category: this.transactionForm.get('tag')?.value,
-              type: transactionType,
+              category: this.transactionForm.get('category')?.value.name,
+              categoryId: this.transactionForm.get('category')?.value.id,
+              type: this.transactionForm.get('category')?.value.type,
               date: this.transactionForm.get('date')?.value,
               notes: this.transactionForm.get('description')?.value,
             },
@@ -124,8 +124,9 @@ export class TransactionComponent {
               userId: this.userId,
               accountId: '',
               amount: this.transactionForm.get('amount')?.value,
-              category: this.transactionForm.get('tag')?.value,
-              type: transactionType,
+              category: this.transactionForm.get('category')?.value.name,
+              categoryId: this.transactionForm.get('category')?.value.id,
+              type: this.transactionForm.get('category')?.value.type,
               date: this.transactionForm.get('date')?.value,
               notes: this.transactionForm.get('description')?.value,
               isRecurring: false,

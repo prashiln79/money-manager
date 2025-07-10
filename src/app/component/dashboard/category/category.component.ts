@@ -17,6 +17,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as CategoriesActions from '../../../store/categories/categories.actions';
 import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
+import { TransactionType } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'transaction-category',
@@ -390,7 +391,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   private getEmptyCategory(): Category {
     return {
       name: '',
-      type: 'expense',
+      type: TransactionType.EXPENSE,
       icon: 'shopping_cart',
       color: '#46777f',
       createdAt: Date.now()
