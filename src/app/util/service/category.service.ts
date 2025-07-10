@@ -110,6 +110,9 @@ export class CategoryService {
                     const category = data as Category;
                     if (category.budget) {
                         category.budget.budgetSpent = (category.budget.budgetSpent || 0) + budgetSpent;
+                        category.budget.budgetRemaining = (category.budget.budgetAmount || 0) - category.budget.budgetSpent;
+                        category.budget.budgetProgressPercentage = (category.budget.budgetSpent / (category.budget.budgetAmount || 0)   ) * 100;
+                        category.budget.budgetAlertEnabled = category.budget.budgetProgressPercentage > (category.budget.budgetAlertThreshold || 0);
                         updateDoc(categoryRef, { budget: category.budget }).then(() => {
                             observer.next();
                             observer.complete();
