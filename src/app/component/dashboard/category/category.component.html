@@ -64,22 +64,22 @@
                   </div>
                   
                   <!-- Budget Information -->
-                  <div *ngIf="category.hasBudget" class="budget-info">
+                  <div *ngIf="category?.budget?.hasBudget" class="budget-info">
                     <div class="budget-amount">
                       <span class="budget-label">Budget:</span>
-                      <span class="budget-value">{{ category.budgetAmount | currency }}</span>
-                      <span class="budget-period">/ {{ formatBudgetPeriod(category.budgetPeriod) }}</span>
+                      <span class="budget-value">{{ category.budget?.budgetAmount | currency }}</span>
+                      <span class="budget-period">/ {{ formatBudgetPeriod(category.budget?.budgetPeriod) }}</span>
                     </div>
                     
-                    <div class="budget-progress" *ngIf="category.budgetProgressPercentage !== undefined">
+                    <div class="budget-progress" *ngIf="category.budget?.budgetProgressPercentage !== undefined">
                       <div class="progress-bar">
                         <div class="progress-fill" 
-                             [style.width.%]="Math.min(category.budgetProgressPercentage || 0, 100)"
+                             [style.width.%]="Math.min(category.budget?.budgetProgressPercentage || 0, 100)"
                              [style.background-color]="getBudgetProgressColor(category)"></div>
                       </div>
                       <span class="progress-text">
-                        {{ category.budgetSpent | currency }} / {{ category.budgetAmount | currency }}
-                        ({{ (category.budgetProgressPercentage || 0).toFixed(1) }}%)
+                        {{ category.budget?.budgetSpent | currency }} / {{ category.budget?.budgetAmount | currency }}
+                        ({{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%)
                       </span>
                     </div>
                   </div>

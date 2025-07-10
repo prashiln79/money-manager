@@ -78,7 +78,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       });
       
       // Initialize budget form if category has budget
-      if (this.dialogData.hasBudget) {
+      if (this.dialogData.budget?.hasBudget) {
         this.showBudgetSection = true;
         this.budgetService.initializeBudgetForm(this.budgetForm, this.dialogData);
       }

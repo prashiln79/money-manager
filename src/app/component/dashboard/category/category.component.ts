@@ -11,7 +11,7 @@ import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-
 import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
 import { CategoryBudgetDialogComponent } from './category-budget-dialog/category-budget-dialog.component';
-import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUser } from 'src/app/util/models';
+import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUser, Budget } from 'src/app/util/models';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
@@ -347,7 +347,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       maxWidth: '90vw',
       data: {
         category: category,
-        isEdit: category.hasBudget || false
+        isEdit: category.budget?.hasBudget || false
       },
       disableClose: false
     });
@@ -359,20 +359,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateCategoryBudget(category: Category, budgetData: any): void {
-    const updatedCategory: Category = {
-      ...category,
-      hasBudget: budgetData.hasBudget,
-      budgetAmount: budgetData.budgetAmount,
-      budgetPeriod: budgetData.budgetPeriod,
-      budgetStartDate: budgetData.budgetStartDate,
-      budgetEndDate: (budgetData.budgetEndDate) ? budgetData.budgetEndDate : null,
-      budgetSpent: budgetData.budgetSpent,
-      budgetRemaining: budgetData.budgetRemaining,
-      budgetProgressPercentage: budgetData.budgetProgressPercentage,
-      budgetAlertThreshold: budgetData.budgetAlertThreshold,
-      budgetAlertEnabled: budgetData.budgetAlertEnabled
-    };
+  private updateCategoryBudget(category: Category, budgetData: Budget): void {
+  
 
     this.store.dispatch(CategoriesActions.updateCategory({
       userId: this.userId,

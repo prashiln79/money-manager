@@ -30,17 +30,7 @@ export class CategoryService {
                         icon: data?.icon || 'category',
                         color: data?.color || '#46777f', // Default blue color
                         createdAt: data?.createdAt,
-                        // Budget-related fields
-                        hasBudget: data?.hasBudget || false,
-                        budgetAmount: data?.budgetAmount || 0,
-                        budgetPeriod: data?.budgetPeriod || 'monthly',
-                        budgetStartDate: data?.budgetStartDate || null,
-                        budgetEndDate: data?.budgetEndDate || null,
-                        budgetSpent: data?.budgetSpent || 0,
-                        budgetRemaining: data?.budgetRemaining || 0,
-                        budgetProgressPercentage: data?.budgetProgressPercentage || 0,
-                        budgetAlertThreshold: data?.budgetAlertThreshold || 80,
-                        budgetAlertEnabled: data?.budgetAlertEnabled !== false
+                        budget: data?.budget || null,
                     };
                     categories.push(category);
                 });
@@ -74,20 +64,11 @@ export class CategoryService {
         return new Observable<void>(observer => {
             const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
             
-            const updateData: any = { name, type, icon, color };
+            const updateData: Omit<Category, 'createdAt'> = { name, type, icon, color };
             
             // Add budget data if provided
             if (budgetData) {
-                updateData.hasBudget = budgetData.hasBudget;
-                updateData.budgetAmount = budgetData.budgetAmount;
-                updateData.budgetPeriod = budgetData.budgetPeriod;
-                updateData.budgetStartDate = budgetData.budgetStartDate || null;
-                updateData.budgetEndDate = budgetData.budgetEndDate || null;
-                updateData.budgetSpent = budgetData.budgetSpent;
-                updateData.budgetRemaining = budgetData.budgetRemaining;
-                updateData.budgetProgressPercentage = budgetData.budgetProgressPercentage;
-                updateData.budgetAlertThreshold = budgetData.budgetAlertThreshold;
-                updateData.budgetAlertEnabled = budgetData.budgetAlertEnabled;
+                updateData.budget = budgetData;
             }
             
             updateDoc(categoryRef, updateData).then(() => {

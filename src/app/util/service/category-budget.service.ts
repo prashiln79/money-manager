@@ -1,31 +1,9 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Category } from '../models/category.model';
+import { Budget, Category } from '../models/category.model';
 import { APP_CONFIG } from '../config/config';
 import { DateService } from './date.service';
 
-export interface BudgetFormData {
-  hasBudget: boolean;
-  budgetAmount: number;
-  budgetPeriod: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  budgetStartDate: Date | null;
-  budgetEndDate: Date | null;
-  budgetAlertThreshold: number;
-  budgetAlertEnabled: boolean;
-}
-
-export interface BudgetData {
-  hasBudget: boolean;
-  budgetAmount: number;
-  budgetPeriod: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  budgetStartDate: number | null;
-  budgetEndDate: number | null;
-  budgetSpent: number;
-  budgetRemaining: number;
-  budgetProgressPercentage: number;
-  budgetAlertThreshold: number;
-  budgetAlertEnabled: boolean;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -53,15 +31,15 @@ export class CategoryBudgetService {
    * Initialize budget form with existing category data
    */
   initializeBudgetForm(form: FormGroup, category?: Category): void {
-    if (category?.hasBudget) {
+    if (category?.budget?.hasBudget) {
       form.patchValue({
-        hasBudget: category.hasBudget,
-        budgetAmount: category.budgetAmount || 0,
-        budgetPeriod: category.budgetPeriod || 'monthly',
-        budgetStartDate: category.budgetStartDate ? this.dateService.toDate(category.budgetStartDate) : new Date(),
-        budgetEndDate: category.budgetEndDate ? this.dateService.toDate(category.budgetEndDate) : null,
-        budgetAlertThreshold: category.budgetAlertThreshold || 80,
-        budgetAlertEnabled: category.budgetAlertEnabled !== false
+        hasBudget: category.budget?.hasBudget,
+        budgetAmount: category.budget?.budgetAmount || 0,
+        budgetPeriod: category.budget?.budgetPeriod || 'monthly',
+        budgetStartDate: category.budget?.budgetStartDate ? this.dateService.toDate(category.budget?.budgetStartDate) : new Date(),
+        budgetEndDate: category.budget?.budgetEndDate ? this.dateService.toDate(category.budget?.budgetEndDate) : null,
+        budgetAlertThreshold: category.budget?.budgetAlertThreshold || 80,
+        budgetAlertEnabled: category.budget?.budgetAlertEnabled !== false
       });
     }
 
@@ -98,7 +76,7 @@ export class CategoryBudgetService {
   /**
    * Get budget data from form
    */
-  getBudgetDataFromForm(form: FormGroup): BudgetData {
+  getBudgetDataFromForm(form: FormGroup): Budget {
     const formValue = form.value;
     return {
       hasBudget: formValue.hasBudget,
@@ -159,11 +137,11 @@ export class CategoryBudgetService {
    * Get budget progress color
    */
   getBudgetProgressColor(category: Category): string {
-    if (!category.hasBudget || !category.budgetProgressPercentage) {
+    if (!category.budget?.hasBudget || !category.budget?.budgetProgressPercentage) {
       return '#6b7280'; // gray
     }
     
-    const percentage = category.budgetProgressPercentage;
+    const percentage = category.budget?.budgetProgressPercentage;
     if (percentage >= 100) {
       return '#ef4444'; // red - over budget
     } else if (percentage >= 80) {
