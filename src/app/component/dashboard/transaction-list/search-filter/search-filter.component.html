@@ -1,6 +1,6 @@
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-6">
   <!-- Header Section -->
-  <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center justify-between mb-2">
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
         <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -15,99 +15,7 @@
     </div>
     
     <div class="flex items-center space-x-2">
-      <button 
-        mat-flat-button 
-        class="!bg-primary text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md" 
-        matTooltip="Import transactions" 
-        (click)="onImportTransactions()"
-      >
-        <mat-icon class="text-sm">file_upload</mat-icon>Import
-      </button>
-      <button mat-stroked-button
-        class="transition-all duration-200 shadow-sm hover:shadow-md !text-primary" 
-        matTooltip="Add transaction" 
-        (click)="onAddTransaction()"
-      >
-        <mat-icon class="text-sm">add</mat-icon>Add
-      </button>
-    </div>
-  </div>
-
-  <!-- Filters Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-6 gap-3">
-    <!-- Search Input -->
-    <div class="relative col-span-2">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <mat-icon class="text-gray-400 text-sm">search</mat-icon>
-      </div>
-      <input
-        type="text"
-        [ngModel]="searchTerm"
-        (ngModelChange)="searchTermChange.emit($event)"
-        placeholder="Search transactions..."
-        class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
-      />
-    </div>
-
-    <!-- Year Filter -->
-    <div class="relative">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <mat-icon class="text-gray-400 text-sm">calendar_today</mat-icon>
-      </div>
-      <select
-        [ngModel]="selectedYear"
-        (ngModelChange)="selectedYearChange.emit($event)"
-        class="w-full pl-10 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer"
-      >
-        <option *ngFor="let year of availableYears" [value]="year">
-          {{ year }}
-        </option>
-      </select>
-      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-        <mat-icon class="text-gray-400 text-sm">expand_more</mat-icon>
-      </div>
-    </div>
-
-    <!-- Category Filter -->
-    <div class="relative">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <mat-icon class="text-gray-400 text-sm">category</mat-icon>
-      </div>
-      <select
-        [ngModel]="selectedCategory"
-        (ngModelChange)="selectedCategoryChange.emit($event)"
-        class="w-full pl-10 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer"
-      >
-        <option value="all">All Categories</option>
-        <option *ngFor="let category of categories" [value]="category">
-          {{ category }}
-        </option>
-      </select>
-      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-        <mat-icon class="text-gray-400 text-sm">expand_more</mat-icon>
-      </div>
-    </div>
-
-    <!-- Type Filter -->
-    <div class="relative">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <mat-icon class="text-gray-400 text-sm">account_balance_wallet</mat-icon>
-      </div>
-      <select
-        [ngModel]="selectedType"
-        (ngModelChange)="selectedTypeChange.emit($event)"
-        class="w-full pl-10 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer"
-      >
-        <option value="all">All Types</option>
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-      </select>
-      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-        <mat-icon class="text-gray-400 text-sm">expand_more</mat-icon>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
+      <!-- Action Buttons -->
     <div class="flex items-center space-x-2">
       <button 
         mat-icon-button 
@@ -143,6 +51,99 @@
         <mat-icon class="text-red-600 text-sm">clear</mat-icon>
       </button>
     </div>
+      <button 
+        mat-flat-button 
+        class="!bg-primary text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md" 
+        matTooltip="Import transactions" 
+        (click)="onImportTransactions()"
+      >
+        <mat-icon class="text-sm">file_upload</mat-icon>Import
+      </button>
+      <button mat-stroked-button
+        class="transition-all duration-200 shadow-sm hover:shadow-md !text-primary" 
+        matTooltip="Add transaction" 
+        (click)="onAddTransaction()"
+      >
+        <mat-icon class="text-sm">add</mat-icon>Add
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="flex items-center w-full gap-2">
+    <!-- Search Input -->
+    <div class="relative w-2/3">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <mat-icon class="text-gray-400 text-sm">search</mat-icon>
+      </div>
+      <input
+        type="text"
+        [ngModel]="searchTerm"
+        (ngModelChange)="searchTermChange.emit($event)"
+        placeholder="Search transactions..."
+        class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+      />
+    </div>
+
+    <!-- Year Filter -->
+    <div class="relative w-1/2">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <mat-icon class="text-gray-400 text-sm">calendar_today</mat-icon>
+      </div>
+      <select
+        [ngModel]="selectedYear"
+        (ngModelChange)="selectedYearChange.emit($event)"
+        class="w-full pl-10 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer"
+      >
+        <option *ngFor="let year of availableYears" [value]="year">
+          {{ year }}
+        </option>
+      </select>
+      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <mat-icon class="text-gray-400 text-sm">expand_more</mat-icon>
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="relative w-1/2">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <mat-icon class="text-gray-400 text-sm">category</mat-icon>
+      </div>
+      <select
+        [ngModel]="selectedCategory"
+        (ngModelChange)="selectedCategoryChange.emit($event)"
+        class="w-full pl-10 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer"
+      >
+        <option value="all">All Categories</option>
+        <option *ngFor="let category of categories" [value]="category">
+          {{ category }}
+        </option>
+      </select>
+      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <mat-icon class="text-gray-400 text-sm">expand_more</mat-icon>
+      </div>
+    </div>
+
+    <!-- Type Filter -->
+    <div class="relative w-1/2">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <mat-icon class="text-gray-400 text-sm">account_balance_wallet</mat-icon>
+      </div>
+      <select
+        [ngModel]="selectedType"
+        (ngModelChange)="selectedTypeChange.emit($event)"
+        class="w-full pl-10 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer"
+      >
+        <option value="all">All Types</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <mat-icon class="text-gray-400 text-sm">expand_more</mat-icon>
+      </div>
+    </div>
+
+    
   </div>
 
   <!-- Active Filters Indicator -->

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Category } from '../models/category.model';
 import { APP_CONFIG } from '../config/config';
+import { DateService } from './date.service';
 
 export interface BudgetFormData {
   hasBudget: boolean;
@@ -31,7 +32,7 @@ export interface BudgetData {
 })
 export class CategoryBudgetService {
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private fb: FormBuilder, private dateService: DateService) { }
 
   /**
    * Create a budget form group
@@ -57,8 +58,8 @@ export class CategoryBudgetService {
         hasBudget: category.hasBudget,
         budgetAmount: category.budgetAmount || 0,
         budgetPeriod: category.budgetPeriod || 'monthly',
-        budgetStartDate: category.budgetStartDate ? new Date(category.budgetStartDate) : new Date(),
-        budgetEndDate: category.budgetEndDate ? new Date(category.budgetEndDate) : null,
+        budgetStartDate: category.budgetStartDate ? this.dateService.toDate(category.budgetStartDate) : new Date(),
+        budgetEndDate: category.budgetEndDate ? this.dateService.toDate(category.budgetEndDate) : null,
         budgetAlertThreshold: category.budgetAlertThreshold || 80,
         budgetAlertEnabled: category.budgetAlertEnabled !== false
       });

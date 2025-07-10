@@ -8,6 +8,10 @@ import { Timestamp } from 'firebase/firestore';
 import { DateService } from './date.service';
 import { Transaction } from '../models/transaction.model';
 import { RecurringInterval, SyncStatus } from '../config/enums';
+import { AppState } from 'src/app/store/app.state';
+import { Store } from '@ngrx/store';
+import * as CategoriesActions from '../../store/categories/categories.actions';
+import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 
 
 interface OfflineOperation {
@@ -30,7 +34,8 @@ export class TransactionsService {
         private firestore: Firestore, 
         private auth: Auth,
         private offlineService: OfflineService,
-        private dateService: DateService
+        private dateService: DateService,
+        private store: Store<AppState>
     ) {
         this.initializeOfflineHandling();
     }
@@ -154,6 +159,15 @@ export class TransactionsService {
                         try {
                             const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
                             await addDoc(transactionsCollection, transactionData);
+                            // update category budget
+
+                            // this.store.dispatch(CategoriesActions.updateBudgetSpent({
+                            //     userId: userId,
+                            //     categoryId: transaction.category,
+                            //     budgetSpent: transaction.amount
+                            // }));
+                                    
+                          
                         } catch (error) {
                             console.error('Failed to create transaction online:', error);
                             // Fall back to offline mode

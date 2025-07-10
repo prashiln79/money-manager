@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Category {
   id?: string;
   name: string;
@@ -9,8 +11,8 @@ export interface Category {
   hasBudget?: boolean;
   budgetAmount?: number;
   budgetPeriod?: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  budgetStartDate?: number; // timestamp
-  budgetEndDate?: number; // timestamp
+  budgetStartDate?: Date | Timestamp; // timestamp
+  budgetEndDate?: Date | Timestamp; // timestamp
   budgetSpent?: number;
   budgetRemaining?: number;
   budgetProgressPercentage?: number;
