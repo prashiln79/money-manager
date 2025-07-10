@@ -163,7 +163,7 @@ export class TransactionsService {
 
                             this.store.dispatch(CategoriesActions.updateBudgetSpent({
                                 userId: userId,
-                                categoryId: transaction.category,
+                                categoryId: transaction.categoryId,
                                 budgetSpent: transaction.amount
                             }));
                                     

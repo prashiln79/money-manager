@@ -109,7 +109,7 @@ export class CategoryService {
                 ) {
                     const category = data as Category;
                     if (category.budget) {
-                        category.budget.budgetSpent = budgetSpent;
+                        category.budget.budgetSpent = (category.budget.budgetSpent || 0) + budgetSpent;
                         updateDoc(categoryRef, { budget: category.budget }).then(() => {
                             observer.next();
                             observer.complete();
