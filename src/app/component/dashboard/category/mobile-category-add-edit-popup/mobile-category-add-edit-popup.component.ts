@@ -92,7 +92,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
 
       try {
         const formValue = this.categoryForm.value;
-        const budgetData = this.budgetService.getBudgetDataFromForm(this.budgetForm);
+       // const budgetData = this.budgetService.getBudgetDataFromForm(this.budgetForm);
 
         if (this.dialogData?.id) {
           // Update existing category
@@ -104,7 +104,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
               categoryType: formValue.type,
               icon: formValue.icon,
               color: formValue.color,
-              budgetData: budgetData
             })
           );
           this.notificationService.success('Category updated successfully');

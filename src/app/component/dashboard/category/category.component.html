@@ -54,7 +54,7 @@
 								<div class="category-details">
 									<div class="category-header">
 										<h3 class="category-name">{{ category.name }}</h3>
-										<span class="category-type">{{ category.type }}</span>
+										<span class="category-type" *ngIf="!category?.budget?.hasBudget">{{ category.type }}</span>
 									</div>
 
 									<!-- Budget Information -->

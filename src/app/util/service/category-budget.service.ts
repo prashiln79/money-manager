@@ -84,9 +84,9 @@ export class CategoryBudgetService {
       budgetPeriod: formValue.hasBudget ? formValue.budgetPeriod : 'monthly',
       budgetStartDate: formValue.hasBudget ? formValue.budgetStartDate.getTime() : null,
       budgetEndDate: formValue.hasBudget && formValue.budgetEndDate ? formValue.budgetEndDate.getTime() : null,
-      budgetSpent: 0,
-      budgetRemaining: formValue.hasBudget ? formValue.budgetAmount : 0,
-      budgetProgressPercentage: 0,
+      budgetSpent: formValue.hasBudget ? formValue.budgetSpent : 0,
+      budgetRemaining: formValue.hasBudget ? formValue.budgetRemaining : 0,
+      budgetProgressPercentage: formValue.hasBudget ? formValue.budgetProgressPercentage : 0,
       budgetAlertThreshold: formValue.hasBudget ? formValue.budgetAlertThreshold : 80,
       budgetAlertEnabled: formValue.hasBudget ? formValue.budgetAlertEnabled : false
     };
