@@ -221,13 +221,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    max-height: 60vh;
+    max-height: 54vh;
     overflow-y: auto;
     padding-right: 0.5rem;
     
     @media (max-width: 640px) {
       max-height: 50vh;
       gap: 0.75rem;
+      max-height: 60vh;
     }
     
     // Custom scrollbar styling
