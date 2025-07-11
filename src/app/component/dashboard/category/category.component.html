@@ -1,137 +1,120 @@
 <div class="categories-container">
-  <!-- Error Message Display -->
-  <div *ngIf="errorMessage" 
-       class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
-    <p class="text-red-700 text-sm">{{ errorMessage }}</p>
-    <button mat-icon-button (click)="clearError()" 
-            class="error-close-button">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+	<!-- Error Message Display -->
+	<div *ngIf="errorMessage" class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+		<p class="text-red-700 text-sm">{{ errorMessage }}</p>
+		<button mat-icon-button (click)="clearError()" class="error-close-button">
+			<mat-icon>close</mat-icon>
+		</button>
+	</div>
 
- 
+	<button mat-fab color="primary" *ngIf="isMobile && !home" (click)="openAddMobileDialog()" class="add-category-btn z-[100]">
+		<mat-icon>add</mat-icon>
+	</button>
 
-  <button mat-fab color="primary" *ngIf="isMobile && !home" (click)="openAddMobileDialog()" class="add-category-btn z-[100]">
-    <mat-icon>add</mat-icon>
-  </button>
+	<div class="fab-button" *ngIf="!isMobile">
+		<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn">
+			<mat-icon>add</mat-icon>
+		</button>
+	</div>
 
-  <div class="fab-button" *ngIf="!isMobile">
-    <button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn">
-      <mat-icon>add</mat-icon>
-    </button>
-  </div>
-  
+	<!-- Main Content -->
+	<div class="categories-grid">
+		<!-- Categories List Section -->
+		<section class="categories-list">
+			<div class="section-header" *ngIf="!home">
+				<div class="header-content">
+					<h2 class="section-title">Manage Categories</h2>
+					<p class="section-subtitle">({{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }})</p>
+				</div>
+			</div>
 
-  <!-- Main Content -->
-  <div class="categories-grid" >
-    
-    <!-- Categories List Section -->
-    <section class="categories-list">
-      <div class="section-header" *ngIf="!home">
-        <div class="header-content">
-          <h2 class="section-title">Manage Categories</h2>
-          <p class="section-subtitle">({{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }})</p>
-        </div>
-      </div>
+			<!-- Empty State -->
+			<div *ngIf="categories.length === 0" class="empty-state">
+				<div class="empty-icon">
+					<mat-icon>local_offer</mat-icon>
+				</div>
+				<h3 class="empty-title">No categories yet</h3>
+				<p class="empty-text">Add your first category to get started</p>
+				<button *ngIf="isMobile" mat-raised-button color="primary" (click)="openAddMobileDialog()" class="empty-state-button">
+					<mat-icon>add</mat-icon>
+					Add Category
+				</button>
+			</div>
 
-      <!-- Empty State -->
-      <div *ngIf="categories.length === 0" 
-           class="empty-state">
-        <div class="empty-icon">
-          <mat-icon>local_offer</mat-icon>
-        </div>
-        <h3 class="empty-title">No categories yet</h3>
-        <p class="empty-text">Add your first category to get started</p>
-        <button *ngIf="isMobile"
-                mat-raised-button
-                color="primary"
-                (click)="openAddMobileDialog()"
-                class="empty-state-button">
-          <mat-icon>add</mat-icon>
-          Add Category
-        </button>
-      </div>
+			<!-- Categories List -->
+			<div *ngIf="categories.length > 0" class="categories-grid-list">
+				@for (category of categories; track category.id) {
+				<div *ngIf="home && category.budget?.hasBudget || !home" class="category-item" [style.border-left-color]="category.color" [class.editing]="isEditMode && newCategory.id === category.id">
+					<div class="category-content">
+						<div class="category-info">
+							<div class="category-icon-name">
+								<div class="category-icon-container">
+									<mat-icon class="category-icon" [style.color]="category.color">{{ category.icon || 'category' }}</mat-icon>
+								</div>
+								<div class="category-details">
+									<div class="category-header">
+										<h3 class="category-name">{{ category.name }}</h3>
+										<span class="category-type">{{ category.type }}</span>
+									</div>
 
-      <!-- Categories List -->
-      <div *ngIf="categories.length > 0" class="categories-grid-list">
-        @for (category of categories; track category.id) {
-        <div *ngIf="home && category.budget?.hasBudget || !home"
-             class="category-item"
-             [style.border-left-color]="category.color"
-             [class.editing]="isEditMode && newCategory.id === category.id">
-          <div class="category-content">
-            <div class="category-info">
-              <div class="category-icon-name">
-                <div class="category-icon-container">
-                  <mat-icon class="category-icon" [style.color]="category.color">{{ category.icon || 'category' }}</mat-icon>
-                </div>
-                <div class="category-details">
-                  <div class="category-header">
-                    <h3 class="category-name">{{ category.name }}</h3>
-                    <span class="category-type">{{ category.type }}</span>
-                  </div>
-                  
-                  <!-- Budget Information -->
-                  <div *ngIf="category?.budget?.hasBudget" class="budget-info">
-                    <div class="budget-amount">
-                      <span class="budget-label">Budget:</span>
-                      <span class="budget-value">{{ category.budget?.budgetAmount | currency }}</span>
-                      <span class="budget-period">/ {{ formatBudgetPeriod(category.budget?.budgetPeriod) }}</span>
-                    </div>
-                    
-                    <div class="budget-progress" *ngIf="category.budget?.budgetProgressPercentage !== undefined">
-                      <div class="progress-bar">
-                        <div class="progress-fill" 
-                             [style.width.%]="Math.min(category.budget?.budgetProgressPercentage || 0, 100)"
-                             [style.background-color]="getBudgetProgressColor(category)"></div>
-                      </div>
-                      <span class="progress-text">
-                        {{ category.budget?.budgetSpent | currency }} / {{ category.budget?.budgetAmount | currency }}
-                        ({{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%)
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <!-- No Budget Indicator -->
-                  <!-- <div *ngIf="!category.hasBudget" class="no-budget">
+									<!-- Budget Information -->
+									<div *ngIf="category?.budget?.hasBudget" class="budget-info">
+										<div class="budget-amount">
+											<span class="budget-label">Budget:</span>
+											<span class="budget-value">{{ category.budget?.budgetAmount | currency }}</span>
+											<span class="budget-period">/ {{ formatBudgetPeriod(category.budget?.budgetPeriod) }}</span>
+										</div>
+
+										<div class="budget-progress" *ngIf="category.budget?.budgetProgressPercentage !== undefined">
+											<div class="progress-bar">
+												<div class="progress-fill" [style.width.%]="Math.min(category.budget?.budgetProgressPercentage || 0, 100)" [style.background-color]="getBudgetProgressColor(category)"></div>
+											</div>
+											<span class="progress-text">
+												{{ category.budget?.budgetSpent | currency }} / {{ category.budget?.budgetAmount | currency }} ({{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%)
+											</span>
+										</div>
+									</div>
+
+									<!-- No Budget Indicator -->
+									<!-- <div *ngIf="!category.hasBudget" class="no-budget">
                     <span class="no-budget-text">No budget set</span>
                   </div> -->
-                </div>
-              </div>
-            </div>
-            <div class="category-actions">
-              <button mat-icon-button (click)="openBudgetDialog(category)" 
-                      class="action-button budget-button"
-                      matTooltip="Set budget"
-                      [disabled]="isEditMode" *ngIf="!home && category.type === 'expense'">
-                <mat-icon>account_balance_wallet</mat-icon>
-              </button>
-              <button mat-icon-button (click)="editCategory(category)" 
-                      class="action-button edit-button"
-                      matTooltip="Edit category"
-                      [disabled]="isEditMode">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button (click)="deleteCategory(category)" 
-                      class="action-button delete-button"
-                      matTooltip="Delete category"
-                      [disabled]="isEditMode">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </div>
-        </div>
-        }
-      </div>
+								</div>
+							</div>
+						</div>
+						<div class="category-actions">
+              <mat-menu #menu="matMenu">
+								<button
+									mat-menu-item
+									(click)="openBudgetDialog(category)"
+									class="action-button budget-button"
+									matTooltip="Set budget"
+									[disabled]="isEditMode"
+									*ngIf="!home && category.type === 'expense'"
+								>
+									<mat-icon>account_balance_wallet</mat-icon> Set Budget
+								</button>
+								<button mat-menu-item  (click)="editCategory(category)" class="action-button edit-button" matTooltip="Edit category" [disabled]="isEditMode">
+									<mat-icon>edit</mat-icon> Edit
+								</button>
+								<button mat-menu-item (click)="deleteCategory(category)" class="action-button delete-button" matTooltip="Delete category" [disabled]="isEditMode">
+									<mat-icon>delete</mat-icon> Delete
+								</button>
+							</mat-menu>
+							<button matIconButton [matMenuTriggerFor]="menu">
+								<mat-icon>more_vert</mat-icon>
+							</button>
+							
+						</div>
+					</div>
+				</div>
+				}
+			</div>
 
-    <div *ngIf="home" class="flex justify-center mt-2">
-      <a routerLink="/dashboard/category" class="text-primary  hover:underline text-xs">View All Categories <mat-icon class="text-xs top-[10px] relative">arrow_forward</mat-icon></a>
-    </div>
-    </section>
-
-   
-
-
-
-  </div>
+			<div *ngIf="home" class="flex justify-center mt-2">
+				<a routerLink="/dashboard/category" class="text-primary hover:underline text-xs">View All Categories <mat-icon class="text-xs top-[10px] relative">arrow_forward</mat-icon></a>
+			</div>
+		</section>
+	</div>
 </div>
+
