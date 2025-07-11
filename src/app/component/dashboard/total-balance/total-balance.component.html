@@ -9,7 +9,7 @@
     <div *ngIf="!(transactionsLoading$ | async)" class="text-center">
       <div class="text-lg text-muted text-gray-500">You Expense | Income</div>
       <div class="text-responsive-lg mt-1 font-bold text-primary">
-        {{ totalExpenses$ | async | currency }} &nbsp;&nbsp; | &nbsp;&nbsp;
+        {{ totalExpenses$ | async | currency }} &nbsp; | &nbsp;
         <span class="text-gray-500">{{ totalIncome$ | async | currency }}</span>
       </div>
     </div>
