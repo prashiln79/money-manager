@@ -97,14 +97,19 @@
 
       <!-- More Menu -->
       <mat-menu #moreMenu="matMenu" class="more-menu-panel">
-        <button mat-menu-item (click)="navigateTo('/dashboard/accounts')">
+        <button mat-menu-item (click)="navigateTo('/dashboard/accounts')" class="menu-item">
           <mat-icon>account_balance</mat-icon>
           <span>Accounts</span>
         </button>
 
-        <button mat-menu-item (click)="navigateTo('/dashboard/category')">
+        <button mat-menu-item (click)="navigateTo('/dashboard/category')" class="menu-item">
           <mat-icon>receipt</mat-icon>
           <span>Categories</span>
+        </button>
+
+        <button mat-menu-item (click)="sharePWA()" class="menu-item">
+          <mat-icon>share</mat-icon>
+          <span>Share</span>
         </button>
 
         <!-- <button mat-menu-item (click)="navigateTo('/dashboard/budgets')">
