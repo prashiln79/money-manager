@@ -98,6 +98,185 @@
 				}
 			</div>
 
+			<!-- Loan-specific fields (only shown when type is 'loan') -->
+			@if(isLoanAccount()) {
+				<!-- Loan Details Section -->
+				<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+					<h4 class="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-4 flex items-center gap-2">
+						<mat-icon class="text-amber-600 dark:text-amber-400">account_balance_wallet</mat-icon>
+						Loan Details
+					</h4>
+
+					<!-- Lender Name -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Lender Name *
+						</label>
+						<input 
+							type="text" 
+							formControlName="lenderName" 
+							placeholder="e.g., Bank of America" 
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						/>
+						@if(accountForm.get('lenderName')?.hasError('required') && accountForm.get('lenderName')?.touched) {
+							<p class="text-red-500 text-sm mt-1">Lender name is required</p>
+						}
+					</div>
+
+					<!-- Loan Amount -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Loan Amount *
+						</label>
+						<input 
+							type="number" 
+							formControlName="loanAmount" 
+							placeholder="0.00" 
+							step="0.01" 
+							min="0" 
+							max="999999"
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						/>
+						@if(getLoanAmountError() && accountForm.get('loanAmount')?.touched) {
+							<p class="text-red-500 text-sm mt-1">{{ getLoanAmountError() }}</p>
+						}
+					</div>
+
+					<!-- Interest Rate -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Annual Interest Rate (%) *
+						</label>
+						<input 
+							type="number" 
+							formControlName="interestRate" 
+							placeholder="5.5" 
+							step="0.1" 
+							min="0" 
+							max="100"
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						/>
+						@if(getInterestRateError() && accountForm.get('interestRate')?.touched) {
+							<p class="text-red-500 text-sm mt-1">{{ getInterestRateError() }}</p>
+						}
+					</div>
+
+					<!-- Start Date -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Loan Start Date *
+						</label>
+						<input 
+							type="date" 
+							formControlName="startDate" 
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						/>
+					</div>
+
+					<!-- Duration -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Loan Duration (months) *
+						</label>
+						<input 
+							type="number" 
+							formControlName="durationMonths" 
+							placeholder="12" 
+							min="1" 
+							max="600"
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						/>
+						@if(getDurationError() && accountForm.get('durationMonths')?.touched) {
+							<p class="text-red-500 text-sm mt-1">{{ getDurationError() }}</p>
+						}
+					</div>
+
+					<!-- Repayment Frequency -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Repayment Frequency *
+						</label>
+						<select 
+							formControlName="repaymentFrequency" 
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						>
+							@for (freq of repaymentFrequencies; track freq.value) {
+								<option [value]="freq.value">{{ freq.label }}</option>
+							}
+						</select>
+					</div>
+
+					<!-- Loan Status -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Loan Status *
+						</label>
+						<select 
+							formControlName="status" 
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						>
+							@for (status of loanStatuses; track status.value) {
+								<option [value]="status.value">{{ status.label }}</option>
+							}
+						</select>
+					</div>
+
+					<!-- Total Paid -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Total Amount Paid
+						</label>
+						<input 
+							type="number" 
+							formControlName="totalPaid" 
+							placeholder="0.00" 
+							step="0.01" 
+							min="0"
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						/>
+					</div>
+
+					<!-- Remaining Balance (read-only) -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Remaining Balance
+						</label>
+						<input 
+							type="number" 
+							formControlName="remainingBalance" 
+							readonly
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+						/>
+					</div>
+
+					<!-- Next Due Date -->
+					<div class="mb-4">
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Next Payment Due Date *
+						</label>
+						<input 
+							type="date" 
+							formControlName="nextDueDate" 
+							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+						/>
+					</div>
+
+					<!-- Show Reminder -->
+					<div class="mb-4">
+						<label class="flex items-center gap-2">
+							<input 
+								type="checkbox" 
+								formControlName="showReminder"
+								class="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+							/>
+							<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								Show payment reminders
+							</span>
+						</label>
+					</div>
+				</div>
+			}
+
 			<!-- Bottom Spacing for Mobile -->
 			<div class="h-20"></div>
 		</form>

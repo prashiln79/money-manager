@@ -72,4 +72,31 @@ export class MobileAccountsListComponent implements OnInit, OnDestroy {
 		}
 		return account.balance >= 0 ? 'positive-balance' : 'negative-balance';
 	}
+
+	/**
+	 * Calculate monthly interest for loan accounts
+	 */
+	calculateMonthlyInterest(account: Account): number {
+		if (account.type !== 'loan' || !account.loanDetails) {
+			return 0;
+		}
+		
+		const { interestRate, remainingBalance } = account.loanDetails;
+		// Monthly interest = (Annual Rate / 12) * Remaining Balance
+		return (interestRate / 12 / 100) * remainingBalance;
+	}
+
+	/**
+	 * Check if account is a loan account
+	 */
+	isLoanAccount(account: Account): boolean {
+		return account.type === 'loan' && !!account.loanDetails;
+	}
+
+	/**
+	 * Get loan details safely
+	 */
+	getLoanDetails(account: Account) {
+		return account.loanDetails || null;
+	}
 } 

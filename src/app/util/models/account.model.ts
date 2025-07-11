@@ -2,6 +2,27 @@ import { Timestamp } from "firebase/firestore";
 import { AccountType, SyncStatus } from "../config/enums";
 
 /**
+ * Loan Account interface for loan-specific properties
+ */
+export interface LoanAccount {
+  id: string;
+  userId: string;
+  lenderName: string;
+  loanAmount: number;
+  interestRate: number; // Annual Interest (%)
+  startDate: Date;
+  durationMonths: number; // Loan term
+  repaymentFrequency: 'monthly' | 'weekly';
+  status: 'active' | 'closed' | 'defaulted';
+  totalPaid: number;
+  remainingBalance: number;
+  nextDueDate: Date;
+  showReminder: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
  * Account interface representing a financial account in the system
  */
 export interface Account {
@@ -19,6 +40,20 @@ export interface Account {
 	isActive?: boolean;
 	lastSyncAt?: Timestamp;
 	syncStatus?: SyncStatus;
+	// Loan-specific properties (only used when type is 'loan')
+	loanDetails?: {
+		lenderName: string;
+		loanAmount: number;
+		interestRate: number;
+		startDate: Date;
+		durationMonths: number;
+		repaymentFrequency: 'monthly' | 'weekly';
+		status: 'active' | 'closed' | 'defaulted';
+		totalPaid: number;
+		remainingBalance: number;
+		nextDueDate: Date;
+		showReminder: boolean;
+	};
 }
 
 /**

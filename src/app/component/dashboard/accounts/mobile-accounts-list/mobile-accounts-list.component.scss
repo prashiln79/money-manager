@@ -222,6 +222,60 @@
 	color: #9ca3af;
 }
 
+.loan-details {
+	margin-top: 8px;
+	padding: 8px;
+	background: #fef3c7;
+	border-radius: 6px;
+	border: 1px solid #fbbf24;
+
+	.loan-info-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 4px;
+		font-size: 0.75rem;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+
+		.loan-label {
+			color: #92400e;
+			font-weight: 500;
+		}
+
+		.loan-value {
+			color: #1f2937;
+			font-weight: 600;
+
+			&.interest-amount {
+				color: #dc2626;
+				font-weight: 700;
+			}
+		}
+	}
+}
+
+.dark .loan-details {
+	background: #451a03;
+	border-color: #f59e0b;
+
+	.loan-info-row {
+		.loan-label {
+			color: #fbbf24;
+		}
+
+		.loan-value {
+			color: #f9fafb;
+
+			&.interest-amount {
+				color: #fca5a5;
+			}
+		}
+	}
+}
+
 .account-balance {
 	text-align: right;
 	flex-shrink: 0;
