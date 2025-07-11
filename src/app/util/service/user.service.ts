@@ -491,7 +491,7 @@ export class UserService {
 
       await signOut(this.auth);
       console.log('User signed out');
-      this.router.navigate(['/landing']);
+      this.router.navigate(['/sign-in']);
     } catch (error) {
       console.error('Error signing out:', error);
       this.logAuditEvent('LOGOUT_ERROR', undefined, {

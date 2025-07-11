@@ -65,20 +65,22 @@ export class OfflineService {
   private initializeServiceWorkerUpdates(): void {
     // Check for service worker updates
     if (this.swUpdate.isEnabled) {
-      // Check for updates more frequently on mobile
-      const updateInterval = this.isMobileDevice() ? 30 * 60 * 1000 : 6 * 60 * 60 * 1000; // 30 min on mobile, 6 hours on desktop
+      // Check for updates based on configuration
+      const updateInterval = this.isMobileDevice() 
+        ? APP_CONFIG.PWA.MOBILE_UPDATE_INTERVAL 
+        : APP_CONFIG.PWA.DESKTOP_UPDATE_INTERVAL;
       
       setInterval(() => {
         this.swUpdate.checkForUpdate();
       }, updateInterval);
 
-      // Handle available updates
+      // Handle available updates silently
       this.swUpdate.versionUpdates.subscribe(event => {
         console.log('Service worker update event:', event);
         
         if (event.type === 'VERSION_READY') {
-          console.log('New version available:', event);
-          this.handleUpdateAvailable();
+          console.log('New version available, activating silently:', event);
+          this.activateUpdateSilently();
         } else if (event.type === 'VERSION_INSTALLATION_FAILED') {
           console.error('Service worker installation failed:', event);
           this.handleUpdateFailure();
@@ -210,64 +212,27 @@ export class OfflineService {
     }
   }
 
+  private activateUpdateSilently(): void {
+    console.log('Activating update silently without user notification');
+    this.swUpdate.activateUpdate().then(() => {
+      console.log('Update activated successfully, reloading app');
+      window.location.reload();
+    }).catch(error => {
+      console.error('Failed to activate update:', error);
+      // Fallback to simple reload
+      window.location.reload();
+    });
+  }
+
   private handleUpdateAvailable(): void {
-    if (this.isMobileDevice()) {
-      // On mobile, show a more prominent update notification
-      this.showMobileUpdateNotification();
-    } else {
-      // On desktop, use the standard prompt
-      this.promptUserForUpdate();
-    }
+    // No longer show any update notifications - activate silently
+    this.activateUpdateSilently();
   }
 
   private showMobileUpdateNotification(): void {
-    // Create a custom update notification for mobile
-    const updateBanner = document.createElement('div');
-    updateBanner.className = 'fixed top-0 left-0 right-0 z-[9999] bg-blue-600 text-white px-4 py-3 text-center shadow-lg';
-    updateBanner.innerHTML = `
-      <div class="flex items-center justify-center space-x-3">
-        <mat-icon class="text-white">system_update</mat-icon>
-        <span class="text-sm font-medium">New version available</span>
-        <button 
-          class="bg-white text-blue-600 px-3 py-1 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
-          id="update-now-btn"
-        >
-          Update Now
-        </button>
-      </div>
-    `;
-    
-    document.body.appendChild(updateBanner);
-    
-    // Add click event listener to the update button
-    const updateButton = document.getElementById('update-now-btn');
-    if (updateButton) {
-      updateButton.addEventListener('click', async () => {
-        try {
-          // Check if user is logged in and sign out if they are
-          if (this.userService.isAuthenticated()) {
-            await this.userService.signOut();
-            console.log('User signed out before app update');
-          }
-          
-          // Remove the banner and reload the app
-          updateBanner.remove();
-          window.location.reload();
-        } catch (error) {
-          console.error('Error during update process:', error);
-          // Still reload even if sign out fails
-          updateBanner.remove();
-          window.location.reload();
-        }
-      });
-    }
-    
-    // Auto-remove after 10 seconds
-    setTimeout(() => {
-      if (updateBanner.parentElement) {
-        updateBanner.remove();
-      }
-    }, 10000);
+    // Removed - no longer showing update notifications
+    console.log('Update notification suppressed - activating silently');
+    this.activateUpdateSilently();
   }
 
   private handleUpdateFailure(): void {
@@ -328,16 +293,9 @@ export class OfflineService {
   }
 
   private promptUserForUpdate(): void {
-    if (confirm(`A new version of ${APP_CONFIG.APP_NAME} is available. Would you like to update now?`)) {
-      // Activate the new version
-      this.swUpdate.activateUpdate().then(() => {
-        window.location.reload();
-      }).catch(error => {
-        console.error('Failed to activate update:', error);
-        // Fallback to simple reload
-        window.location.reload();
-      });
-    }
+    // Removed - no longer prompting user for updates
+    console.log('Update prompt suppressed - activating silently');
+    this.activateUpdateSilently();
   }
 
   // Public methods

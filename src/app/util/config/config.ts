@@ -177,6 +177,16 @@ export const APP_CONFIG = {
     BUDGET_ALERTS: true,
     GOAL_TRACKING: true,
     TAX_CALCULATOR: true
+  },
+
+  // PWA configuration
+  PWA: {
+    SILENT_UPDATES: true, // Enable silent auto-updates without user notifications
+    UPDATE_CHECK_INTERVAL: 30 * 60 * 1000, // 30 minutes
+    MOBILE_UPDATE_INTERVAL: 30 * 60 * 1000, // 30 minutes for mobile
+    DESKTOP_UPDATE_INTERVAL: 6 * 60 * 60 * 1000, // 6 hours for desktop
+    AUTO_ACTIVATE_UPDATES: true, // Automatically activate updates when available
+    PRESERVE_USER_DATA: true // Preserve user data during updates
   }
 } as const;
 

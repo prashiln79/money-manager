@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, map } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { APP_CONFIG } from '../config/config';
 
 export interface PwaUpdateInfo {
   available: boolean;
@@ -47,6 +48,19 @@ export class PwaSwService {
         console.error('Unrecoverable service worker error:', event);
         this.handleUnrecoverableError(event);
       });
+
+      // Set up periodic update checks based on configuration
+      const updateInterval = APP_CONFIG.PWA.UPDATE_CHECK_INTERVAL;
+      setInterval(() => {
+        this.checkForUpdates();
+      }, updateInterval);
+
+      // Check for updates when app becomes visible
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          this.checkForUpdates();
+        }
+      });
     }
   }
 
@@ -70,30 +84,8 @@ export class PwaSwService {
 
     this.updateInfoSubject.next(updateInfo);
 
-    // Auto-activate update for critical updates
-    if (this.shouldAutoActivate(event)) {
-      this.activateUpdate();
-    }
-  }
-
-  private shouldAutoActivate(event: VersionReadyEvent): boolean {
-    // Auto-activate for patch updates or if it's a critical update
-    const currentVersion = this.getVersionFromAppData(event.currentVersion.appData) || '';
-    const newVersion = this.getVersionFromAppData(event.latestVersion.appData) || '';
-    
-    // Check if it's a patch update (e.g., 1.0.1 -> 1.0.2)
-    const currentParts = currentVersion.split('.');
-    const newParts = newVersion.split('.');
-    
-    if (currentParts.length >= 3 && newParts.length >= 3) {
-      const isPatchUpdate = currentParts[0] === newParts[0] && 
-                           currentParts[1] === newParts[1] && 
-                           currentParts[2] !== newParts[2];
-      
-      return isPatchUpdate;
-    }
-    
-    return false;
+    // Auto-activate update silently without user notification
+    this.activateUpdateSilently();
   }
 
   private getVersionFromAppData(appData: any): string | undefined {
@@ -108,10 +100,10 @@ export class PwaSwService {
     window.location.reload();
   }
 
-  public activateUpdate(): Promise<boolean> {
+  private activateUpdateSilently(): Promise<boolean> {
     return this.swUpdate.activateUpdate()
       .then(() => {
-        console.log('Service worker update activated');
+        console.log('Service worker update activated silently');
         this.updateInfoSubject.next({
           available: false,
           currentVersion: '',
@@ -119,7 +111,7 @@ export class PwaSwService {
           updateReady: false
         });
         
-        // Reload the page to use the new version
+        // Reload the page to use the new version without any user notification
         window.location.reload();
         return true;
       })
@@ -127,6 +119,10 @@ export class PwaSwService {
         console.error('Failed to activate service worker update:', err);
         return false;
       });
+  }
+
+  public activateUpdate(): Promise<boolean> {
+    return this.activateUpdateSilently();
   }
 
   public checkForUpdate(): Promise<boolean> {
