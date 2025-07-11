@@ -96,7 +96,7 @@
               <button mat-icon-button (click)="openBudgetDialog(category)" 
                       class="action-button budget-button"
                       matTooltip="Set budget"
-                      [disabled]="isEditMode">
+                      [disabled]="isEditMode" *ngIf="!home && category.type === 'expense'">
                 <mat-icon>account_balance_wallet</mat-icon>
               </button>
               <button mat-icon-button (click)="editCategory(category)" 
@@ -118,7 +118,7 @@
       </div>
 
     <div *ngIf="home" class="flex justify-center mt-2">
-      <a routerLink="/dashboard/category" class="text-primary text-sm hover:underline ">View All Categories</a>
+      <a routerLink="/dashboard/category" class="text-primary  hover:underline text-xs">View All Categories <mat-icon class="text-xs top-[10px] relative">arrow_forward</mat-icon></a>
     </div>
     </section>
 
