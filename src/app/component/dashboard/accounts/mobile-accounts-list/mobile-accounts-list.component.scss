@@ -172,6 +172,7 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 16px;
+	position: relative;
 }
 
 .account-info {
@@ -225,9 +226,7 @@
 .loan-details {
 	margin-top: 8px;
 	padding: 8px;
-	background: #fef3c7;
 	border-radius: 6px;
-	border: 1px solid #fbbf24;
 
 	.loan-info-row {
 		display: flex;
@@ -279,7 +278,14 @@
 .account-balance {
 	text-align: right;
 	flex-shrink: 0;
+
 }
+.loan-account-balance{
+	position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
 
 .balance-amount {
 	font-size: 1.125rem;

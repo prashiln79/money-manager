@@ -47,18 +47,22 @@
 					</div>
 					<div class="account-details">
 						<h3 class="account-name">{{ account.name }}</h3>
-						<p class="account-type">{{ account.type | titlecase }}</p>
-						
+
+						@if(isLoanAccount(account)){
+							<p class="account-type"><b>Interest Rate:</b> {{ getLoanDetails(account)?.interestRate +'%'  }}</p>
+							<p class="account-type"><b>Next Due:</b> {{ getLoanDetails(account)?.nextDueDate | date:'MMM d, yyyy'  }}</p>
+							<p class="account-type"><b>Monthly Interest:</b> {{ calculateMonthlyInterest(account) | currency  }}</p>
+						}@else{
+							<p class="account-type">{{ account.type  | titlecase }}</p>
+						}
+
 						<!-- Loan-specific information -->
-						<div *ngIf="isLoanAccount(account)" class="loan-details">
+						<!-- <div *ngIf="isLoanAccount(account)" class="loan-details">
 							<div class="loan-info-row">
 								<span class="loan-label">Lender:</span>
 								<span class="loan-value">{{ getLoanDetails(account)?.lenderName }}</span>
 							</div>
-							<div class="loan-info-row">
-								<span class="loan-label">Monthly Interest:</span>
-								<span class="loan-value interest-amount">{{ calculateMonthlyInterest(account) | currency }}</span>
-							</div>
+							
 							<div class="loan-info-row">
 								<span class="loan-label">Interest Rate:</span>
 								<span class="loan-value">{{ getLoanDetails(account)?.interestRate }}%</span>
@@ -67,11 +71,11 @@
 								<span class="loan-label">Next Due:</span>
 								<span class="loan-value">{{ getLoanDetails(account)?.nextDueDate | date:'shortDate' }}</span>
 							</div>
-						</div>
+						</div> -->
 					</div>
 				</div>
 				
-				<div class="account-balance">
+				<div class="account-balance" [class.loan-account-balance]="isLoanAccount(account)">
 					<span class="balance-amount">{{ account.balance | currency }}</span>
 				</div>
 			</div>
