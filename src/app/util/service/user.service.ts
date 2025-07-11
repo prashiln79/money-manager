@@ -11,6 +11,11 @@ import {
   updateProfile,
   signInWithPopup,
   user,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from '@angular/fire/auth';
 import {
   Firestore,
@@ -18,9 +23,17 @@ import {
   setDoc,
   getDoc,
   updateDoc,
+  serverTimestamp,
+  writeBatch,
+  collection,
+  query,
+  where,
+  getDocs,
+  limit
 } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, timer } from 'rxjs';
+import { catchError, retry, timeout, map } from 'rxjs/operators';
 
 import { defaultBankAccounts } from 'src/app/component/auth/registration/registration.component';
 import { NotificationService } from './notification.service';
@@ -38,8 +51,39 @@ import { AccountType } from '../config/enums';
 import { APP_CONFIG } from '../config/config';
 
 /**
- * Service responsible for user authentication and management
- * Handles sign up, sign in, sign out, and user data caching
+ * Security configuration for user operations
+ */
+interface UserSecurityConfig {
+  readonly MAX_LOGIN_ATTEMPTS: number;
+  readonly LOCKOUT_DURATION: number;
+  readonly PASSWORD_MIN_LENGTH: number;
+  readonly PASSWORD_REQUIREMENTS: RegExp;
+  readonly EMAIL_VERIFICATION_TIMEOUT: number;
+  readonly RATE_LIMIT_WINDOW: number;
+  readonly MAX_REQUESTS_PER_WINDOW: number;
+}
+
+const USER_SECURITY_CONFIG: UserSecurityConfig = {
+  MAX_LOGIN_ATTEMPTS: 5,
+  LOCKOUT_DURATION: 15 * 60 * 1000, // 15 minutes
+  PASSWORD_MIN_LENGTH: 8,
+  PASSWORD_REQUIREMENTS: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+  EMAIL_VERIFICATION_TIMEOUT: 24 * 60 * 60 * 1000, // 24 hours
+  RATE_LIMIT_WINDOW: 60 * 1000, // 1 minute
+  MAX_REQUESTS_PER_WINDOW: 10
+};
+
+/**
+ * Rate limiting interface
+ */
+interface RateLimitEntry {
+  count: number;
+  windowStart: number;
+}
+
+/**
+ * Enhanced UserService with production-level security
+ * Handles user authentication, authorization, and data management with comprehensive security measures
  */
 @Injectable({
   providedIn: 'root',
@@ -47,6 +91,11 @@ import { APP_CONFIG } from '../config/config';
 export class UserService {
   private readonly userSubject = new BehaviorSubject<any>(null);
   public readonly user$ = this.userSubject.asObservable();
+  
+  // Security tracking
+  private readonly loginAttempts = new Map<string, { count: number; lastAttempt: number; lockedUntil?: number }>();
+  private readonly rateLimitMap = new Map<string, RateLimitEntry>();
+  private readonly auditLog: Array<{ timestamp: Date; event: string; userId?: string; details: any }> = [];
 
   constructor(
     private readonly notificationService: NotificationService,
@@ -57,11 +106,11 @@ export class UserService {
     private readonly store: Store<AppState>
   ) {
     this.initializeAuthState();
+    this.startSecurityMonitoring();
   }
 
   /**
-   * Initialize authentication state listener
-   * Monitors user login/logout and caches user data
+   * Initialize authentication state listener with enhanced security
    */
   private initializeAuthState(): void {
     onAuthStateChanged(getAuth(), (user) => {
@@ -69,39 +118,197 @@ export class UserService {
         'Auth state changed:',
         user ? 'User logged in' : 'User logged out'
       );
+      
       this.userSubject.next(user);
 
       if (user) {
         this.ensureUserDataCached(user.uid);
+        this.logAuditEvent('USER_LOGIN', user.uid, { 
+          email: user.email, 
+          provider: user.providerData[0]?.providerId 
+        });
+        
+        // Check for suspicious activity
+        this.detectSuspiciousActivity(user);
+      } else {
+        this.logAuditEvent('USER_LOGOUT', undefined, { timestamp: new Date().toISOString() });
       }
     });
   }
 
   /**
-   * Cache user data for offline access
-   * @param uid - User ID
+   * Detect suspicious login activity
    */
-  private async ensureUserDataCached(uid: string): Promise<void> {
-    try {
-      const userRef = doc(this.firestore, `users/${uid}`);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        localStorage.setItem(`user-data-${uid}`, JSON.stringify(userData));
-        console.log('User data cached for offline access');
+  private detectSuspiciousActivity(user: any): void {
+    const userAgent = navigator.userAgent;
+    const lastLoginInfo = localStorage.getItem(`last-login-${user.uid}`);
+    
+    if (lastLoginInfo) {
+      const lastLogin = JSON.parse(lastLoginInfo);
+      const timeDiff = Date.now() - lastLogin.timestamp;
+      
+      // Alert if login from different location/device within short time
+      if (timeDiff < 5 * 60 * 1000 && lastLogin.userAgent !== userAgent) {
+        this.logAuditEvent('SUSPICIOUS_LOGIN', user.uid, {
+          previousUserAgent: lastLogin.userAgent,
+          currentUserAgent: userAgent,
+          timeDiff
+        });
+        
+        this.notificationService.warning('New login detected from different device');
       }
-    } catch (error) {
-      console.error('Failed to cache user data:', error);
+    }
+    
+    // Store current login info
+    localStorage.setItem(`last-login-${user.uid}`, JSON.stringify({
+      timestamp: Date.now(),
+      userAgent,
+      location: window.location.href
+    }));
+  }
+
+  /**
+   * Start security monitoring
+   */
+  private startSecurityMonitoring(): void {
+    // Monitor for rate limit violations
+    setInterval(() => {
+      this.cleanupRateLimits();
+    }, USER_SECURITY_CONFIG.RATE_LIMIT_WINDOW);
+    
+    // Monitor for locked accounts
+    setInterval(() => {
+      this.cleanupLockedAccounts();
+    }, 60000); // Every minute
+  }
+
+  /**
+   * Clean up expired rate limits
+   */
+  private cleanupRateLimits(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.rateLimitMap.entries()) {
+      if (now - entry.windowStart > USER_SECURITY_CONFIG.RATE_LIMIT_WINDOW) {
+        this.rateLimitMap.delete(key);
+      }
     }
   }
 
   /**
-   * Create a new user account with email and password
-   * @param email - User email
-   * @param password - User password
-   * @param name - User display name
-   * @returns Promise<UserCredential>
+   * Clean up expired account locks
+   */
+  private cleanupLockedAccounts(): void {
+    const now = Date.now();
+    for (const [email, attempt] of this.loginAttempts.entries()) {
+      if (attempt.lockedUntil && now > attempt.lockedUntil) {
+        this.loginAttempts.delete(email);
+        this.logAuditEvent('ACCOUNT_UNLOCKED', undefined, { email });
+      }
+    }
+  }
+
+  /**
+   * Check rate limiting
+   */
+  private checkRateLimit(identifier: string): boolean {
+    const now = Date.now();
+    const entry = this.rateLimitMap.get(identifier);
+    
+    if (!entry || now - entry.windowStart > USER_SECURITY_CONFIG.RATE_LIMIT_WINDOW) {
+      this.rateLimitMap.set(identifier, { count: 1, windowStart: now });
+      return true;
+    }
+    
+    if (entry.count >= USER_SECURITY_CONFIG.MAX_REQUESTS_PER_WINDOW) {
+      return false;
+    }
+    
+    entry.count++;
+    return true;
+  }
+
+  /**
+   * Validate email format and security
+   */
+  private validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return false;
+    }
+    
+    // Check for disposable email domains (basic check)
+    const disposableDomains = ['tempmail.org', '10minutemail.com', 'guerrillamail.com'];
+    const domain = email.split('@')[1];
+    if (disposableDomains.includes(domain)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * Validate password strength
+   */
+  private validatePassword(password: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    if (password.length < USER_SECURITY_CONFIG.PASSWORD_MIN_LENGTH) {
+      errors.push(`Password must be at least ${USER_SECURITY_CONFIG.PASSWORD_MIN_LENGTH} characters long`);
+    }
+    
+    if (!USER_SECURITY_CONFIG.PASSWORD_REQUIREMENTS.test(password)) {
+      errors.push('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+    }
+    
+    // Check for common passwords
+    const commonPasswords = ['password', '123456', 'qwerty', 'admin', 'letmein'];
+    if (commonPasswords.includes(password.toLowerCase())) {
+      errors.push('Password is too common. Please choose a more secure password');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * Check if account is locked
+   */
+  private isAccountLocked(email: string): boolean {
+    const attempt = this.loginAttempts.get(email);
+    if (!attempt) return false;
+    
+    if (attempt.lockedUntil && Date.now() < attempt.lockedUntil) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Record login attempt
+   */
+  private recordLoginAttempt(email: string, success: boolean): void {
+    const attempt = this.loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
+    
+    if (success) {
+      this.loginAttempts.delete(email);
+    } else {
+      attempt.count++;
+      attempt.lastAttempt = Date.now();
+      
+      if (attempt.count >= USER_SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
+        attempt.lockedUntil = Date.now() + USER_SECURITY_CONFIG.LOCKOUT_DURATION;
+        this.logAuditEvent('ACCOUNT_LOCKED', undefined, { email, reason: 'max_attempts' });
+      }
+      
+      this.loginAttempts.set(email, attempt);
+    }
+  }
+
+  /**
+   * Create a new user account with enhanced security
    */
   async signUp(
     email: string,
@@ -109,6 +316,28 @@ export class UserService {
     name: string
   ): Promise<UserCredential> {
     try {
+      // Rate limiting
+      if (!this.checkRateLimit(`signup:${email}`)) {
+        throw new Error('Too many signup attempts. Please try again later.');
+      }
+      
+      // Input validation
+      if (!this.validateEmail(email)) {
+        throw new Error('Invalid email address');
+      }
+      
+      const passwordValidation = this.validatePassword(password);
+      if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.errors.join(', '));
+      }
+      
+      // Check if user already exists
+      const existingUser = await this.checkUserExists(email);
+      if (existingUser) {
+        throw new Error('User with this email already exists');
+      }
+      
+      // Create user account
       const userCredential = await createUserWithEmailAndPassword(
         this.auth,
         email,
@@ -125,26 +354,77 @@ export class UserService {
           email,
           role: 'free',
           createdAt: new Date(),
+          updatedAt: new Date()
         };
 
         await this.createUserInFirestore(userCredential.user.uid, newUser);
+        
+        // Send email verification
+        if (userCredential.user.email) {
+          await sendEmailVerification(userCredential.user);
+          this.notificationService.info('Please check your email to verify your account');
+        }
+        
+        this.logAuditEvent('USER_REGISTRATION', userCredential.user.uid, {
+          email,
+          name,
+          timestamp: new Date().toISOString()
+        });
       }
 
       return userCredential;
     } catch (error) {
       console.error('Error signing up:', error);
+      this.logAuditEvent('REGISTRATION_FAILED', undefined, {
+        email,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
       throw error;
     }
   }
 
   /**
-   * Sign in user with email and password
-   * @param email - User email
-   * @param password - User password
-   * @returns Promise<UserCredential>
+   * Check if user exists in Firestore
+   */
+  private async checkUserExists(email: string): Promise<boolean> {
+    try {
+      const usersRef = collection(this.firestore, 'users');
+      const q = query(usersRef, where('email', '==', email), limit(1));
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty;
+    } catch (error) {
+      console.error('Error checking user existence:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Sign in user with enhanced security
    */
   async signIn(email: string, password: string): Promise<UserCredential> {
     try {
+      // Rate limiting
+      if (!this.checkRateLimit(`signin:${email}`)) {
+        throw new Error('Too many login attempts. Please try again later.');
+      }
+      
+      // Check if account is locked
+      if (this.isAccountLocked(email)) {
+        const attempt = this.loginAttempts.get(email);
+        const remainingTime = attempt?.lockedUntil ? Math.ceil((attempt.lockedUntil - Date.now()) / 1000 / 60) : 0;
+        throw new Error(`Account is temporarily locked. Please try again in ${remainingTime} minutes.`);
+      }
+      
+      // Input validation
+      if (!this.validateEmail(email)) {
+        throw new Error('Invalid email address');
+      }
+      
+      if (!password || password.length < 1) {
+        throw new Error('Password is required');
+      }
+      
+      // Attempt sign in
       const userCredential = await signInWithEmailAndPassword(
         this.auth,
         email,
@@ -152,46 +432,146 @@ export class UserService {
       );
 
       if (userCredential.user) {
+        // Record successful login
+        this.recordLoginAttempt(email, true);
+        
         await this.ensureUserDataCached(userCredential.user.uid);
+        
+        // Check if email is verified
+        if (!userCredential.user.emailVerified) {
+          this.notificationService.warning('Please verify your email address for full access');
+        }
+        
+        this.logAuditEvent('LOGIN_SUCCESS', userCredential.user.uid, {
+          email,
+          timestamp: new Date().toISOString()
+        });
       }
 
       return userCredential;
     } catch (error) {
+      // Record failed login attempt
+      this.recordLoginAttempt(email, false);
+      
       console.error('Error signing in:', error);
+      this.logAuditEvent('LOGIN_FAILED', undefined, {
+        email,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
       throw error;
     }
   }
 
   /**
    * Get current user from BehaviorSubject
-   * @returns Current user or null
    */
   public getUser() {
     return this.userSubject.value;
   }
 
   /**
-   * Sign out current user and clear cached data
+   * Sign out current user with enhanced security
    */
   async signOut(): Promise<void> {
     try {
       const currentUser = this.auth.currentUser;
       if (currentUser) {
+        // Log the sign out event
+        this.logAuditEvent('USER_LOGOUT', currentUser.uid, {
+          timestamp: new Date().toISOString()
+        });
+        
+        // Clear cached data
         localStorage.removeItem(`user-data-${currentUser.uid}`);
+        localStorage.removeItem(`last-login-${currentUser.uid}`);
+        
+        // Clear rate limits for this user
+        this.rateLimitMap.delete(`signin:${currentUser.email}`);
       }
 
       await signOut(this.auth);
       console.log('User signed out');
-      this.router.navigate(['/sign-in']);
+      this.router.navigate(['/landing']);
     } catch (error) {
       console.error('Error signing out:', error);
+      this.logAuditEvent('LOGOUT_ERROR', undefined, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Send password reset email
+   */
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    try {
+      // Rate limiting
+      if (!this.checkRateLimit(`reset:${email}`)) {
+        throw new Error('Too many password reset requests. Please try again later.');
+      }
+      
+      // Validate email
+      if (!this.validateEmail(email)) {
+        throw new Error('Invalid email address');
+      }
+      
+      await sendPasswordResetEmail(this.auth, email);
+      this.notificationService.success('Password reset email sent. Please check your inbox.');
+      
+      this.logAuditEvent('PASSWORD_RESET_REQUESTED', undefined, {
+        email,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      this.logAuditEvent('PASSWORD_RESET_FAILED', undefined, {
+        email,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Update user password with security validation
+   */
+  async updateUserPassword(currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      const currentUser = this.auth.currentUser;
+      if (!currentUser || !currentUser.email) {
+        throw new Error('No authenticated user found');
+      }
+      
+      // Validate new password
+      const passwordValidation = this.validatePassword(newPassword);
+      if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.errors.join(', '));
+      }
+      
+      // Re-authenticate user
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+      
+      // Update password
+      await updatePassword(currentUser, newPassword);
+      
+      this.notificationService.success('Password updated successfully');
+      
+      this.logAuditEvent('PASSWORD_UPDATED', currentUser.uid, {
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      this.logAuditEvent('PASSWORD_UPDATE_FAILED', undefined, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
       throw error;
     }
   }
 
   /**
    * Sign in user with Google authentication
-   * Creates new user account if user doesn't exist
    */
   public async signInWithGoogle(): Promise<void> {
     try {
@@ -200,50 +580,62 @@ export class UserService {
       const provider = new GoogleAuthProvider();
       provider.addScope('email');
       provider.addScope('profile');
+      
+      // Rate limiting
+      if (!this.checkRateLimit('google-signin')) {
+        throw new Error('Too many Google sign-in attempts. Please try again later.');
+      }
 
-      console.log('📱 Opening Google sign-in popup...');
       const result = await signInWithPopup(this.auth, provider);
-      console.log('✅ Google sign-in successful:', result.user);
-
       await this.handleGoogleSignInResult(result);
+      
+      this.logAuditEvent('GOOGLE_LOGIN_SUCCESS', result.user.uid, {
+        email: result.user.email,
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
+      console.error('❌ Google sign-in error:', error);
       this.handleGoogleSignInError(error);
+      this.logAuditEvent('GOOGLE_LOGIN_FAILED', undefined, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
       throw error;
     }
   }
 
   /**
-   * Handle successful Google sign-in result
-   * @param result - Google sign-in result
+   * Handle Google sign-in result
    */
   private async handleGoogleSignInResult(
     result: UserCredential
   ): Promise<void> {
-    const userRef = doc(this.firestore, `users/${result.user.uid}`);
+    console.log('✅ Google sign-in successful');
+
+    const firebaseUser = result.user;
+    const userRef = doc(this.firestore, `users/${firebaseUser.uid}`);
     const userSnap = await getDoc(userRef);
 
-    if (!userSnap.exists()) {
-      await this.createNewGoogleUser(result.user);
+    if (userSnap.exists()) {
+      await this.handleExistingGoogleUser(firebaseUser, userSnap);
     } else {
-      await this.handleExistingGoogleUser(result.user, userSnap);
+      await this.createNewGoogleUser(firebaseUser);
     }
-    this.router.navigate(['/dashboard']);
   }
 
   /**
-   * Create new user account for Google sign-in
-   * @param firebaseUser - Firebase user object
+   * Create new Google user
    */
   private async createNewGoogleUser(firebaseUser: any): Promise<void> {
-    console.log('📝 Creating new user in Firestore...');
+    console.log('🆕 Creating new Google user in Firestore');
 
     const newUser: User = {
       uid: firebaseUser.uid,
-      firstName: firebaseUser.displayName || '',
-      lastName:  '',
+      firstName: firebaseUser.displayName?.split(' ')[0] || '',
+      lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
       email: firebaseUser.email || '',
       role: 'free',
       createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     await this.createUserInFirestore(firebaseUser.uid, newUser);
@@ -256,9 +648,7 @@ export class UserService {
   }
 
   /**
-   * Handle existing Google user sign-in
-   * @param firebaseUser - Firebase user object
-   * @param userSnap - User document snapshot
+   * Handle existing Google user
    */
   private async handleExistingGoogleUser(
     firebaseUser: any,
@@ -274,8 +664,7 @@ export class UserService {
   }
 
   /**
-   * Handle Google sign-in errors with proper typing
-   * @param error - Error object
+   * Handle Google sign-in errors
    */
   private handleGoogleSignInError(error: unknown): void {
     console.error('❌ Google sign-in error:', error);
@@ -285,80 +674,114 @@ export class UserService {
     switch (authError.code) {
       case 'auth/popup-closed-by-user':
         console.log('ℹ️ User closed the popup');
+        this.notificationService.info('Sign-in cancelled');
         break;
       case 'auth/popup-blocked':
         console.log('ℹ️ Popup was blocked by browser');
+        this.notificationService.error('Popup was blocked. Please allow popups for this site.');
         break;
       case 'auth/cancelled-popup-request':
         console.log('ℹ️ Popup request was cancelled');
+        this.notificationService.info('Sign-in was cancelled');
         break;
       default:
         console.error(
           '❌ Unexpected error during Google sign-in:',
           authError.message
         );
+        this.notificationService.error('Sign-in failed. Please try again.');
     }
   }
 
   /**
-   * Create user document in Firestore
-   * @param uid - User ID
-   * @param userData - User data to store
+   * Create user document in Firestore with enhanced security
    */
   private async createUserInFirestore(
     uid: string,
     userData: User
   ): Promise<void> {
-    const userRef = doc(this.firestore, `users/${uid}`);
-    await setDoc(userRef, userData);
-    localStorage.setItem(`user-data-${uid}`, JSON.stringify(userData));
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      await setDoc(userRef, {
+        ...userData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
+        loginCount: 0,
+        isActive: true,
+        securitySettings: {
+          twoFactorEnabled: false,
+          emailNotifications: true,
+          loginAlerts: true
+        }
+      });
+      
+      localStorage.setItem(`user-data-${uid}`, JSON.stringify(userData));
+      
+      this.logAuditEvent('USER_CREATED_IN_FIRESTORE', uid, {
+        email: userData.email,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error creating user in Firestore:', error);
+      this.logAuditEvent('FIRESTORE_USER_CREATION_FAILED', uid, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
+    }
   }
 
   /**
    * Setup default accounts and categories for new user
-   * @param uid - User ID
    */
   private async setupDefaultData(uid: string): Promise<void> {
-    // Create default bank accounts
-    for (const defaultAccount of defaultBankAccounts) {
-      // Map BankAccount type to Account type
-      const accountType = this.mapBankAccountType(defaultAccount.type);
-      const timestamp = Date.now();
+    try {
+      // Create default bank accounts
+      for (const defaultAccount of defaultBankAccounts) {
+        const accountType = this.mapBankAccountType(defaultAccount.type);
+        const timestamp = Date.now();
 
-      await this.store.dispatch(
-        createAccount({
-          userId: uid,
-          accountData: {
-            name: defaultAccount.name,
-            type: accountType,
-            balance: defaultAccount.balance,
-            description: `${defaultAccount.type} account`,
-            institution: defaultAccount.institution,
-            currency: defaultAccount.currency,
-          },
-        })
-      );
-    }
+        await this.store.dispatch(
+          createAccount({
+            userId: uid,
+            accountData: {
+              name: defaultAccount.name,
+              type: accountType,
+              balance: defaultAccount.balance,
+              description: `${defaultAccount.type} account`,
+              institution: defaultAccount.institution,
+              currency: defaultAccount.currency,
+            },
+          })
+        );
+      }
 
-    // Create default categories
-    for (const defaultCategory of defaultCategoriesForNewUser) {
-
-		await this.store.dispatch(
-			createCategory({
-				userId: uid,
-				name: defaultCategory.name,
-				categoryType: defaultCategory.type,
-				icon: defaultCategory.icon,
-				color: defaultCategory.color,
-			})
-		);
+      // Create default categories
+      for (const defaultCategory of defaultCategoriesForNewUser) {
+        await this.store.dispatch(
+          createCategory({
+            userId: uid,
+            name: defaultCategory.name,
+            categoryType: defaultCategory.type,
+            icon: defaultCategory.icon,
+            color: defaultCategory.color,
+          })
+        );
+      }
+      
+      this.logAuditEvent('DEFAULT_DATA_SETUP', uid, {
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error setting up default data:', error);
+      this.logAuditEvent('DEFAULT_DATA_SETUP_FAILED', uid, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
   /**
    * Map BankAccount type to Account type
-   * @param bankAccountType - BankAccount type
-   * @returns Account type
    */
   private mapBankAccountType(
     bankAccountType: 'checking' | 'savings' | 'credit' | 'investment'
@@ -378,17 +801,31 @@ export class UserService {
 
   /**
    * Create or update user in Firestore
-   * @param user - User object to create or update
    */
   async createOrUpdateUser(user: User): Promise<void> {
-    const userRef = doc(this.firestore, `users/${user.uid}`);
-    await setDoc(userRef, user, { merge: true });
-    localStorage.setItem(`user-data-${user.uid}`, JSON.stringify(user));
+    try {
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      await setDoc(userRef, {
+        ...user,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      
+      localStorage.setItem(`user-data-${user.uid}`, JSON.stringify(user));
+      
+      this.logAuditEvent('USER_UPDATED', user.uid, {
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      this.logAuditEvent('USER_UPDATE_FAILED', user.uid, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
+    }
   }
 
   /**
    * Get current user data from cache or Firestore
-   * @returns Promise<User | null>
    */
   async getCurrentUser(): Promise<User | null> {
     const currentUser = this.auth.currentUser;
@@ -419,13 +856,15 @@ export class UserService {
       return null;
     } catch (error) {
       console.error('Error getting current user:', error);
+      this.logAuditEvent('GET_USER_FAILED', currentUser.uid, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
       return null;
     }
   }
 
   /**
    * Check if user is authenticated (for offline scenarios)
-   * @returns boolean
    */
   public isAuthenticated(): boolean {
     return this.userSubject.value !== null;
@@ -433,8 +872,6 @@ export class UserService {
 
   /**
    * Get cached user data (for offline scenarios)
-   * @param uid - User ID
-   * @returns User | null
    */
   public getCachedUserData(uid: string): User | null {
     try {
@@ -450,11 +887,107 @@ export class UserService {
    * Clear all cached user data from localStorage
    */
   public clearCachedUserData(): void {
-    const keys = Object.keys(localStorage);
-    keys.forEach((key) => {
-      if (key.startsWith('user-data-')) {
-        localStorage.removeItem(key);
+    try {
+      const keys = Object.keys(localStorage);
+      keys.forEach((key) => {
+        if (key.startsWith('user-data-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      this.logAuditEvent('CACHE_CLEARED', undefined, {
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error clearing cached user data:', error);
+    }
+  }
+
+  /**
+   * Cache user data for offline access
+   */
+  private async ensureUserDataCached(uid: string): Promise<void> {
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        localStorage.setItem(`user-data-${uid}`, JSON.stringify(userData));
+        console.log('User data cached for offline access');
       }
-    });
+    } catch (error) {
+      console.error('Failed to cache user data:', error);
+    }
+  }
+
+  /**
+   * Log audit events for security monitoring
+   */
+  private logAuditEvent(event: string, userId?: string, details: any = {}): void {
+    const auditEntry = {
+      timestamp: new Date(),
+      event,
+      userId,
+      details,
+      userAgent: navigator.userAgent,
+      ip: 'client-side', // In production, this would be server-side
+      sessionId: this.generateSessionId()
+    };
+
+    this.auditLog.push(auditEntry);
+    
+    // Keep only last 1000 audit entries
+    if (this.auditLog.length > 1000) {
+      this.auditLog.shift();
+    }
+    
+    console.log('Audit Event:', auditEntry);
+    
+    // In production, send to audit service
+    // this.auditService.logEvent(auditEntry);
+  }
+
+  /**
+   * Generate session ID
+   */
+  private generateSessionId(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  /**
+   * Get security status for current user
+   */
+  public getSecurityStatus(): any {
+    const currentUser = this.getUser();
+    if (!currentUser) return null;
+    
+    const email = currentUser.email;
+    const loginAttempt = this.loginAttempts.get(email);
+    
+    return {
+      isLocked: this.isAccountLocked(email),
+      loginAttempts: loginAttempt?.count || 0,
+      remainingAttempts: USER_SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS - (loginAttempt?.count || 0),
+      lockoutTime: loginAttempt?.lockedUntil,
+      isEmailVerified: currentUser.emailVerified,
+      lastLogin: localStorage.getItem(`last-login-${currentUser.uid}`)
+    };
+  }
+
+  /**
+   * Get audit log (for admin purposes)
+   */
+  public getAuditLog(): Array<any> {
+    return [...this.auditLog];
+  }
+
+  /**
+   * Force logout user (for security incidents)
+   */
+  public forceLogout(reason: string): void {
+    console.warn('Force logout triggered:', reason);
+    this.logAuditEvent('FORCE_LOGOUT', this.getUser()?.uid, { reason });
+    this.signOut();
   }
 }

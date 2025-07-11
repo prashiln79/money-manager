@@ -204,7 +204,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   }
 
   onStartRowEdit(transaction: Transaction) {
-    this.startRowEdit.emit(transaction);
+    this.editTransaction.emit(transaction);
   }
 
   onSaveRowEdit(transaction: Transaction) {

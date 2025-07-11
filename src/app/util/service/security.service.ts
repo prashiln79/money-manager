@@ -128,8 +128,8 @@ export class SecurityService {
     });
 
     // Start periodic security checks
-    setInterval(() => {
-      this.performSecurityChecks();
+    setInterval(() => { 
+      //this.performSecurityChecks(); check this later
     }, 60000); // Every minute
 
     // Monitor for suspicious activity

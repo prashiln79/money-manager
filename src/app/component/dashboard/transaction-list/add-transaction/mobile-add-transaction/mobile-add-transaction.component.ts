@@ -129,7 +129,6 @@ export class MobileAddTransactionComponent implements AfterViewInit {
       try {
         this.loaderService.show();
         
-        
         if (this.dialogData?.id) {
           await this.store.dispatch(
             TransactionsActions.updateTransaction({
@@ -167,7 +166,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
                 recurringInterval: RecurringInterval.MONTHLY,
                 status: TransactionStatus.COMPLETED,
                 syncStatus: SyncStatus.PENDING,
-                createdAt: new Date() ,
+                createdAt: new Date(),
                 updatedAt: new Date(),
                 createdBy: this.userId,
                 updatedBy: this.userId,
@@ -181,6 +180,7 @@ export class MobileAddTransactionComponent implements AfterViewInit {
         this.dialogRef.close(true);
         this.router.navigate(['/dashboard/transactions']);
       } catch (error) {
+        console.error('Error saving transaction:', error);
         this.notificationService.error('Failed to save transaction');
       } finally {
         this.isSubmitting = false;

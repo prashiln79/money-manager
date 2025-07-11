@@ -149,7 +149,7 @@ export class TransactionsService {
         return new Observable<void>(observer => {
             const transactionData = {
                 ...transaction,
-                date:  this.dateService.toDate(transaction.date),
+                date: this.dateService.toDate(transaction.date),
                 syncStatus: 'synced' as const
             };
 
@@ -159,23 +159,48 @@ export class TransactionsService {
                         try {
                             const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
                             await addDoc(transactionsCollection, transactionData);
-                            // update category budget
-
-                            this.store.dispatch(CategoriesActions.updateBudgetSpent({
-                                userId: userId,
-                                categoryId: transaction.categoryId,
-                                budgetSpent: transaction.amount
-                            }));
-                                    
-                          
+                            
+                            // Update category budget if categoryId exists
+                            if (transaction.categoryId) {
+                                this.store.dispatch(CategoriesActions.updateBudgetSpent({
+                                    userId: userId,
+                                    categoryId: transaction.categoryId,
+                                    budgetSpent: transaction.amount
+                                }));
+                            }
+                            
+                            observer.next();
+                            observer.complete();
                         } catch (error) {
                             console.error('Failed to create transaction online:', error);
                             // Fall back to offline mode
-                           return observer.error(error);
-                            // await this.addToOfflineQueue({
-                            //     type: 'create',
-                            //     data: transactionData
-                            // });
+                            await this.addToOfflineQueue({
+                                type: 'create',
+                                data: { ...transactionData, syncStatus: 'pending' }
+                            });
+                            
+                            // Update local cache
+                            const currentTransactions = this.transactionsSubject.value;
+                            const newTransaction: Transaction = { 
+                                ...transactionData, 
+                                id: this.generateId(), 
+                                isPending: true,
+                                syncStatus: SyncStatus.PENDING,
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
+                                createdBy: userId,
+                                updatedBy: userId,
+                                lastSyncedAt: new Date(),
+                                nextOccurrence: new Date(),
+                                recurringInterval: RecurringInterval.DAILY,
+                                recurringEndDate: new Date(),
+                                isRecurring: false,
+                                date: transactionData.date || new Date(),
+                            };
+                            this.transactionsSubject.next([...currentTransactions, newTransaction]);
+                            
+                            observer.next();
+                            observer.complete();
                         }
                     } else {
                         // Store offline
@@ -186,31 +211,29 @@ export class TransactionsService {
                         
                         // Update local cache
                         const currentTransactions = this.transactionsSubject.value;
-                        const newTransaction = { ...transactionData, 
+                        const newTransaction: Transaction = { 
+                            ...transactionData, 
                             id: this.generateId(), 
-                            isPending: true ,
-                            date: this.dateService.toDate(transaction.date) as Date | Timestamp,
-                            syncStatus: SyncStatus.SYNCED,
+                            isPending: true,
+                            syncStatus: SyncStatus.PENDING,
                             createdAt: new Date(),
                             updatedAt: new Date(),
                             createdBy: userId,
                             updatedBy: userId,
                             lastSyncedAt: new Date(),
                             nextOccurrence: new Date(),
-                            recurringInterval: 'daily' as RecurringInterval,
+                            recurringInterval: RecurringInterval.DAILY,
                             recurringEndDate: new Date(),
-                            recurringStartDate: new Date(),
-                            recurringType: RecurringInterval.DAILY,
-                            recurringAmount: 0,
-                            recurringFrequency: 0,
                             isRecurring: false,
-                            
+                            date: transactionData.date || new Date(),
                         };
                         this.transactionsSubject.next([...currentTransactions, newTransaction]);
+                        
+                        observer.next();
+                        observer.complete();
                     }
-                    observer.next();
-                    observer.complete();
                 } catch (error) {
+                    console.error('Error in createTransaction:', error);
                     observer.error(error);
                 }
             };
@@ -304,10 +327,8 @@ export class TransactionsService {
                                   syncStatus: SyncStatus.PENDING,
                                   lastSyncedAt: new Date(),
                                   nextOccurrence: new Date(),
-                                  recurringInterval: 'daily' as RecurringInterval,
+                                  recurringInterval: RecurringInterval.DAILY,
                                   recurringEndDate: new Date(),
-                                  recurringStartDate: new Date(),
-                                  recurringType: RecurringInterval.DAILY,
                                 } : t
                         );
                         this.transactionsSubject.next(updatedTransactions);

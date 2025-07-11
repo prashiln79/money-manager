@@ -25,27 +25,108 @@ const routes: Routes = [
   { path: 'register', component: RegistrationComponent },
 
   {
-    path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard],
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [AuthGuard],
+    data: {
+      requireEmailVerification: true,
+      requireActiveSession: true
+    },
 
     children: [
       { path: '', component: HomeComponent },
       { path: 'home', component: HomeComponent },
-      { path: 'accounts', component: AccountsComponent },
-      { path: 'category', component: CategoryComponent },
-      { path: 'reports', component: ReportsComponent },
-      { path: 'transactions', component: TransactionListComponent },
-      { path: 'tax', component: TaxComponent },
-      { path: 'subscription', component: SubscriptionComponent },
-      { path: 'goals', component: GoalsComponent },
-      { path: 'budgets', component: BudgetsComponent },
-      { path: 'notes', component: NotesComponent },
-      { path: 'import', component: ImportTransactionsComponent },
-      { path: 'profile', component: ProfileComponent },
-      
-
+      { 
+        path: 'accounts', 
+        component: AccountsComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'category', 
+        component: CategoryComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'reports', 
+        component: ReportsComponent,
+        data: {
+          roles: ['premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'transactions', 
+        component: TransactionListComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'tax', 
+        component: TaxComponent,
+        data: {
+          roles: ['premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'subscription', 
+        component: SubscriptionComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'goals', 
+        component: GoalsComponent,
+        data: {
+          roles: ['premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'budgets', 
+        component: BudgetsComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'notes', 
+        component: NotesComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'import', 
+        component: ImportTransactionsComponent,
+        data: {
+          roles: ['premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'profile', 
+        component: ProfileComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      }
     ]
   },
- { path: '', redirectTo: '/dashboard', pathMatch: 'full' }// Dashboard default route
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
 ];
 
 @NgModule({

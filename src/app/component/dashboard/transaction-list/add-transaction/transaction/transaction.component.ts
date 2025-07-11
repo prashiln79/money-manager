@@ -10,6 +10,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsActions from '../../../../../store/transactions/transactions.actions';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
+import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { RecurringInterval, SyncStatus, TransactionStatus, TransactionType } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
 
@@ -40,6 +41,7 @@ export class TransactionComponent {
     '+',
   ];
   public categoryList: Array<Category> = [];
+  public accountList: Array<any> = [];
   public statusList: string[] = ['Pending', 'Completed', 'Cancelled'];
   public userId: any;
 
@@ -58,25 +60,46 @@ export class TransactionComponent {
       amount: ['', [Validators.required, Validators.min(0.01)]],
       date: [new Date(), Validators.required],
       description: [''],
-      category: [''],
+      categoryId: [''],
+      categoryName: [''],
+      categoryType: [''],
+      accountId: ['', Validators.required],
     });
 
     this.store
       .select(selectAllCategories)
       .subscribe((resp) => {
         this.categoryList = resp;
+      });
+
+    this.store
+      .select(selectAllAccounts)
+      .subscribe((resp) => {
+        this.accountList = resp;
+        
         if (this.dialogData?.id) {
           this.transactionForm.patchValue({
             payee: this.dialogData.payee,
             amount: this.dialogData.amount,
             date: this.dateService.toDate(this.dialogData.date),
             description: this.dialogData.notes,
-            category: this.dialogData.category,
+            categoryId: this.dialogData.categoryId,
+            categoryName: this.dialogData.categoryName,
+            categoryType: this.dialogData.categoryType,
+            accountId: this.dialogData.accountId,
           });
         } else {
-          if(this.categoryList.length > 0) {
+          // Set default values for new transaction
+          if (this.categoryList.length > 0) {
             this.transactionForm.patchValue({
-              category:{id: this.categoryList[0].id, name: this.categoryList[0].name},
+              categoryId: this.categoryList[0].id,
+              categoryName: this.categoryList[0].name,
+              categoryType: this.categoryList[0].type,
+            });
+          }
+          if (this.accountList.length > 0) {
+            this.transactionForm.patchValue({
+              accountId: this.accountList[0].accountId,
             });
           }
         }
@@ -92,10 +115,10 @@ export class TransactionComponent {
   }
 
   async onSubmit(): Promise<void> {
+    this.transactionForm.markAllAsTouched();
     if (this.transactionForm.valid) {
       this.dialogRef.close(true);
     
-      
       if (this.dialogData?.id) {
         await this.store.dispatch(
           TransactionsActions.updateTransaction({
@@ -104,11 +127,11 @@ export class TransactionComponent {
             transaction: {
               payee: this.transactionForm.get('payee')?.value,
               userId: this.userId,
-              accountId: '',
+              accountId: this.transactionForm.get('accountId')?.value,
               amount: this.transactionForm.get('amount')?.value,
-              category: this.transactionForm.get('category')?.value.name,
-              categoryId: this.transactionForm.get('category')?.value.id,
-              type: this.transactionForm.get('category')?.value.type,
+              categoryId: this.transactionForm.get('categoryId')?.value,
+              category: this.transactionForm.get('categoryName')?.value,
+              type: this.transactionForm.get('categoryType')?.value,
               date: this.transactionForm.get('date')?.value,
               notes: this.transactionForm.get('description')?.value,
             },
@@ -120,13 +143,13 @@ export class TransactionComponent {
           TransactionsActions.createTransaction({
             userId: this.userId,
             transaction: {
-              payee: this.transactionForm.get('payee')?.value,
               userId: this.userId,
-              accountId: '',
+              payee: this.transactionForm.get('payee')?.value,
+              accountId: this.transactionForm.get('accountId')?.value,
               amount: this.transactionForm.get('amount')?.value,
-              category: this.transactionForm.get('category')?.value.name,
-              categoryId: this.transactionForm.get('category')?.value.id,
-              type: this.transactionForm.get('category')?.value.type,
+              category: this.transactionForm.get('categoryName')?.value,
+              categoryId: this.transactionForm.get('categoryId')?.value,
+              type: this.transactionForm.get('categoryType')?.value,
               date: this.transactionForm.get('date')?.value,
               notes: this.transactionForm.get('description')?.value,
               isRecurring: false,
@@ -168,5 +191,13 @@ export class TransactionComponent {
 
   clear(): void {
     this.transactionForm.get('amount')?.setValue('');
+  }
+
+  onCategoryChange(event: any): void {
+    const category = this.categoryList.find(c => c.id === event.value);
+    if (category) {
+      this.transactionForm.get('categoryName')?.setValue(category.name);
+      this.transactionForm.get('categoryType')?.setValue(category.type);
+    }
   }
 }

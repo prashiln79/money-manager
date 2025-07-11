@@ -1,7 +1,7 @@
-<section class="flex items-center h-screen bg-blue-100">
+<section class="flex items-center h-screen bg-blue-100 ">
   <div
-    class="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800 lg:max-w-4xl h-screen "
-    [ngClass]="{'lg:max-h-[35rem]':isSignInPage, 'lg:max-h-[40rem]':!isSignInPage}">
+    class="flex w-full max-w-sm mx-auto  bg-white rounded-lg shadow-lg dark:bg-gray-800 lg:max-w-4xl h-screen overflow-auto"
+    [ngClass]="{'lg:max-h-[35rem]':isSignInPage, 'lg:max-h-[45rem]':!isSignInPage}">
     <div class="hidden bg-cover lg:flex   lg:w-1/2 items-center bg-blue-50">
       <div class="bg"></div>
     </div>
@@ -9,76 +9,193 @@
     <div class="w-full px-6 py-8 md:px-8 lg:w-1/2">
       <div class="flex justify-center mx-auto">
         <img class="w-auto h-20" src="../../../../assets/images/logo.svg" alt="" />
-
       </div>
 
       <p class="mt-3 text-xl text-center text-gray-600 dark:text-gray-200">
         {{ 'welcomeBack' | translate }}
       </p>
 
-     
+      <!-- Security Status Alerts -->
+      <div *ngIf="isAccountLocked" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="font-medium">Account Temporarily Locked</span>
+        </div>
+        <p class="mt-1 text-sm">Too many failed login attempts. Please try again later.</p>
+        <p *ngIf="lockoutTimeRemaining > 0" class="mt-1 text-sm">
+          Time remaining: {{ getLockoutTimeRemaining() }} minutes
+        </p>
+      </div>
 
-      <form [formGroup]="signInForm">
-      
+      <!-- Login Attempts Warning -->
+      <div *ngIf="!isAccountLocked && loginAttempts > 0" class="mt-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="font-medium">Login Attempts</span>
+        </div>
+        <p class="mt-1 text-sm">
+          Failed attempts: {{ loginAttempts }} / {{ maxLoginAttempts }}
+        </p>
+      </div>
 
+      <form [formGroup]="signInForm" appSecurity="moderate">
         <div class="mt-4">
-          <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200" for="LoggingEmailAddress">{{ 'email' | translate }}
-            Address</label>
-          <input id="LoggingEmailAddress" formControlName="email"
+          <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200" for="LoggingEmailAddress">
+            {{ 'email' | translate }} Address
+          </label>
+          <input 
+            id="LoggingEmailAddress" 
+            formControlName="email"
             class="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
-            type="email" />
+            type="email" 
+            autocomplete="email"
+            [attr.data-security-level]="securityLevel" />
 
           <div *ngIf="signInForm.get('email')?.invalid && signInForm.get('email')?.touched"
             class="text-red-500 text-sm mt-1">
             <span *ngIf="signInForm.get('email')?.errors?.['required']">{{ 'emailRequired' | translate }}</span>
-            <span *ngIf="signInForm.get('email')?.errors?.['email']">Email is invalid</span>
+            <span *ngIf="signInForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+            <span *ngIf="signInForm.get('email')?.errors?.['disposableEmail']">Disposable email addresses are not allowed</span>
           </div>
+
+           <!-- Name field for sign-up -->
+           <div class="mt-4" *ngIf="!isSignInPage">
+            <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200"
+              for="userName">Full Name</label>
+            <input 
+              id="userName" 
+              formControlName="name"
+              class="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
+              type="text" 
+              autocomplete="name"
+              [attr.data-security-level]="securityLevel" />
+
+            <div *ngIf="signInForm.get('name')?.invalid && signInForm.get('name')?.touched"
+              class="text-red-500 text-sm mt-1">
+              <span *ngIf="signInForm.get('name')?.errors?.['required']">Full name is required</span>
+              <span *ngIf="signInForm.get('name')?.errors?.['minLength']">Name must be at least 2 characters long</span>
+            </div>
+          </div>
+
 
           <div class="mt-4">
             <div class="flex justify-between">
               <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200"
                 for="loggingPassword">{{ 'password' | translate }}</label>
-              <a class="text-xs text-gray-500 dark:text-gray-300 hover:underline" *ngIf="isSignInPage">Forget
-                Password?</a>
+              <a class="text-xs text-gray-500 dark:text-gray-300 hover:underline" *ngIf="isSignInPage">Forget Password?</a>
             </div>
 
-            <input id="loggingPassword" formControlName="password"
-              class="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
-              type="password" />
+            <div class="relative">
+              <input 
+                id="loggingPassword" 
+                formControlName="password"
+                [type]="showPassword ? 'text' : 'password'"
+                class="block w-full px-4 py-2 pr-10 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
+                autocomplete="current-password"
+                [attr.data-security-level]="securityLevel" />
+              
+              <button 
+                type="button"
+                (click)="togglePasswordVisibility()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                <svg *ngIf="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                <svg *ngIf="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Password Strength Indicator (for sign-up) -->
+            <div *ngIf="!isSignInPage && signInForm.get('password')?.value" class="mt-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>Password strength:</span>
+                <span [class]="getPasswordStrengthColor()">{{ getPasswordStrengthText() }}</span>
+              </div>
+              <div class="mt-1 w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  class="h-2 rounded-full transition-all duration-300"
+                  [ngClass]="{
+                    'bg-red-500': passwordStrength <= 1,
+                    'bg-yellow-500': passwordStrength === 2,
+                    'bg-blue-500': passwordStrength === 3,
+                    'bg-green-500': passwordStrength >= 4
+                  }"
+                  [style.width.%]="(passwordStrength / 4) * 100">
+                </div>
+              </div>
+              <div class="mt-1 text-xs text-gray-500">
+                <span *ngIf="passwordStrength < 3">Password must be at least 8 characters with uppercase, lowercase, number, and special character</span>
+              </div>
+            </div>
 
             <div *ngIf="signInForm.get('password')?.invalid && signInForm.get('password')?.touched"
               class="text-red-500 text-sm mt-1">
               <span *ngIf="signInForm.get('password')?.errors?.['required']">{{ 'passwordRequired' | translate }}</span>
+              <span *ngIf="signInForm.get('password')?.errors?.['minLength']">Password must be at least 8 characters long</span>
+              <span *ngIf="signInForm.get('password')?.errors?.['passwordStrength']">Password must contain uppercase, lowercase, number, and special character</span>
             </div>
           </div>
 
+         
+          <!-- Confirm Password field for sign-up -->
           <div class="mt-4" *ngIf="!isSignInPage">
-            <div class="flex justify-between">
-              <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200"
-                for="loggingPassword">{{ 'confirmPassword' | translate }}</label>
+            <label class="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200"
+              for="confirmPassword">{{ 'confirmPassword' | translate }}</label>
+            
+            <div class="relative">
+              <input 
+                id="confirmPassword" 
+                formControlName="confirmPassword"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                class="block w-full px-4 py-2 pr-10 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
+                autocomplete="new-password"
+                [attr.data-security-level]="securityLevel" />
+              
+              <button 
+                type="button"
+                (click)="toggleConfirmPasswordVisibility()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                <svg *ngIf="!showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                <svg *ngIf="showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                </svg>
+              </button>
             </div>
-            <input id="loggingPassword" formControlName="confirmPassword"
-              class="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
-              type="password" />
 
             <div *ngIf="signInForm.get('confirmPassword')?.invalid && signInForm.get('confirmPassword')?.touched"
               class="text-red-500 text-sm mt-1">
               <span *ngIf="signInForm.get('confirmPassword')?.errors?.['required']">{{ 'confirmPassword' | translate }} is required</span>
-              <span *ngIf="signInForm.get('confirmPassword')?.errors?.['notMatch']">Password not match</span>
+              <span *ngIf="signInForm.get('confirmPassword')?.errors?.['notMatch']">Passwords do not match</span>
             </div>
           </div>
         </div>
 
         <div class="mt-6">
-          <button (click)="isSignInPage? onSignIn() : onSignUp()"
-            class="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-primary rounded-lg hover:bg-primary800 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50">
-            {{isSignInPage ? ('signIn' | translate) : ('signUp' | translate)}}
+          <button 
+            (click)="isSignInPage? onSignIn() : onSignUp()"
+            [disabled]="isLoading || isAccountLocked || signInForm.invalid"
+            class="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-primary rounded-lg hover:bg-primary800 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            <div class="flex items-center justify-center">
+              <mat-spinner *ngIf="isLoading" diameter="20" class="mr-2"></mat-spinner>
+              <span *ngIf="!isLoading">{{isSignInPage ? ('signIn' | translate) : ('signUp' | translate)}}</span>
+              <span *ngIf="isLoading">{{isSignInPage ? 'Signing in...' : 'Creating account...'}}</span>
+            </div>
           </button>
 
           <button 
             type="button"
             (click)="signInWithGoogle()"
-            [disabled]="isLoading"
+            [disabled]="isLoading || isAccountLocked"
             class="w-full px-6 mt-4 py-3 text-sm font-medium tracking-wide text-gray-600 capitalize transition-colors duration-300 transform border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div class="flex items-center justify-center">
@@ -109,6 +226,19 @@
             {{isSignInPage ? ('signUp' | translate) : ('signIn' | translate)}}</a>
 
           <span class="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-sm text-blue-800 font-medium">Security Notice</span>
+          </div>
+          <p class="mt-1 text-xs text-blue-700">
+            Your data is protected with enterprise-grade security. We use encryption and secure authentication to keep your information safe.
+          </p>
         </div>
       </form>
     </div>

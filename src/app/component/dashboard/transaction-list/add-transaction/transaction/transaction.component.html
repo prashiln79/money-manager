@@ -40,12 +40,25 @@
 				</mat-error>
 			</mat-form-field>
 
+			<!-- Account Field -->
+			<mat-form-field appearance="fill" class="w-full">
+				<mat-label>Account *</mat-label>
+				<mat-select formControlName="accountId" placeholder="Select account">
+					@for (account of accountList; track account.accountId) {
+					<mat-option [value]="account.accountId">{{ account.name }} ({{ account.type | titlecase }})</mat-option>
+					}
+				</mat-select>
+				<mat-error *ngIf="transactionForm.get('accountId')?.hasError('required')">
+					Account is required
+				</mat-error>
+			</mat-form-field>
+
 			<!-- Category Field -->
 			<mat-form-field appearance="fill" class="w-full">
 				<mat-label>Category</mat-label>
-				<mat-select formControlName="category" placeholder="Select category">
+				<mat-select formControlName="categoryId" placeholder="Select category" (selectionChange)="onCategoryChange($event)">
 					@for (item of categoryList; track item) {
-					<mat-option [value]="{id: item.id, name: item.name, type: item.type}">{{ item?.name }}</mat-option>
+					<mat-option [value]="item.id">{{ item?.name }}</mat-option>
 					}
 				</mat-select>
 			</mat-form-field>

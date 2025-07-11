@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Angular Material Modules
@@ -109,6 +109,9 @@ import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-lo
 // NgRx Store
 import { AppStoreModule } from './store';
 import { CurrencyPipe } from './util/pipes';
+
+// Security
+import { securityInterceptor } from './util/interceptors/security.interceptor';
 
 
 @NgModule({
@@ -214,7 +217,7 @@ import { CurrencyPipe } from './util/pipes';
   ],
   providers: [
     provideAnimationsAsync(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([securityInterceptor])),
     Papa,
 
     // Firebase Initialization

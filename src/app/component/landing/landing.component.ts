@@ -70,7 +70,7 @@ export class LandingComponent implements OnInit {
   ngOnInit(): void {}
 
   navigateToSignUp(): void {
-    this.router.navigate(['/sign-up']);
+    this.router.navigate(['/sign-in']);
   }
 
   navigateToSignIn(): void {
