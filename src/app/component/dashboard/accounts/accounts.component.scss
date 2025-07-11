@@ -27,16 +27,8 @@
 
 // Main Grid Layout
 .accounts-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-  }
+
+  width: 100%;
 }
 
 // Accounts List Section
@@ -85,8 +77,10 @@
   }
   
   .accounts-grid-list {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
+    width: 100%;
   }
   
   .account-item {
@@ -96,6 +90,8 @@
     border: 1px solid #e5e7eb;
     cursor: pointer;
     transition: all 0.2s ease;
+    max-width:400px;
+    min-width: 400px;
     
     &:hover {
       transform: translateY(-2px);

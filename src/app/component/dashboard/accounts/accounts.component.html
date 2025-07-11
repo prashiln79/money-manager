@@ -35,7 +35,7 @@
 
 			<!-- Accounts List -->
 			<ng-container *ngIf="accounts$ | async as accounts">
-				<div *ngIf="accounts.length > 0" class="accounts-grid-list">
+				<div *ngIf="accounts.length > 0" class="accounts-grid-list overflow-x-auto">
 					<ng-container *ngIf="accounts$ | async as accounts">
 						<div
 							*ngFor="let account of accounts; trackBy: trackByAccountId"

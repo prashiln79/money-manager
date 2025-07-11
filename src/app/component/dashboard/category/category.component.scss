@@ -1,45 +1,18 @@
-// Simple and Responsive Categories Component
-.categories-container {
-  padding: 1rem;
-  background: inherit;
-  
-  @media (max-width: 640px) {
-    padding: 0.5rem;
-  }
-}
+// =============================================================================
+// CATEGORIES COMPONENT STYLES
+// =============================================================================
 
-// Error Message
-.error-message {
-  animation: slideIn 0.3s ease;
-  
-  .error-close-button {
-    color: #dc2626;
-    min-width: 44px;
-    min-height: 44px;
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-}
-
-// Loading Indicator
-.loading-indicator {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%);
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  animation: slideDown 0.3s ease-out;
-  
-  mat-progress-bar {
-    height: 3px;
-    
-    ::ng-deep .mat-progress-bar-fill::after {
-      background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 50%, #3b82f6 100%);
-      animation: shimmer 2s ease-in-out infinite;
-    }
-    
-    ::ng-deep .mat-progress-bar-buffer {
-      background: rgba(59, 130, 246, 0.1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -63,10 +36,73 @@
   }
 }
 
-// Main Grid Layout
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// =============================================================================
+// MAIN CONTAINER
+// =============================================================================
+.categories-container {
+  padding: 1rem;
+  background: inherit;
+  overflow: auto;
+  
+  @media (max-width: 640px) {
+    padding: 0.5rem;
+  }
+}
+
+// =============================================================================
+// ERROR MESSAGE
+// =============================================================================
+.error-message {
+  animation: slideIn 0.3s ease;
+  
+  .error-close-button {
+    color: #dc2626;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+// =============================================================================
+// LOADING INDICATOR
+// =============================================================================
+.loading-indicator {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  animation: slideDown 0.3s ease-out;
+  
+  mat-progress-bar {
+    height: 3px;
+    
+    ::ng-deep .mat-progress-bar-fill::after {
+      background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 50%, #3b82f6 100%);
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    
+    ::ng-deep .mat-progress-bar-buffer {
+      background: rgba(59, 130, 246, 0.1);
+    }
+  }
+}
+
+// =============================================================================
+// MAIN GRID LAYOUT
+// =============================================================================
 .categories-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -78,13 +114,22 @@
   }
   
   @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
+    flex-wrap: nowrap;
     gap: 3rem;
+  }
+  
+  @media (max-width: 640px) {
+    gap: 1.5rem;
   }
 }
 
-// Categories List Section
+// =============================================================================
+// CATEGORIES LIST SECTION
+// =============================================================================
 .categories-list {
+  width: 100%;
+  
+  // Section Header
   .section-header {
     margin-bottom: 1.5rem;
     position: relative;
@@ -130,6 +175,7 @@
     }
   }
   
+  // Empty State
   .empty-state {
     text-align: center;
     padding: 3rem 1rem;
@@ -170,8 +216,10 @@
     }
   }
   
+  // Categories Grid List
   .categories-grid-list {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     max-height: 60vh;
     overflow-y: auto;
@@ -206,7 +254,10 @@
     scrollbar-color: #cbd5e1 #f1f5f9;
   }
   
+  // Category Item
   .category-item {
+    width: 100%;
+    max-width: 400px;
     background: white;
     border-radius: 12px;
     padding: 1.25rem;
@@ -218,6 +269,7 @@
     @media (max-width: 640px) {
       padding: 1rem;
       border-radius: 10px;
+      max-width: 100%;
     }
     
     &:hover {
@@ -226,42 +278,37 @@
       border-color: #d1d5db;
     }
     
-    // &.income-type {
-    //   border-left: 4px solid #10b981;
-    // }
-    
-    // &.expense-type {
-    //   border-left: 4px solid #ef4444;
-    // }
-    
     &.editing {
       border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       background: #f0f9ff;
     }
     
+    // Category Content
     .category-content {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 1rem;
       position: relative;
+      
       @media (max-width: 640px) {
         gap: 0.75rem;
       }
     }
     
+    // Category Info
     .category-info {
       flex: 1;
       
-              .category-icon-name {
-          display: flex;
-          align-items: flex-start;
-          gap: 0.75rem;
-          
-          @media (max-width: 640px) {
-            gap: 0.5rem;
-          }
+      .category-icon-name {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        
+        @media (max-width: 640px) {
+          gap: 0.5rem;
+        }
         
         .category-icon-container {
           width: 2.5rem;
@@ -282,8 +329,6 @@
             width: 1.5rem;
             height: 1.5rem;
             color: white;
-            
-          
           }
         }
         
@@ -337,7 +382,7 @@
             }
           }
 
-          // Budget Information Styles
+          // Budget Information
           .budget-info {
             display: flex;
             flex-direction: column;
@@ -410,18 +455,18 @@
       }
     }
     
+    // Category Actions
     .category-actions {
       display: flex;
       gap: 0.5rem;
       flex-shrink: 0;
       align-items: flex-start;
       position: absolute;
-        right: 0;
-        top: 0;
+      right: 0;
+      top: 0;
       
       @media (max-width: 640px) {
         gap: 0.25rem;
-        
       }
       
       .action-button {
@@ -489,7 +534,9 @@
   }
 }
 
-// Add Category Form Section
+// =============================================================================
+// ADD CATEGORY FORM SECTION
+// =============================================================================
 .add-category {
   .form-card {
     background: white;
@@ -609,7 +656,7 @@
       }
     }
     
-    // Icon Selector Styles
+    // Icon Selector
     .icon-selector {
       position: relative;
       
@@ -733,7 +780,7 @@
       }
     }
     
-    // Color Selector Styles
+    // Color Selector
     .color-selector {
       position: relative;
       
@@ -901,77 +948,18 @@
   }
 }
 
-// Responsive Design
-@media (max-width: 640px) {
-  .categories-container {
-    padding: 0.5rem;
-  }
-  
-  .categories-grid {
-    gap: 1.5rem;
-  }
-  
-  .categories-list {
-    .category-item {
-      padding: 1rem;
-      
-      .category-content {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 0.75rem;
-      }
-      
-      .category-actions {
-        align-self: flex-end;
-      }
-    }
-    
-    .categories-grid-list {
-      max-height: fit-content; // Smaller height on mobile
-    }
-  }
-  
-  .add-category {
-    .form-card {
-      padding: 1rem;
-    }
-    
-    .form-actions {
-      flex-direction: column;
-      
-      .submit-button,
-      .cancel-button {
-        width: 100%;
-      }
-    }
-    
-
-  }
+// =============================================================================
+// FLOATING ADD BUTTON
+// =============================================================================
+.add-category-btn {
+  position: absolute;
+  bottom: 8rem;
+  right: 1rem;
 }
 
-// Animations
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-// Material Design components handle their own focus styles
-// Additional custom focus styles can be added here if needed
+// =============================================================================
+// MATERIAL DESIGN OVERRIDES
+// =============================================================================
 
 // Autocomplete Styles
 ::ng-deep .mat-autocomplete-panel {
@@ -995,10 +983,4 @@
       color: #1d4ed8;
     }
   }
-}
-
-.add-category-btn {
-  position: absolute;
-  bottom: 8rem;
-  right: 1rem;
 }

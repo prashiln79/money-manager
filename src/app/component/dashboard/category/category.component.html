@@ -15,6 +15,13 @@
     <mat-icon>add</mat-icon>
   </button>
 
+  <div class="fab-button" *ngIf="!isMobile">
+    <button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+  
+
   <!-- Main Content -->
   <div class="categories-grid" >
     
@@ -125,160 +132,6 @@
    
 
 
-    <!-- Add/Edit Category Form Section - Desktop Only -->
-    <section class="add-category" *ngIf="!isMobile">
-      <div class="form-card">
-        <div class="form-header">
-          <h2 class="form-title">
-            <mat-icon class="form-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
-            {{ isEditMode ? 'Edit Category' : 'Add New Category' }}
-          </h2>
-        </div>
 
-        <form (ngSubmit)="isEditMode ? updateCategory() : createCategory()" 
-              #categoryForm="ngForm" 
-              class="category-form">
-          
-          <!-- Category Name Field -->
-          <div class="form-field">
-            <label class="field-label">Category Name</label>
-            <mat-form-field class="form-input-field" appearance="outline">
-              <input matInput
-                     [(ngModel)]="newCategory.name"
-                     [matAutocomplete]="auto"
-                     (input)="onCategoryNameInput($event)"
-                     name="categoryName"
-                     required
-                     placeholder="e.g., Groceries"
-                     maxlength="50"
-                     class="form-input" />
-              <mat-autocomplete #auto="matAutocomplete" 
-                               (optionSelected)="selectSuggestion($event.option.value)">
-                <mat-option *ngFor="let suggestion of filteredSuggestions | async" 
-                           [value]="suggestion">
-                  {{ suggestion }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-          </div>
-
-          <!-- Category Type Field -->
-          <div class="form-field">
-            <label class="field-label">Category Type</label>
-            <select [(ngModel)]="newCategory.type" 
-                    name="categoryType" 
-                    required
-                    class="form-select">
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-            </select>
-          </div>
-
-          <!-- Category Icon Field -->
-          <div class="form-field">
-            <label class="field-label">Category Icon</label>
-            <div class="icon-selector">
-              <!-- Desktop: Menu Trigger -->
-              <button *ngIf="!isMobile"
-                      type="button"
-                      [matMenuTriggerFor]="iconMenu"
-                      class="icon-preview-button">
-                <mat-icon>{{ newCategory.icon }}</mat-icon>
-                <span class="icon-label">{{ newCategory.icon }}</span>
-                <mat-icon class="dropdown-icon">expand_more</mat-icon>
-              </button>
-              
-              <!-- Mobile: Dialog Trigger -->
-              <button *ngIf="isMobile"
-                      type="button"
-                      (click)="openIconSelectorDialog()"
-                      class="icon-preview-button">
-                <mat-icon>{{ newCategory.icon }}</mat-icon>
-                <span class="icon-label">{{ newCategory.icon }}</span>
-                <mat-icon class="dropdown-icon">expand_more</mat-icon>
-              </button>
-              
-              <!-- Icon Menu (Desktop Only) -->
-              <mat-menu #iconMenu="matMenu" class="icon-menu">
-                <div class="icon-grid">
-                  <button *ngFor="let icon of availableIcons"
-                          type="button"
-                          (click)="selectIcon(icon)"
-                          class="icon-option"
-                          [class.selected]="newCategory.icon === icon"
-                          matTooltip="{{ icon }}">
-                    <mat-icon>{{ icon }}</mat-icon>
-                  </button>
-                </div>
-              </mat-menu>
-            </div>
-          </div>
-
-          <!-- Category Color Field -->
-          <div class="form-field">
-            <label class="field-label">Category Color</label>
-            <div class="color-selector">
-              <!-- Desktop: Menu Trigger -->
-              <button *ngIf="!isMobile"
-                      type="button"
-                      [matMenuTriggerFor]="colorMenu"
-                      class="color-preview-button"
-                      [style.background-color]="newCategory.color">
-                <div class="color-preview" [style.background-color]="newCategory.color"></div>
-                <span class="color-label">{{ newCategory.color }}</span>
-                <mat-icon class="dropdown-icon">expand_more</mat-icon>
-              </button>
-              
-              <!-- Mobile: Dialog Trigger -->
-              <button *ngIf="isMobile"
-                      type="button"
-                      (click)="openColorSelectorDialog()"
-                      class="color-preview-button"
-                      [style.background-color]="newCategory.color">
-                <div class="color-preview" [style.background-color]="newCategory.color"></div>
-                <span class="color-label">{{ newCategory.color }}</span>
-                <mat-icon class="dropdown-icon">expand_more</mat-icon>
-              </button>
-              
-              <!-- Color Menu (Desktop Only) -->
-              <mat-menu #colorMenu="matMenu" class="color-menu">
-                <div class="color-grid">
-                  <button *ngFor="let color of availableColors"
-                          type="button"
-                          (click)="selectColor(color)"
-                          class="color-option"
-                          [class.selected]="newCategory.color === color"
-                          [style.background-color]="color"
-                          matTooltip="{{ color }}">
-                  </button>
-                </div>
-              </mat-menu>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="form-actions">
-            <button mat-raised-button
-                    type="submit"
-                    color="primary"
-                    [disabled]="isLoading || !categoryForm.form.valid"
-                    class="submit-button">
-              <mat-spinner *ngIf="isLoading" diameter="16"></mat-spinner>
-              <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-              {{ isLoading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Category' : 'Add Category') }}
-            </button>
-            
-            <button *ngIf="isEditMode"
-                    mat-stroked-button
-                    type="button"
-                    (click)="cancelEdit()"
-                    class="cancel-button">
-              <mat-icon>cancel</mat-icon>
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
   </div>
 </div>

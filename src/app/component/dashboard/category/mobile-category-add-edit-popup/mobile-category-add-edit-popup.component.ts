@@ -124,7 +124,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
         }
 
         this.dialogRef.close(true);
-        this.router.navigate(['/dashboard/category']);
       } catch (error) {
         this.notificationService.error('Failed to save category');
         console.error('Error saving category:', error);
