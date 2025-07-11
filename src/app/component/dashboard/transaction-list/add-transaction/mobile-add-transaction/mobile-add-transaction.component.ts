@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  OnInit,
 } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -29,6 +30,7 @@ import {
   RecurringInterval,
   SyncStatus,
   TransactionStatus,
+  TransactionType,
 } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
 
@@ -37,7 +39,7 @@ import { Category } from 'src/app/util/models';
   templateUrl: './mobile-add-transaction.component.html',
   styleUrl: './mobile-add-transaction.component.scss',
 })
-export class MobileAddTransactionComponent implements AfterViewInit {
+export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   @ViewChild('amountInput', { static: false }) amountInput!: ElementRef;
 
   transactionForm: FormGroup;
@@ -69,47 +71,63 @@ export class MobileAddTransactionComponent implements AfterViewInit {
       categoryType: [''],
       accountId: ['', Validators.required],
     });
-
-    this.store.select(selectAllCategories).subscribe((resp) => {
-      this.categoryList = resp;
-    });
-
-    this.store.select(selectAllAccounts).subscribe((resp) => {
-      this.accountList = resp;
-      if (this.dialogData?.id) {
-        this.transactionForm.patchValue({
-          payee: this.dialogData.payee,
-          amount: this.dialogData.amount,
-          date: moment(this.dateService.toDate(this.dialogData.date)).format(
-            'YYYY-MM-DD'
-          ),
-          description: this.dialogData.notes,
-          categoryId: this.dialogData.categoryId,
-          categoryName: this.dialogData.categoryName,
-          categoryType: this.dialogData.categoryType,
-          accountId: this.dialogData.accountId,
-        });
-      } else {
-        if(this.categoryList.length > 0) {
-        this.transactionForm.patchValue({
-          payee: this.categoryList.length > 0 ? this.categoryList[0].name : '',
-          categoryId: this.categoryList[0].id,
-          categoryName: this.categoryList[0].name,
-          categoryType: this.categoryList[0].type,
-            accountId:
-              this.accountList.length > 0 ? this.accountList[0].accountId : '',
-          });
-        }
-      }
-    });
   }
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
+    
+    // Subscribe to categories
+    this.store.select(selectAllCategories).subscribe((categories) => {
+      this.categoryList = categories;
+      this.initializeFormData();
+    });
+
+    // Subscribe to accounts
+    this.store.select(selectAllAccounts).subscribe((accounts) => {
+      this.accountList = accounts;
+      this.initializeFormData();
+    });
+
     window.addEventListener('popstate', (event) => {
       this.dialogRef.close();
       event.preventDefault();
     });
+  }
+
+  private initializeFormData(): void {
+    // Only initialize if both categories and accounts are loaded
+    if (this.categoryList.length > 0 && this.accountList.length > 0) {
+      if (this.dialogData?.id) {
+        // Edit mode - populate with existing data
+        this.transactionForm.patchValue({
+          payee: this.dialogData.payee || '',
+          amount: this.dialogData.amount || '',
+          date: this.dialogData.date ? 
+            moment(this.dateService.toDate(this.dialogData.date)).format('YYYY-MM-DD') : 
+            moment().format('YYYY-MM-DD'),
+          description: this.dialogData.notes || '',
+          categoryId: this.dialogData.categoryId || '',
+          categoryName: this.dialogData.categoryName || '',
+          categoryType: this.dialogData.categoryType || '',
+          accountId: this.dialogData.accountId || '',
+        });
+      } else {
+        // Add mode - set default values
+        const defaultCategory = this.categoryList[0];
+        const defaultAccount = this.accountList[0];
+        
+        this.transactionForm.patchValue({
+          payee: '',
+          amount: '',
+          date: moment().format('YYYY-MM-DD'),
+          description: '',
+          categoryId: defaultCategory?.id || '',
+          categoryName: defaultCategory?.name || '',
+          categoryType: defaultCategory?.type || '',
+          accountId: defaultAccount?.accountId || '',
+        });
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -129,39 +147,37 @@ export class MobileAddTransactionComponent implements AfterViewInit {
       try {
         this.loaderService.show();
         
+        const formData = this.transactionForm.value;
+        const transactionData = {
+          payee: formData.payee,
+          accountId: formData.accountId,
+          amount: parseFloat(formData.amount),
+          category: formData.categoryName,
+          categoryId: formData.categoryId,
+          type: formData.categoryType as TransactionType,
+          date: new Date(formData.date + ' ' + this.dateService.now().toDate().toLocaleTimeString()),
+          notes: formData.description,
+        };
+        
         if (this.dialogData?.id) {
+          // Update existing transaction
           await this.store.dispatch(
             TransactionsActions.updateTransaction({
               userId: this.userId,
               transactionId: this.dialogData.id,
-              transaction: {
-                payee: this.transactionForm.get('payee')?.value,
-                accountId: this.transactionForm.get('accountId')?.value,
-                amount: this.transactionForm.get('amount')?.value,
-                category: this.transactionForm.get('categoryName')?.value,
-                categoryId: this.transactionForm.get('categoryId')?.value,
-                type: this.transactionForm.get('categoryType')?.value,
-                date: this.transactionForm.get('date')?.value,
-                notes: this.transactionForm.get('description')?.value,
-              },
+              transaction: transactionData,
             })
           );
 
           this.notificationService.success('Transaction updated successfully');
         } else {
+          // Create new transaction
           await this.store.dispatch(
             TransactionsActions.createTransaction({
               userId: this.userId,
               transaction: {
                 userId: this.userId,
-                payee: this.transactionForm.get('payee')?.value,
-                accountId: this.transactionForm.get('accountId')?.value,
-                amount: this.transactionForm.get('amount')?.value,
-                category: this.transactionForm.get('categoryName')?.value,
-                categoryId: this.transactionForm.get('categoryId')?.value,
-                type: this.transactionForm.get('categoryType')?.value,
-                date: new Date(this.transactionForm.get('date')?.value + ' ' + this.dateService.now().toDate().toLocaleTimeString()),
-                notes: this.transactionForm.get('description')?.value,
+                ...transactionData,
                 isRecurring: false,
                 recurringInterval: RecurringInterval.MONTHLY,
                 status: TransactionStatus.COMPLETED,
@@ -178,7 +194,6 @@ export class MobileAddTransactionComponent implements AfterViewInit {
         }
 
         this.dialogRef.close(true);
-        this.router.navigate(['/dashboard/transactions']);
       } catch (error) {
         console.error('Error saving transaction:', error);
         this.notificationService.error('Failed to save transaction');
@@ -212,8 +227,6 @@ export class MobileAddTransactionComponent implements AfterViewInit {
     return '';
   }
 
-
-
   openNewAccountDialog(): void {
     this.dialog.open(AddAccountDialogComponent, {
       width: '90vw',
@@ -245,11 +258,14 @@ export class MobileAddTransactionComponent implements AfterViewInit {
   }
 
   onCategoryChange(event: any): void {
-    const category = this.categoryList.find(cat => cat.id === event.target.value);
+    const categoryId = event.value;
+    const category = this.categoryList.find(cat => cat.id === categoryId);
     if(category) {
-      this.transactionForm.get('categoryName')?.setValue(category.name);
-      this.transactionForm.get('categoryType')?.setValue(category.type);
-      this.transactionForm.get('categoryId')?.setValue(category.id);
+      this.transactionForm.patchValue({
+        categoryName: category.name,
+        categoryType: category.type,
+        categoryId: category.id,
+      });
     }
   }
 }

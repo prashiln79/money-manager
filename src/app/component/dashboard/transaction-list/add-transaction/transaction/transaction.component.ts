@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -19,7 +19,7 @@ import { Category } from 'src/app/util/models';
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.scss',
 })
-export class TransactionComponent {
+export class TransactionComponent implements OnInit {
   transactionForm: FormGroup;
   categories: Array<any> = [];
   buttons: string[] = [
@@ -65,53 +65,61 @@ export class TransactionComponent {
       categoryType: [''],
       accountId: ['', Validators.required],
     });
-
-    this.store
-      .select(selectAllCategories)
-      .subscribe((resp) => {
-        this.categoryList = resp;
-      });
-
-    this.store
-      .select(selectAllAccounts)
-      .subscribe((resp) => {
-        this.accountList = resp;
-        
-        if (this.dialogData?.id) {
-          this.transactionForm.patchValue({
-            payee: this.dialogData.payee,
-            amount: this.dialogData.amount,
-            date: this.dateService.toDate(this.dialogData.date),
-            description: this.dialogData.notes,
-            categoryId: this.dialogData.categoryId,
-            categoryName: this.dialogData.categoryName,
-            categoryType: this.dialogData.categoryType,
-            accountId: this.dialogData.accountId,
-          });
-        } else {
-          // Set default values for new transaction
-          if (this.categoryList.length > 0) {
-            this.transactionForm.patchValue({
-              categoryId: this.categoryList[0].id,
-              categoryName: this.categoryList[0].name,
-              categoryType: this.categoryList[0].type,
-            });
-          }
-          if (this.accountList.length > 0) {
-            this.transactionForm.patchValue({
-              accountId: this.accountList[0].accountId,
-            });
-          }
-        }
-      });
   }
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
+    
+    // Subscribe to categories
+    this.store.select(selectAllCategories).subscribe((categories) => {
+      this.categoryList = categories;
+      this.initializeFormData();
+    });
+
+    // Subscribe to accounts
+    this.store.select(selectAllAccounts).subscribe((accounts) => {
+      this.accountList = accounts;
+      this.initializeFormData();
+    });
+
     window.addEventListener('popstate', (event) => {
       this.dialogRef.close();
       event.preventDefault();
     });
+  }
+
+  private initializeFormData(): void {
+    // Only initialize if both categories and accounts are loaded
+    if (this.categoryList.length > 0 && this.accountList.length > 0) {
+      if (this.dialogData?.id) {
+        // Edit mode - populate with existing data
+        this.transactionForm.patchValue({
+          payee: this.dialogData.payee || '',
+          amount: this.dialogData.amount || '',
+          date: this.dialogData.date ? this.dateService.toDate(this.dialogData.date) : new Date(),
+          description: this.dialogData.notes || '',
+          categoryId: this.dialogData.categoryId || '',
+          categoryName: this.dialogData.categoryName || '',
+          categoryType: this.dialogData.categoryType || '',
+          accountId: this.dialogData.accountId || '',
+        });
+      } else {
+        // Add mode - set default values
+        const defaultCategory = this.categoryList[0];
+        const defaultAccount = this.accountList[0];
+        
+        this.transactionForm.patchValue({
+          payee: '',
+          amount: '',
+          date: new Date(),
+          description: '',
+          categoryId: defaultCategory?.id || '',
+          categoryName: defaultCategory?.name || '',
+          categoryType: defaultCategory?.type || '',
+          accountId: defaultAccount?.accountId || '',
+        });
+      }
+    }
   }
 
   async onSubmit(): Promise<void> {
@@ -119,22 +127,24 @@ export class TransactionComponent {
     if (this.transactionForm.valid) {
       this.dialogRef.close(true);
     
+      const formData = this.transactionForm.value;
+      const transactionData = {
+        payee: formData.payee,
+        accountId: formData.accountId,
+        amount: parseFloat(formData.amount),
+        category: formData.categoryName,
+        categoryId: formData.categoryId,
+        type: formData.categoryType as TransactionType,
+        date: formData.date,
+        notes: formData.description,
+      };
+
       if (this.dialogData?.id) {
         await this.store.dispatch(
           TransactionsActions.updateTransaction({
             userId: this.userId,
             transactionId: this.dialogData.id,
-            transaction: {
-              payee: this.transactionForm.get('payee')?.value,
-              userId: this.userId,
-              accountId: this.transactionForm.get('accountId')?.value,
-              amount: this.transactionForm.get('amount')?.value,
-              categoryId: this.transactionForm.get('categoryId')?.value,
-              category: this.transactionForm.get('categoryName')?.value,
-              type: this.transactionForm.get('categoryType')?.value,
-              date: this.transactionForm.get('date')?.value,
-              notes: this.transactionForm.get('description')?.value,
-            },
+            transaction: transactionData,
           })
         );
         this.notificationService.success('Transaction updated successfully');
@@ -144,14 +154,7 @@ export class TransactionComponent {
             userId: this.userId,
             transaction: {
               userId: this.userId,
-              payee: this.transactionForm.get('payee')?.value,
-              accountId: this.transactionForm.get('accountId')?.value,
-              amount: this.transactionForm.get('amount')?.value,
-              category: this.transactionForm.get('categoryName')?.value,
-              categoryId: this.transactionForm.get('categoryId')?.value,
-              type: this.transactionForm.get('categoryType')?.value,
-              date: this.transactionForm.get('date')?.value,
-              notes: this.transactionForm.get('description')?.value,
+              ...transactionData,
               isRecurring: false,
               recurringInterval: RecurringInterval.MONTHLY,
               status: TransactionStatus.COMPLETED,
@@ -194,10 +197,14 @@ export class TransactionComponent {
   }
 
   onCategoryChange(event: any): void {
-    const category = this.categoryList.find(c => c.id === event.value);
+    const categoryId = event.value;
+    const category = this.categoryList.find(c => c.id === categoryId);
     if (category) {
-      this.transactionForm.get('categoryName')?.setValue(category.name);
-      this.transactionForm.get('categoryType')?.setValue(category.type);
+      this.transactionForm.patchValue({
+        categoryName: category.name,
+        categoryType: category.type,
+        categoryId: category.id,
+      });
     }
   }
 }

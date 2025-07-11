@@ -6,7 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Auth } from '@angular/fire/auth';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { NotificationService } from 'src/app/util/service/notification.service';
-import { TransactionComponent } from './add-transaction/transaction/transaction.component';
+// import { TransactionComponent } from './add-transaction/transaction/transaction.component';
 import { MobileAddTransactionComponent } from './add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
@@ -270,20 +270,14 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   editTransaction(transaction: Transaction) {
-    let dialogRef;
-    if (this.isMobile) {
-      dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-        width: '100vw',
-        height: '100vh',
-        maxWidth: '100vw',
+    let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
+        width: this.isMobile ? '100vw' : '600px',
+        height: this.isMobile ? '100vh' : 'auto',
+        maxWidth: this.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: transaction
       });
-    } else {
-      dialogRef = this._dialog.open(TransactionComponent, {
-        data: transaction
-      });
-    }
+
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -548,22 +542,14 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   addTransactionDialog(): void {
-    let dialogRef;
-    if (this.isMobile) {
-      dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-        width: '100vw',
-        height: '100vh',
-        maxWidth: '100vw',
+    let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
+        width: this.isMobile ? '100vw' : '600px',
+        height: this.isMobile ? '100vh' : 'auto',
+        maxWidth: this.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: null
       });
-    } else {
-      dialogRef = this._dialog.open(TransactionComponent, {
-        width: '600px',
-        maxWidth: '95vw',
-        data: null
-      });
-    }
+
 
     dialogRef.afterClosed().subscribe((transaction: Transaction) => {
       if (transaction) {

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { TransactionComponent } from './transaction/transaction.component';
+// import { TransactionComponent } from './transaction/transaction.component';
 import { MobileAddTransactionComponent } from './mobile-add-transaction/mobile-add-transaction.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
@@ -20,20 +20,14 @@ export class AddTransactionComponent {
   }
 
   openDialog() {
-    let dialogRef;
-    if (this.isMobile) {
-      dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-        width: '100vw',
-        height: '100vh',
-        maxWidth: '100vw',
-        panelClass: 'full-screen-dialog',
-        data: this.dialogData
-      });
-    } else {
-      dialogRef = this._dialog.open(TransactionComponent, {
-        data: this.dialogData
-      });
-    }
+    let dialogRef  = this._dialog.open(MobileAddTransactionComponent, {
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      panelClass: 'full-screen-dialog',
+      data: this.dialogData
+    });
+   
 
 
 

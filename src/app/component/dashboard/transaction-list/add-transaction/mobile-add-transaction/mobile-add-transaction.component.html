@@ -95,14 +95,14 @@
 							<mat-icon class="text-sm">add</mat-icon>Add
 						</button>
 					</div>
-					<select 
-						formControlName="categoryId"  (change)="onCategoryChange($event)"
-						class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					>
-						@for (item of categoryList; track item) {
-							<option [value]="item.id">{{ item?.name }}</option>
-						}
-					</select>
+					<mat-form-field appearance="fill" class="w-full">
+						<mat-label>Select a category</mat-label>
+						<mat-select formControlName="categoryId" (selectionChange)="onCategoryChange($event)">
+							@for (item of categoryList; track item) {
+								<mat-option [value]="item.id">{{ item?.name }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
 				</div>
 
 				<!-- Date Field -->

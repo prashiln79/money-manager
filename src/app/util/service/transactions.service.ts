@@ -145,7 +145,7 @@ export class TransactionsService {
         }
     }
 
-    createTransaction(userId: string, transaction: Omit<Transaction, 'transactionId'>): Observable<void> {
+    createTransaction(userId: string, transaction: Omit<Transaction, 'id'>): Observable<void> {
         return new Observable<void>(observer => {
             const transactionData = {
                 ...transaction,
