@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { APP_CONFIG } from '../config/config';
 
 export type Language = 'en' | 'hi';
 
@@ -62,7 +63,7 @@ export class TranslationService {
     'tools': { en: 'Tools', hi: 'उपकरण' },
     
     // Dashboard
-    'moneyManager': { en: 'Money Manager', hi: 'मनी मैनेजर' },
+    'moneyManager': { en: `${APP_CONFIG.APP_NAME}`, hi: 'मनी मैनेजर' },
     'manageFinances': { en: 'Manage your finances', hi: 'अपने वित्त का प्रबंधन करें' },
     'welcomeBack': { en: 'Welcome Back!', hi: 'वापसी पर स्वागत है!' },
     'youSpend': { en: 'You Spend', hi: 'आपका खर्च' },

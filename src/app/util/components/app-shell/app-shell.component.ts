@@ -12,7 +12,7 @@ export class AppShellComponent implements OnInit, OnDestroy {
   APP_CONFIG = APP_CONFIG;
   state: AppShellState = {
     isVisible: false,
-    loadingMessage: 'Loading Money Manager',
+    loadingMessage: `Loading ${APP_CONFIG.APP_NAME}`,
     loadingSubMessage: 'Preparing your financial dashboard...'
   };
   private destroy$ = new Subject<void>();

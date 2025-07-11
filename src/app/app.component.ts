@@ -13,7 +13,7 @@ import { APP_CONFIG } from './util/config/config';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit, OnDestroy {
-  public title = 'money-manager';
+  public title = APP_CONFIG.APP_NAME;
   isOnline = navigator.onLine;
   navigationState: NavigationState;
   private destroy$ = new Subject<void>();

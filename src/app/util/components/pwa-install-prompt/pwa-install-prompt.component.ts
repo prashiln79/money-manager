@@ -17,7 +17,7 @@ import { APP_CONFIG } from '../../config/config';
         </div>
         
         <div class="install-text">
-          <h3>Install Money Manager</h3>
+          <h3>Install {{ APP_CONFIG.APP_NAME }}</h3>
           <p>Add to your home screen for quick access and offline functionality</p>
         </div>
         
@@ -240,7 +240,8 @@ import { APP_CONFIG } from '../../config/config';
 export class PwaInstallPromptComponent implements OnInit, OnDestroy {
   @Output() installClicked = new EventEmitter<void>();
   @Output() dismissClicked = new EventEmitter<void>();
-
+  
+  APP_CONFIG = APP_CONFIG;
   showInstallPrompt: boolean = false;
   isMobileDevice: boolean = false;
   private deferredPrompt: any;

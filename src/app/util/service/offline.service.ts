@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, fromEvent, merge } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { SwUpdate } from '@angular/service-worker';
 import { UserService } from './user.service';
+import { APP_CONFIG } from '../config/config';
 
 export interface NetworkStatus {
   online: boolean;
@@ -309,7 +310,7 @@ export class OfflineService {
   private showOnlineNotification(): void {
     // You can integrate this with your notification service
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Money Manager', {
+      new Notification(`${APP_CONFIG.APP_NAME}`, {
         body: 'Network connection restored. Your data will sync automatically.',
         icon: '/icons/icon-192x192.png'
       });
@@ -319,7 +320,7 @@ export class OfflineService {
   private showOfflineNotification(): void {
     // You can integrate this with your notification service
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Money Manager', {
+      new Notification(`${APP_CONFIG.APP_NAME}`, {
         body: 'You\'re offline. Changes will be saved locally and synced when connection is restored.',
         icon: '/icons/icon-192x192.png'
       });
@@ -327,7 +328,7 @@ export class OfflineService {
   }
 
   private promptUserForUpdate(): void {
-    if (confirm('A new version of Money Manager is available. Would you like to update now?')) {
+    if (confirm(`A new version of ${APP_CONFIG.APP_NAME} is available. Would you like to update now?`)) {
       // Activate the new version
       this.swUpdate.activateUpdate().then(() => {
         window.location.reload();

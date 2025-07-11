@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { APP_CONFIG } from '../config/config';
 
 export interface AppShellState {
   isVisible: boolean;
@@ -13,7 +14,7 @@ export interface AppShellState {
 export class AppShellService {
   private stateSubject = new BehaviorSubject<AppShellState>({
     isVisible: false,
-    loadingMessage: 'Loading Money Manager',
+    loadingMessage: `Loading ${APP_CONFIG.APP_NAME}`,
     loadingSubMessage: 'Preparing your financial dashboard...'
   });
 

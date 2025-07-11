@@ -35,6 +35,7 @@ import { Store } from '@ngrx/store';
 import { createAccount } from 'src/app/store/accounts/accounts.actions';
 import { createCategory } from 'src/app/store/categories/categories.actions';
 import { AccountType } from '../config/enums';
+import { APP_CONFIG } from '../config/config';
 
 /**
  * Service responsible for user authentication and management
@@ -250,7 +251,7 @@ export class UserService {
 
     console.log('✅ User created in Firestore');
     this.notificationService.success(
-      'Registration successful! Welcome to Money Manager.'
+      `Registration successful! Welcome to ${APP_CONFIG.APP_NAME}.`
     );
   }
 

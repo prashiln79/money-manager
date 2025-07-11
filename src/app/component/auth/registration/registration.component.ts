@@ -9,6 +9,7 @@ import { Store } from "@ngrx/store";
 import { createAccount } from "src/app/store/accounts/accounts.actions";
 import { createCategory } from "src/app/store/categories/categories.actions";
 import { AccountType } from "src/app/util/config/enums";
+import { APP_CONFIG } from "src/app/util/config/config";
 
 interface BankAccount {
 	id?: string;
@@ -239,7 +240,7 @@ export class RegistrationComponent implements OnInit {
 					);
 				}
 
-				this.notificationService.success("Registration successful! Welcome to Money Manager.");
+				this.notificationService.success(`Registration successful! Welcome to ${APP_CONFIG.APP_NAME}.`);
 				this.router.navigate(["/dashboard"]);
 			} catch (error: any) {
 				console.error("Registration error:", error);
