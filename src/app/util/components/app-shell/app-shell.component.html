@@ -1,0 +1,27 @@
+<div class="app-shell" [class.app-shell-hidden]="!state.isVisible">
+  <header class="app-shell-header">
+    <div class="app-shell-logo">
+      <div class="app-shell-logo-icon">
+        <img src="assets/images/logo.svg" alt="Money Manager Logo" class="w-10 h-10">
+      </div>
+      <span class="font-heading font-semibold text-xl">{{ APP_CONFIG.APP_NAME }}</span>
+    </div>
+    <div class="app-shell-skeleton w-10 h-10 rounded-full"></div>
+  </header>
+  
+  <main class="app-shell-content">
+    <div class="app-shell-loading">
+      <div class="app-shell-spinner"></div>
+      <h2 class="font-heading font-semibold text-2xl mb-2">{{ state.loadingMessage }}</h2>
+      <p class="text-sm opacity-80">{{ state.loadingSubMessage }}</p>
+    </div>
+    
+    <div class="app-shell-skeleton-content">
+      <app-skeleton-loader type="dashboard"></app-skeleton-loader>
+    </div>
+  </main>
+  
+  <footer class="app-shell-footer">
+    <p class="m-0 text-sm">© 2024 {{ APP_CONFIG.APP_NAME }} - Your Personal Finance Assistant</p>
+  </footer>
+</div>
