@@ -56,10 +56,8 @@ import { ClickOutsideDirective } from './util/directives/click-outside.directive
 import { TotalBalanceComponent } from './component/dashboard/total-balance/total-balance.component';
 import { CalendarViewComponent } from './component/dashboard/calendar-view/calendar-view.component';
 import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
-import { AddTransactionComponent } from './component/dashboard/transaction-list/add-transaction/add-transaction.component';
 import { HeaderComponent } from './component/dashboard/header/header.component';
 import { SideBarComponent } from './component/dashboard/side-bar/side-bar.component';
-import { TransactionComponent } from './component/dashboard/transaction-list/add-transaction/transaction/transaction.component';
 import { MobileAddTransactionComponent } from './component/dashboard/transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { MobileCategoryAddEditPopupComponent } from './component/dashboard/category/mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
 import { IconSelectorDialogComponent } from './component/dashboard/category/icon-selector-dialog/icon-selector-dialog.component';
@@ -120,10 +118,8 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
     TotalBalanceComponent,
     CalendarViewComponent,
     TransactionListComponent,
-    AddTransactionComponent,
     HeaderComponent,
     SideBarComponent,
-    TransactionComponent,
     MobileAddTransactionComponent,
     MobileCategoryAddEditPopupComponent,
     IconSelectorDialogComponent,

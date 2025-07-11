@@ -117,7 +117,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
         const defaultAccount = this.accountList[0];
         
         this.transactionForm.patchValue({
-          payee: '',
+          payee: defaultCategory?.name || '',
           amount: '',
           date: moment().format('YYYY-MM-DD'),
           description: '',

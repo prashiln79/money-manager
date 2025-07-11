@@ -3,8 +3,6 @@ import { Router, NavigationEnd } from '@angular/router';
 import { OfflineService } from '../../../util/service/offline.service';
 import { Subscription, interval } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { TransactionComponent } from '../transaction-list/add-transaction/transaction/transaction.component';
-import { CalendarVisibilityService } from '../../../util/service/calendar-visibility.service';
 import { HapticFeedbackService } from '../../../util/service/haptic-feedback.service';
 import { filter } from 'rxjs/operators';
 import { MobileAddTransactionComponent } from '../transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
@@ -88,7 +86,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   addTransaction() {
     const dialogRef = this._dialog.open(MobileAddTransactionComponent, {
       width: '600px',
-      maxWidth: '95vw',
+      maxWidth: '100vw',
     });
   }
 

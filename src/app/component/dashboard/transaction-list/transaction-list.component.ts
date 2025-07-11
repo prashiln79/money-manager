@@ -6,14 +6,12 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Auth } from '@angular/fire/auth';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { NotificationService } from 'src/app/util/service/notification.service';
-// import { TransactionComponent } from './add-transaction/transaction/transaction.component';
 import { MobileAddTransactionComponent } from './add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
 import { DateSelectionService, DateRange } from 'src/app/util/service/date-selection.service';
 import { Subscription, Observable } from 'rxjs';
-import { Timestamp } from '@angular/fire/firestore';
 import moment from 'moment';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
@@ -272,7 +270,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   editTransaction(transaction: Transaction) {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
         width: this.isMobile ? '100vw' : '600px',
-        height: this.isMobile ? '100vh' : 'auto',
+        height: this.isMobile ? '100vh' : '95vh',
         maxWidth: this.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: transaction
@@ -544,7 +542,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   addTransactionDialog(): void {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
         width: this.isMobile ? '100vw' : '600px',
-        height: this.isMobile ? '100vh' : 'auto',
+        height: this.isMobile ? '100vh' : '95vh',
         maxWidth: this.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: null
