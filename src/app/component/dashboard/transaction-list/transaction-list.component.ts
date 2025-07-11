@@ -270,7 +270,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   editTransaction(transaction: Transaction) {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
         width: this.isMobile ? '100vw' : '600px',
-        height: this.isMobile ? '100vh' : '95vh',
+        height: this.isMobile ? '100vh' : 'auto',
         maxWidth: this.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: transaction
@@ -542,7 +542,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   addTransactionDialog(): void {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
         width: this.isMobile ? '100vw' : '600px',
-        height: this.isMobile ? '100vh' : '95vh',
+        height: this.isMobile ? '100vh' : 'auto',
         maxWidth: this.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: null

@@ -1,112 +1,231 @@
+/* Base styles */
 :host {
   display: flex;
   flex-direction: column;
   height: 100vh;
   background-color: #f9fafb;
+  font-size: 16px; /* Prevents zoom on iOS */
 }
 
+/* Dark theme */
 .dark :host {
   background-color: #111827;
 }
 
-/* Mobile-specific styles */
-@media (max-width: 768px) {
-  :host {
-    font-size: 16px; /* Prevents zoom on iOS */
-  }
-}
-
-/* Form field focus states */
+/* Form field focus states - optimized for performance */
 input:focus,
 select:focus,
 textarea:focus {
-  transform: scale(1.02);
-  transition: transform 0.2s ease-in-out;
+  outline: none;
+  transform: scale(1.01);
+  transition: transform 0.15s ease-out;
 }
 
-/* Button hover effects */
+/* Button interactions - optimized */
 button {
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  will-change: transform;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
-button:active {
+button:active:not(:disabled) {
   transform: translateY(0);
 }
 
-/* Amount field special styling */
+/* Amount field styling - optimized */
 input[type="number"] {
   -moz-appearance: textfield;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
-/* Smooth scrolling */
+/* Smooth scrolling - optimized */
 .overflow-y-auto {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
-/* Card hover effects */
+/* Card interactions - optimized */
 .bg-white,
 .dark .bg-gray-800 {
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+  will-change: transform;
 }
 
 .bg-white:hover,
 .dark .bg-gray-800:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Loading state */
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none !important;
 }
 
-/* Error state animations */
+/* Error state animations - optimized */
 .text-red-500 {
-  animation: shake 0.5s ease-in-out;
+  animation: shake 0.4s ease-out;
 }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
 }
 
-/* Success state */
+/* Success state - optimized */
 .text-green-500 {
-  animation: pulse 0.5s ease-in-out;
+  animation: pulse 0.4s ease-out;
 }
 
 @keyframes pulse {
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.02); }
   100% { transform: scale(1); }
 }
 
-/* Mobile-specific input sizing */
-@media (max-width: 480px) {
-  input, select, textarea {
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  :host {
     font-size: 16px; /* Prevents zoom on iOS */
-    padding: 12px 16px;
   }
   
+  /* Optimize touch targets */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve form field sizing */
+  input, select, textarea {
+    font-size: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+  
+  /* Optimize text sizes */
   .text-2xl {
     font-size: 1.75rem;
+    line-height: 1.2;
+  }
+  
+  /* Reduce animation intensity on mobile */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    transform: none;
+  }
+  
+  button:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .bg-white:hover,
+  .dark .bg-gray-800:hover {
+    transform: none;
   }
 }
 
-/* Dark mode transitions */
+/* Small mobile devices */
+@media (max-width: 480px) {
+  :host {
+    font-size: 16px;
+  }
+  
+  /* Optimize spacing */
+  .p-4 {
+    padding: 1rem;
+  }
+  
+  /* Improve touch targets */
+  button {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* Optimize form fields */
+  input, select, textarea {
+    font-size: 16px;
+    padding: 14px 16px;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 769px) {
+  /* Enable hover effects only on desktop */
+  button:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  
+  .bg-white:hover,
+  .dark .bg-gray-800:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Optimize form field focus */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    transform: scale(1.01);
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Optimize for retina displays */
+  .bg-white,
+  .dark .bg-gray-800 {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  input:focus,
+  select:focus,
+  textarea:focus,
+  button,
+  .bg-white,
+  .dark .bg-gray-800 {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Dark mode transitions - optimized */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Focus visible for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 } 
