@@ -33,6 +33,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 // ngx-papaparse
 import { Papa } from 'ngx-papaparse';
@@ -195,6 +196,7 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
     MatTooltipModule,
     MatSlideToggleModule,
     MatAutocompleteModule,
+    MatExpansionModule,
 
     // Utility
     IconModule,

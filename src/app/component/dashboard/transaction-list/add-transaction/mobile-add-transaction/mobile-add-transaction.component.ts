@@ -6,6 +6,7 @@ import {
   AfterViewInit,
   OnInit,
 } from '@angular/core';
+
 import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -40,7 +41,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 @Component({
   selector: 'app-mobile-add-transaction',
   templateUrl: './mobile-add-transaction.component.html',
-  styleUrl: './mobile-add-transaction.component.scss',
+  styleUrl: './mobile-add-transaction.component.scss'
 })
 export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   @ViewChild('amountInput', { static: false }) amountInput!: ElementRef;
@@ -137,6 +138,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           // Payment method
           paymentMethod: this.dialogData.paymentMethod || '',
         });
+        
+
       } else {
         // Add mode - set default values
         const defaultCategory = this.categoryList[0];
@@ -357,4 +360,6 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       taxes: []
     });
   }
+
+
 }

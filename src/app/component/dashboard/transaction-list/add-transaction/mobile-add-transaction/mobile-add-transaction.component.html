@@ -211,11 +211,22 @@
 			</div>
 
 			<!-- Tax Fields -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm space-y-4">
-				<h6 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-					<mat-icon class="text-sm">receipt</mat-icon>
-					Tax Information (Optional)
-				</h6>
+			<mat-expansion-panel class="bg-white dark:bg-gray-800 shadow-sm border-0">
+				<mat-expansion-panel-header class="px-4 py-3">
+					<mat-panel-title class="flex items-center gap-2">
+						<mat-icon class="text-sm text-gray-600 dark:text-gray-400">receipt</mat-icon>
+						<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+							Tax Information (Optional)
+						</span>
+						@if((transactionForm.get('taxAmount')?.value || 0) > 0 || (transactionForm.get('taxPercentage')?.value || 0) > 0) {
+							<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+								₹{{ (transactionForm.get('taxAmount')?.value || 0).toFixed(2) }}
+							</span>
+						}
+					</mat-panel-title>
+				</mat-expansion-panel-header>
+
+				<div class="space-y-4 px-4 pb-4">
 				
 				<!-- Total Amount Display -->
 				@if((transactionForm.get('amount')?.value || 0) > 0) {
@@ -302,7 +313,8 @@
 						</button>
 					</div>
 				}
-			</div>
+				</div>
+			</mat-expansion-panel>
 
 			<!-- Bottom Spacing for Mobile -->
 			<div class="h-20"></div>
