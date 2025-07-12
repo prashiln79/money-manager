@@ -99,6 +99,73 @@
       </div>
     </div>
 
+    <!-- Dynamic Chart Section - Moved Up -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+      <!-- Main Chart Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{{ getChartTitle() }}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Interactive financial visualization</p>
+            </div>
+            <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+              <mat-icon class="text-blue-600 dark:text-blue-400">{{ selectedChartType === 'pie' ? 'pie_chart' : selectedChartType === 'bar' ? 'bar_chart' : selectedChartType === 'line' ? 'show_chart' : selectedChartType === 'area' ? 'area_chart' : selectedChartType === 'radar' ? 'radar' : selectedChartType === 'funnel' ? 'filter_alt' : selectedChartType === 'scatter' ? 'scatter_plot' : 'grid_on' }}</mat-icon>
+            </div>
+          </div>
+          <div class="w-full" [ngClass]="getChartHeight()">
+            <div echarts [options]="getCurrentChartOption()" class="w-full h-full"></div>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Analytics Summary Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Analytics Summary</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Key insights and trends</p>
+            </div>
+            <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+              <mat-icon class="text-green-600 dark:text-green-400">insights</mat-icon>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <!-- Category Trends -->
+            <div *ngIf="categoryTrends.length > 0" class="space-y-3">
+              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Category Trends</h4>
+              <div *ngFor="let trend of categoryTrends.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.category }}</span>
+                <span class="text-sm font-medium" [ngClass]="trend.change >= 0 ? 'text-red-600' : 'text-green-600'">
+                  {{ trend.change >= 0 ? '+' : '' }}{{ trend.percentage.toFixed(1) }}%
+                </span>
+              </div>
+            </div>
+
+            <!-- Spending Trends -->
+            <div *ngIf="spendingTrends.length > 0" class="space-y-3">
+              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Spending Trends</h4>
+              <div *ngFor="let trend of spendingTrends.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.period }}</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(trend.amount) }}</span>
+              </div>
+            </div>
+
+            <!-- Account Balances -->
+            <div *ngIf="accountBalances.length > 0" class="space-y-3">
+              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Account Balances</h4>
+              <div *ngFor="let account of accountBalances.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ account.account }}</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(account.balance) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
     <!-- Key Metrics Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
       <!-- Total Income -->
@@ -277,72 +344,7 @@
       </div>
     </div>
 
-    <!-- Dynamic Chart Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
-      <!-- Main Chart Card -->
-      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-4 sm:mb-6">
-            <div class="flex-1 min-w-0">
-              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{{ getChartTitle() }}</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Interactive financial visualization</p>
-            </div>
-            <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-              <mat-icon class="text-blue-600 dark:text-blue-400">{{ selectedChartType === 'pie' ? 'pie_chart' : selectedChartType === 'bar' ? 'bar_chart' : selectedChartType === 'line' ? 'show_chart' : selectedChartType === 'area' ? 'area_chart' : selectedChartType === 'radar' ? 'radar' : selectedChartType === 'funnel' ? 'filter_alt' : selectedChartType === 'scatter' ? 'scatter_plot' : 'grid_on' }}</mat-icon>
-            </div>
-          </div>
-          <div class="w-full" [ngClass]="getChartHeight()">
-            <div echarts [options]="getCurrentChartOption()" class="w-full h-full"></div>
-          </div>
-        </div>
-      </mat-card>
 
-      <!-- Analytics Summary Card -->
-      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-4 sm:mb-6">
-            <div class="flex-1 min-w-0">
-              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Analytics Summary</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Key insights and trends</p>
-            </div>
-            <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-              <mat-icon class="text-green-600 dark:text-green-400">insights</mat-icon>
-            </div>
-          </div>
-          
-          <div class="space-y-4">
-            <!-- Category Trends -->
-            <div *ngIf="categoryTrends.length > 0" class="space-y-3">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Category Trends</h4>
-              <div *ngFor="let trend of categoryTrends.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.category }}</span>
-                <span class="text-sm font-medium" [ngClass]="trend.change >= 0 ? 'text-red-600' : 'text-green-600'">
-                  {{ trend.change >= 0 ? '+' : '' }}{{ trend.percentage.toFixed(1) }}%
-                </span>
-              </div>
-            </div>
-
-            <!-- Spending Trends -->
-            <div *ngIf="spendingTrends.length > 0" class="space-y-3">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Spending Trends</h4>
-              <div *ngFor="let trend of spendingTrends.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.period }}</span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(trend.amount) }}</span>
-              </div>
-            </div>
-
-            <!-- Account Balances -->
-            <div *ngIf="accountBalances.length > 0" class="space-y-3">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Account Balances</h4>
-              <div *ngFor="let account of accountBalances.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ account.account }}</span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(account.balance) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </mat-card>
-    </div>
 
     <!-- Reports Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">

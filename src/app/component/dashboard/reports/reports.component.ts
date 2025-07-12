@@ -20,7 +20,7 @@ interface CategorySpending {
   amount: number;
   percentage: number;
   icon: string;
-  color: string;
+  color?: string;
 }
 
 interface MonthlyData {
@@ -328,7 +328,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
           amount,
           percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
           icon: categoryData?.icon || 'category',
-          color: categoryData?.color || '#46777f'
+          // color: categoryData?.color  || '#46777f'
         };
       })
       .sort((a, b) => b.amount - a.amount)
