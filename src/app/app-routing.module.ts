@@ -17,6 +17,7 @@ import { BudgetsComponent } from './component/dashboard/budgets/budgets.componen
 import { NotesComponent } from './component/dashboard/notes/notes.component';
 import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction';
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
+import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 
 const routes: Routes = [
   { path: 'landing', component: LandingComponent },
@@ -119,6 +120,14 @@ const routes: Routes = [
       { 
         path: 'profile', 
         component: ProfileComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'notifications', 
+        component: NotificationSettingsComponent,
         data: {
           roles: ['free', 'premium', 'admin'],
           requireEmailVerification: true

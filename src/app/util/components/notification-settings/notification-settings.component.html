@@ -1,0 +1,175 @@
+<div class="notification-settings">
+  <!-- Header with Master Toggle -->
+  <div class="settings-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h2>Notification Settings</h2>
+        <p>Manage your push notification preferences</p>
+      </div>
+                <div class="master-toggle-container">
+            <mat-slide-toggle
+              [checked]="notificationsEnabled"
+              (change)="toggleMasterNotifications($event)"
+              [disabled]="permissionStatus === 'denied'"
+              color="accent"
+              class="master-toggle">
+              <span class="toggle-icon">{{ notificationsEnabled ? '🔔' : '🔕' }}</span>
+            </mat-slide-toggle>
+            <span class="master-label">{{ notificationsEnabled ? 'Enabled' : 'Disabled' }}</span>
+          </div>
+    </div>
+  </div>
+
+  <div class="settings-content">
+    <!-- Permission Status Card -->
+    <div class="setting-section permission-card">
+      <div class="card-header">
+        <div class="header-left">
+          <div class="status-icon" [class]="permissionStatus">
+            <span class="icon">{{ getStatusIcon() }}</span>
+          </div>
+          <div class="header-info">
+            <h3>Notification Permission</h3>
+            <p class="status-text">{{ getPermissionText() }}</p>
+          </div>
+        </div>
+        <div class="permission-badge" [class]="permissionStatus">
+          {{ getPermissionText() }}
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <p class="description">
+          Allow {{ APP_CONFIG.APP_NAME }} to send you notifications about important updates and reminders.
+        </p>
+
+        <div class="action-buttons">
+          <button 
+            *ngIf="permissionStatus === 'default'"
+            class="btn btn-primary"
+            (click)="requestPermission()"
+            [disabled]="isLoading">
+            <span class="btn-icon">🔔</span>
+            <span class="btn-text">Enable Notifications</span>
+            <div class="btn-loader" *ngIf="isLoading"></div>
+          </button>
+
+          <button 
+            *ngIf="permissionStatus === 'denied'"
+            class="btn btn-warn"
+            (click)="openPermissionHelp()">
+            <span class="btn-icon">❓</span>
+            <span class="btn-text">How to Enable</span>
+          </button>
+
+          <button 
+            *ngIf="permissionStatus === 'granted'"
+            class="btn btn-accent"
+            (click)="testNotification()"
+            [disabled]="isLoading">
+            <span class="btn-icon">📤</span>
+            <span class="btn-text">Test Notification</span>
+            <div class="btn-loader" *ngIf="isLoading"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notification Types -->
+    <div class="setting-section" *ngIf="permissionStatus === 'granted' && notificationsEnabled">
+      <div class="section-header">
+        <h3>Notification Types</h3>
+        <p>Choose which types of notifications you want to receive</p>
+      </div>
+      
+      <div class="notification-types">
+        <div class="notification-type" *ngFor="let type of notificationTypes">
+          <div class="type-content">
+            <div class="type-icon">
+              <span class="icon">{{ type.icon }}</span>
+            </div>
+            <div class="type-info">
+              <h4>{{ type.title }}</h4>
+              <p>{{ type.description }}</p>
+            </div>
+          </div>
+                        <mat-slide-toggle
+                [checked]="type.enabled"
+                (change)="toggleNotificationType(type.key, $event)"
+                color="primary">
+              </mat-slide-toggle>
+        </div>
+      </div>
+    </div>
+
+    <!-- FCM Token Info -->
+    <div class="setting-section token-card" *ngIf="permissionStatus === 'granted' && fcmToken && notificationsEnabled">
+      <div class="section-header">
+        <h3>Device Token</h3>
+        <p>Your device registration for push notifications</p>
+      </div>
+      
+      <div class="token-container">
+        <div class="token-display">
+          <div class="token-label">Device Token:</div>
+          <div class="token-value">
+            <code>{{ fcmToken }}</code>
+            <button 
+              class="copy-btn"
+              (click)="copyToken()"
+              title="Copy token">
+              <span class="icon">📋</span>
+            </button>
+          </div>
+        </div>
+        
+        <button 
+          class="btn btn-secondary"
+          (click)="refreshToken()"
+          [disabled]="isLoading">
+          <span class="btn-icon">🔄</span>
+          <span class="btn-text">Refresh Token</span>
+          <div class="btn-loader" *ngIf="isLoading"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Advanced Settings -->
+    <div class="setting-section" *ngIf="permissionStatus === 'granted' && notificationsEnabled">
+      <div class="section-header">
+        <h3>Advanced Settings</h3>
+        <p>Customize notification behavior</p>
+      </div>
+      
+      <div class="advanced-settings">
+        <div class="setting-item" *ngFor="let setting of advancedSettings">
+          <div class="setting-content">
+            <div class="setting-icon">
+              <span class="icon">{{ setting.icon }}</span>
+            </div>
+            <div class="setting-info">
+              <h4>{{ setting.title }}</h4>
+              <p>{{ setting.description }}</p>
+            </div>
+          </div>
+                        <mat-slide-toggle
+                [checked]="getSettingValue(setting.key)"
+                (change)="updateSetting(setting.key, $event)"
+                color="accent">
+              </mat-slide-toggle>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disabled State -->
+    <div class="setting-section disabled-state" *ngIf="!notificationsEnabled">
+      <div class="disabled-content">
+        <div class="disabled-icon">
+          <span class="icon">🔕</span>
+        </div>
+        <h3>Notifications Disabled</h3>
+        <p>Enable the master toggle above to configure your notification preferences.</p>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -111,6 +111,12 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         route: 'subscription',
         icon: 'card_membership',
         order: 2
+      },
+      {
+        label: 'notifications',
+        route: 'notifications',
+        icon: 'notifications',
+        order: 3
       }
     ]
   }

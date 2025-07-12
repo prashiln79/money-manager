@@ -43,6 +43,7 @@ import { environment } from '@env/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
 import { provideFirestore, getFirestore, enableIndexedDbPersistence } from '@angular/fire/firestore';
+import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 
 // Service Worker
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -95,6 +96,9 @@ import { MobileAccountsListComponent } from './component/dashboard/accounts/mobi
 import { LandingComponent } from './component/landing/landing.component';
 import { CustomDateRangeDialogComponent } from './util/components/custom-date-range-dialog';
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
+
+// Notification Components
+import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 
 // PWA Components
 import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
@@ -160,7 +164,8 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
     MobileAccountsListComponent,
     LandingComponent,
     CustomDateRangeDialogComponent,
-    ProfileComponent
+    ProfileComponent,
+    NotificationSettingsComponent
   ],
   imports: [
     BrowserModule,
@@ -245,6 +250,13 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
       });
 
       return firestore;
+    }),
+
+    // Firebase Cloud Messaging
+    provideMessaging(() => {
+      const messaging = getMessaging();
+      console.log("✅ Firebase Cloud Messaging initialized");
+      return messaging;
     }),
   ],
   bootstrap: [AppComponent]
