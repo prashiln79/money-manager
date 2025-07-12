@@ -1,10 +1,41 @@
 import { Timestamp } from 'firebase/firestore';
-import { TransactionType, RecurringInterval, SyncStatus, TransactionStatus, PaymentMethod } from '../config/enums';
+import {
+  TransactionType,
+  RecurringInterval,
+  SyncStatus,
+  TransactionStatus,
+  PaymentMethod,
+} from '../config/enums';
+
+/**
+ * Common audit metadata
+ */
+export interface Auditable {
+  createdAt: Date | Timestamp;
+  updatedAt: Date | Timestamp;
+  createdBy: string;
+  updatedBy: string;
+}
+
+export interface Timestamped {
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/**
+ * Common recurrence fields
+ */
+export interface RecurrenceInfo {
+  isRecurring?: boolean;
+  recurringInterval?: RecurringInterval;
+  recurringEndDate?: Date | Timestamp;
+  nextOccurrence?: Date | Timestamp;
+}
 
 /**
  * Base transaction interface
  */
-export interface Transaction {
+export interface Transaction extends Auditable, RecurrenceInfo {
   id?: string;
   userId: string;
   accountId: string;
@@ -18,29 +49,17 @@ export interface Transaction {
   status: TransactionStatus;
   paymentMethod?: PaymentMethod;
   tags?: string[];
-  
-  // Recurring transaction properties
-  isRecurring?: boolean;
-  recurringInterval?: RecurringInterval;
-  recurringEndDate?: Date | Timestamp;
-  nextOccurrence?: Date | Timestamp;
-  
+
   // Offline sync properties
   syncStatus: SyncStatus;
   isPending?: boolean;
   lastSyncedAt?: Date | Timestamp;
-  
-  // Metadata
-  createdAt: Date | Timestamp;
-  updatedAt: Date | Timestamp;
-  createdBy: string;
-  updatedBy: string;
 }
 
 /**
- * Transaction creation request interface
+ * Base transaction input interface
  */
-export interface CreateTransactionRequest {
+export interface TransactionBaseRequest {
   accountId: string;
   categoryId: string;
   payee: string;
@@ -56,22 +75,15 @@ export interface CreateTransactionRequest {
 }
 
 /**
- * Transaction update request interface
+ * Transaction creation request
  */
-export interface UpdateTransactionRequest {
-  accountId?: string;
-  categoryId?: string;
-  payee?: string;
-  amount?: number;
-  type?: TransactionType;
-  date?: Date;
-  notes?: string;
+export interface CreateTransactionRequest extends TransactionBaseRequest {}
+
+/**
+ * Transaction update request
+ */
+export interface UpdateTransactionRequest extends Partial<TransactionBaseRequest> {
   status?: TransactionStatus;
-  paymentMethod?: PaymentMethod;
-  tags?: string[];
-  isRecurring?: boolean;
-  recurringInterval?: RecurringInterval;
-  recurringEndDate?: Date;
 }
 
 /**
@@ -149,7 +161,7 @@ export interface TransactionTrend {
 /**
  * Recurring transaction template
  */
-export interface RecurringTransactionTemplate {
+export interface RecurringTransactionTemplate extends Timestamped {
   id: string;
   userId: string;
   accountId: string;
@@ -166,8 +178,6 @@ export interface RecurringTransactionTemplate {
   notes?: string;
   paymentMethod?: PaymentMethod;
   tags?: string[];
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
 }
 
 /**
@@ -236,4 +246,4 @@ export interface TransactionAuditLog {
     newValue: any;
   }[];
   metadata?: Record<string, any>;
-} 
+}
