@@ -197,7 +197,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           taxPercentage: formData.taxPercentage || 0,
           taxes: formData.taxes || [],
           // Payment method
-          paymentMethod: formData.paymentMethod || undefined,
+          paymentMethod: formData.paymentMethod || '',
         };
         
         if (this.dialogData?.id) {
