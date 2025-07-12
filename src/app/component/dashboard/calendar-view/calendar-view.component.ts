@@ -148,7 +148,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       },
       tooltip: {
         trigger: 'item',
-        formatter: '{a} <br/>{b}: ₹{c} ({d}%)'
+        formatter: '{b}<br> ₹{c} ({d}%)'
       },
       legend: {
         orient: 'horizontal',

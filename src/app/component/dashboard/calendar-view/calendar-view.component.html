@@ -76,7 +76,7 @@
       <!-- Date Filters for Category Chart -->
       <div class="date-filters" *ngIf="showPieChart && chartViewMode === 'category'">
         <div class="filter-row">
-          <mat-form-field appearance="outline" class="year-select">
+          <mat-form-field appearance="fill" class="year-select">
             <mat-label>Year</mat-label>
             <mat-select [(value)]="selectedYear" (selectionChange)="onYearChange($event.value)">
               <mat-option *ngFor="let year of availableYears" [value]="year">
@@ -85,7 +85,7 @@
             </mat-select>
           </mat-form-field>
           
-          <mat-form-field appearance="outline" class="month-select">
+          <mat-form-field appearance="fill" class="month-select">
             <mat-label>Month</mat-label>
             <mat-select [(value)]="selectedMonth" (selectionChange)="onMonthChange($event.value)">
               <mat-option *ngFor="let month of availableMonths" [value]="month.value">
