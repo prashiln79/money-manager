@@ -30,7 +30,6 @@
                  type="number"
                  formControlName="budgetAmount"
                  placeholder="0.00"
-                 min="0.01"
                  step="0.01"
                  class="form-input" />
           <mat-error *ngIf="budgetAmountControl?.hasError('required')">
@@ -97,8 +96,6 @@
                  type="number"
                  formControlName="budgetAlertThreshold"
                  placeholder="80"
-                 min="0"
-                 max="100"
                  class="form-input" />
           <mat-hint>Get notified when you reach this percentage of your budget</mat-hint>
           <mat-error *ngIf="budgetForm.get('budgetAlertThreshold')?.hasError('min')">

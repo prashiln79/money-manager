@@ -9,6 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { ValidationService } from 'src/app/util/service/validation.service';
 import {
   Category,
   AVAILABLE_ICONS,
@@ -47,10 +48,11 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     private router: Router,
     private hapticFeedback: HapticFeedbackService,
     private dialog: MatDialog,
-    private budgetService: CategoryBudgetService
+    private budgetService: CategoryBudgetService,
+    private validationService: ValidationService
   ) {
     this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(50)]],
+      name: ['', this.validationService.getCategoryNameValidators()],
       type: ['expense', Validators.required],
       icon: ['category', Validators.required],
       color: ['#46777f', Validators.required],
@@ -157,14 +159,8 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
   }
 
   getNameError(): string {
-    const nameControl = this.categoryForm.get('name');
-    if (nameControl?.hasError('required')) {
-      return 'Category name is required';
-    }
-    if (nameControl?.hasError('maxlength')) {
-      return 'Category name must be 50 characters or less';
-    }
-    return '';
+    const control = this.categoryForm.get('name');
+    return control ? this.validationService.getAccountNameError(control) : '';
   }
 
   getTypeError(): string {
@@ -177,13 +173,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
 
   getBudgetAmountError(): string {
     const control = this.budgetForm.get('budgetAmount');
-    if (control?.hasError('required')) {
-      return 'Budget amount is required';
-    }
-    if (control?.hasError('min')) {
-      return 'Budget amount must be greater than 0';
-    }
-    return '';
+    return control ? this.validationService.getBudgetAmountError(control) : '';
   }
 
   getBudgetPeriodError(): string {
@@ -196,13 +186,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
 
   getBudgetThresholdError(): string {
     const control = this.budgetForm.get('budgetAlertThreshold');
-    if (control?.hasError('min')) {
-      return 'Threshold must be at least 0%';
-    }
-    if (control?.hasError('max')) {
-      return 'Threshold cannot exceed 100%';
-    }
-    return '';
+    return control ? this.validationService.getBudgetThresholdError(control) : '';
   }
 
   openIconSelectorDialog(): void {

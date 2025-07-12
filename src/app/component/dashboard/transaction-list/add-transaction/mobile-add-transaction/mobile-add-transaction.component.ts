@@ -16,6 +16,7 @@ import {
 import { Router } from '@angular/router';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { ValidationService } from 'src/app/util/service/validation.service';
 import { AddAccountDialogComponent } from 'src/app/component/dashboard/accounts/add-account-dialog/add-account-dialog.component';
 import { MobileCategoryAddEditPopupComponent } from 'src/app/component/dashboard/category/mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
 import moment from 'moment';
@@ -59,11 +60,12 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     private hapticFeedback: HapticFeedbackService,
     private dialog: MatDialog,
     private loaderService: LoaderService,
-    private dateService: DateService
+    private dateService: DateService,
+    private validationService: ValidationService
   ) {
     this.transactionForm = this.fb.group({
-      payee: ['', [Validators.required, Validators.maxLength(45)]],
-      amount: ['', [Validators.required, Validators.min(0.01)]],
+      payee: ['', this.validationService.getTransactionPayeeValidators()],
+      amount: ['', this.validationService.getTransactionAmountValidators()],
       date: [moment().format('YYYY-MM-DD'), Validators.required],
       description: [''],
       categoryId: [''],
@@ -209,14 +211,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   }
 
   getAmountError(): string {
-    const amountControl = this.transactionForm.get('amount');
-    if (amountControl?.hasError('required')) {
-      return 'Amount is required';
-    }
-    if (amountControl?.hasError('min')) {
-      return 'Amount must be greater than 0';
-    }
-    return '';
+    const control = this.transactionForm.get('amount');
+    return control ? this.validationService.getTransactionAmountError(control) : '';
   }
 
   getDateError(): string {

@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { ValidationService } from 'src/app/util/service/validation.service';
 import { Account } from 'src/app/util/models/account.model';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -46,22 +47,20 @@ export class AddAccountDialogComponent {
     private auth: Auth,
     private notificationService: NotificationService,
     private hapticFeedback: HapticFeedbackService,
+    private validationService: ValidationService,
     private store: Store<AppState>
   ) {
     this.accountForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(50)]],
+      name: ['', this.validationService.getAccountNameValidators()],
       type: ['bank', Validators.required],
-      balance: [
-        0,
-        [Validators.required, Validators.min(-999999), Validators.max(999999)],
-      ],
+      balance: [0, this.validationService.getAccountBalanceValidators()],
       description: [''],
       // Loan-specific fields
       lenderName: [''],
-      loanAmount: [0, [Validators.min(0), Validators.max(999999)]],
-      interestRate: [0, [Validators.min(0), Validators.max(100)]],
+      loanAmount: [0, this.validationService.getLoanAmountValidators()],
+      interestRate: [0, this.validationService.getInterestRateValidators()],
       startDate: [new Date()],
-      durationMonths: [12, [Validators.min(1), Validators.max(600)]],
+      durationMonths: [12, this.validationService.getDurationMonthsValidators()],
       repaymentFrequency: ['monthly'],
       status: ['active'],
       totalPaid: [0, [Validators.min(0)]],
@@ -111,9 +110,9 @@ export class AddAccountDialogComponent {
 
       if (type === 'loan') {
         lenderNameControl?.setValidators([Validators.required]);
-        loanAmountControl?.setValidators([Validators.required, Validators.min(0), Validators.max(999999)]);
-        interestRateControl?.setValidators([Validators.required, Validators.min(0), Validators.max(100)]);
-        durationMonthsControl?.setValidators([Validators.required, Validators.min(1), Validators.max(600)]);
+        loanAmountControl?.setValidators([Validators.required, ...this.validationService.getLoanAmountValidators()]);
+        interestRateControl?.setValidators([Validators.required, ...this.validationService.getInterestRateValidators()]);
+        durationMonthsControl?.setValidators([Validators.required, ...this.validationService.getDurationMonthsValidators()]);
         nextDueDateControl?.setValidators([Validators.required]);
       } else {
         lenderNameControl?.clearValidators();
@@ -221,28 +220,13 @@ export class AddAccountDialogComponent {
   }
 
   getNameError(): string {
-    const nameControl = this.accountForm.get('name');
-    if (nameControl?.hasError('required')) {
-      return 'Account name is required';
-    }
-    if (nameControl?.hasError('maxlength')) {
-      return 'Account name must be less than 50 characters';
-    }
-    return '';
+    const control = this.accountForm.get('name');
+    return control ? this.validationService.getAccountNameError(control) : '';
   }
 
   getBalanceError(): string {
-    const balanceControl = this.accountForm.get('balance');
-    if (balanceControl?.hasError('required')) {
-      return 'Balance is required';
-    }
-    if (balanceControl?.hasError('min')) {
-      return 'Balance must be at least -999,999';
-    }
-    if (balanceControl?.hasError('max')) {
-      return 'Balance must be less than 999,999';
-    }
-    return '';
+    const control = this.accountForm.get('balance');
+    return control ? this.validationService.getAccountBalanceError(control) : '';
   }
 
   /**
@@ -257,13 +241,7 @@ export class AddAccountDialogComponent {
    */
   getLoanAmountError(): string {
     const control = this.accountForm.get('loanAmount');
-    if (control?.hasError('min')) {
-      return 'Loan amount must be positive';
-    }
-    if (control?.hasError('max')) {
-      return 'Loan amount must be less than 999,999';
-    }
-    return '';
+    return control ? this.validationService.getLoanAmountError(control) : '';
   }
 
   /**
@@ -271,13 +249,7 @@ export class AddAccountDialogComponent {
    */
   getInterestRateError(): string {
     const control = this.accountForm.get('interestRate');
-    if (control?.hasError('min')) {
-      return 'Interest rate must be positive';
-    }
-    if (control?.hasError('max')) {
-      return 'Interest rate must be less than 100%';
-    }
-    return '';
+    return control ? this.validationService.getInterestRateError(control) : '';
   }
 
   /**
@@ -285,12 +257,8 @@ export class AddAccountDialogComponent {
    */
   getDurationError(): string {
     const control = this.accountForm.get('durationMonths');
-    if (control?.hasError('min')) {
-      return 'Duration must be at least 1 month';
-    }
-    if (control?.hasError('max')) {
-      return 'Duration must be less than 50 years';
-    }
-    return '';
+    return control ? this.validationService.getDurationError(control) : '';
   }
+
+
 }

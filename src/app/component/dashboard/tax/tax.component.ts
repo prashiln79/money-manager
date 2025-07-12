@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { Transaction } from '../../../util/models/transaction.model';
 import { TaxService, TaxCalculation, TaxDeduction, GSTCalculation } from '../../../util/service/tax.service';
 import { NotificationService } from '../../../util/service/notification.service';
+import { ValidationService } from '../../../util/service/validation.service';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
@@ -44,17 +45,18 @@ export class TaxComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private taxService: TaxService,
     private notificationService: NotificationService,
+    private validationService: ValidationService,
     private dialog: MatDialog,
     private fb: FormBuilder,
     private store: Store<AppState>
   ) {
     this.taxForm = this.fb.group({
-      totalIncome: [0, [Validators.required, Validators.min(0)]],
+      totalIncome: [0, this.validationService.getTaxIncomeValidators()],
       gstBaseAmount: [0, [Validators.min(0)]],
-      section80C: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
-      section80D: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
-      section80G: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
-      section80TTA: [0, [Validators.min(0), Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)]],
+      section80C: [0, this.validationService.getTaxDeductionValidators()],
+      section80D: [0, this.validationService.getTaxDeductionValidators()],
+      section80G: [0, this.validationService.getTaxDeductionValidators()],
+      section80TTA: [0, this.validationService.getTaxDeductionValidators()],
       hraExemption: [0, [Validators.min(0)]],
       ltaExemption: [0, [Validators.min(0)]]
     });
@@ -244,5 +246,31 @@ export class TaxComponent implements OnInit, OnDestroy {
    */
   getTotalDeductions(): number {
     return this.deductions.reduce((sum, d) => sum + d.currentAmount, 0);
+  }
+
+  // Error handling methods
+  getIncomeError(): string {
+    const control = this.taxForm.get('totalIncome');
+    return control ? this.validationService.getTaxIncomeError(control) : '';
+  }
+
+  getSection80CError(): string {
+    const control = this.taxForm.get('section80C');
+    return control ? this.validationService.getTaxDeductionError(control) : '';
+  }
+
+  getSection80DError(): string {
+    const control = this.taxForm.get('section80D');
+    return control ? this.validationService.getTaxDeductionError(control) : '';
+  }
+
+  getSection80GError(): string {
+    const control = this.taxForm.get('section80G');
+    return control ? this.validationService.getTaxDeductionError(control) : '';
+  }
+
+  getSection80TTAError(): string {
+    const control = this.taxForm.get('section80TTA');
+    return control ? this.validationService.getTaxDeductionError(control) : '';
   }
 } 

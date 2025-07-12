@@ -7,6 +7,7 @@ import {
   User,
 } from 'src/app/util/models';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { ValidationService } from 'src/app/util/service/validation.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import moment from 'moment';
@@ -69,6 +70,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private router: Router,
     private notificationService: NotificationService,
+    private validationService: ValidationService,
     private dialog: MatDialog,
     private dateService: DateService,
     private store: Store<AppState>,
@@ -81,27 +83,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profileError$ = this.store.select(ProfileSelectors.selectProfileError);
     
     this.profileForm = this.fb.group({
-      firstName: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(this.validation.MIN_NAME_LENGTH),
-          Validators.maxLength(this.validation.MAX_NAME_LENGTH),
-        ],
-      ],
-      lastName: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(this.validation.MIN_NAME_LENGTH),
-          Validators.maxLength(this.validation.MAX_NAME_LENGTH),
-        ],
-      ],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.pattern(/^\+?[\d\s-()]+$/)]],
+      firstName: ['', this.validationService.getProfileNameValidators()],
+      lastName: ['', this.validationService.getProfileNameValidators()],
+      email: ['', this.validationService.getProfileEmailValidators()],
+      phone: ['', this.validationService.getProfilePhoneValidators()],
       dateOfBirth: [''],
-      occupation: ['', [Validators.maxLength(100)]],
-      monthlyIncome: [0, [Validators.min(this.validation.MIN_AMOUNT)]],
+      occupation: ['', this.validationService.getProfileOccupationValidators()],
+      monthlyIncome: [0, this.validationService.getProfileIncomeValidators()],
       preferences: this.fb.group({
         defaultCurrency: [this.defaultCurrency, Validators.required],
         timezone: ['UTC', Validators.required],
@@ -379,6 +367,37 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return 'N/A';
     }
     return moment(date?.seconds * 1000).format('MMM DD, YYYY');
+  }
+
+  // Error handling methods
+  getFirstNameError(): string {
+    const control = this.profileForm.get('firstName');
+    return control ? this.validationService.getProfileNameError(control) : '';
+  }
+
+  getLastNameError(): string {
+    const control = this.profileForm.get('lastName');
+    return control ? this.validationService.getProfileNameError(control) : '';
+  }
+
+  getEmailError(): string {
+    const control = this.profileForm.get('email');
+    return control ? this.validationService.getProfileEmailError(control) : '';
+  }
+
+  getPhoneError(): string {
+    const control = this.profileForm.get('phone');
+    return control ? this.validationService.getProfilePhoneError(control) : '';
+  }
+
+  getOccupationError(): string {
+    const control = this.profileForm.get('occupation');
+    return control ? this.validationService.getProfileOccupationError(control) : '';
+  }
+
+  getIncomeError(): string {
+    const control = this.profileForm.get('monthlyIncome');
+    return control ? this.validationService.getProfileIncomeError(control) : '';
   }
 
 }

@@ -11,6 +11,7 @@ import { loadGoals } from 'src/app/store/goals/goals.actions';
 import { loadProfile } from 'src/app/store/profile/profile.actions';
 import { loadTransactions } from 'src/app/store/transactions/transactions.actions';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { ValidationService } from 'src/app/util/service/validation.service';
 import { UserService } from 'src/app/util/service/user.service';
 import { SecurityService, SecurityEventType, SecurityLevel } from 'src/app/util/service/security.service';
 
@@ -49,6 +50,7 @@ export class SignInComponent implements OnInit, OnDestroy {
     private userService: UserService, 
     private notificationService: NotificationService, 
     private securityService: SecurityService,
+    private validationService: ValidationService,
     private store: Store<AppState>
   ) {
     this.initializeForm();
@@ -73,13 +75,11 @@ export class SignInComponent implements OnInit, OnDestroy {
   private initializeForm(): void {
     this.signInForm = this.fb.group({
       email: ['', [
-        Validators.required, 
-        Validators.email,
+        ...this.validationService.getProfileEmailValidators(),
         this.emailDomainValidator.bind(this)
       ]],
       password: ['', [
-        Validators.required, 
-        Validators.minLength(8),
+        ...this.validationService.getAuthPasswordValidators(),
         this.passwordStrengthValidator.bind(this)
       ]],
     });

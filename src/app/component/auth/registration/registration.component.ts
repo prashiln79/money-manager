@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
+import { ValidationService } from "src/app/util/service/validation.service";
 import { UserService } from "src/app/util/service/user.service";
 import { User, CURRENCIES, DEFAULT_CURRENCY, Category, defaultCategoriesForNewUser } from "src/app/util/models";
 import { AppState } from "src/app/store/app.state";
@@ -52,6 +53,7 @@ export class RegistrationComponent implements OnInit {
 		private router: Router,
 		private userService: UserService,
 		private notificationService: NotificationService,
+		private validationService: ValidationService,
 		private store: Store<AppState>
 
 	) {
@@ -59,13 +61,13 @@ export class RegistrationComponent implements OnInit {
 			// Step 1: Basic Profile
 			profile: this.fb.group(
 				{
-					firstName: ["", [Validators.required, Validators.minLength(2)]],
-					lastName: ["", [Validators.required, Validators.minLength(2)]],
-					email: ["", [Validators.required, Validators.email]],
-					phone: ["", [Validators.pattern(/^\+?[\d\s-()]+$/)]],
+					firstName: ["", this.validationService.getAuthNameValidators()],
+					lastName: ["", this.validationService.getAuthNameValidators()],
+					email: ["", this.validationService.getProfileEmailValidators()],
+					phone: ["", this.validationService.getProfilePhoneValidators()],
 					dateOfBirth: [""],
 					occupation: [""],
-					monthlyIncome: [0, [Validators.min(0)]],
+					monthlyIncome: [0, this.validationService.getProfileIncomeValidators()],
 				},
 			),
 
@@ -123,9 +125,9 @@ export class RegistrationComponent implements OnInit {
 	// Bank Account Methods
 	addBankAccount(account?: BankAccount) {
 		const bankAccountForm = this.fb.group({
-			name: [account?.name || "", Validators.required],
+			name: [account?.name || "", this.validationService.getAccountNameValidators()],
 			type: [account?.type || "checking", Validators.required],
-			balance: [account?.balance || 0, [Validators.required, Validators.min(0)]],
+			balance: [account?.balance || 0, this.validationService.getAccountBalanceValidators()],
 			currency: [account?.currency || DEFAULT_CURRENCY, Validators.required],
 		});
 
@@ -141,7 +143,7 @@ export class RegistrationComponent implements OnInit {
 	// Category Methods
 	addCategory(category?: Category) {
 		const categoryForm = this.fb.group({
-			name: [category?.name || "", Validators.required],
+			name: [category?.name || "", this.validationService.getCategoryNameValidators()],
 			type: [category?.type || "expense", Validators.required],
 			color: [category?.color || "#46777f", Validators.required],
 			icon: [category?.icon || "category", Validators.required],

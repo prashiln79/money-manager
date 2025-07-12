@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IValidationService } from './interfaces';
 import { APP_CONFIG, ERROR_MESSAGES } from '../config/config';
+import { Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 
 /**
  * Validation result interface
@@ -23,6 +24,116 @@ export interface PasswordValidationResult {
 }
 
 /**
+ * Validation constants for the entire application
+ */
+export const VALIDATION_CONSTANTS = {
+  // Account validations
+  ACCOUNT: {
+    NAME: {
+      MIN_LENGTH: 1,
+      MAX_LENGTH: 50,
+      PATTERN: /^[a-zA-Z0-9\s\-_]+$/
+    },
+    BALANCE: {
+      MIN: -999999999999,
+      MAX: 999999999999
+    },
+    LOAN: {
+      AMOUNT: {
+        MIN: 0,
+        MAX: 999999999999
+      },
+      INTEREST_RATE: {
+        MIN: 0,
+        MAX: 100
+      },
+      DURATION_MONTHS: {
+        MIN: 1,
+        MAX: 600 // 50 years
+      }
+    }
+  },
+
+  // Transaction validations
+  TRANSACTION: {
+    PAYEE: {
+      MAX_LENGTH: 45
+    },
+    AMOUNT: {
+      MIN: 0.01
+    },
+    DESCRIPTION: {
+      MAX_LENGTH: 500
+    }
+  },
+
+  // Profile validations
+  PROFILE: {
+    NAME: {
+      MIN_LENGTH: 2,
+      MAX_LENGTH: 50
+    },
+    EMAIL: {
+      PATTERN: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    },
+    PHONE: {
+      PATTERN: /^\+?[\d\s-()]+$/
+    },
+    OCCUPATION: {
+      MAX_LENGTH: 100
+    },
+    INCOME: {
+      MIN: 0
+    }
+  },
+
+  // Category validations
+  CATEGORY: {
+    NAME: {
+      MAX_LENGTH: 50
+    }
+  },
+
+  // Budget validations
+  BUDGET: {
+    AMOUNT: {
+      MIN: 0.01
+    },
+    ALERT_THRESHOLD: {
+      MIN: 0,
+      MAX: 100
+    }
+  },
+
+  // Tax validations
+  TAX: {
+    INCOME: {
+      MIN: 0
+    },
+    DEDUCTIONS: {
+      MIN: 0
+    }
+  },
+
+  // Authentication validations
+  AUTH: {
+    PASSWORD: {
+      MIN_LENGTH: 8,
+      MAX_LENGTH: 128
+    },
+    NAME: {
+      MIN_LENGTH: 2
+    }
+  },
+
+  // General validations
+  GENERAL: {
+    REQUIRED: true,
+    EMAIL: true
+  }
+} as const;
+
+/**
  * Validation service providing comprehensive validation logic
  */
 @Injectable({
@@ -30,6 +141,338 @@ export interface PasswordValidationResult {
 })
 export class ValidationService implements IValidationService {
   
+  /**
+   * Get validation constants
+   */
+  get constants() {
+    return VALIDATION_CONSTANTS;
+  }
+
+  /**
+   * Account validation methods
+   */
+  getAccountNameValidators() {
+    return [
+      Validators.required,
+      Validators.maxLength(VALIDATION_CONSTANTS.ACCOUNT.NAME.MAX_LENGTH)
+    ];
+  }
+
+  getAccountBalanceValidators() {
+    return [
+      Validators.required,
+      Validators.min(VALIDATION_CONSTANTS.ACCOUNT.BALANCE.MIN),
+      Validators.max(VALIDATION_CONSTANTS.ACCOUNT.BALANCE.MAX)
+    ];
+  }
+
+  getLoanAmountValidators() {
+    return [
+      Validators.min(VALIDATION_CONSTANTS.ACCOUNT.LOAN.AMOUNT.MIN),
+      Validators.max(VALIDATION_CONSTANTS.ACCOUNT.LOAN.AMOUNT.MAX)
+    ];
+  }
+
+  getInterestRateValidators() {
+    return [
+      Validators.min(VALIDATION_CONSTANTS.ACCOUNT.LOAN.INTEREST_RATE.MIN),
+      Validators.max(VALIDATION_CONSTANTS.ACCOUNT.LOAN.INTEREST_RATE.MAX)
+    ];
+  }
+
+  getDurationMonthsValidators() {
+    return [
+      Validators.min(VALIDATION_CONSTANTS.ACCOUNT.LOAN.DURATION_MONTHS.MIN),
+      Validators.max(VALIDATION_CONSTANTS.ACCOUNT.LOAN.DURATION_MONTHS.MAX)
+    ];
+  }
+
+  /**
+   * Transaction validation methods
+   */
+  getTransactionPayeeValidators() {
+    return [
+      Validators.required,
+      Validators.maxLength(VALIDATION_CONSTANTS.TRANSACTION.PAYEE.MAX_LENGTH)
+    ];
+  }
+
+  getTransactionAmountValidators() {
+    return [
+      Validators.required,
+      Validators.min(VALIDATION_CONSTANTS.TRANSACTION.AMOUNT.MIN)
+    ];
+  }
+
+  /**
+   * Profile validation methods
+   */
+  getProfileNameValidators() {
+    return [
+      Validators.required,
+      Validators.minLength(VALIDATION_CONSTANTS.PROFILE.NAME.MIN_LENGTH),
+      Validators.maxLength(VALIDATION_CONSTANTS.PROFILE.NAME.MAX_LENGTH)
+    ];
+  }
+
+  getProfileEmailValidators() {
+    return [
+      Validators.required,
+      Validators.email
+    ];
+  }
+
+  getProfilePhoneValidators() {
+    return [
+      Validators.pattern(VALIDATION_CONSTANTS.PROFILE.PHONE.PATTERN)
+    ];
+  }
+
+  getProfileOccupationValidators() {
+    return [
+      Validators.maxLength(VALIDATION_CONSTANTS.PROFILE.OCCUPATION.MAX_LENGTH)
+    ];
+  }
+
+  getProfileIncomeValidators() {
+    return [
+      Validators.min(VALIDATION_CONSTANTS.PROFILE.INCOME.MIN)
+    ];
+  }
+
+  /**
+   * Category validation methods
+   */
+  getCategoryNameValidators() {
+    return [
+      Validators.required,
+      Validators.maxLength(VALIDATION_CONSTANTS.CATEGORY.NAME.MAX_LENGTH)
+    ];
+  }
+
+  /**
+   * Budget validation methods
+   */
+  getBudgetAmountValidators() {
+    return [
+      Validators.required,
+      Validators.min(VALIDATION_CONSTANTS.BUDGET.AMOUNT.MIN)
+    ];
+  }
+
+  getBudgetThresholdValidators() {
+    return [
+      Validators.min(VALIDATION_CONSTANTS.BUDGET.ALERT_THRESHOLD.MIN),
+      Validators.max(VALIDATION_CONSTANTS.BUDGET.ALERT_THRESHOLD.MAX)
+    ];
+  }
+
+  /**
+   * Tax validation methods
+   */
+  getTaxIncomeValidators() {
+    return [
+      Validators.required,
+      Validators.min(VALIDATION_CONSTANTS.TAX.INCOME.MIN)
+    ];
+  }
+
+  getTaxDeductionValidators() {
+    return [
+      Validators.min(VALIDATION_CONSTANTS.TAX.DEDUCTIONS.MIN),
+      Validators.max(APP_CONFIG.VALIDATION.MAX_AMOUNT)
+    ];
+  }
+
+  /**
+   * Authentication validation methods
+   */
+  getAuthPasswordValidators() {
+    return [
+      Validators.required,
+      Validators.minLength(VALIDATION_CONSTANTS.AUTH.PASSWORD.MIN_LENGTH)
+    ];
+  }
+
+  getAuthNameValidators() {
+    return [
+      Validators.required,
+      Validators.minLength(VALIDATION_CONSTANTS.AUTH.NAME.MIN_LENGTH)
+    ];
+  }
+
+
+
+  /**
+   * Error message getters
+   */
+  getAccountNameError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Account name is required';
+    }
+    if (control?.hasError('maxlength')) {
+      return `Account name must be no more than ${VALIDATION_CONSTANTS.ACCOUNT.NAME.MAX_LENGTH} characters`;
+    }
+    return '';
+  }
+
+  getAccountBalanceError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Balance is required';
+    }
+    if (control?.hasError('min')) {
+      return `Balance must be at least ${VALIDATION_CONSTANTS.ACCOUNT.BALANCE.MIN.toLocaleString()}`;
+    }
+    if (control?.hasError('max')) {
+      return `Balance must be less than ${VALIDATION_CONSTANTS.ACCOUNT.BALANCE.MAX.toLocaleString()}`;
+    }
+    return '';
+  }
+
+  getLoanAmountError(control: AbstractControl): string {
+    if (control?.hasError('min')) {
+      return 'Loan amount must be positive';
+    }
+    if (control?.hasError('max')) {
+      return `Loan amount must be less than ${VALIDATION_CONSTANTS.ACCOUNT.LOAN.AMOUNT.MAX.toLocaleString()}`;
+    }
+    return '';
+  }
+
+  getInterestRateError(control: AbstractControl): string {
+    if (control?.hasError('min')) {
+      return 'Interest rate must be positive';
+    }
+    if (control?.hasError('max')) {
+      return 'Interest rate must be less than 100%';
+    }
+    return '';
+  }
+
+  getDurationError(control: AbstractControl): string {
+    if (control?.hasError('min')) {
+      return 'Duration must be at least 1 month';
+    }
+    if (control?.hasError('max')) {
+      return 'Duration must be less than 50 years';
+    }
+    return '';
+  }
+
+  getTransactionAmountError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Amount is required';
+    }
+    if (control?.hasError('min')) {
+      return 'Amount must be greater than 0';
+    }
+    return '';
+  }
+
+  getTransactionPayeeError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Description is required';
+    }
+    if (control?.hasError('maxlength')) {
+      return `Description must be no more than ${VALIDATION_CONSTANTS.TRANSACTION.PAYEE.MAX_LENGTH} characters`;
+    }
+    return '';
+  }
+
+  getProfileNameError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Name is required';
+    }
+    if (control?.hasError('minlength')) {
+      return `Name must be at least ${VALIDATION_CONSTANTS.PROFILE.NAME.MIN_LENGTH} characters`;
+    }
+    if (control?.hasError('maxlength')) {
+      return `Name must be no more than ${VALIDATION_CONSTANTS.PROFILE.NAME.MAX_LENGTH} characters`;
+    }
+    return '';
+  }
+
+  getBudgetAmountError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Budget amount is required';
+    }
+    if (control?.hasError('min')) {
+      return 'Budget amount must be greater than 0';
+    }
+    return '';
+  }
+
+  getBudgetThresholdError(control: AbstractControl): string {
+    if (control?.hasError('min')) {
+      return 'Threshold must be at least 0%';
+    }
+    if (control?.hasError('max')) {
+      return 'Threshold cannot exceed 100%';
+    }
+    return '';
+  }
+
+  getProfileEmailError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Email is required';
+    }
+    if (control?.hasError('email')) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  }
+
+  getProfilePhoneError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Phone number is required';
+    }
+    if (control?.hasError('pattern')) {
+      return 'Please enter a valid phone number';
+    }
+    return '';
+  }
+
+  getProfileOccupationError(control: AbstractControl): string {
+    if (control?.hasError('maxlength')) {
+      return `Occupation must be no more than ${VALIDATION_CONSTANTS.PROFILE.OCCUPATION.MAX_LENGTH} characters`;
+    }
+    return '';
+  }
+
+  getProfileIncomeError(control: AbstractControl): string {
+    if (control?.hasError('min')) {
+      return 'Income must be positive';
+    }
+    return '';
+  }
+
+  getTaxIncomeError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Income is required';
+    }
+    if (control?.hasError('min')) {
+      return 'Income must be positive';
+    }
+    return '';
+  }
+
+  getTaxDeductionError(control: AbstractControl): string {
+    if (control?.hasError('min')) {
+      return 'Deduction amount must be positive';
+    }
+    return '';
+  }
+
+  getCategoryNameError(control: AbstractControl): string {
+    if (control?.hasError('required')) {
+      return 'Category name is required';
+    }
+    if (control?.hasError('maxlength')) {
+      return `Category name must be no more than ${VALIDATION_CONSTANTS.CATEGORY.NAME.MAX_LENGTH} characters`;
+    }
+    return '';
+  }
+
   /**
    * Validate email address
    */

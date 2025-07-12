@@ -19,9 +19,7 @@ import {
   UserPreferences 
 } from '../models/user.model';
 import { 
-  Category,   
-  CreateCategoryRequest, 
-  UpdateCategoryRequest 
+  Category,
 } from '../models/category.model';
 import { 
   Budget, 
@@ -85,16 +83,6 @@ export interface IUserService {
   resetPassword(email: string): Observable<void>;
   isAuthenticated(): boolean;
   getUser(): any;
-}
-
-/**
- * Category service interface
- */
-export interface ICategoryService extends IBaseService<Category, CreateCategoryRequest, UpdateCategoryRequest> {
-  getCategoriesByType(userId: string, type: string): Observable<Category[]>;
-  getDefaultCategories(userId: string): Observable<Category[]>;
-  duplicateCategory(userId: string, categoryId: string, newName: string): Observable<string>;
-  getCategoryUsage(userId: string, categoryId: string): Observable<number>;
 }
 
 /**

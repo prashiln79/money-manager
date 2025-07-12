@@ -47,7 +47,6 @@
           type="text" 
           formControlName="name" 
           placeholder="e.g., Groceries"
-          maxlength="50"
           autofocus
           class="form-input"
         />
@@ -174,7 +173,6 @@
               type="number"
               formControlName="budgetAmount"
               placeholder="0.00"
-              min="0.01"
               step="0.01"
               class="form-input"
             />
@@ -209,8 +207,6 @@
               type="number"
               formControlName="budgetAlertThreshold"
               placeholder="80"
-              min="0"
-              max="100"
               class="form-input"
             />
             <div class="field-hint">Get notified when you reach this percentage of your budget</div>
