@@ -122,7 +122,7 @@
   <!-- Pie Chart Section -->
   <div class="pie-chart-section" *ngIf="showPieChart">
     <div class="chart-container">
-      <div echarts [options]="pieChartOption" class="pie-chart"></div>
+      <div echarts [options]="pieChartOption" class="pie-chart" (chartClick)="onChartClick($event)"></div>
     </div>
   </div>
 

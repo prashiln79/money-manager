@@ -10,7 +10,7 @@ import { MobileAddTransactionComponent } from './add-transaction/mobile-add-tran
 import { MatDialog } from '@angular/material/dialog';
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
-import { DateSelectionService, DateRange } from 'src/app/util/service/date-selection.service';
+import { FilterService } from 'src/app/util/service/filter.service';
 import { Subscription, Observable } from 'rxjs';
 import moment from 'moment';
 import { Store } from '@ngrx/store';
@@ -44,7 +44,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   
   // Date filtering properties
   selectedDate: Date | null = null;
-  selectedDateRange: DateRange | any = null;
+  selectedDateRange: any = null;
   allTransactions: any[] = [];
   private dateSubscription = new Subscription();
   
@@ -72,7 +72,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver, 
     private auth: Auth,  
     private notificationService: NotificationService,
-    private dateSelectionService: DateSelectionService,
+    private filterService: FilterService,
     private store: Store<AppState>,
     private dateService: DateService
   ) {
@@ -144,7 +144,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   subscribeToDateSelection() {
     // Subscribe to single date selection
     this.dateSubscription.add(
-      this.dateSelectionService.selectedDate$.subscribe(date => {
+      this.filterService.selectedDate$.subscribe(date => {
         if(date){
           this.selectedDate = date;
           this.selectedDateRange = null;
@@ -155,11 +155,33 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
     // Subscribe to date range selection
     this.dateSubscription.add(
-      this.dateSelectionService.selectedDateRange$.subscribe(dateRange => {
+      this.filterService.selectedDateRange$.subscribe(dateRange => {
         if(dateRange){
         this.selectedDateRange = dateRange;
           this.selectedDate = null;
           this.applyDateFilter();
+        }
+      })
+    );
+
+    // Subscribe to category filter selection
+    this.dateSubscription.add(
+      this.filterService.categoryFilter$.subscribe(categoryFilter => {
+        if (categoryFilter) {
+          // Set the category filter
+          this.selectedCategory = [categoryFilter.categoryName];
+          
+          // Set date range for the selected month/year
+          const startDate = new Date(categoryFilter.year, categoryFilter.month, 1);
+          const endDate = new Date(categoryFilter.year, categoryFilter.month + 1, 0);
+          this.selectedDateRange = { startDate, endDate };
+          this.selectedDate = null;
+          
+          // Apply filters
+          this.applyDateFilter();
+          
+          // Show notification
+          this.notificationService.success(`Showing ${categoryFilter.categoryName} transactions for ${categoryFilter.monthName} ${categoryFilter.year}`);
         }
       })
     );
@@ -252,7 +274,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   clearDateFilter() {
     this.selectedDate = null;
     this.selectedDateRange = null;
-    this.dateSelectionService.clearSelectedDate();
+    this.filterService.clearSelectedDate();
     this.applyDateFilter();
   }
 
@@ -262,7 +284,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.selectedCategory = ['all'];
     this.selectedType = 'all';
-    this.dateSelectionService.clearSelectedDate();
+    this.filterService.clearSelectedDate();
     this.applyDateFilter();
     this.notificationService.success('All filters cleared');
   }

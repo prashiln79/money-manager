@@ -26,6 +26,7 @@ import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { RecurringInterval } from 'src/app/util/config/enums';
+import { FilterService } from 'src/app/util/service/filter.service';
 
 interface SortOption {
   value: string;
@@ -84,7 +85,8 @@ export class MobileTransactionListComponent
     private readonly route: Router,
     private readonly dialog: MatDialog,
     public readonly dateService: DateService,
-    private readonly store: Store<AppState>
+    private readonly store: Store<AppState>,
+    private readonly filterService: FilterService
   ) {}
 
   ngOnInit() {
@@ -94,6 +96,28 @@ export class MobileTransactionListComponent
     if (this.route.url.includes('transactions')) {
       this.showFilters = true;
     }
+    
+    // Subscribe to category filter from calendar view
+    this.subscription.add(
+      this.filterService.categoryFilter$.subscribe((categoryFilter: any) => {
+        if (categoryFilter) {
+          // Set the category filter
+          this.selectedCategory = [categoryFilter.categoryName];
+          
+          // Set date range for the selected month/year
+          const startDate = new Date(categoryFilter.year, categoryFilter.month, 1);
+          const endDate = new Date(categoryFilter.year, categoryFilter.month + 1, 0);
+          this.selectedDateRange = { startDate, endDate };
+          
+          // Apply filters
+          this.filterTransactions();
+          
+          // Emit changes to parent
+          this.selectedCategoryChange.emit(this.selectedCategory);
+          this.selectedDateRangeChange.emit({ startDate, endDate });
+        }
+      })
+    );
   }
 
   ngOnDestroy() {

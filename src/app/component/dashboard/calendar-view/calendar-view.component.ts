@@ -2,8 +2,9 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { UserService } from '../../../util/service/user.service';
-import { DateSelectionService } from '../../../util/service/date-selection.service';
+import { FilterService } from '../../../util/service/filter.service';
 import { NotificationService } from '../../../util/service/notification.service';
+
 import { Subscription } from 'rxjs';
 import moment from 'moment';
 import { DateService } from 'src/app/util/service/date.service';
@@ -71,7 +72,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private userService: UserService,
-    private dateSelectionService: DateSelectionService,
+    private filterService: FilterService,
     private notificationService: NotificationService,
     private dateService: DateService,
     private store: Store<AppState>
@@ -214,6 +215,29 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       ]
     };
   }
+
+  // Handle chart click events
+  onChartClick(event: any) {
+    if (this.chartViewMode === 'category' && event.data) {
+      this.applyCategoryFilter(event.data.name);
+    }
+  }
+
+  // Apply category filter to transaction list
+  applyCategoryFilter(categoryName: string) {
+    // Set category filter using the date selection service
+    this.filterService.setCategoryFilter(
+      categoryName, 
+      this.selectedYear, 
+      this.selectedMonth, 
+      this.availableMonths[this.selectedMonth].label
+    );
+    
+    // Show success notification
+    this.notificationService.success(`Filtering transactions for ${categoryName} in ${this.availableMonths[this.selectedMonth].label} ${this.selectedYear}`);
+  }
+
+
 
   // Update income vs expense chart
   updateIncomeExpenseChart() {
@@ -415,10 +439,10 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     if (date) {
       this.selectedDateTransactions = this.getTransactionsForDate(date);
       // Emit selected date to other components
-      this.dateSelectionService.setSelectedDate(date);
+      this.filterService.setSelectedDate(date);
     } else {
       this.selectedDateTransactions = [];
-      this.dateSelectionService.clearSelectedDate();
+      this.filterService.clearSelectedDate();
     }
   }
 
@@ -442,7 +466,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       }
       this.rangeTransactions = this.getTransactionsForDateRange(this.startDate, this.endDate);
       // Emit date range to other components
-      this.dateSelectionService.setSelectedDateRange(this.startDate, this.endDate);
+      this.filterService.setSelectedDateRange(this.startDate, this.endDate);
     }
   }
 
@@ -518,7 +542,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.startDate = null;
     this.endDate = null;
     this.rangeTransactions = [];
-    this.dateSelectionService.clearSelectedDate();
+    this.filterService.clearSelectedDate();
     this.updatePieChart();
   }
 
@@ -588,6 +612,6 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   clearAll() {
     this.clearSelections();
     this.isControlsExpanded = this.isRangeMode = false;
-    this.dateSelectionService.clearSelectedDate();
+    this.filterService.clearSelectedDate();
   }
 }
