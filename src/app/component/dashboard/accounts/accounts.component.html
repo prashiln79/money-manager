@@ -46,6 +46,7 @@
 					*ngFor="let account of accounts; trackBy: trackByAccountId"
 					class="account-item"
 					[class]="getBalanceClass(account)"
+					[class.expanded]="expandedAccount?.accountId === account.accountId"
 				>
 					<div class="account-content">
 						<div class="account-info">
@@ -57,8 +58,6 @@
 								
 								@if(isLoanAccount(account)){
 									<p class="account-type"><b>Interest Rate:</b> {{ getLoanDetails(account)?.interestRate +'%'  }}</p>
-									<p class="account-type"><b>Next Due:</b> {{ getLoanDetails(account)?.nextDueDate | date:'MMM d, yyyy'  }}</p>
-									<p class="account-type"><b>Monthly Interest:</b> {{ calculateMonthlyInterest(account) | currency  }}</p>
 								}@else{
 									<p class="account-type">{{ account.type  | titlecase }}</p>
 								}
@@ -86,7 +85,97 @@
 						</div>
 					</div>
 
-				
+					<!-- Expand/Collapse Button -->
+					<div class="expand-section">
+						<button mat-button (click)="toggleAccountExpansion(account)" class="expand-btn">
+							<mat-icon>{{ expandedAccount?.accountId === account.accountId ? 'expand_less' : 'expand_more' }}</mat-icon>
+							<span>{{ expandedAccount?.accountId === account.accountId ? 'Show Less' : 'Show More' }}</span>
+						</button>
+					</div>
+
+					<!-- Expanded Details -->
+					<div *ngIf="expandedAccount?.accountId === account.accountId" class="account-details-expanded">
+						<mat-tab-group class="details-tabs">
+							<!-- Basic Details Tab -->
+							<mat-tab label="Basic Details">
+								<div class="tab-content">
+									<div class="detail-row">
+										<span class="detail-label">Account Name:</span>
+										<span class="detail-value">{{ account.name }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Account Type:</span>
+										<span class="detail-value">{{ account.type | titlecase }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Current Balance:</span>
+										<span class="detail-value" [class]="account.balance >= 0 ? 'positive' : 'negative'">
+											{{ account.balance | currency }}
+										</span>
+									</div>
+									<div class="detail-row" *ngIf="account.description">
+										<span class="detail-label">Description:</span>
+										<span class="detail-value">{{ account.description }}</span>
+									</div>
+								</div>
+							</mat-tab>
+
+							<!-- Loan Details Tab (only for loan accounts) -->
+							<mat-tab label="Loan Details" *ngIf="isLoanAccount(account)">
+								<div class="tab-content">
+									<div class="detail-row">
+										<span class="detail-label">Lender Name:</span>
+										<span class="detail-value">{{ getLoanDetails(account)?.lenderName || 'N/A' }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Interest Rate:</span>
+										<span class="detail-value">{{ getLoanDetails(account)?.interestRate }}%</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Monthly Interest:</span>
+										<span class="detail-value interest-amount">{{ calculateMonthlyInterest(account) | currency }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Next Due Date:</span>
+										<span class="detail-value">{{ getLoanDetails(account)?.nextDueDate | date:'fullDate' }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Remaining Balance:</span>
+										<span class="detail-value">{{ getLoanDetails(account)?.remainingBalance | currency }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Monthly Payment:</span>
+										<span class="detail-value">{{ getLoanDetails(account)?.monthlyPayment | currency }}</span>
+									</div>
+									<div class="detail-row" *ngIf="getLoanDetails(account)?.durationMonths">
+										<span class="detail-label">Loan Term:</span>
+										<span class="detail-value">{{ getLoanDetails(account)?.durationMonths }} months</span>
+									</div>
+								</div>
+							</mat-tab>
+
+							<!-- Transaction History Tab -->
+							<mat-tab label="Recent Transactions">
+								<div class="tab-content">
+									<div class="no-transactions" *ngIf="!getRecentTransactions(account)?.length">
+										<mat-icon>receipt_long</mat-icon>
+										<p>No recent transactions</p>
+									</div>
+									<div class="transaction-list" *ngIf="getRecentTransactions(account)?.length">
+										<div class="transaction-item" *ngFor="let transaction of getRecentTransactions(account)">
+											<div class="transaction-info">
+												<span class="transaction-description">{{ transaction.description }}</span>
+												<span class="transaction-date">{{ transaction.date | date:'shortDate' }}</span>
+											</div>
+											<span class="transaction-amount" [class]="transaction.amount >= 0 ? 'positive' : 'negative'">
+												{{ transaction.amount | currency }}
+											</span>
+										</div>
+									</div>
+								</div>
+							</mat-tab>
+						</mat-tab-group>
+					</div>
 				</div>
 			</ng-container>
 		</div>

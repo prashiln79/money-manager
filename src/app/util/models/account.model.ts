@@ -41,19 +41,21 @@ export interface Account {
 	lastSyncAt?: Timestamp;
 	syncStatus?: SyncStatus;
 	// Loan-specific properties (only used when type is 'loan')
-	loanDetails?: {
-		lenderName: string;
-		loanAmount: number;
-		interestRate: number;
-		startDate: Date;
-		durationMonths: number;
-		repaymentFrequency: 'monthly' | 'weekly';
-		status: 'active' | 'closed' | 'defaulted';
-		totalPaid: number;
-		remainingBalance: number;
-		nextDueDate: Date;
-		showReminder: boolean;
-	};
+	loanDetails?: LoanDetails;
+}
+export interface LoanDetails {
+	lenderName: string;
+	loanAmount: number;
+	interestRate: number;
+	startDate: Date;
+	durationMonths: number;
+	repaymentFrequency: 'monthly' | 'weekly';
+	status: 'active' | 'closed' | 'defaulted';
+	totalPaid: number;
+	remainingBalance: number;
+	nextDueDate: Date;
+	showReminder: boolean;
+	monthlyPayment: number;
 }
 
 /**

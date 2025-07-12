@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, Observable, of } from 'rxjs';
-import { Account } from 'src/app/util/models/account.model';
+import { Account, LoanDetails } from 'src/app/util/models/account.model';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MobileAccountComponent } from './mobile-account/mobile-account.component';
@@ -32,6 +32,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   public errorMessage: string = '';
   public isMobile: boolean = false;
   public selectedAccount: Account | null = null;
+  public expandedAccount: Account | null = null;
   
   // Private properties
   private userId: string = '';
@@ -226,8 +227,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
   /**
    * Get loan details safely
    */
-  public getLoanDetails(account: Account) {
-    return account.loanDetails || null;
+  public getLoanDetails(account: Account): LoanDetails | undefined {
+    return account.loanDetails;
   }
 
   /**
@@ -267,5 +268,25 @@ export class AccountsComponent implements OnInit, OnDestroy {
       default:
         return 'account_balance';
     }
+  }
+
+  /**
+   * Toggle account expansion to show/hide details
+   */
+  public toggleAccountExpansion(account: Account): void {
+    if (this.expandedAccount?.accountId === account.accountId) {
+      this.expandedAccount = null;
+    } else {
+      this.expandedAccount = account;
+    }
+  }
+
+  /**
+   * Get recent transactions for an account (placeholder implementation)
+   */
+  public getRecentTransactions(account: Account): any[] {
+    // This is a placeholder - in a real app, you would fetch transactions from a service
+    // For now, return an empty array
+    return [];
   }
 }
