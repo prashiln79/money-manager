@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Subject, Observable, of } from 'rxjs';
+import { Subject, Observable, of, combineLatest } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
@@ -17,7 +17,11 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as CategoriesActions from '../../../store/categories/categories.actions';
 import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
+import * as TransactionsActions from '../../../store/transactions/transactions.actions';
+import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { TransactionType } from 'src/app/util/config/enums';
+import { Transaction } from 'src/app/util/models/transaction.model';
+import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
   selector: 'transaction-category',
@@ -30,9 +34,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public categories$: Observable<Category[]>;
   public isLoading$: Observable<boolean>;
   public error$: Observable<any>;
+  public transactions$: Observable<Transaction[]>;
   public Math = Math; // Make Math available in template
 
   public categories: Category[] = [];
+  public transactions: Transaction[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
   public isMobile: boolean = false;
@@ -57,11 +63,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private hapticFeedback: HapticFeedbackService,
     private breakpointObserver: BreakpointObserver,
     private store: Store<AppState>,
-    private budgetService: CategoryBudgetService
+    private budgetService: CategoryBudgetService,
+    public dateService: DateService
   ) {
     this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
     this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
     this.error$ = this.store.select(CategoriesSelectors.selectCategoriesError);
+    this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
       this.isMobile = result.matches;
@@ -87,16 +95,25 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     this.userId = currentUser.uid;
     this.loadUserCategories();
+    this.loadUserTransactions();
   }
 
   private loadUserCategories(): void {
     this.store.dispatch(CategoriesActions.loadCategories({ userId: this.userId }));
   }
 
+  private loadUserTransactions(): void {
+    this.store.dispatch(TransactionsActions.loadTransactions({ userId: this.userId }));
+  }
+
   private subscribeToStoreData(): void {
     this.categories$.pipe(takeUntil(this.destroy$)).subscribe(categories => {
       this.categories = categories.sort((a, b) => a.name.localeCompare(b.name));
       this.initializeCategorySuggestions();
+    });
+
+    this.transactions$.pipe(takeUntil(this.destroy$)).subscribe(transactions => {
+      this.transactions = transactions;
     });
 
     this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe(loading => {
@@ -402,26 +419,83 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get recent transactions for a category (placeholder implementation)
+   * Get recent transactions for a category
    */
-  public getRecentTransactions(category: Category): any[] {
-    // This is a placeholder - in a real app, you would fetch transactions from a service
-    // For now, return an empty array
-    return [];
+  public getRecentTransactions(category: Category): Transaction[] {
+    if (!category || !category.name) return [];
+    
+    // Filter transactions by category name and sort by date (most recent first)
+    return this.transactions
+      .filter(transaction => transaction.category === category.name)
+      .sort((a, b) => {
+        const dateA = this.dateService.toDate(a.date) || new Date();
+        const dateB = this.dateService.toDate(b.date) || new Date();
+        return dateB.getTime() - dateA.getTime();
+      })
+      .slice(0, 10); // Return only the 10 most recent transactions
   }
 
   /**
-   * Get category statistics (placeholder implementation)
+   * Get category statistics
    */
   public getCategoryStats(category: Category): any {
-    // This is a placeholder - in a real app, you would calculate stats from transaction data
+    if (!category || !category.name) {
+      return {
+        totalTransactions: 0,
+        totalSpent: 0,
+        averageTransaction: 0,
+        largestTransaction: 0,
+        thisMonth: 0,
+        lastMonth: 0
+      };
+    }
+
+    const categoryTransactions = this.transactions.filter(t => t.category === category.name);
+    
+    if (categoryTransactions.length === 0) {
+      return {
+        totalTransactions: 0,
+        totalSpent: 0,
+        averageTransaction: 0,
+        largestTransaction: 0,
+        thisMonth: 0,
+        lastMonth: 0
+      };
+    }
+
+    // Calculate basic stats
+    const totalTransactions = categoryTransactions.length;
+    const totalSpent = categoryTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    const averageTransaction = totalSpent / totalTransactions;
+    const largestTransaction = Math.max(...categoryTransactions.map(t => Math.abs(t.amount)));
+
+    // Calculate monthly stats
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+    const lastYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+    const thisMonthTransactions = categoryTransactions.filter(t => {
+      const txDate = this.dateService.toDate(t.date) || new Date();
+      return txDate.getMonth() === thisMonth && txDate.getFullYear() === thisYear;
+    });
+
+    const lastMonthTransactions = categoryTransactions.filter(t => {
+      const txDate = this.dateService.toDate(t.date) || new Date();
+      return txDate.getMonth() === lastMonth && txDate.getFullYear() === lastYear;
+    });
+
+    const thisMonthTotal = thisMonthTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    const lastMonthTotal = lastMonthTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
     return {
-      totalTransactions: 0,
-      totalSpent: 0,
-      averageTransaction: 0,
-      largestTransaction: 0,
-      thisMonth: 0,
-      lastMonth: 0
+      totalTransactions,
+      totalSpent,
+      averageTransaction,
+      largestTransaction,
+      thisMonth: thisMonthTotal,
+      lastMonth: lastMonthTotal
     };
   }
 

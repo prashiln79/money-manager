@@ -172,7 +172,7 @@
 									</div>
 									<div class="detail-row" *ngIf="category.budget?.budgetStartDate">
 										<span class="detail-label">Budget Start Date:</span>
-										<span class="detail-value">{{ category.budget?.budgetStartDate }}</span>
+										<span class="detail-value">{{ dateService.toDate(category.budget?.budgetStartDate) | date:'shortDate' }}</span>
 									</div>
 									<div class="detail-row" *ngIf="category.budget?.budgetEndDate">
 										<span class="detail-label">Budget End Date:</span>
@@ -206,8 +206,8 @@
 									<div class="transaction-list" *ngIf="getRecentTransactions(category)?.length">
 										<div class="transaction-item" *ngFor="let transaction of getRecentTransactions(category)">
 											<div class="transaction-info">
-												<span class="transaction-description">{{ transaction.description }}</span>
-												<span class="transaction-date">{{ transaction.date | date:'shortDate' }}</span>
+												<span class="transaction-description">{{ transaction.payee }}</span>
+												<span class="transaction-date">{{ dateService.toDate(transaction.date) | date:'shortDate' }}</span>
 											</div>
 											<span class="transaction-amount" [class]="transaction.amount >= 0 ? 'positive' : 'negative'">
 												{{ transaction.amount | currency }}
