@@ -82,6 +82,45 @@
       </div>
     </div>
 
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+      <!-- Pie Chart Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Spending by Category</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Visual breakdown of expenses</p>
+            </div>
+            <div class="bg-purple-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+              <mat-icon class="text-purple-600 dark:text-purple-400">pie_chart</mat-icon>
+            </div>
+          </div>
+          <div class="w-full h-64 sm:h-80">
+            <div echarts [options]="pieChartOption" class="w-full h-full"></div>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Bar Chart Card -->
+      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Monthly Trends</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Income, expenses & savings over time</p>
+            </div>
+            <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+              <mat-icon class="text-blue-600 dark:text-blue-400">bar_chart</mat-icon>
+            </div>
+          </div>
+          <div class="w-full h-64 sm:h-80">
+            <div echarts [options]="barChartOption" class="w-full h-full"></div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
     <!-- Reports Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
       <!-- Spending Overview Card -->

@@ -13,6 +13,7 @@ import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
 import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
 import { DateService } from 'src/app/util/service/date.service';
 import { APP_CONFIG } from 'src/app/util/config/config';
+import { EChartsOption } from 'echarts';
 
 interface CategorySpending {
   category: string;
@@ -65,6 +66,13 @@ export class ReportsComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   hasData: boolean = false;
 
+  // Chart options
+  pieChartOption: EChartsOption = {};
+  barChartOption: EChartsOption = {};
+  
+  // Theme detection
+  isDarkMode: boolean = false;
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -84,6 +92,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.detectTheme();
     this.loadData();
   }
 
@@ -106,6 +115,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       this.calculateTopCategories();
       this.getRecentTransactions();
       this.calculateMonthlyTrends();
+      this.updateCharts(); // Initialize charts with new data
       this.isLoading = false;
       this.hasData = this.transactions.length > 0;
     });
@@ -254,6 +264,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.notificationService.info(`Report period changed to ${period}`);
     // TODO: Implement period-specific calculations
     console.log('Period changed to:', period);
+    // Update charts with new period data
+    this.updateCharts();
   }
 
   exportReport(): void {
@@ -306,5 +318,249 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   getTransactionColor(transaction: Transaction): string {
     return transaction.type === 'income' ? 'text-green-600' : 'text-red-600';
+  }
+
+  // Chart initialization methods
+  private initializePieChart(): void {
+    if (this.topCategories.length === 0) {
+      this.pieChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const data = this.topCategories.map(category => ({
+      name: category.category,
+      value: category.amount,
+      itemStyle: { color: category.color }
+    }));
+
+    this.pieChartOption = {
+      title: {
+        text: 'Spending by Category',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        },
+        formatter: (params: any) => {
+          const percentage = ((params.value / this.totalExpenses) * 100).toFixed(1);
+          return `${params.name}<br/>${this.formatCurrency(params.value)} (${percentage}%)`;
+        }
+      },
+      legend: {
+        orient: 'vertical',
+        left: 'left',
+        top: 'middle',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        }
+      },
+      series: [
+        {
+          name: 'Spending',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['60%', '50%'],
+          avoidLabelOverlap: false,
+          label: {
+            show: false,
+            position: 'center'
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: '18',
+              fontWeight: 'bold',
+              color: this.isDarkMode ? '#F9FAFB' : '#333'
+            }
+          },
+          labelLine: {
+            show: false
+          },
+          data: data
+        }
+      ]
+    };
+  }
+
+  private initializeBarChart(): void {
+    if (this.monthlyTrends.length === 0) {
+      this.barChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const months = this.monthlyTrends.map(item => item.month);
+    const incomeData = this.monthlyTrends.map(item => item.income);
+    const expenseData = this.monthlyTrends.map(item => item.expenses);
+    const savingsData = this.monthlyTrends.map(item => item.savings);
+
+    this.barChartOption = {
+      title: {
+        text: 'Monthly Financial Trends',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        },
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        },
+        formatter: (params: any) => {
+          let result = `${params[0].axisValue}<br/>`;
+          params.forEach((param: any) => {
+            result += `${param.marker} ${param.seriesName}: ${this.formatCurrency(param.value)}<br/>`;
+          });
+          return result;
+        }
+      },
+      legend: {
+        data: ['Income', 'Expenses', 'Savings'],
+        top: 'bottom',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        top: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: months,
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          formatter: (value: number) => this.formatCurrency(value)
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      series: [
+        {
+          name: 'Income',
+          type: 'bar',
+          data: incomeData,
+          itemStyle: {
+            color: '#10B981'
+          },
+          emphasis: {
+            itemStyle: {
+              color: '#059669'
+            }
+          }
+        },
+        {
+          name: 'Expenses',
+          type: 'bar',
+          data: expenseData,
+          itemStyle: {
+            color: '#EF4444'
+          },
+          emphasis: {
+            itemStyle: {
+              color: '#DC2626'
+            }
+          }
+        },
+        {
+          name: 'Savings',
+          type: 'bar',
+          data: savingsData,
+          itemStyle: {
+            color: '#3B82F6'
+          },
+          emphasis: {
+            itemStyle: {
+              color: '#2563EB'
+            }
+          }
+        }
+      ]
+    };
+  }
+
+  // Update charts when data changes
+  private updateCharts(): void {
+    this.initializePieChart();
+    this.initializeBarChart();
+  }
+
+  // Detect current theme
+  private detectTheme(): void {
+    this.isDarkMode = document.documentElement.classList.contains('dark');
+    
+    // Listen for theme changes
+    const observer = new MutationObserver(() => {
+      this.isDarkMode = document.documentElement.classList.contains('dark');
+      this.updateCharts(); // Re-initialize charts with new theme
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    // Listen for window resize to handle chart resizing
+    window.addEventListener('resize', () => {
+      setTimeout(() => this.updateCharts(), 100);
+    });
   }
 } 

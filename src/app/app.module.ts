@@ -38,6 +38,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 // ngx-papaparse
 import { Papa } from 'ngx-papaparse';
 
+// ngx-echarts
+import { NgxEchartsModule } from 'ngx-echarts';
+
 // Firebase Imports
 import { environment } from '@env/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
@@ -207,6 +210,11 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
     IconModule,
     TranslatePipe,
     CurrencyPipe,
+    
+    // Charts
+    NgxEchartsModule.forRoot({
+      echarts: () => import('echarts')
+    }),
     
     // NgRx Store
     AppStoreModule,
