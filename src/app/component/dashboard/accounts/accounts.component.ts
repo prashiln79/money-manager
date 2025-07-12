@@ -31,6 +31,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   public isLoading: boolean = false;
   public errorMessage: string = '';
   public isMobile: boolean = false;
+  public selectedAccount: Account | null = null;
   
   // Private properties
   private userId: string = '';
@@ -227,5 +228,44 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   public getLoanDetails(account: Account) {
     return account.loanDetails || null;
+  }
+
+  /**
+   * Handle account click to show/hide actions
+   */
+  public onAccountClick(account: Account): void {
+    if (this.selectedAccount?.accountId === account.accountId) {
+      this.selectedAccount = null;
+    } else {
+      this.selectedAccount = account;
+    }
+  }
+
+  /**
+   * Get balance class for styling
+   */
+  public getBalanceClass(account: Account): string {
+    if (account.type === 'loan') {
+      return 'loan-account';
+    }
+    return account.balance >= 0 ? 'positive-balance' : 'negative-balance';
+  }
+
+  /**
+   * Get account icon based on type
+   */
+  public getAccountIcon(type: string): string {
+    switch (type) {
+      case 'bank':
+        return 'account_balance';
+      case 'cash':
+        return 'payments';
+      case 'credit':
+        return 'credit_card';
+      case 'loan':
+        return 'account_balance_wallet';
+      default:
+        return 'account_balance';
+    }
   }
 }

@@ -12,87 +12,83 @@
 		<mat-spinner diameter="32"></mat-spinner>
 	</div> -->
 
-	<!-- Mobile View -->
-	<div *ngIf="isMobile">
-		<mobile-accounts-list [accounts]="(accounts$ | async) || []" (editAccount)="editAccount($event)" (deleteAccount)="deleteAccount($event)" (addAccount)="addAccount()"> </mobile-accounts-list>
-	</div>
-
-	<!-- Desktop View -->
-	<div *ngIf="!(isLoading$ | async) && !isMobile" class="accounts-grid">
-		<!-- Accounts List Section -->
-		<section class="accounts-list">
-			<div class="section-header">
-				<h2 class="section-title">Your Accounts</h2>
-				<p class="section-subtitle">{{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }}</p>
+	<!-- Main Content -->
+	<div *ngIf="!(isLoading$ | async)" class="accounts-main">
+		<!-- Header -->
+		<div class="accounts-header">
+			<div class="header-content">
+				<h4 class="header-title">Your Accounts</h4>
+				<p class="header-subtitle">({{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }})</p>
 			</div>
-
-			<!-- Empty State -->
-			<div *ngIf="(accounts$ | async)?.length === 0" class="empty-state">
-				<div class="empty-icon">💳</div>
-				<h3 class="empty-title">No accounts yet</h3>
-				<p class="empty-text">Add your first account to get started</p>
-			</div>
-
-			<!-- Accounts List -->
-			<ng-container *ngIf="accounts$ | async as accounts">
-				<div *ngIf="accounts.length > 0" class="accounts-grid-list overflow-x-auto">
-					<ng-container *ngIf="accounts$ | async as accounts">
-						<div
-							*ngFor="let account of accounts; trackBy: trackByAccountId"
-							class="account-item"
-							[class.positive-balance]="account.balance >= 0 && account.type !== 'loan'"
-							[class.negative-balance]="account.balance < 0 && account.type !== 'loan'"
-							[class.loan-account]="account.type === 'loan'"
-						>
-							<div class="account-content">
-								<div class="account-info">
-									<h3 class="account-name">{{ account.name }}</h3>
-									<span class="account-type">{{ account.type }}</span>
-									
-									<!-- Loan-specific information -->
-									<div *ngIf="isLoanAccount(account)" class="loan-details">
-										<div class="loan-info-row">
-											<span class="loan-label">Lender:</span>
-											<span class="loan-value">{{ getLoanDetails(account)?.lenderName }}</span>
-										</div>
-										<div class="loan-info-row">
-											<span class="loan-label">Monthly Interest:</span>
-											<span class="loan-value interest-amount">{{ calculateMonthlyInterest(account) | currency }}</span>
-										</div>
-										<div class="loan-info-row">
-											<span class="loan-label">Interest Rate:</span>
-											<span class="loan-value">{{ getLoanDetails(account)?.interestRate }}%</span>
-										</div>
-										<div class="loan-info-row">
-											<span class="loan-label">Next Due:</span>
-											<span class="loan-value">{{ getLoanDetails(account)?.nextDueDate | date:'shortDate' }}</span>
-										</div>
-									</div>
-								</div>
-								<div class="account-balance">
-									<span class="balance-amount">{{ account.balance | currency }}</span>
-								</div>
-								<div class="account-actions">
-									<button mat-icon-button (click)="editAccount(account)" matTooltip="Edit account" class="edit-btn">
-										<mat-icon>edit</mat-icon>
-									</button>
-									<button mat-icon-button (click)="deleteAccount(account)" matTooltip="Delete account" class="delete-btn">
-										<mat-icon>delete</mat-icon>
-									</button>
-								</div>
-							</div>
-						</div>
-					</ng-container>
-				</div>
-			</ng-container>
-		</section>
-
-		<!-- Fab button -->
-		<div class="fab-button">
-			<button mat-fab color="primary" (click)="addAccount()" class="desktop-fab-btn">
+			<button mat-fab color="primary" (click)="addAccount()" class="add-account-btn">
 				<mat-icon>add</mat-icon>
 			</button>
 		</div>
 
+		<!-- Empty State -->
+		<div *ngIf="(accounts$ | async)?.length === 0" class="empty-state">
+			<div class="empty-icon">💳</div>
+			<h3 class="empty-title">No accounts yet</h3>
+			<p class="empty-text">Add your first account to get started</p>
+			<button mat-raised-button 
+					color="primary" 
+					(click)="addAccount()"
+					class="empty-action">
+				<mat-icon>add</mat-icon>
+				Add Account
+			</button>
+		</div>
+
+		<!-- Accounts List -->
+		<div *ngIf="(accounts$ | async) as accounts" class="accounts-list">
+			<ng-container *ngIf="accounts$ | async as accounts">
+				<div
+					*ngFor="let account of accounts; trackBy: trackByAccountId"
+					class="account-item"
+					[class]="getBalanceClass(account)"
+				>
+					<div class="account-content">
+						<div class="account-info">
+							<div class="account-icon">
+								<mat-icon>{{ getAccountIcon(account.type) }}</mat-icon>
+							</div>
+							<div class="account-details">
+								<h3 class="account-name">{{ account.name }}</h3>
+								
+								@if(isLoanAccount(account)){
+									<p class="account-type"><b>Interest Rate:</b> {{ getLoanDetails(account)?.interestRate +'%'  }}</p>
+									<p class="account-type"><b>Next Due:</b> {{ getLoanDetails(account)?.nextDueDate | date:'MMM d, yyyy'  }}</p>
+									<p class="account-type"><b>Monthly Interest:</b> {{ calculateMonthlyInterest(account) | currency  }}</p>
+								}@else{
+									<p class="account-type">{{ account.type  | titlecase }}</p>
+								}
+							</div>
+						</div>
+						
+						<div class="account-balance" >
+							<span class="balance-amount">{{ account.balance | currency }}</span>
+						</div>
+
+						<div class="account-menu">
+							<button mat-icon-button [matMenuTriggerFor]="accountMenu" matTooltip="More options" class="menu-btn">
+								<mat-icon>more_vert</mat-icon>
+							</button>
+							<mat-menu #accountMenu="matMenu">
+								<button mat-menu-item (click)="editAccount(account)">
+									<mat-icon>edit</mat-icon>
+									<span>Edit Account</span>
+								</button>
+								<button mat-menu-item (click)="deleteAccount(account)" class="delete-menu-item">
+									<mat-icon>delete</mat-icon>
+									<span>Delete Account</span>
+								</button>
+							</mat-menu>
+						</div>
+					</div>
+
+				
+				</div>
+			</ng-container>
+		</div>
 	</div>
 </div>
