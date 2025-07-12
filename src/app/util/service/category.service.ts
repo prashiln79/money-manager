@@ -4,12 +4,15 @@ import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Category } from 'src/app/util/models';
 import { TransactionType } from '../config/enums';
+import { AppState } from 'src/app/store/app.state';
+import { Store } from '@ngrx/store';
+import * as CategoriesActions from 'src/app/store/categories/categories.actions';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CategoryService {
-    constructor(private firestore: Firestore) { }
+    constructor(private firestore: Firestore, private store: Store<AppState>) { }
 
     private getUserCategoriesCollection(userId: string) {
         return collection(this.firestore, `users/${userId}/categories`);
@@ -119,6 +122,7 @@ export class CategoryService {
                         }).catch(error => {
                             observer.error(error);
                         });
+                        this.store.dispatch(CategoriesActions.loadCategories({ userId: userId }));
                     } else {
                         observer.error(new Error('Category budget not found'));
                     }
