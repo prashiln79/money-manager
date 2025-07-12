@@ -145,7 +145,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     const shareData = {
       title: 'Money Manager',
       text: 'Check out this amazing money management app!',
-      url: 'https://prashiln79.github.io/wallet/'
+      url: 'https://prashiln79.github.io/wallet/#/sign-in'
     };
 
     // Try to use Web Share API first
