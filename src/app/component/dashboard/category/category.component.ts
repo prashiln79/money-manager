@@ -37,6 +37,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public errorMessage: string = '';
   public isEditMode: boolean = false;
   public isMobile: boolean = false;
+  public expandedCategory: Category | null = null;
 
   public newCategory: Category = this.getEmptyCategory();
   public availableIcons: string[] = AVAILABLE_ICONS;
@@ -398,5 +399,64 @@ export class CategoryComponent implements OnInit, OnDestroy {
       color: '#46777f',
       createdAt: Date.now()
     };
+  }
+
+  /**
+   * Toggle category expansion to show/hide details
+   */
+  public toggleCategoryExpansion(category: Category): void {
+    if (this.expandedCategory?.id === category.id) {
+      this.expandedCategory = null;
+    } else {
+      this.expandedCategory = category;
+    }
+  }
+
+  /**
+   * Get recent transactions for a category (placeholder implementation)
+   */
+  public getRecentTransactions(category: Category): any[] {
+    // This is a placeholder - in a real app, you would fetch transactions from a service
+    // For now, return an empty array
+    return [];
+  }
+
+  /**
+   * Get category statistics (placeholder implementation)
+   */
+  public getCategoryStats(category: Category): any {
+    // This is a placeholder - in a real app, you would calculate stats from transaction data
+    return {
+      totalTransactions: 0,
+      totalSpent: 0,
+      averageTransaction: 0,
+      largestTransaction: 0,
+      thisMonth: 0,
+      lastMonth: 0
+    };
+  }
+
+  /**
+   * Get budget status class for styling
+   */
+  public getBudgetStatusClass(category: Category): string {
+    if (!category.budget?.hasBudget) return '';
+    
+    const percentage = category.budget?.budgetProgressPercentage || 0;
+    if (percentage >= 90) return 'danger';
+    if (percentage >= 75) return 'warning';
+    return 'safe';
+  }
+
+  /**
+   * Get remaining budget class for styling
+   */
+  public getRemainingBudgetClass(category: Category): string {
+    if (!category.budget?.hasBudget) return '';
+    
+    const remaining = (category.budget?.budgetAmount || 0) - (category.budget?.budgetSpent || 0);
+    if (remaining <= 0) return 'danger';
+    if (remaining < (category.budget?.budgetAmount || 0) * 0.1) return 'warning';
+    return 'safe';
   }
 }

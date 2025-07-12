@@ -84,16 +84,16 @@ export class CategoryBudgetService {
   getBudgetDataFromForm(form: FormGroup): Budget {
     const formValue = form.value;
     return {
-      hasBudget: formValue.hasBudget,
-      budgetAmount: formValue.hasBudget ? formValue.budgetAmount : 0,
-      budgetPeriod: formValue.hasBudget ? formValue.budgetPeriod : 'monthly',
-      budgetStartDate: formValue.hasBudget ? formValue.budgetStartDate.getTime() : null,
+      hasBudget: formValue.hasBudget || false,
+      budgetAmount: formValue.hasBudget ? formValue?.budgetAmount || 0 : 0,
+      budgetPeriod: formValue.hasBudget ? formValue?.budgetPeriod || 'monthly' : 'monthly',
+      budgetStartDate: formValue.hasBudget ? formValue?.budgetStartDate?.getTime() || null : null,
       budgetEndDate: formValue.hasBudget && formValue.budgetEndDate ? formValue.budgetEndDate.getTime() : null,
-      budgetSpent: formValue.hasBudget ? formValue.budgetSpent : 0,
-      budgetRemaining: formValue.hasBudget ? formValue.budgetRemaining : 0,
-      budgetProgressPercentage: formValue.hasBudget ? formValue.budgetProgressPercentage : 0,
-      budgetAlertThreshold: formValue.hasBudget ? formValue.budgetAlertThreshold : 80,
-      budgetAlertEnabled: formValue.hasBudget ? formValue.budgetAlertEnabled : false
+      budgetSpent: formValue.hasBudget ? formValue?.budgetSpent || 0 : 0,
+      budgetRemaining: formValue.hasBudget ? formValue?.budgetRemaining || 0 : 0,
+      budgetProgressPercentage: formValue.hasBudget ? formValue?.budgetProgressPercentage || 0 : 0,
+      budgetAlertThreshold: formValue.hasBudget ? formValue?.budgetAlertThreshold || 80 : 80,
+      budgetAlertEnabled: formValue.hasBudget ? formValue?.budgetAlertEnabled || true : true
     };
   }
 

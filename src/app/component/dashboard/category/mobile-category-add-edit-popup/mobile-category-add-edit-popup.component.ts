@@ -106,6 +106,16 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
               categoryType: formValue.type,
               icon: formValue.icon,
               color: formValue.color,
+              budgetData: {
+                budgetSpent: this.budgetForm.get('budgetSpent')?.value || 0,
+                hasBudget: this.budgetForm.get('hasBudget')?.value || false,
+                budgetAmount: this.budgetForm.get('budgetAmount')?.value || 0,
+                budgetPeriod: this.budgetForm.get('budgetPeriod')?.value || 'monthly',
+                budgetStartDate: this.budgetForm.get('budgetStartDate')?.value || new Date(),
+                budgetEndDate: this.budgetForm.get('budgetEndDate')?.value || null,
+                budgetAlertThreshold: this.budgetForm.get('budgetAlertThreshold')?.value || 80,
+                budgetAlertEnabled: this.budgetForm.get('budgetAlertEnabled')?.value || true
+              }
             })
           );
           this.notificationService.success('Category updated successfully');

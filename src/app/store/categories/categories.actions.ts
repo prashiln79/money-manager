@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Category } from '../../util/models';
+import { Budget, Category } from '../../util/models';
 import { TransactionType } from 'src/app/util/config/enums';
 
 // Load Categories
@@ -50,7 +50,7 @@ export const updateCategory = createAction(
     categoryType: TransactionType; 
     icon: string; 
     color: string;
-    budgetData?: any;
+    budgetData?: Budget;
   }>()
 );
 
