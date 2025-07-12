@@ -20,6 +20,18 @@
           <mat-icon>clear</mat-icon>
         </button>
         <button mat-icon-button 
+                (click)="togglePieChart()"
+                [color]="showPieChart ? 'primary' : 'basic'"
+                matTooltip="{{ showPieChart ? 'Hide chart' : 'Show chart' }}">
+          <mat-icon>pie_chart</mat-icon>
+        </button>
+        <button mat-icon-button 
+                (click)="toggleCalendar()"
+                [color]="showCalendar && !showPieChart ? 'primary' : 'basic'"
+                matTooltip="{{ showCalendar && !showPieChart ? 'Hide calendar' : 'Show calendar' }}">
+          <mat-icon>calendar_month</mat-icon>
+        </button>
+        <button mat-icon-button 
                 (click)="toggleControls()"
                 [class.rotated]="isControlsExpanded"
                 matTooltip="{{ isControlsExpanded ? 'Hide controls' : 'Show controls' }}">
@@ -44,11 +56,78 @@
           Date Range
         </button>
       </div>
+      
+      <!-- Chart View Mode Toggle -->
+      <div class="chart-mode-toggle" *ngIf="showPieChart">
+        <button mat-raised-button 
+                [color]="chartViewMode === 'category' ? 'primary' : 'basic'"
+                (click)="toggleChartViewMode()">
+          <mat-icon>category</mat-icon>
+          Category View
+        </button>
+        <button mat-raised-button 
+                [color]="chartViewMode === 'income-expense' ? 'primary' : 'basic'"
+                (click)="toggleChartViewMode()">
+          <mat-icon>compare_arrows</mat-icon>
+          Income vs Expense
+        </button>
+      </div>
+      
+      <!-- Date Filters for Category Chart -->
+      <div class="date-filters" *ngIf="showPieChart && chartViewMode === 'category'">
+        <div class="filter-row">
+          <mat-form-field appearance="outline" class="year-select">
+            <mat-label>Year</mat-label>
+            <mat-select [(value)]="selectedYear" (selectionChange)="onYearChange($event.value)">
+              <mat-option *ngFor="let year of availableYears" [value]="year">
+                {{ year }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="month-select">
+            <mat-label>Month</mat-label>
+            <mat-select [(value)]="selectedMonth" (selectionChange)="onMonthChange($event.value)">
+              <mat-option *ngFor="let month of availableMonths" [value]="month.value">
+                {{ month.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      
+      <!-- Calendar Navigation Controls -->
+      <div class="calendar-navigation" *ngIf="showCalendar">
+        <button mat-icon-button 
+                (click)="goToPreviousMonth()"
+                matTooltip="Previous month">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button mat-raised-button 
+                color="primary"
+                (click)="goToToday()"
+                matTooltip="Go to today">
+          <mat-icon>today</mat-icon>
+          Today
+        </button>
+        <button mat-icon-button 
+                (click)="goToNextMonth()"
+                matTooltip="Next month">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pie Chart Section -->
+  <div class="pie-chart-section" *ngIf="showPieChart">
+    <div class="chart-container">
+      <div echarts [options]="pieChartOption" class="pie-chart"></div>
     </div>
   </div>
 
   <!-- Range Selection Status -->
-  <div *ngIf="isRangeMode" class="status-section">
+  <div *ngIf="isRangeMode && showCalendar" class="status-section">
     <div class="range-status">
       <div class="date-range-display">
         <div class="date-item">
@@ -94,7 +173,7 @@
   </div>
 
   <!-- Single Date Status -->
-  <div *ngIf="!isRangeMode && selectedDate" class="status-section">
+  <div *ngIf="!isRangeMode && selectedDate && showCalendar" class="status-section">
     <div class="single-date-status">
       <div class="selected-date-display">
         <mat-icon class="date-icon">event</mat-icon>
@@ -125,9 +204,10 @@
   </div>
 
   <!-- Calendar -->
-  <div class="calendar-container">
+  <div class="calendar-container" *ngIf="showCalendar && !showPieChart">
     <mat-calendar 
       [dateClass]="dateClass"
+      [selected]="selectedDate"
       (selectedChange)="onDateSelected($event)">
     </mat-calendar>
   </div>

@@ -10,8 +10,11 @@ import { DateService } from 'src/app/util/service/date.service';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
 import { Transaction } from 'src/app/util/models/transaction.model';
+import { Category } from 'src/app/util/models/category.model';
 import { TransactionType } from 'src/app/util/config/enums';
+import { EChartsOption } from 'echarts';
 
 @Component({
   selector: 'calendar-view',
@@ -22,6 +25,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   isMobile = false;
   transactions: Transaction[] = [];
+  categories: Category[] = [];
   selectedDate: Date | null = null;
   selectedDateTransactions: Transaction[] = [];
   
@@ -34,6 +38,33 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   // Collapsible controls
   isControlsExpanded = false;
 
+  // Pie chart properties
+  pieChartOption: EChartsOption = {};
+  showPieChart = false;
+  showCalendar = true;
+  chartViewMode: 'income-expense' | 'category' = 'category';
+  
+  // Calendar navigation
+  currentViewDate = new Date();
+  
+  // Date filter options
+  selectedYear = new Date().getFullYear();
+  selectedMonth = new Date().getMonth();
+  availableYears: number[] = [];
+  availableMonths = [
+    { value: 0, label: 'January' },
+    { value: 1, label: 'February' },
+    { value: 2, label: 'March' },
+    { value: 3, label: 'April' },
+    { value: 4, label: 'May' },
+    { value: 5, label: 'June' },
+    { value: 6, label: 'July' },
+    { value: 7, label: 'August' },
+    { value: 8, label: 'September' },
+    { value: 9, label: 'October' },
+    { value: 10, label: 'November' },
+    { value: 11, label: 'December' }
+  ];
   
   private subscription = new Subscription();
 
@@ -52,6 +83,9 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadTransactions();
+    this.loadCategories();
+    this.initializePieChart();
+    this.generateAvailableYears();
   }
 
   ngOnDestroy() {
@@ -65,6 +99,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
         this.store.select(TransactionsSelectors.selectAllTransactions).subscribe({
           next: (transactions) => {
             this.transactions = transactions;
+            this.updatePieChart();
           },
           error: (error) => {
             console.error('Error loading transactions:', error);
@@ -75,6 +110,250 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     } else {
       this.notificationService.error('User not authenticated');
     }
+  }
+
+  loadCategories() {
+    this.subscription.add(
+      this.store.select(CategoriesSelectors.selectAllCategories).subscribe({
+        next: (categories) => {
+          this.categories = categories;
+          this.updatePieChart();
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+        }
+      })
+    );
+  }
+
+  generateAvailableYears() {
+    const currentYear = new Date().getFullYear();
+    this.availableYears = [];
+    for (let year = currentYear - 5; year <= currentYear + 1; year++) {
+      this.availableYears.push(year);
+    }
+  }
+
+  // Initialize pie chart
+  initializePieChart() {
+    this.pieChartOption = {
+      title: {
+        text: 'Category-wise Spending',
+        left: 'center',
+        textStyle: {
+          fontSize: 14,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b}: ₹{c} ({d}%)'
+      },
+      legend: {
+        orient: 'horizontal',
+        left: 'center',
+        bottom: '10%',
+        type: 'scroll'
+      },
+      series: [
+        {
+          name: 'Categories',
+          type: 'pie',
+          radius: '50%',
+          data: [],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    };
+  }
+
+  // Update pie chart data
+  updatePieChart() {
+    if (this.chartViewMode === 'category') {
+      this.updateCategoryChart();
+    } else {
+      this.updateIncomeExpenseChart();
+    }
+  }
+
+  // Update category-wise spending chart
+  updateCategoryChart() {
+    const filteredTransactions = this.getFilteredTransactions();
+    const categoryData = this.getCategorySpendingData(filteredTransactions);
+    
+    this.pieChartOption = {
+      ...this.pieChartOption,
+      title: {
+        text: `Category-wise Spending - ${this.availableMonths[this.selectedMonth].label} ${this.selectedYear}`,
+        left: 'center',
+        textStyle: {
+          fontSize: 14,
+          fontWeight: 'bold'
+        }
+      },
+      series: [
+        {
+          name: 'Categories',
+          type: 'pie',
+          radius: '50%',
+          data: categoryData,
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    };
+  }
+
+  // Update income vs expense chart
+  updateIncomeExpenseChart() {
+    let income = 0;
+    let expenses = 0;
+
+    if (this.isRangeMode && this.startDate && this.endDate) {
+      income = this.getRangeTotalIncome();
+      expenses = this.getRangeTotalExpenses();
+    } else if (this.selectedDate) {
+      income = this.getTotalIncome();
+      expenses = this.getTotalExpenses();
+    }
+
+    this.pieChartOption = {
+      ...this.pieChartOption,
+      title: {
+        text: 'Income vs Expenses',
+        left: 'center',
+        textStyle: {
+          fontSize: 14,
+          fontWeight: 'bold'
+        }
+      },
+      series: [
+        {
+          name: 'Transactions',
+          type: 'pie',
+          radius: '50%',
+          data: [
+            { value: income, name: 'Income', itemStyle: { color: '#10b981' } },
+            { value: expenses, name: 'Expenses', itemStyle: { color: '#ef4444' } }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    };
+  }
+
+  // Get filtered transactions based on year/month selection
+  getFilteredTransactions(): Transaction[] {
+    const startOfMonth = moment([this.selectedYear, this.selectedMonth, 1]);
+    const endOfMonth = moment(startOfMonth).endOf('month');
+    
+    return this.transactions.filter(transaction => {
+      const transactionDate = moment(this.dateService.toDate(transaction.date));
+      return transactionDate.isBetween(startOfMonth, endOfMonth, 'day', '[]') && 
+             transaction.type === 'expense';
+    });
+  }
+
+  // Get category-wise spending data
+  getCategorySpendingData(transactions: Transaction[]): any[] {
+    const categoryMap = new Map<string, number>();
+    
+    transactions.forEach(transaction => {
+      const categoryId = transaction.categoryId;
+      const category = this.categories.find(c => c.id === categoryId);
+      const categoryName = category ? category.name : 'Unknown Category';
+      
+      if (categoryMap.has(categoryName)) {
+        categoryMap.set(categoryName, categoryMap.get(categoryName)! + transaction.amount);
+      } else {
+        categoryMap.set(categoryName, transaction.amount);
+      }
+    });
+
+    // Convert to chart data format
+    const colors = [
+      '#5B8DEF', // Soft Blue
+      '#A0C4FF', // Light Cornflower
+      '#B8B8FF', // Lavender Gray
+      '#CDB4DB', // Soft Purple
+      '#FFAFCC', // Pink Coral
+      '#FFC8DD', // Light Pink
+      '#FDCB82', // Soft Orange
+      '#90DBF4', // Baby Blue
+      '#ADE8F4', // Aqua Tint
+      '#CAF0F8', // Ice Blue
+      '#A2D2FF', // Powder Blue
+      '#D0F4DE'  // Mint
+    ];
+
+    return Array.from(categoryMap.entries()).map(([name, value], index) => ({
+      name,
+      value,
+      itemStyle: { color: colors[index % colors.length] }
+    }));
+  }
+
+  // Toggle pie chart visibility
+  togglePieChart() {
+    this.showPieChart = !this.showPieChart;
+    this.showCalendar = !this.showCalendar;
+    if (this.showPieChart) {
+      this.updatePieChart();
+    }
+  }
+
+  // Toggle calendar visibility
+  toggleCalendar() {
+    this.showCalendar = !this.showCalendar;
+    this.showPieChart =  !this.showCalendar ;
+  }
+
+  // Toggle chart view mode
+  toggleChartViewMode() {
+    this.chartViewMode = this.chartViewMode === 'category' ? 'income-expense' : 'category';
+    this.updatePieChart();
+  }
+
+  // Handle year change
+  onYearChange(year: number) {
+    this.selectedYear = year;
+    this.updatePieChart();
+  }
+
+  // Handle month change
+  onMonthChange(month: number) {
+    this.selectedMonth = month;
+    this.updatePieChart();
+  }
+
+  // Calendar navigation methods
+  goToPreviousMonth() {
+    this.currentViewDate = moment(this.currentViewDate).subtract(1, 'month').toDate();
+  }
+
+  goToNextMonth() {
+    this.currentViewDate = moment(this.currentViewDate).add(1, 'month').toDate();
+  }
+
+  goToToday() {
+    this.currentViewDate = new Date();
   }
 
   // Custom date class function to highlight dates with transactions and range selection using Moment.js
@@ -127,6 +406,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     } else {
       this.handleSingleDateSelection(date);
     }
+    this.updatePieChart();
   }
 
   // Handle single date selection
@@ -239,6 +519,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.endDate = null;
     this.rangeTransactions = [];
     this.dateSelectionService.clearSelectedDate();
+    this.updatePieChart();
   }
 
   // Get total income for date range

@@ -49,7 +49,7 @@
     padding: 0 1rem;
     
     &.expanded {
-      max-height: 100px;
+      max-height: 400px;
       padding: 1rem;
       background-color: aliceblue;
     }
@@ -58,11 +58,87 @@
       display: flex;
       gap: 0.5rem;
       justify-content: center;
+      margin-bottom: 1rem;
       
       button {
         flex: 1;
         max-width: 150px;
       }
+    }
+    
+    .chart-mode-toggle {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+      
+      button {
+        flex: 1;
+        max-width: 150px;
+        font-size: 0.75rem;
+        
+        mat-icon {
+          font-size: 1rem;
+          margin-right: 0.25rem;
+        }
+      }
+    }
+    
+    .date-filters {
+      margin-bottom: 1rem;
+      
+      .filter-row {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        
+        .year-select, .month-select {
+          flex: 1;
+          max-width: 120px;
+          
+          ::ng-deep .mat-mdc-form-field {
+            font-size: 0.875rem;
+          }
+          
+          ::ng-deep .mat-mdc-select {
+            font-size: 0.875rem;
+          }
+        }
+      }
+    }
+    
+    .calendar-navigation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      
+      button {
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+}
+
+// Pie Chart Section
+.pie-chart-section {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  
+  .chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    .pie-chart {
+      width: 100%;
+      height: 350px;
+      max-width: 350px;
     }
   }
 }
