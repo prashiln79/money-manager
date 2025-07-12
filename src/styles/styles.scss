@@ -426,6 +426,14 @@ app-footer {
   }
 }
 
+.desktop-dialog {
+  .mat-mdc-dialog-container {
+    border-radius: 16px !important;
+    max-height: 90vh !important;
+    overflow: hidden !important;
+  }
+}
+
 /* Mobile-specific dialog adjustments */
 @media (max-width: 768px) {
   .mobile-dialog {

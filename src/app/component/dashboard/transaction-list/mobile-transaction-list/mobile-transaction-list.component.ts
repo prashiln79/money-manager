@@ -557,7 +557,7 @@ export class MobileTransactionListComponent
     };
 
     const dialogRef = this.dialog.open(CustomDateRangeDialogComponent, {
-      width: '400px',
+      width:  '400px',
       data: dialogData,
       disableClose: false,
     });

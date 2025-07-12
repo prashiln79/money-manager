@@ -34,6 +34,7 @@ import {
   TransactionType,
 } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-mobile-add-transaction',
@@ -48,6 +49,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public accountList: Array<any> = [];
   public userId: any;
   public isSubmitting = false;
+  public isMobile: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -61,7 +63,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     private loaderService: LoaderService,
     private dateService: DateService,
-    private validationService: ValidationService
+    private validationService: ValidationService,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.transactionForm = this.fb.group({
       payee: ['', this.validationService.getTransactionPayeeValidators()],
@@ -73,6 +76,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       categoryType: [''],
       accountId: ['', Validators.required],
     });
+    this.isMobile = this.breakpointObserver.isMatched('(max-width: 640px)');
   }
 
   ngOnInit(): void {
@@ -225,8 +229,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
   openNewAccountDialog(): void {
     this.dialog.open(AddAccountDialogComponent, {
-      width: '90vw',
-      maxWidth: '400px',
+      width: this.isMobile ? '90vw' : '400px',
+      maxWidth: this.isMobile ? '400px' : '90vw',
       data: null, // null for new account
       disableClose: true,
       panelClass: 'mobile-dialog',
@@ -235,8 +239,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
   openEditAccountDialog(account: any): void {
     this.dialog.open(AddAccountDialogComponent, {
-      width: '90vw',
-      maxWidth: '400px',
+      width: this.isMobile ? '90vw' : '400px',
+      maxWidth: this.isMobile ? '400px' : '90vw',
       data: account, // existing account data
       disableClose: true,
       panelClass: 'mobile-dialog',

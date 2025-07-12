@@ -7,7 +7,7 @@
         type="button" 
         (click)="onCancel()" 
         matTooltip="Close" 
-        class="close-button"
+        class="close-button mobile-only"
       >
         <mat-icon>arrow_back</mat-icon>
       </button>
@@ -15,6 +15,17 @@
         {{ dialogData?.id ? 'Edit' : 'Add' }} Category
       </h6>
     </div>
+    
+    <!-- Desktop Close Button -->
+    <button 
+      mat-icon-button 
+      type="button" 
+      (click)="onCancel()" 
+      matTooltip="Close" 
+      class="close-button desktop-only"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
     
     <!-- Save Button -->
     <button 

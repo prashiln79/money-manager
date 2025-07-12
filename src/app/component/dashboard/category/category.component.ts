@@ -35,7 +35,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public categories: Category[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
-  public isEditMode: boolean = false;
   public isMobile: boolean = false;
   public expandedCategory: Category | null = null;
 
@@ -166,18 +165,9 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public editCategory(category: Category): void {
     if (this.isMobile) {
       this.hapticFeedback.lightVibration();
-      this.openMobileDialog(category);
-    } else {
-      this.isEditMode = true;
-      this.newCategory = {
-        id: category.id,
-        name: category.name,
-        type: category.type,
-        icon: category.icon || 'category',
-        color: category.color || '#46777f',
-        createdAt: category.createdAt
-      };
-    }
+    } 
+    this.openMobileDialog(category);
+   
   }
 
   public updateCategory(): void {
@@ -214,8 +204,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: this.isMobile ? '90vw' : '400px',
-      maxWidth: '400px',
+      width: this.isMobile ? '90vw' : '600px',
+      maxWidth: this.isMobile ? '400px' : '90vw',
       data: {
         title: 'Delete Category',
         message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
@@ -238,14 +228,12 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   public cancelEdit(): void {
-    this.isEditMode = false;
     this.resetForm();
   }
 
   private resetForm(): void {
     this.newCategory = this.getEmptyCategory();
     this.categoryNameInput = '';
-    this.isEditMode = false;
     this.isSubmitting = false;
   }
 
@@ -323,17 +311,18 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   private openMobileDialog(category?: Category): void {
+    
     const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
-      width: '90vw',
-      maxWidth: '400px',
+      width: this.isMobile ? '90vw' : '600px',
+      maxWidth: this.isMobile ? '400px' : '90vw',
       data: category || null,
       disableClose: true,
-      panelClass: 'mobile-dialog'
+      panelClass: this.isMobile ? 'mobile-dialog' : 'desktop-dialog'
     });
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (result) {
-        this.loadUserCategories();
+        this.loadUserCategories(); 
       }
     });
   }

@@ -44,7 +44,7 @@
 			<!-- Categories List -->
 			<div *ngIf="categories.length > 0" class="categories-grid-list">
 				@for (category of categories; track category.id) {
-				<div *ngIf="home && category.budget?.hasBudget || !home" class="category-item" [style.border-left-color]="category.color" [class.editing]="isEditMode && newCategory.id === category.id" [class.expanded]="expandedCategory?.id === category.id">
+				<div *ngIf="home && category.budget?.hasBudget || !home" class="category-item" [style.border-left-color]="category.color" [class.expanded]="expandedCategory?.id === category.id">
 					<div class="category-content">
 						<div class="category-info">
 							<div class="category-icon-name">
@@ -83,15 +83,15 @@
 									(click)="openBudgetDialog(category)"
 									class="action-button budget-button"
 									matTooltip="Set budget"
-									[disabled]="isEditMode"
+								
 									*ngIf="!home && category.type === 'expense'"
 								>
 									<mat-icon>account_balance_wallet</mat-icon> Set Budget
 								</button>
-								<button mat-menu-item  (click)="editCategory(category)" class="action-button edit-button" matTooltip="Edit category" [disabled]="isEditMode">
+								<button mat-menu-item  (click)="editCategory(category)" class="action-button edit-button" matTooltip="Edit category">
 									<mat-icon>edit</mat-icon> Edit
 								</button>
-								<button mat-menu-item (click)="deleteCategory(category)" class="action-button delete-button" matTooltip="Delete category" [disabled]="isEditMode">
+								<button mat-menu-item (click)="deleteCategory(category)" class="action-button delete-button" matTooltip="Delete category">
 									<mat-icon>delete</mat-icon> Delete
 								</button>
 							</mat-menu>
