@@ -46,7 +46,7 @@
 			<nav class="flex-1 p-4">
 				<div *ngFor="let section of navigationSections" class="mb-6">
 					<!-- Section Header -->
-					<div 
+					<div *ngIf="section.label == 'Admin' && isAdmin"
 						class="flex items-center justify-between mb-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2.5 transition-all duration-200 group"
 						(click)="toggleSection(section)"
 						[class.cursor-pointer]="section.isCollapsible"
@@ -75,6 +75,7 @@
 						[class.max-h-96]="section.isExpanded"
 						[class.opacity-0]="!section.isExpanded"
 						[class.opacity-100]="section.isExpanded"
+						
 					>
 						<a
 							*ngFor="let child of section.children"

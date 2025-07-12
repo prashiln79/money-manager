@@ -106,17 +106,38 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         icon: 'account_circle',
         order: 1
       },
-      {
-        label: 'subscription',
-        route: 'subscription',
-        icon: 'card_membership',
-        order: 2
-      },
+      // {
+      //   label: 'subscription',
+      //   route: 'subscription',
+      //   icon: 'card_membership',
+      //   order: 2
+      // },
       {
         label: 'notifications',
         route: 'notifications',
         icon: 'notifications',
         order: 3
+      },
+      {
+        label: 'feedback',
+        route: 'feedback',
+        icon: 'feedback',
+        order: 4
+      }
+    ]
+  },
+  {
+    label: 'Admin',
+    icon: 'admin_panel_settings',
+    order: 4,
+    isExpanded: false,
+    isCollapsible: true,
+    children: [
+      {
+        label: 'admin_panel',
+        route: '/admin',
+        icon: 'admin_panel_settings',
+        order: 1
       }
     ]
   }

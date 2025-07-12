@@ -990,4 +990,9 @@ export class UserService {
     this.logAuditEvent('FORCE_LOGOUT', this.getUser()?.uid, { reason });
     this.signOut();
   }
+
+  public isAdmin(uid: string): boolean {
+    const user = this.getCachedUserData(uid);
+    return user?.role === 'admin';
+  }
 }

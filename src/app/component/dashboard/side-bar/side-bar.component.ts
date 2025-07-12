@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { SidebarNavParent, getAllNavigationItems } from '../../../util/config/sidebar.config';
+import { UserService } from 'src/app/util/service/user.service';
 
 @Component({
   selector: 'side-bar',
@@ -12,15 +13,17 @@ import { SidebarNavParent, getAllNavigationItems } from '../../../util/config/si
 })
 export class SideBarComponent implements AfterViewInit {
   @ViewChild('drawer') drawer!: MatDrawer;
-  
+  isAdmin: boolean = false;
   navigationSections: SidebarNavParent[] = [];
 
   constructor(
     private auth: Auth,
     public router: Router,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private userService: UserService
   ){
     this.navigationSections = getAllNavigationItems();
+    this.isAdmin = this.userService.isAdmin(this.auth.currentUser?.uid || '');
   }
 
   toggleSection(section: SidebarNavParent) {

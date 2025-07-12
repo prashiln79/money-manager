@@ -4,6 +4,7 @@ import { SignInComponent } from './component/auth/sign-in/sign-in.component';
 import { RegistrationComponent } from './component/auth/registration/registration.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
 import { AuthGuard } from './util/guard/auth.guard';
+import { AdminGuard } from './util/guard/admin.guard';
 import { AccountsComponent } from './component/dashboard/accounts/accounts.component';
 import { CategoryComponent } from './component/dashboard/category/category.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
@@ -18,6 +19,8 @@ import { NotesComponent } from './component/dashboard/notes/notes.component';
 import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction';
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
+import { FeedbackComponent } from './component/feedback/feedback.component';
+import { AdminComponent } from './component/admin/admin.component';
 
 const routes: Routes = [
   { path: 'landing', component: LandingComponent },
@@ -132,9 +135,30 @@ const routes: Routes = [
           roles: ['free', 'premium', 'admin'],
           requireEmailVerification: true
         }
+      },
+      { 
+        path: 'feedback', 
+        component: FeedbackComponent,
+        data: {
+          roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
       }
     ]
   },
+  
+  // Admin routes
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AuthGuard, AdminGuard],
+    data: {
+      requireEmailVerification: true,
+      requireActiveSession: true,
+      roles: ['admin']
+    }
+  },
+  
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
 ];
 

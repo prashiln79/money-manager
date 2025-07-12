@@ -1,0 +1,168 @@
+<div class="admin-container">
+  <!-- Loading State -->
+  <div *ngIf="!isAdmin" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Checking admin access...</p>
+  </div>
+
+  <!-- Admin Panel -->
+  <div *ngIf="isAdmin" class="admin-panel">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-content">
+        <div class="header-left">
+          <button mat-icon-button (click)="goToDashboard()" class="back-button">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div class="header-title">
+            <h1>Admin Panel</h1>
+            <p>Manage your Money Manager application</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>{{ currentUser?.displayName || currentUser?.email }}</span>
+          </div>
+          <button mat-icon-button (click)="logout()" matTooltip="Logout">
+            <mat-icon>logout</mat-icon>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+      <!-- Sidebar Navigation -->
+      <aside class="admin-sidebar" [class.mobile-sidebar]="isMobile">
+        <nav class="sidebar-nav">
+          <div 
+            *ngFor="let section of adminSections"
+            class="nav-item"
+            [class.active]="activeSection === section.id"
+            (click)="setActiveSection(section.id)"
+          >
+            <mat-icon>{{ section.icon }}</mat-icon>
+            <div class="nav-content">
+              <span class="nav-label">{{ section.label }}</span>
+              <span class="nav-description">{{ section.description }}</span>
+            </div>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Dashboard Section -->
+        <div *ngIf="activeSection === 'dashboard'" class="dashboard-section">
+          <div class="section-header">
+            <h2>Dashboard Overview</h2>
+            <p>Key metrics and statistics for your application</p>
+          </div>
+
+          <!-- Statistics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon users">
+                <mat-icon>people</mat-icon>
+              </div>
+              <div class="stat-content">
+                <h3>{{ dashboardStats.totalUsers }}</h3>
+                <p>Total Users</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon feedback">
+                <mat-icon>feedback</mat-icon>
+              </div>
+              <div class="stat-content">
+                <h3>{{ dashboardStats.totalFeedback }}</h3>
+                <p>Total Feedback</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon pending">
+                <mat-icon>pending</mat-icon>
+              </div>
+              <div class="stat-content">
+                <h3>{{ dashboardStats.pendingFeedback }}</h3>
+                <p>Pending Feedback</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon active">
+                <mat-icon>trending_up</mat-icon>
+              </div>
+              <div class="stat-content">
+                <h3>{{ dashboardStats.activeUsers }}</h3>
+                <p>Active Users</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon transactions">
+                <mat-icon>receipt_long</mat-icon>
+              </div>
+              <div class="stat-content">
+                <h3>{{ dashboardStats.totalTransactions }}</h3>
+                <p>Total Transactions</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon categories">
+                <mat-icon>category</mat-icon>
+              </div>
+              <div class="stat-content">
+                <h3>{{ dashboardStats.totalCategories }}</h3>
+                <p>Total Categories</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+              <button mat-raised-button color="primary" (click)="setActiveSection('feedback')">
+                <mat-icon>feedback</mat-icon>
+                View Feedback
+              </button>
+              <button mat-raised-button color="accent" (click)="setActiveSection('users')">
+                <mat-icon>people</mat-icon>
+                Manage Users
+              </button>
+              <button mat-raised-button color="warn" (click)="setActiveSection('analytics')">
+                <mat-icon>analytics</mat-icon>
+                View Analytics
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback Section -->
+        <div *ngIf="activeSection === 'feedback'" class="feedback-section">
+          <app-admin-feedback></app-admin-feedback>
+        </div>
+
+        <!-- Users Section -->
+        <div *ngIf="activeSection === 'users'" class="users-section">
+          <app-admin-users></app-admin-users>
+        </div>
+
+        <!-- Analytics Section -->
+        <div *ngIf="activeSection === 'analytics'" class="analytics-section">
+          <app-admin-analytics></app-admin-analytics>
+        </div>
+
+        <!-- Settings Section -->
+        <div *ngIf="activeSection === 'settings'" class="settings-section">
+          <app-admin-settings></app-admin-settings>
+        </div>
+      </main>
+    </div>
+  </div>
+</div> 
