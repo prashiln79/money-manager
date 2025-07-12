@@ -30,6 +30,66 @@ interface MonthlyData {
   savings: number;
 }
 
+interface DailyData {
+  date: string;
+  income: number;
+  expenses: number;
+  savings: number;
+}
+
+interface WeeklyData {
+  week: string;
+  income: number;
+  expenses: number;
+  savings: number;
+}
+
+interface YearlyData {
+  year: string;
+  income: number;
+  expenses: number;
+  savings: number;
+}
+
+interface AccountBalance {
+  account: string;
+  balance: number;
+  color: string;
+}
+
+interface SpendingTrend {
+  period: string;
+  amount: number;
+  change: number;
+  percentage: number;
+}
+
+interface CategoryTrend {
+  category: string;
+  currentAmount: number;
+  previousAmount: number;
+  change: number;
+  percentage: number;
+  color: string;
+}
+
+interface UserPreferences {
+  defaultChartType: 'pie' | 'bar' | 'line' | 'area' | 'radar' | 'funnel' | 'scatter' | 'heatmap';
+  defaultAnalyticsView: 'overview' | 'trends' | 'categories' | 'accounts' | 'comparison' | 'forecast';
+  defaultPeriod: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  showAdvancedAnalytics: boolean;
+  chartHeight: 'small' | 'medium' | 'large';
+  refreshInterval: number; // in minutes
+  currencyFormat: 'INR' | 'USD' | 'EUR';
+  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
+  theme: 'light' | 'dark' | 'auto';
+  showTooltips: boolean;
+  showAnimations: boolean;
+  exportFormat: 'pdf' | 'excel' | 'csv' | 'json';
+  emailReports: boolean;
+  emailFrequency: 'daily' | 'weekly' | 'monthly' | 'never';
+}
+
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
@@ -58,9 +118,31 @@ export class ReportsComponent implements OnInit, OnDestroy {
   topCategories: CategorySpending[] = [];
   recentTransactions: Transaction[] = [];
   monthlyTrends: MonthlyData[] = [];
+  
+  // Enhanced analytics data
+  dailyData: DailyData[] = [];
+  weeklyData: WeeklyData[] = [];
+  yearlyData: YearlyData[] = [];
+  accountBalances: AccountBalance[] = [];
+  spendingTrends: SpendingTrend[] = [];
+  categoryTrends: CategoryTrend[] = [];
+  averageDailySpending: number = 0;
+  averageMonthlySpending: number = 0;
+  savingsRate: number = 0;
+  expenseGrowthRate: number = 0;
+  incomeGrowthRate: number = 0;
 
   // Time period
   selectedPeriod: 'daily' | 'weekly' | 'monthly' | 'yearly' = 'monthly';
+  
+  // Chart and view options
+  selectedChartType: 'pie' | 'bar' | 'line' | 'area' | 'radar' | 'funnel' | 'scatter' | 'heatmap' = 'pie';
+  selectedAnalyticsView: 'overview' | 'trends' | 'categories' | 'accounts' | 'comparison' | 'forecast' = 'overview';
+  showAdvancedAnalytics: boolean = false;
+  
+  // Available options for UI
+  availableChartTypes: ('pie' | 'bar' | 'line' | 'area' | 'radar' | 'funnel' | 'scatter' | 'heatmap')[] = ['pie', 'bar', 'line', 'area', 'radar', 'funnel', 'scatter', 'heatmap'];
+  availableAnalyticsViews: ('overview' | 'trends' | 'categories' | 'accounts' | 'comparison' | 'forecast')[] = ['overview', 'trends', 'categories', 'accounts', 'comparison', 'forecast'];
 
   // Loading states
   isLoading: boolean = true;
@@ -69,9 +151,41 @@ export class ReportsComponent implements OnInit, OnDestroy {
   // Chart options
   pieChartOption: EChartsOption = {};
   barChartOption: EChartsOption = {};
+  lineChartOption: EChartsOption = {};
+  areaChartOption: EChartsOption = {};
+  radarChartOption: EChartsOption = {};
+  funnelChartOption: EChartsOption = {};
+  scatterChartOption: EChartsOption = {};
+  heatmapChartOption: EChartsOption = {};
   
   // Theme detection
   isDarkMode: boolean = false;
+
+  // User preferences
+  userPreferences: UserPreferences = {
+    defaultChartType: 'pie',
+    defaultAnalyticsView: 'overview',
+    defaultPeriod: 'monthly',
+    showAdvancedAnalytics: false,
+    chartHeight: 'medium',
+    refreshInterval: 5,
+    currencyFormat: 'INR',
+    dateFormat: 'DD/MM/YYYY',
+    theme: 'auto',
+    showTooltips: true,
+    showAnimations: true,
+    exportFormat: 'pdf',
+    emailReports: false,
+    emailFrequency: 'never'
+  };
+
+  // UI state
+  showPreferencesDialog: boolean = false;
+  showQuickFilters: boolean = false;
+  showExportOptions: boolean = false;
+  showHelpTooltip: boolean = false;
+  showQuickActions: boolean = false;
+  isRefreshing: boolean = false;
 
   private subscriptions: Subscription[] = [];
 
@@ -92,6 +206,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.loadPreferences();
     this.detectTheme();
     this.loadData();
   }
@@ -115,6 +230,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       this.calculateTopCategories();
       this.getRecentTransactions();
       this.calculateMonthlyTrends();
+      this.calculateEnhancedAnalytics();
       this.updateCharts(); // Initialize charts with new data
       this.isLoading = false;
       this.hasData = this.transactions.length > 0;
@@ -259,6 +375,275 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.monthlyTrends = months;
   }
 
+  private calculateEnhancedAnalytics(): void {
+    this.calculateDailyData();
+    this.calculateWeeklyData();
+    this.calculateYearlyData();
+    this.calculateAccountBalances();
+    this.calculateSpendingTrends();
+    this.calculateCategoryTrends();
+    this.calculateGrowthRates();
+  }
+
+  private calculateDailyData(): void {
+    const now = new Date();
+    const dailyData: DailyData[] = [];
+    
+    // Calculate data for last 30 days
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000));
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const dayTransactions = this.transactions.filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        return transactionDate?.toDateString() === date.toDateString();
+      });
+
+      const income = dayTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const expenses = dayTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      dailyData.push({
+        date: dateStr,
+        income,
+        expenses,
+        savings: income - expenses
+      });
+    }
+
+    this.dailyData = dailyData;
+  }
+
+  private calculateWeeklyData(): void {
+    const now = new Date();
+    const weeklyData: WeeklyData[] = [];
+    
+    // Calculate data for last 12 weeks
+    for (let i = 11; i >= 0; i--) {
+      const weekStart = new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000));
+      const weekEnd = new Date(weekStart.getTime() + (6 * 24 * 60 * 60 * 1000));
+      const weekStr = `Week ${Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`;
+      
+      const weekTransactions = this.transactions.filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        return transactionDate && transactionDate >= weekStart && transactionDate <= weekEnd;
+      });
+
+      const income = weekTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const expenses = weekTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      weeklyData.push({
+        week: weekStr,
+        income,
+        expenses,
+        savings: income - expenses
+      });
+    }
+
+    this.weeklyData = weeklyData;
+  }
+
+  private calculateYearlyData(): void {
+    const now = new Date();
+    const yearlyData: YearlyData[] = [];
+    
+    // Calculate data for last 5 years
+    for (let i = 4; i >= 0; i--) {
+      const year = now.getFullYear() - i;
+      const yearStr = year.toString();
+      
+      const yearTransactions = this.transactions.filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        return transactionDate?.getFullYear() === year;
+      });
+
+      const income = yearTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const expenses = yearTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      yearlyData.push({
+        year: yearStr,
+        income,
+        expenses,
+        savings: income - expenses
+      });
+    }
+
+    this.yearlyData = yearlyData;
+  }
+
+  private calculateAccountBalances(): void {
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+    
+    this.accountBalances = this.accounts.map((account, index) => {
+      const accountTransactions = this.transactions.filter(t => t.accountId === account.accountId);
+      const balance = accountTransactions.reduce((sum, t) => {
+        return sum + (t.type === 'income' ? t.amount : -t.amount);
+      }, account.balance || 0);
+
+      return {
+        account: account.name,
+        balance: Math.max(0, balance),
+        color: colors[index % colors.length]
+      };
+    });
+  }
+
+  private calculateSpendingTrends(): void {
+    const periods = ['Last 7 Days', 'Last 30 Days', 'Last 3 Months', 'Last 6 Months', 'Last Year'];
+    const trendData: SpendingTrend[] = [];
+    
+    periods.forEach((period, index) => {
+      const days = [7, 30, 90, 180, 365][index];
+      const endDate = new Date();
+      const startDate = new Date(endDate.getTime() - (days * 24 * 60 * 60 * 1000));
+      
+      const periodTransactions = this.transactions.filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        return transactionDate && transactionDate >= startDate && transactionDate <= endDate;
+      });
+
+      const amount = periodTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      // Calculate change from previous period
+      const previousStartDate = new Date(startDate.getTime() - (days * 24 * 60 * 60 * 1000));
+      const previousPeriodTransactions = this.transactions.filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        return transactionDate && transactionDate >= previousStartDate && transactionDate < startDate;
+      });
+
+      const previousAmount = previousPeriodTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const change = amount - previousAmount;
+      const percentage = previousAmount > 0 ? ((change / previousAmount) * 100) : 0;
+
+      trendData.push({
+        period,
+        amount,
+        change,
+        percentage
+      });
+    });
+
+    this.spendingTrends = trendData;
+  }
+
+  private calculateCategoryTrends(): void {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16'];
+
+    this.categoryTrends = this.categories.map((category, index) => {
+      // Current month data
+      const currentMonthTransactions = this.transactions.filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        return t.category === category.name &&
+               t.type === 'expense' &&
+               transactionDate?.getMonth() === currentMonth && 
+               transactionDate?.getFullYear() === currentYear;
+      });
+
+      const currentAmount = currentMonthTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+      // Previous month data
+      const previousMonthTransactions = this.transactions.filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        return t.category === category.name &&
+               t.type === 'expense' &&
+               transactionDate?.getMonth() === lastMonth && 
+               transactionDate?.getFullYear() === lastYear;
+      });
+
+      const previousAmount = previousMonthTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+      const change = currentAmount - previousAmount;
+      const percentage = previousAmount > 0 ? ((change / previousAmount) * 100) : 0;
+
+      return {
+        category: category.name,
+        currentAmount,
+        previousAmount,
+        change,
+        percentage,
+        color: colors[index % colors.length]
+      };
+    }).filter(trend => trend.currentAmount > 0 || trend.previousAmount > 0)
+      .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
+      .slice(0, 8); // Top 8 categories
+  }
+
+  private calculateGrowthRates(): void {
+    // Calculate average daily spending
+    const totalExpenses = this.transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const totalDays = this.transactions.length > 0 ? 
+      Math.max(1, Math.ceil((new Date().getTime() - (this.dateService.toDate(this.transactions[0].date)?.getTime() || 0)) / (24 * 60 * 60 * 1000))) : 30;
+    
+    this.averageDailySpending = totalExpenses / totalDays;
+    this.averageMonthlySpending = this.averageDailySpending * 30;
+
+    // Calculate savings rate
+    const totalIncome = this.transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    this.savingsRate = totalIncome > 0 ? ((this.netSavings / totalIncome) * 100) : 0;
+
+    // Calculate growth rates
+    const currentMonthExpenses = this.totalExpenses;
+    const lastMonthExpenses = this.transactions
+      .filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        const lastMonth = new Date().getMonth() === 0 ? 11 : new Date().getMonth() - 1;
+        const lastYear = new Date().getMonth() === 0 ? new Date().getFullYear() - 1 : new Date().getFullYear();
+        return t.type === 'expense' &&
+               transactionDate?.getMonth() === lastMonth && 
+               transactionDate?.getFullYear() === lastYear;
+      })
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    this.expenseGrowthRate = lastMonthExpenses > 0 ? 
+      ((currentMonthExpenses - lastMonthExpenses) / lastMonthExpenses) * 100 : 0;
+
+    const currentMonthIncome = this.totalIncome;
+    const lastMonthIncome = this.transactions
+      .filter(t => {
+        const transactionDate = this.dateService.toDate(t.date);
+        const lastMonth = new Date().getMonth() === 0 ? 11 : new Date().getMonth() - 1;
+        const lastYear = new Date().getMonth() === 0 ? new Date().getFullYear() - 1 : new Date().getFullYear();
+        return t.type === 'income' &&
+               transactionDate?.getMonth() === lastMonth && 
+               transactionDate?.getFullYear() === lastYear;
+      })
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    this.incomeGrowthRate = lastMonthIncome > 0 ? 
+      ((currentMonthIncome - lastMonthIncome) / lastMonthIncome) * 100 : 0;
+  }
+
   onPeriodChange(period: 'daily' | 'weekly' | 'monthly' | 'yearly'): void {
     this.selectedPeriod = period;
     this.notificationService.info(`Report period changed to ${period}`);
@@ -266,6 +651,122 @@ export class ReportsComponent implements OnInit, OnDestroy {
     console.log('Period changed to:', period);
     // Update charts with new period data
     this.updateCharts();
+  }
+
+  onChartTypeChange(chartType: 'pie' | 'bar' | 'line' | 'area' | 'radar' | 'funnel' | 'scatter' | 'heatmap'): void {
+    this.selectedChartType = chartType;
+    this.notificationService.info(`Chart type changed to ${chartType}`);
+    this.updateCharts();
+  }
+
+  onAnalyticsViewChange(view: 'overview' | 'trends' | 'categories' | 'accounts' | 'comparison' | 'forecast'): void {
+    this.selectedAnalyticsView = view;
+    this.notificationService.info(`Analytics view changed to ${view}`);
+    this.updateCharts();
+  }
+
+  toggleAdvancedAnalytics(): void {
+    this.showAdvancedAnalytics = !this.showAdvancedAnalytics;
+    this.userPreferences.showAdvancedAnalytics = this.showAdvancedAnalytics;
+    this.savePreferences();
+    this.notificationService.info(this.showAdvancedAnalytics ? 'Advanced analytics enabled' : 'Advanced analytics disabled');
+  }
+
+  // Preferences management
+  openPreferencesDialog(): void {
+    this.showPreferencesDialog = true;
+  }
+
+  closePreferencesDialog(): void {
+    this.showPreferencesDialog = false;
+  }
+
+  savePreferences(): void {
+    // Save to localStorage
+    localStorage.setItem('reports-preferences', JSON.stringify(this.userPreferences));
+    this.notificationService.success('Preferences saved successfully');
+  }
+
+  loadPreferences(): void {
+    const saved = localStorage.getItem('reports-preferences');
+    if (saved) {
+      this.userPreferences = { ...this.userPreferences, ...JSON.parse(saved) };
+      this.selectedChartType = this.userPreferences.defaultChartType;
+      this.selectedAnalyticsView = this.userPreferences.defaultAnalyticsView;
+      this.selectedPeriod = this.userPreferences.defaultPeriod;
+      this.showAdvancedAnalytics = this.userPreferences.showAdvancedAnalytics;
+    }
+  }
+
+  resetPreferences(): void {
+    this.userPreferences = {
+      defaultChartType: 'pie',
+      defaultAnalyticsView: 'overview',
+      defaultPeriod: 'monthly',
+      showAdvancedAnalytics: false,
+      chartHeight: 'medium',
+      refreshInterval: 5,
+      currencyFormat: 'INR',
+      dateFormat: 'DD/MM/YYYY',
+      theme: 'auto',
+      showTooltips: true,
+      showAnimations: true,
+      exportFormat: 'pdf',
+      emailReports: false,
+      emailFrequency: 'never'
+    };
+    this.savePreferences();
+    this.notificationService.info('Preferences reset to default');
+  }
+
+  // UI interactions
+  toggleQuickFilters(): void {
+    this.showQuickFilters = !this.showQuickFilters;
+  }
+
+  toggleExportOptions(): void {
+    this.showExportOptions = !this.showExportOptions;
+  }
+
+  toggleHelpTooltip(): void {
+    this.showHelpTooltip = !this.showHelpTooltip;
+  }
+
+  toggleQuickActions(): void {
+    this.showQuickActions = !this.showQuickActions;
+  }
+
+  refreshData(): void {
+    this.isRefreshing = true;
+    setTimeout(() => {
+      this.loadData();
+      this.isRefreshing = false;
+      this.notificationService.success('Data refreshed successfully');
+    }, 1000);
+  }
+
+  // Chart height getter
+  getChartHeight(): string {
+    switch (this.userPreferences.chartHeight) {
+      case 'small':
+        return 'h-48 sm:h-56';
+      case 'large':
+        return 'h-80 sm:h-96';
+      default:
+        return 'h-64 sm:h-80';
+    }
+  }
+
+  // Currency formatting based on preferences
+  formatCurrencyWithPreference(amount: number): string {
+    switch (this.userPreferences.currencyFormat) {
+      case 'USD':
+        return `$${amount.toLocaleString('en-US')}`;
+      case 'EUR':
+        return `€${amount.toLocaleString('de-DE')}`;
+      default:
+        return `₹${amount.toLocaleString('en-IN')}`;
+    }
   }
 
   exportReport(): void {
@@ -318,6 +819,53 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   getTransactionColor(transaction: Transaction): string {
     return transaction.type === 'income' ? 'text-green-600' : 'text-red-600';
+  }
+
+  // Helper methods for chart selection
+  getCurrentChartOption(): EChartsOption {
+    switch (this.selectedChartType) {
+      case 'pie':
+        return this.pieChartOption;
+      case 'bar':
+        return this.barChartOption;
+      case 'line':
+        return this.lineChartOption;
+      case 'area':
+        return this.areaChartOption;
+      case 'radar':
+        return this.radarChartOption;
+      case 'funnel':
+        return this.funnelChartOption;
+      case 'scatter':
+        return this.scatterChartOption;
+      case 'heatmap':
+        return this.heatmapChartOption;
+      default:
+        return this.pieChartOption;
+    }
+  }
+
+  getChartTitle(): string {
+    switch (this.selectedChartType) {
+      case 'pie':
+        return 'Spending by Category';
+      case 'bar':
+        return 'Monthly Financial Trends';
+      case 'line':
+        return 'Financial Trends Over Time';
+      case 'area':
+        return 'Daily Spending Patterns';
+      case 'radar':
+        return 'Category Performance Comparison';
+      case 'funnel':
+        return 'Spending Funnel Analysis';
+      case 'scatter':
+        return 'Income vs Expenses Correlation';
+      case 'heatmap':
+        return 'Weekly Spending Heatmap';
+      default:
+        return 'Financial Analytics';
+    }
   }
 
   // Chart initialization methods
@@ -537,10 +1085,658 @@ export class ReportsComponent implements OnInit, OnDestroy {
     };
   }
 
+  private initializeLineChart(): void {
+    if (this.monthlyTrends.length === 0) {
+      this.lineChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const months = this.monthlyTrends.map(item => item.month);
+    const incomeData = this.monthlyTrends.map(item => item.income);
+    const expenseData = this.monthlyTrends.map(item => item.expenses);
+    const savingsData = this.monthlyTrends.map(item => item.savings);
+
+    this.lineChartOption = {
+      title: {
+        text: 'Financial Trends Over Time',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        }
+      },
+      legend: {
+        data: ['Income', 'Expenses', 'Savings'],
+        top: 'bottom',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        top: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: months,
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          formatter: (value: number) => this.formatCurrency(value)
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      series: [
+        {
+          name: 'Income',
+          type: 'line',
+          data: incomeData,
+          smooth: true,
+          itemStyle: {
+            color: '#10B981'
+          },
+          lineStyle: {
+            color: '#10B981',
+            width: 3
+          },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
+                { offset: 1, color: 'rgba(16, 185, 129, 0.1)' }
+              ]
+            }
+          }
+        },
+        {
+          name: 'Expenses',
+          type: 'line',
+          data: expenseData,
+          smooth: true,
+          itemStyle: {
+            color: '#EF4444'
+          },
+          lineStyle: {
+            color: '#EF4444',
+            width: 3
+          },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(239, 68, 68, 0.3)' },
+                { offset: 1, color: 'rgba(239, 68, 68, 0.1)' }
+              ]
+            }
+          }
+        },
+        {
+          name: 'Savings',
+          type: 'line',
+          data: savingsData,
+          smooth: true,
+          itemStyle: {
+            color: '#3B82F6'
+          },
+          lineStyle: {
+            color: '#3B82F6',
+            width: 3
+          },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+                { offset: 1, color: 'rgba(59, 130, 246, 0.1)' }
+              ]
+            }
+          }
+        }
+      ]
+    };
+  }
+
+  private initializeAreaChart(): void {
+    if (this.dailyData.length === 0) {
+      this.areaChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const dates = this.dailyData.map(item => item.date);
+    const incomeData = this.dailyData.map(item => item.income);
+    const expenseData = this.dailyData.map(item => item.expenses);
+
+    this.areaChartOption = {
+      title: {
+        text: 'Daily Spending Patterns',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        }
+      },
+      legend: {
+        data: ['Income', 'Expenses'],
+        top: 'bottom',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        top: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: dates,
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          formatter: (value: number) => this.formatCurrency(value)
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      series: [
+        {
+          name: 'Income',
+          type: 'line',
+          stack: 'Total',
+          data: incomeData,
+          areaStyle: {
+            color: '#10B981'
+          },
+          itemStyle: {
+            color: '#10B981'
+          }
+        },
+        {
+          name: 'Expenses',
+          type: 'line',
+          stack: 'Total',
+          data: expenseData,
+          areaStyle: {
+            color: '#EF4444'
+          },
+          itemStyle: {
+            color: '#EF4444'
+          }
+        }
+      ]
+    };
+  }
+
+  private initializeRadarChart(): void {
+    if (this.categoryTrends.length === 0) {
+      this.radarChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const categories = this.categoryTrends.map(item => item.category);
+    const currentData = this.categoryTrends.map(item => item.currentAmount);
+    const previousData = this.categoryTrends.map(item => item.previousAmount);
+
+    this.radarChartOption = {
+      title: {
+        text: 'Category Performance Comparison',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        }
+      },
+      legend: {
+        data: ['Current Month', 'Previous Month'],
+        top: 'bottom',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        }
+      },
+      radar: {
+        indicator: categories.map(category => ({
+          name: category,
+          max: Math.max(...currentData, ...previousData) * 1.2
+        })),
+        center: ['50%', '50%'],
+        radius: '60%',
+        axisName: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        },
+        splitLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        },
+        splitArea: {
+          show: false
+        }
+      },
+      series: [
+        {
+          name: 'Category Performance',
+          type: 'radar',
+          data: [
+            {
+              value: currentData,
+              name: 'Current Month',
+              itemStyle: {
+                color: '#3B82F6'
+              },
+              areaStyle: {
+                color: 'rgba(59, 130, 246, 0.3)'
+              }
+            },
+            {
+              value: previousData,
+              name: 'Previous Month',
+              itemStyle: {
+                color: '#10B981'
+              },
+              areaStyle: {
+                color: 'rgba(16, 185, 129, 0.3)'
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  private initializeFunnelChart(): void {
+    if (this.spendingTrends.length === 0) {
+      this.funnelChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const data = this.spendingTrends.map(trend => ({
+      name: trend.period,
+      value: trend.amount
+    }));
+
+    this.funnelChartOption = {
+      title: {
+        text: 'Spending Funnel Analysis',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        },
+        formatter: (params: any) => {
+          return `${params.name}<br/>${this.formatCurrency(params.value)}`;
+        }
+      },
+      series: [
+        {
+          name: 'Spending',
+          type: 'funnel',
+          left: '10%',
+          top: 60,
+          width: '80%',
+          height: '80%',
+          min: 0,
+          max: Math.max(...data.map(item => item.value)),
+          minSize: '0%',
+          maxSize: '100%',
+          sort: 'descending',
+          gap: 2,
+          label: {
+            show: true,
+            position: 'inside',
+            color: this.isDarkMode ? '#F9FAFB' : '#333'
+          },
+          labelLine: {
+            length: 10,
+            lineStyle: {
+              width: 1,
+              type: 'solid'
+            }
+          },
+          itemStyle: {
+            borderColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+            borderWidth: 1
+          },
+          emphasis: {
+            label: {
+              fontSize: 20
+            }
+          },
+          data: data
+        }
+      ]
+    };
+  }
+
+  private initializeScatterChart(): void {
+    if (this.dailyData.length === 0) {
+      this.scatterChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const data = this.dailyData.map((item, index) => [index, item.expenses, item.income]);
+
+    this.scatterChartOption = {
+      title: {
+        text: 'Income vs Expenses Correlation',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        },
+        formatter: (params: any) => {
+          return `Day ${params.data[0] + 1}<br/>Expenses: ${this.formatCurrency(params.data[1])}<br/>Income: ${this.formatCurrency(params.data[2])}`;
+        }
+      },
+      xAxis: {
+        type: 'value',
+        name: 'Day',
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Amount',
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          formatter: (value: number) => this.formatCurrency(value)
+        },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#4B5563' : '#E5E7EB'
+          }
+        }
+      },
+      series: [
+        {
+          name: 'Income vs Expenses',
+          type: 'scatter',
+          data: data,
+          symbolSize: 8,
+          itemStyle: {
+            color: '#3B82F6'
+          }
+        }
+      ]
+    };
+  }
+
+  private initializeHeatmapChart(): void {
+    if (this.dailyData.length === 0) {
+      this.heatmapChartOption = {
+        title: {
+          text: 'No Data Available',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: this.isDarkMode ? '#9CA3AF' : '#666',
+            fontSize: 16
+          }
+        }
+      };
+      return;
+    }
+
+    const data = this.dailyData.map((item, index) => [
+      Math.floor(index / 7), // Week
+      index % 7, // Day of week
+      item.expenses
+    ]);
+
+    this.heatmapChartOption = {
+      title: {
+        text: 'Weekly Spending Heatmap',
+        left: 'center',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333',
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        position: 'top',
+        backgroundColor: this.isDarkMode ? '#374151' : '#FFFFFF',
+        borderColor: this.isDarkMode ? '#4B5563' : '#E5E7EB',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#374151'
+        },
+        formatter: (params: any) => {
+          const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          return `Week ${params.data[0] + 1}, ${days[params.data[1]]}<br/>${this.formatCurrency(params.data[2])}`;
+        }
+      },
+      grid: {
+        height: '50%',
+        top: '10%'
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        splitArea: {
+          show: true
+        },
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        }
+      },
+      yAxis: {
+        type: 'category',
+        data: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        splitArea: {
+          show: true
+        },
+        axisLabel: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        }
+      },
+      visualMap: {
+        min: 0,
+        max: Math.max(...this.dailyData.map(item => item.expenses)),
+        calculable: true,
+        orient: 'horizontal',
+        left: 'center',
+        bottom: '15%',
+        textStyle: {
+          color: this.isDarkMode ? '#F9FAFB' : '#333'
+        },
+        inRange: {
+          color: ['#EBF8FF', '#3B82F6']
+        }
+      },
+      series: [
+        {
+          name: 'Spending',
+          type: 'heatmap',
+          data: data,
+          label: {
+            show: true,
+            color: this.isDarkMode ? '#F9FAFB' : '#333'
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    };
+  }
+
   // Update charts when data changes
   private updateCharts(): void {
     this.initializePieChart();
     this.initializeBarChart();
+    this.initializeLineChart();
+    this.initializeAreaChart();
+    this.initializeRadarChart();
+    this.initializeFunnelChart();
+    this.initializeScatterChart();
+    this.initializeHeatmapChart();
   }
 
   // Detect current theme
