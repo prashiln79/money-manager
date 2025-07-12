@@ -33,6 +33,15 @@ export interface RecurrenceInfo {
 }
 
 /**
+ * Optional breakdown of multiple tax components (e.g., CGST, SGST)
+ */
+export interface TaxComponent {
+  name: string;     // e.g., "CGST"
+  rate: number;     // e.g., 9
+  amount: number;   // e.g., 45
+}
+
+/**
  * Base transaction interface
  */
 export interface Transaction extends Auditable, RecurrenceInfo {
@@ -49,6 +58,11 @@ export interface Transaction extends Auditable, RecurrenceInfo {
   status: TransactionStatus;
   paymentMethod?: PaymentMethod;
   tags?: string[];
+
+  // Tax support
+  taxAmount?: number;       // total tax amount (optional)
+  taxPercentage?: number;   // tax percent (optional)
+  taxes?: TaxComponent[];   // detailed breakdown (optional)
 
   // Offline sync properties
   syncStatus: SyncStatus;
@@ -72,6 +86,11 @@ export interface TransactionBaseRequest {
   isRecurring?: boolean;
   recurringInterval?: RecurringInterval;
   recurringEndDate?: Date;
+
+  // Optional tax fields
+  taxAmount?: number;
+  taxPercentage?: number;
+  taxes?: TaxComponent[];
 }
 
 /**
@@ -134,6 +153,8 @@ export interface TransactionSummary {
   averageAmount: number;
   largestTransaction: number;
   smallestTransaction: number;
+
+  totalTax?: number; // NEW
 }
 
 /**

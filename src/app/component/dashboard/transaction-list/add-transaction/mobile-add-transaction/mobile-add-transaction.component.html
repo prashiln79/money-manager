@@ -51,6 +51,7 @@
 						formControlName="amount" 
 						placeholder="0.00" 
 						step="0.01" 
+						(input)="onAmountChange()"
 						class="w-full text-2xl font-bold text-center py-3 px-4 border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
 					/>
 					@if(getAmountError() && transactionForm.get('amount')?.touched) {
@@ -175,9 +176,26 @@
 				</div>
 			</div>
 
-
-
-
+			<!-- Payment Method Field -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Payment Method
+				</label>
+				<mat-form-field appearance="fill" class="w-full">
+					<mat-label>Select payment method</mat-label>
+					<mat-select formControlName="paymentMethod">
+						<mat-option value="">None</mat-option>
+						@for (method of paymentMethods; track method.value) {
+							<mat-option [value]="method.value">
+								<div class="flex items-center gap-2">
+									<mat-icon class="text-sm">{{ method.icon }}</mat-icon>
+									<span>{{ method.label }}</span>
+								</div>
+							</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
+			</div>
 
 			<!-- Notes Field -->
 			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
@@ -190,6 +208,100 @@
 					placeholder="Add any additional notes..." 
 					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
 				></textarea>
+			</div>
+
+			<!-- Tax Fields -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm space-y-4">
+				<h6 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+					<mat-icon class="text-sm">receipt</mat-icon>
+					Tax Information (Optional)
+				</h6>
+				
+				<!-- Total Amount Display -->
+				@if((transactionForm.get('amount')?.value || 0) > 0) {
+					<div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+						<div class="flex justify-between items-center text-sm">
+							<span class="text-gray-600 dark:text-gray-300">Transaction Amount:</span>
+							<span class="font-medium text-gray-900 dark:text-gray-100">
+								₹{{ (transactionForm.get('amount')?.value || 0).toFixed(2) }}
+							</span>
+						</div>
+						@if((transactionForm.get('taxAmount')?.value || 0) > 0) {
+							<div class="flex justify-between items-center text-sm mt-1">
+								<span class="text-gray-600 dark:text-gray-300">Tax Amount:</span>
+								<span class="font-medium text-red-600 dark:text-red-400">
+									+₹{{ (transactionForm.get('taxAmount')?.value || 0).toFixed(2) }}
+								</span>
+							</div>
+							<div class="flex justify-between items-center text-sm mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+								<span class="font-medium text-gray-700 dark:text-gray-300">Total Amount:</span>
+								<span class="font-bold text-green-600 dark:text-green-400">
+									₹{{ ((transactionForm.get('amount')?.value || 0) + (transactionForm.get('taxAmount')?.value || 0)).toFixed(2) }}
+								</span>
+							</div>
+						}
+					</div>
+				}
+				
+				<!-- Tax Amount Field -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Tax Amount
+					</label>
+					<input 
+						type="number" 
+						formControlName="taxAmount" 
+						placeholder="0.00" 
+						step="0.01" 
+						(input)="onTaxAmountChange()"
+						class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+					/>
+					@if(transactionForm.get('taxAmount')?.hasError('min') && transactionForm.get('taxAmount')?.touched) {
+						<p class="text-red-500 text-sm mt-1">Tax amount cannot be negative</p>
+					}
+				</div>
+
+				<!-- Tax Percentage Field -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Tax Percentage (%)
+					</label>
+					<input 
+						type="number" 
+						formControlName="taxPercentage" 
+						placeholder="0" 
+						step="0.01" 
+						min="0" 
+						max="100"
+						(input)="onTaxPercentageChange()"
+						class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+					/>
+					<div class="flex justify-between items-center mt-1">
+						@if(transactionForm.get('taxPercentage')?.hasError('min') && transactionForm.get('taxPercentage')?.touched) {
+							<p class="text-red-500 text-sm">Tax percentage cannot be negative</p>
+						}
+						@if(transactionForm.get('taxPercentage')?.hasError('max') && transactionForm.get('taxPercentage')?.touched) {
+							<p class="text-red-500 text-sm">Tax percentage cannot exceed 100%</p>
+						}
+						<span class="text-xs text-gray-500">
+							{{ transactionForm.get('taxPercentage')?.value || 0 }}%
+						</span>
+					</div>
+				</div>
+
+				<!-- Clear Tax Button -->
+				@if((transactionForm.get('taxAmount')?.value || 0) > 0 || (transactionForm.get('taxPercentage')?.value || 0) > 0) {
+					<div class="pt-2">
+						<button 
+							type="button"
+							(click)="clearTaxFields()"
+							class="w-full py-2 px-4 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+						>
+							<mat-icon class="text-sm mr-2">clear</mat-icon>
+							Clear Tax Fields
+						</button>
+					</div>
+				}
 			</div>
 
 			<!-- Bottom Spacing for Mobile -->

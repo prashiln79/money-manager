@@ -393,6 +393,39 @@
                 <span class="transaction-notes">{{ tx.notes }}</span>
               </div>
             </div>
+
+            <!-- Payment Method -->
+            <div class="detail-row" *ngIf="tx.paymentMethod">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">payment</mat-icon>
+                <span>Payment Method</span>
+              </div>
+              <div class="detail-value">
+                <span class="payment-method">{{ tx.paymentMethod }}</span>
+              </div>
+            </div>
+
+            <!-- Tax Amount -->
+            <div class="detail-row" *ngIf="tx.taxAmount">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">payment</mat-icon>
+                <span>Tax Amount</span>
+              </div>
+              <div class="detail-value"></div>
+                <span class="tax-amount">{{ tx.taxAmount | number:'1.0-0' }}</span>
+              </div>
+            </div>
+
+            <!-- Tax Percentage -->
+            <div class="detail-row" *ngIf="tx.taxPercentage">
+              <div class="detail-label">
+                <mat-icon class="detail-icon">payment</mat-icon>
+                <span>Tax Percentage</span>
+              </div>
+              <div class="detail-value">
+                <span class="tax-percentage">{{ tx.taxPercentage }}%</span>
+              </div>
+
           </div>
         </div>
       </div>

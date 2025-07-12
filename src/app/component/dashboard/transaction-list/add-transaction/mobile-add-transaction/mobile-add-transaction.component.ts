@@ -32,6 +32,7 @@ import {
   SyncStatus,
   TransactionStatus,
   TransactionType,
+  PaymentMethod,
 } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -50,6 +51,13 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public userId: any;
   public isSubmitting = false;
   public isMobile: boolean = false;
+  public paymentMethods = [
+    { value: PaymentMethod.CREDIT_CARD, label: 'Credit Card', icon: 'credit_card' },
+    { value: PaymentMethod.DEBIT_CARD, label: 'Debit Card', icon: 'credit_card' },
+    { value: PaymentMethod.BANK_TRANSFER, label: 'Bank Transfer', icon: 'account_balance' },
+    { value: PaymentMethod.CASH, label: 'Cash', icon: 'money' },
+    { value: PaymentMethod.DIGITAL_WALLET, label: 'Digital Wallet', icon: 'account_balance_wallet' },
+  ];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -75,6 +83,12 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       categoryName: [''],
       categoryType: [''],
       accountId: ['', Validators.required],
+      // Tax fields
+      taxAmount: [0, [Validators.min(0)]],
+      taxPercentage: [0, [Validators.min(0), Validators.max(100)]],
+      taxes: [[]],
+      // Payment method
+      paymentMethod: [''],
     });
     this.isMobile = this.breakpointObserver.isMatched('(max-width: 640px)');
   }
@@ -116,6 +130,12 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           categoryName: this.dialogData.categoryName || '',
           categoryType: this.dialogData.categoryType || '',
           accountId: this.dialogData.accountId || '',
+          // Tax fields
+          taxAmount: this.dialogData.taxAmount || 0,
+          taxPercentage: this.dialogData.taxPercentage || 0,
+          taxes: this.dialogData.taxes || [],
+          // Payment method
+          paymentMethod: this.dialogData.paymentMethod || '',
         });
       } else {
         // Add mode - set default values
@@ -131,6 +151,12 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           categoryName: defaultCategory?.name || '',
           categoryType: defaultCategory?.type || '',
           accountId: defaultAccount?.accountId || '',
+          // Tax fields
+          taxAmount: 0,
+          taxPercentage: 0,
+          taxes: [],
+          // Payment method
+          paymentMethod: '',
         });
       }
     }
@@ -163,6 +189,12 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           type: formData.categoryType as TransactionType,
           date: new Date(formData.date + ' ' + this.dateService.now().toDate().toLocaleTimeString()),
           notes: formData.description,
+          // Tax fields
+          taxAmount: formData.taxAmount || 0,
+          taxPercentage: formData.taxPercentage || 0,
+          taxes: formData.taxes || [],
+          // Payment method
+          paymentMethod: formData.paymentMethod || undefined,
         };
         
         if (this.dialogData?.id) {
@@ -267,5 +299,62 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
         categoryId: category.id,
       });
     }
+  }
+
+  /**
+   * Calculate tax amount when percentage changes
+   */
+  onTaxPercentageChange(): void {
+    const amount = this.transactionForm.get('amount')?.value || 0;
+    const percentage = this.transactionForm.get('taxPercentage')?.value || 0;
+    
+    if (amount > 0 && percentage > 0) {
+      const calculatedTaxAmount = (amount * percentage) / 100;
+      this.transactionForm.patchValue({
+        taxAmount: parseFloat(calculatedTaxAmount.toFixed(2))
+      }, { emitEvent: false });
+    }
+  }
+
+  /**
+   * Calculate tax percentage when amount changes
+   */
+  onTaxAmountChange(): void {
+    const amount = this.transactionForm.get('amount')?.value || 0;
+    const taxAmount = this.transactionForm.get('taxAmount')?.value || 0;
+    
+    if (amount > 0 && taxAmount > 0) {
+      const calculatedPercentage = (taxAmount / amount) * 100;
+      this.transactionForm.patchValue({
+        taxPercentage: parseFloat(calculatedPercentage.toFixed(2))
+      }, { emitEvent: false });
+    }
+  }
+
+  /**
+   * Handle amount field changes and recalculate tax percentage if needed
+   */
+  onAmountChange(): void {
+    const amount = this.transactionForm.get('amount')?.value || 0;
+    const taxAmount = this.transactionForm.get('taxAmount')?.value || 0;
+    
+    // If there's a tax amount but no percentage, calculate the percentage
+    if (amount > 0 && taxAmount > 0) {
+      const calculatedPercentage = (taxAmount / amount) * 100;
+      this.transactionForm.patchValue({
+        taxPercentage: parseFloat(calculatedPercentage.toFixed(2))
+      }, { emitEvent: false });
+    }
+  }
+
+  /**
+   * Clear all tax fields
+   */
+  clearTaxFields(): void {
+    this.transactionForm.patchValue({
+      taxAmount: 0,
+      taxPercentage: 0,
+      taxes: []
+    });
   }
 }
