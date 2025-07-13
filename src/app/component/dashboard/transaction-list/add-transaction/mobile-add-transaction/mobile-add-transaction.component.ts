@@ -300,6 +300,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
         categoryName: category.name,
         categoryType: category.type,
         categoryId: category.id,
+        payee: this.transactionForm.get('payee')?.value || category.name,
       });
     }
   }

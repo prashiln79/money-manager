@@ -14,6 +14,8 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   @Input() selectedCategory: string = 'all';
   @Input() selectedType: string = 'all';
   @Input() selectedYear: number = moment().year();
+  @Input() selectedMonth: number = moment().month();
+  @Input() selectedMonthOption: string = 'all';
   @Input() selectedDate: Date | null = null;
   @Input() selectedDateRange: { start: Date; end: Date } | null = null;
   @Input() filteredCount: number = 0;
@@ -29,9 +31,14 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   @Output() viewAnalytics = new EventEmitter<void>();
   @Output() expandTable = new EventEmitter<void>();
   @Output() clearAllFilters = new EventEmitter<void>();
+  @Output() selectedDateRangeChange = new EventEmitter<{
+    start: Date;
+    end: Date;
+  } | null>();
 
   categories: string[] = [];
   availableYears: number[] = [];
+  months: { value: number; label: string }[] = [];
   currentYear: number;
 
   constructor(private notificationService: NotificationService) {
@@ -41,6 +48,7 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.updateCategories();
     this.updateAvailableYears();
+    this.updateMonths();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -67,6 +75,23 @@ export class SearchFilterComponent implements OnInit, OnChanges {
     this.availableYears = Array.from({ length: 10 }, (_, i) => this.currentYear - i);
   }
 
+  private updateMonths() {
+    this.months = [
+      { value: 0, label: 'January' },
+      { value: 1, label: 'February' },
+      { value: 2, label: 'March' },
+      { value: 3, label: 'April' },
+      { value: 4, label: 'May' },
+      { value: 5, label: 'June' },
+      { value: 6, label: 'July' },
+      { value: 7, label: 'August' },
+      { value: 8, label: 'September' },
+      { value: 9, label: 'October' },
+      { value: 10, label: 'November' },
+      { value: 11, label: 'December' }
+    ];
+  }
+
   onSearchChange(event: any) {
     const searchValue = event.target.value;
     this.searchTermChange.emit(searchValue);
@@ -85,6 +110,18 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   onSelectedYearChange(event: any) {
     const year = event.target.value;
     this.selectedYearChange.emit(year);
+  }
+
+  onSelectedMonthChange(monthValue: string) {
+    this.selectedMonthOption = monthValue;
+    if (monthValue !== 'all') {
+      const month = monthValue === 'all' ? moment().month() : parseInt(monthValue);
+      this.selectedDateRange = {
+        start: moment().year(this.selectedYear).month(month).startOf('month').toDate(),
+        end: moment().year(this.selectedYear).month(month).endOf('month').toDate()
+      };
+      this.selectedDateRangeChange.emit(this.selectedDateRange);
+    }
   }
 
   onAddTransaction() {
@@ -108,6 +145,13 @@ export class SearchFilterComponent implements OnInit, OnChanges {
   }
 
   onClearAllFilters() {
+    this.selectedDateRange = null;
+    this.selectedDate = null;
+    this.searchTerm = '';
+    this.selectedCategory = 'all';
+    this.selectedType = 'all';
+    this.selectedYear = this.currentYear;
+    this.selectedMonthOption = 'all';
     this.clearAllFilters.emit();
   }
 
@@ -118,7 +162,8 @@ export class SearchFilterComponent implements OnInit, OnChanges {
       this.searchTerm || 
       this.selectedCategory !== 'all' || 
       this.selectedType !== 'all' ||
-      this.selectedYear !== this.currentYear
+      this.selectedYear !== this.currentYear ||
+      this.selectedMonthOption !== 'all'
     );
   }
 
