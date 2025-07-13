@@ -43,6 +43,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public errorMessage: string = '';
   public isMobile: boolean = false;
   public expandedCategory: Category | null = null;
+  public isBudgetSummaryExpanded: boolean = false;
 
   public newCategory: Category = this.getEmptyCategory();
   public availableIcons: string[] = AVAILABLE_ICONS;
@@ -419,6 +420,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Toggle budget summary expansion to show/hide details
+   */
+  public toggleBudgetSummaryExpansion(): void {
+    this.isBudgetSummaryExpanded = !this.isBudgetSummaryExpanded;
+  }
+
+  /**
    * Get recent transactions for a category
    */
   public getRecentTransactions(category: Category): Transaction[] {
@@ -521,5 +529,130 @@ export class CategoryComponent implements OnInit, OnDestroy {
     if (remaining <= 0) return 'danger';
     if (remaining < (category.budget?.budgetAmount || 0) * 0.1) return 'warning';
     return 'safe';
+  }
+
+  public calculateTotalSpentPerMonth(category: Category): number {
+    const categoryTransactions = this.transactions.filter(t => t.category === category.name);
+    const totalSpent = categoryTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    return totalSpent;
+  }
+
+  public calculateTotalIncomePerMonth(category: Category): number {
+    const categoryTransactions = this.transactions.filter(t => t.category === category.name);
+    const totalIncome = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
+    return totalIncome;
+  }
+
+  /**
+   * Calculate overall budget statistics for all categories
+   */
+  public getOverallBudgetStats(): any {
+    const categoriesWithBudget = this.categories.filter(cat => 
+      cat.budget?.hasBudget && cat.type === TransactionType.EXPENSE
+    );
+
+    if (categoriesWithBudget.length === 0) {
+      return {
+        totalBudget: 0,
+        totalSpent: 0,
+        totalRemaining: 0,
+        overallProgress: 0,
+        categoriesWithBudget: 0,
+        averageBudget: 0
+      };
+    }
+
+    const totalBudget = categoriesWithBudget.reduce((sum, cat) => 
+      sum + (cat.budget?.budgetAmount || 0), 0
+    );
+
+    const totalSpent = categoriesWithBudget.reduce((sum, cat) => 
+      sum + (cat.budget?.budgetSpent || 0), 0
+    );
+
+    const totalRemaining = totalBudget - totalSpent;
+    const overallProgress = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+    const averageBudget = totalBudget / categoriesWithBudget.length;
+
+    return {
+      totalBudget,
+      totalSpent,
+      totalRemaining,
+      overallProgress,
+      categoriesWithBudget: categoriesWithBudget.length,
+      averageBudget
+    };
+  }
+
+  /**
+   * Get overall budget status class for styling
+   */
+  public getOverallBudgetStatusClass(): string {
+    const stats = this.getOverallBudgetStats();
+    if (stats.overallProgress >= 90) return 'danger';
+    if (stats.overallProgress >= 75) return 'warning';
+    return 'safe';
+  }
+
+  /**
+   * Get overall budget progress color
+   */
+  public getOverallBudgetProgressColor(): string {
+    const stats = this.getOverallBudgetStats();
+    if (stats.overallProgress >= 100) {
+      return '#ef4444'; // red - over budget
+    } else if (stats.overallProgress >= 80) {
+      return '#f59e0b'; // amber - warning
+    } else if (stats.overallProgress >= 60) {
+      return '#3b82f6'; // blue - good progress
+    } else {
+      return '#10b981'; // green - safe
+    }
+  }
+
+  /**
+   * Get detailed budget statistics for expanded view
+   */
+  public getDetailedBudgetStats(): any {
+    const categoriesWithBudget = this.categories.filter(cat => 
+      cat.budget?.hasBudget && cat.type === TransactionType.EXPENSE
+    );
+
+    if (categoriesWithBudget.length === 0) {
+      return {
+        categories: [],
+        totalCategories: 0,
+        averageSpentPerCategory: 0,
+        mostExpensiveCategory: null,
+        leastExpensiveCategory: null
+      };
+    }
+
+    const categoryStats = categoriesWithBudget.map(cat => ({
+      name: cat.name,
+      budget: cat.budget?.budgetAmount || 0,
+      spent: cat.budget?.budgetSpent || 0,
+      remaining: (cat.budget?.budgetAmount || 0) - (cat.budget?.budgetSpent || 0),
+      progress: cat.budget?.budgetProgressPercentage || 0,
+      color: cat.color,
+      icon: cat.icon
+    }));
+
+    const totalSpent = categoryStats.reduce((sum, cat) => sum + cat.spent, 0);
+    const averageSpentPerCategory = totalSpent / categoryStats.length;
+    
+    const mostExpensiveCategory = categoryStats.reduce((max, cat) => 
+      cat.spent > max.spent ? cat : max, categoryStats[0]);
+    
+    const leastExpensiveCategory = categoryStats.reduce((min, cat) => 
+      cat.spent < min.spent ? cat : min, categoryStats[0]);
+
+    return {
+      categories: categoryStats.sort((a, b) => b.spent - a.spent),
+      totalCategories: categoryStats.length,
+      averageSpentPerCategory,
+      mostExpensiveCategory,
+      leastExpensiveCategory
+    };
   }
 }
