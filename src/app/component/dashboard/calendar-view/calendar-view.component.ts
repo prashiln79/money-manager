@@ -187,11 +187,12 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   updateCategoryChart() {
     const filteredTransactions = this.getFilteredTransactions();
     const categoryData = this.getCategorySpendingData(filteredTransactions);
+    const totalSpending = filteredTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
     
     this.pieChartOption = {
       ...this.pieChartOption,
       title: {
-        text: `Category-wise Spending - ${this.availableMonths[this.selectedMonth].label} ${this.selectedYear}`,
+        text: `${this.availableMonths[this.selectedMonth].label} ${this.selectedYear} - ₹${totalSpending.toLocaleString()}`,
         left: 'center',
         textStyle: {
           fontSize: 14,
@@ -302,9 +303,9 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     transactions.forEach(transaction => {
       const categoryId = transaction.categoryId;
       const category = this.categories.find(c => c.id === categoryId);
-      const categoryName = category ? category.name : 'Unknown Category';
+      const categoryName = category ? category.name : '';
       
-      if (categoryMap.has(categoryName)) {
+      if (categoryName && categoryMap.has(categoryName)) {
         categoryMap.set(categoryName, categoryMap.get(categoryName)! + transaction.amount);
       } else {
         categoryMap.set(categoryName, transaction.amount);

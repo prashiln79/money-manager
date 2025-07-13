@@ -432,6 +432,22 @@
             }
           }
           
+          .category-spent {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+
+            .category-spent-label {
+              font-size: 0.75rem;
+              color: #6b7280;
+              font-weight: 500;
+            }
+            
+            
+          }
+
+
           .no-budget {
             .no-budget-text {
               font-size: 0.75rem;

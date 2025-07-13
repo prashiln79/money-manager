@@ -225,33 +225,15 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   applySearchAndFilters(transactions: any[]): any[] {
-    let filtered = transactions;
-    
-    // Apply search term
-    if (this.searchTerm && this.searchTerm.trim()) {
-      const searchLower = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(transaction => 
-        transaction.payee.toLowerCase().includes(searchLower) ||
-        transaction.category.toLowerCase().includes(searchLower) ||
-        (transaction.notes && transaction.notes.toLowerCase().includes(searchLower))
-      );
-    }
-    
-    // Apply category filter - handle multi-select
-    if (this.selectedCategory && !this.selectedCategory.includes('all')) {
-      filtered = filtered.filter(transaction => 
-        this.selectedCategory.includes(transaction.category)
-      );
-    }
-    
-    // Apply type filter
-    if (this.selectedType && this.selectedType !== 'all') {
-      filtered = filtered.filter(transaction => 
-        transaction.type === this.selectedType
-      );
-    }
-    
-    return filtered;
+    // Use the common filtering service
+    return this.filterService.filterTransactionsWithCustomFilters(
+      transactions,
+      {
+        searchTerm: this.searchTerm,
+        selectedCategory: this.selectedCategory,
+        selectedType: this.selectedType
+      }
+    );
   }
 
   onSearchChange(): void {

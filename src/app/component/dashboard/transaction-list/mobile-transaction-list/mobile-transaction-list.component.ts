@@ -129,90 +129,25 @@ export class MobileTransactionListComponent
   }
 
   filterTransactions() {
-    let filtered = [...this.transactions];
+    // Use the common filtering service
+    const filtered = this.filterService.filterTransactionsWithCustomFilters(
+      this.transactions,
+      {
+        searchTerm: this.searchTerm,
+        selectedCategory: this.selectedCategory,
+        selectedType: this.selectedType,
+        selectedDate: this.selectedDate,
+        selectedDateRange: this.selectedDateRange
+      }
+    );
 
-    // Search filter
-    if (this.searchTerm) {
-      const searchLower = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (tx) =>
-          tx?.payee?.toLowerCase().includes(searchLower) ||
-          tx?.category?.toString().toLowerCase().includes(searchLower) ||
-          (tx?.notes && tx?.notes?.toLowerCase().includes(searchLower))
-      );
-    }
+    // Sort transactions using the common service
+    const sorted = this.filterService.sortTransactions(filtered, this.selectedSort);
 
-    // Category filter - handle multi-select
-    if (!this.selectedCategory.includes('all')) {
-      filtered = filtered.filter((tx) =>
-        this.selectedCategory.includes(tx.category)
-      );
-    }
-
-    // Type filter
-    if (this.selectedType !== 'all') {
-      filtered = filtered.filter((tx) => tx.type === this.selectedType);
-    }
-
-    // Date filter
-    if (this.selectedDate) {
-      const selectedMoment = moment(this.selectedDate).startOf('day');
-      filtered = filtered.filter((tx) => {
-        const txMoment = moment(this.dateService.toDate(tx.date)).startOf(
-          'day'
-        );
-        return txMoment.isSame(selectedMoment, 'day');
-      });
-    }
-
-    // Date range filter
-    if (this.selectedDateRange) {
-      const startMoment = moment(this.selectedDateRange.startDate).startOf('day');
-      const endMoment = moment(this.selectedDateRange.endDate).endOf('day');
-      filtered = filtered.filter((tx) => {
-        const txMoment = moment(this.dateService.toDate(tx.date));
-        return txMoment.isBetween(startMoment, endMoment, 'day', '[]');
-      });
-    }
-
-    // Sort transactions
-    filtered = this.sortTransactions(filtered);
-
-    this.filteredTransactions = filtered;
+    this.filteredTransactions = sorted;
   }
 
-  sortTransactions(transactions: Transaction[]): Transaction[] {
-    const sorted = [...transactions];
-
-    switch (this.selectedSort) {
-      case 'date-desc':
-        return sorted.sort((a, b) => {
-          const dateA = this.dateService.toDate(a.date);
-          const dateB = this.dateService.toDate(b.date);
-          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
-        });
-      case 'date-asc':
-        return sorted.sort((a, b) => {
-          const dateA = this.dateService.toDate(a.date);
-          const dateB = this.dateService.toDate(b.date);
-          return (dateA?.getTime() ?? 0) - (dateB?.getTime() ?? 0);
-        });
-      case 'amount-desc':
-        return sorted.sort((a, b) => b.amount - a.amount);
-      case 'amount-asc':
-        return sorted.sort((a, b) => a.amount - b.amount);
-      case 'payee-asc':
-        return sorted.sort((a, b) => a.payee.localeCompare(b.payee));
-      case 'category-asc':
-        return sorted.sort((a, b) => a.category.localeCompare(b.category));
-      default:
-        return sorted.sort((a, b) => {
-          const dateA = this.dateService.toDate(a.date);
-          const dateB = this.dateService.toDate(b.date);
-          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
-        });
-    }
-  }
+  // Removed duplicate sortTransactions method - now using FilterService.sortTransactions()
 
   onSearchChange(term: string) {
     this.searchTerm = term;

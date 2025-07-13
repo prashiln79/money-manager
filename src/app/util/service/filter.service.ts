@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
+import moment from 'moment';
 
 export interface DateRange {
   startDate: Date;
@@ -493,5 +494,246 @@ export class FilterService {
       console.warn('Failed to load filter presets from localStorage:', error);
       return this.getDefaultPresets();
     }
+  }
+
+  // ===== COMMON FILTERING LOGIC =====
+  
+  /**
+   * Apply filters to a transaction array using the current filter state
+   * @param transactions Array of transactions to filter
+   * @param filterState Optional filter state (uses current state if not provided)
+   * @returns Filtered transaction array
+   */
+  filterTransactions(transactions: any[], filterState?: TransactionFilter): any[] {
+    const state = filterState || this.getCurrentFilterState();
+    let filtered = [...transactions];
+
+    // Apply search filter
+    if (state.searchTerm && state.searchTerm.trim()) {
+      const searchLower = state.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(transaction => 
+        transaction.payee?.toLowerCase().includes(searchLower) ||
+        transaction.category?.toLowerCase().includes(searchLower) ||
+        (transaction.notes && transaction.notes.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Apply category filter - handle multi-select
+    if (state.selectedCategory && !state.selectedCategory.includes('all')) {
+      filtered = filtered.filter(transaction => 
+        state.selectedCategory.includes(transaction.category)
+      );
+    }
+
+    // Apply type filter
+    if (state.selectedType && state.selectedType !== 'all') {
+      filtered = filtered.filter(transaction => 
+        transaction.type === state.selectedType
+      );
+    }
+
+    // Apply date filter
+    if (state.selectedDate) {
+      const selectedMoment = moment(state.selectedDate).startOf('day');
+      filtered = filtered.filter(transaction => {
+        const transactionDate = this.getTransactionDate(transaction.date);
+        if (!transactionDate) return false;
+        const txMoment = moment(transactionDate).startOf('day');
+        return txMoment.isSame(selectedMoment, 'day');
+      });
+    }
+
+    // Apply date range filter
+    if (state.selectedDateRange && state.selectedDateRange.startDate && state.selectedDateRange.endDate) {
+      const startMoment = moment(state.selectedDateRange.startDate).startOf('day');
+      const endMoment = moment(state.selectedDateRange.endDate).endOf('day');
+      filtered = filtered.filter(transaction => {
+        const transactionDate = this.getTransactionDate(transaction.date);
+        if (!transactionDate) return false;
+        const txMoment = moment(transactionDate);
+        return txMoment.isBetween(startMoment, endMoment, 'day', '[]');
+      });
+    }
+
+    // Apply account filter
+    if (state.accountFilter && state.accountFilter.length > 0) {
+      filtered = filtered.filter(transaction => 
+        state.accountFilter.includes(transaction.accountId)
+      );
+    }
+
+    // Apply amount range filter
+    if (state.amountRange) {
+      if (state.amountRange.min !== null) {
+        filtered = filtered.filter(transaction => transaction.amount >= (state.amountRange.min || 0));
+      }
+      if (state.amountRange.max !== null) {
+        filtered = filtered.filter(transaction => transaction.amount <= (state.amountRange.max || 0)); 
+      }
+    }
+
+    // Apply status filter
+    if (state.statusFilter && state.statusFilter.length > 0) {
+      filtered = filtered.filter(transaction => 
+        state.statusFilter.includes(transaction.status)
+      );
+    }
+
+    // Apply tags filter
+    if (state.tags && state.tags.length > 0) {
+      filtered = filtered.filter(transaction => 
+        transaction.tags && state.tags.some(tag => transaction.tags.includes(tag))
+      );
+    }
+
+    return filtered;
+  }
+
+  /**
+   * Apply filters to a transaction array using custom filter parameters
+   * @param transactions Array of transactions to filter
+   * @param filters Custom filter parameters
+   * @returns Filtered transaction array
+   */
+  filterTransactionsWithCustomFilters(transactions: any[], filters: {
+    searchTerm?: string;
+    selectedCategory?: string[];
+    selectedType?: string;
+    selectedDate?: Date | null;
+    selectedDateRange?: { startDate: Date; endDate: Date } | null;
+    accountFilter?: string[];
+    amountRange?: { min: number | null; max: number | null };
+    statusFilter?: string[];
+    tags?: string[];
+  }): any[] {
+    const filterState: TransactionFilter = {
+      searchTerm: filters.searchTerm || '',
+      selectedCategory: filters.selectedCategory || ['all'],
+      selectedType: filters.selectedType || 'all',
+      selectedDate: filters.selectedDate || null,
+      selectedDateRange: filters.selectedDateRange || null,
+      categoryFilter: null,
+      accountFilter: filters.accountFilter || [],
+      amountRange: filters.amountRange || { min: null, max: null },
+      statusFilter: filters.statusFilter || [],
+      tags: filters.tags || []
+    };
+
+    return this.filterTransactions(transactions, filterState);
+  }
+
+  /**
+   * Sort transactions by various criteria
+   * @param transactions Array of transactions to sort
+   * @param sortBy Sort criteria ('date-desc', 'date-asc', 'amount-desc', 'amount-asc', 'payee-asc', 'category-asc')
+   * @returns Sorted transaction array
+   */
+  sortTransactions(transactions: any[], sortBy: string = 'date-desc'): any[] {
+    const sorted = [...transactions];
+
+    switch (sortBy) {
+      case 'date-desc':
+        return sorted.sort((a, b) => {
+          const dateA = this.getTransactionDate(a.date);
+          const dateB = this.getTransactionDate(b.date);
+          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
+        });
+      case 'date-asc':
+        return sorted.sort((a, b) => {
+          const dateA = this.getTransactionDate(a.date);
+          const dateB = this.getTransactionDate(b.date);
+          return (dateA?.getTime() ?? 0) - (dateB?.getTime() ?? 0);
+        });
+      case 'amount-desc':
+        return sorted.sort((a, b) => b.amount - a.amount);
+      case 'amount-asc':
+        return sorted.sort((a, b) => a.amount - b.amount);
+      case 'payee-asc':
+        return sorted.sort((a, b) => a.payee.localeCompare(b.payee));
+      case 'category-asc':
+        return sorted.sort((a, b) => a.category.localeCompare(b.category));
+      default:
+        return sorted.sort((a, b) => {
+          const dateA = this.getTransactionDate(a.date);
+          const dateB = this.getTransactionDate(b.date);
+          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
+        });
+    }
+  }
+
+  /**
+   * Filter and sort transactions in one operation
+   * @param transactions Array of transactions to filter and sort
+   * @param filterState Optional filter state
+   * @param sortBy Sort criteria
+   * @returns Filtered and sorted transaction array
+   */
+  filterAndSortTransactions(
+    transactions: any[], 
+    filterState?: TransactionFilter, 
+    sortBy: string = 'date-desc'
+  ): any[] {
+    const filtered = this.filterTransactions(transactions, filterState);
+    return this.sortTransactions(filtered, sortBy);
+  }
+
+  /**
+   * Get transaction date from various date formats (Timestamp, Date, string)
+   * @param date Transaction date in any format
+   * @returns Date object or null
+   */
+  private getTransactionDate(date: any): Date | null {
+    if (!date) return null;
+    
+    if (date && typeof date === 'object' && 'seconds' in date) {
+      // Handle Firestore Timestamp
+      return new Date(date.seconds * 1000);
+    } else if (date instanceof Date) {
+      // Handle Date object
+      return date;
+    } else if (typeof date === 'string') {
+      // Handle date string
+      const parsed = new Date(date);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    } else if (typeof date === 'number') {
+      // Handle timestamp
+      return new Date(date);
+    }
+    
+    return null;
+  }
+
+  /**
+   * Get filtered transactions for current year only
+   * @param transactions Array of transactions
+   * @param filterState Optional filter state
+   * @returns Filtered transactions for current year
+   */
+  filterCurrentYearTransactions(transactions: any[], filterState?: TransactionFilter): any[] {
+    const currentYear = moment().year();
+    const yearFiltered = transactions.filter(tx => {
+      const txDate = this.getTransactionDate(tx.date);
+      if (!txDate) return false;
+      return moment(txDate).year() === currentYear;
+    });
+    
+    return this.filterTransactions(yearFiltered, filterState);
+  }
+
+  /**
+   * Get filtered transactions for a specific year
+   * @param transactions Array of transactions
+   * @param year Year to filter for
+   * @param filterState Optional filter state
+   * @returns Filtered transactions for specified year
+   */
+  filterYearTransactions(transactions: any[], year: number, filterState?: TransactionFilter): any[] {
+    const yearFiltered = transactions.filter(tx => {
+      const txDate = this.getTransactionDate(tx.date);
+      if (!txDate) return false;
+      return moment(txDate).year() === year;
+    });
+    
+    return this.filterTransactions(yearFiltered, filterState);
   }
 } 

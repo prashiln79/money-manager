@@ -6,6 +6,7 @@ import { Auth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
 import { DateService } from 'src/app/util/service/date.service';
+import { FilterService } from 'src/app/util/service/filter.service';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { Category } from 'src/app/util/models';
 import { AppState } from 'src/app/store/app.state';
@@ -47,6 +48,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   constructor(
     private auth: Auth,
     private dateService: DateService,
+    private filterService: FilterService,
     private store: Store<AppState>
   ) {}
 
@@ -144,55 +146,29 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   }
 
   filterTransactions() {
-    let filtered = [...this.transactions];
+    // Use the common filtering service with custom filters
+    const filtered = this.filterService.filterTransactionsWithCustomFilters(
+      this.transactions,
+      {
+        searchTerm: this.searchTerm,
+        selectedCategory: this.selectedCategory,
+        selectedType: this.selectedType,
+        selectedDate: this.selectedDate,
+        selectedDateRange: this.selectedDateRange ? {
+          startDate: this.selectedDateRange.start,
+          endDate: this.selectedDateRange.end
+        } : null
+      }
+    );
 
     // Filter to show only current year transactions
     const currentYear = moment().year();
-    filtered = filtered.filter(tx => {
+    const yearFiltered = filtered.filter(tx => {
       const txYear = moment(this.dateService.toDate(tx.date)).year();
       return txYear === currentYear;
     });
 
-    // Apply search filter
-    if (this.searchTerm) {
-      const searchLower = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(tx => 
-        tx.payee.toLowerCase().includes(searchLower) ||
-        tx.category.toLowerCase().includes(searchLower) ||
-        (tx.notes && tx.notes.toLowerCase().includes(searchLower))
-      );
-    }
-
-    // Apply category filter - handle multi-select
-    if (!this.selectedCategory.includes('all')) {
-      filtered = filtered.filter(tx => this.selectedCategory.includes(tx.category));
-    }
-
-    // Apply type filter
-    if (this.selectedType !== 'all') {
-      filtered = filtered.filter(tx => tx.type === this.selectedType);
-    }
-
-    // Apply date filter
-    if (this.selectedDate) {
-      const selectedMoment = moment(this.selectedDate).startOf('day');
-      filtered = filtered.filter(tx => {
-        const txMoment = moment(this.dateService.toDate(tx.date)).startOf('day');
-        return txMoment.isSame(selectedMoment, 'day');
-      });
-    }
-
-    // Apply date range filter
-    if (this.selectedDateRange) {
-      const startMoment = moment(this.selectedDateRange.start).startOf('day');
-      const endMoment = moment(this.selectedDateRange.end).endOf('day');
-      filtered = filtered.filter(tx => {
-        const txMoment = moment(this.dateService.toDate(tx.date));
-        return txMoment.isBetween(startMoment, endMoment, 'day', '[]');
-      });
-    }
-
-    this.dataSource.data = filtered;
+    this.dataSource.data = yearFiltered;
   }
 
   onEditTransaction(transaction: Transaction) {
@@ -250,27 +226,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     }
   }
 
-  // Custom sort function for amount column
-  sortAmount(a: Transaction, b: Transaction): number {
-    return a.amount - b.amount;
-  }
-
-  // Custom sort function for date column
-  sortDate(a: Transaction, b: Transaction): number {
-    const dateA = this.dateService.toDate(a.date);
-    const dateB = this.dateService.toDate(b.date);
-    
-    if (!dateA || !dateB) {
-      return 0;
-    }
-    
-    return dateA.getTime() - dateB.getTime();
-  }
-
-  // Custom sort function for payee column
-  sortPayee(a: Transaction, b: Transaction): number {
-    return a.payee.localeCompare(b.payee);
-  }
+  // Removed duplicate sort methods - now using FilterService.sortTransactions()
 
   private loadCategories(): void {
     const userId = this.auth.currentUser?.uid;
@@ -300,13 +256,5 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     return '';
   }
 
-  // Custom sort function for category column
-  sortCategory(a: Transaction, b: Transaction): number {
-    return a.category.localeCompare(b.category);
-  }
-
-  // Custom sort function for type column
-  sortType(a: Transaction, b: Transaction): number {
-    return a.type.localeCompare(b.type);
-  }
+  // Removed duplicate sort methods - now using FilterService.sortTransactions()
 } 
