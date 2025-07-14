@@ -9,16 +9,32 @@ import { Subscription } from 'rxjs';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  isMobile = false;
+  deviceType = {
+    mobile: false,
+    tablet: false,
+    desktop: false
+  };
   isCalendarVisible = true;
   private calendarSubscription?: Subscription;
+
+
 
   constructor(
     private breakpointObserver: BreakpointObserver,
     private calendarVisibilityService: CalendarVisibilityService
   ) {
-    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
-      this.isMobile = result.matches;
+    this.breakpointObserver.observe([
+      Breakpoints.Handset,
+      Breakpoints.Tablet,
+      Breakpoints.Web
+    ]).subscribe(result => {
+      if (result.breakpoints[Breakpoints.HandsetPortrait] || result.breakpoints[Breakpoints.HandsetLandscape]) {
+        this.deviceType = { mobile: true, tablet: false, desktop: false };
+      } else if (result.breakpoints[Breakpoints.TabletPortrait] || result.breakpoints[Breakpoints.TabletLandscape]) {
+        this.deviceType = { mobile: false, tablet: true, desktop: false };
+      } else if (result.breakpoints[Breakpoints.WebPortrait]) {
+        this.deviceType = { mobile: false, tablet: false, desktop: true };
+      }
     });
   }
 

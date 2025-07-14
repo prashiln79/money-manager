@@ -2,7 +2,9 @@
 .accounts-container {
   padding: 1rem;
   background: inherit;
-  min-height: 100vh;
+  min-height: inherit;
+  height: 72vh;
+  overflow: auto;
 }
 
 // Error Message
