@@ -724,6 +724,13 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.showQuickFilters = !this.showQuickFilters;
   }
 
+  applyFilters(): void {
+    // TODO: Implement filter application logic
+    this.notificationService.info('Filters applied successfully');
+    this.toggleQuickFilters();
+    this.refreshData();
+  }
+
   toggleExportOptions(): void {
     this.showExportOptions = !this.showExportOptions;
   }

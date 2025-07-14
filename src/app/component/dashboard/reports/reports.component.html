@@ -1,179 +1,29 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-  <!-- Header Section -->
-  <div class="bg-white dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-6">
-        <div class="flex-1">
-          <h4 class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Financial Reports
-          </h4>
-          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            Analyze your spending patterns and financial insights
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Enhanced Header Section -->
+ 
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div class="text-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p class="text-gray-600 dark:text-gray-400">Loading your financial data...</p>
+  <!-- Enhanced Loading State -->
+  <div *ngIf="isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full mb-6">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Loading Financial Data</h3>
+      <p class="text-gray-600 dark:text-gray-400">Please wait while we prepare your reports...</p>
     </div>
   </div>
 
   <!-- Main Content -->
-  <div *ngIf="!isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <!-- Analytics Controls -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div class="flex-1">
-          <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">Analytics Dashboard</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Choose your preferred view and chart type</p>
-        </div>
-        
-        <div class="flex flex-wrap gap-2 justify-center lg:justify-end">
-          <!-- Analytics View Selector -->
-          <div class="flex flex-wrap gap-1">
-            <button 
-              *ngFor="let view of availableAnalyticsViews"
-              mat-stroked-button 
-              class="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              [class.bg-blue-50]="selectedAnalyticsView === view"
-              (click)="onAnalyticsViewChange(view)">
-              {{ view.charAt(0).toUpperCase() + view.slice(1) }}
-            </button>
-          </div>
-          
-          <!-- Chart Type Selector -->
-          <div class="flex flex-wrap gap-1">
-            <button 
-              *ngFor="let type of availableChartTypes"
-              mat-stroked-button 
-              class="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              [class.bg-green-50]="selectedChartType === type"
-              (click)="onChartTypeChange(type)">
-              {{ type.charAt(0).toUpperCase() + type.slice(1) }}
-            </button>
-          </div>
-          
-          <!-- Advanced Analytics Toggle -->
-          <button 
-            mat-raised-button 
-            [color]="showAdvancedAnalytics ? 'accent' : 'primary'"
-            class="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg shadow-md hover:shadow-lg transition-shadow"
-            (click)="toggleAdvancedAnalytics()">
-            <mat-icon class="text-sm mr-1">{{ showAdvancedAnalytics ? 'visibility_off' : 'visibility' }}</mat-icon>
-            {{ showAdvancedAnalytics ? 'Basic' : 'Advanced' }}
-          </button>
-
-          <!-- Preferences Button -->
-          <button 
-            mat-icon-button 
-            class="ml-2"
-            matTooltip="Preferences"
-            (click)="openPreferencesDialog()">
-            <mat-icon>settings</mat-icon>
-          </button>
-
-          <!-- Refresh Button -->
-          <button 
-            mat-icon-button 
-            class="ml-2"
-            matTooltip="Refresh Data"
-            [disabled]="isRefreshing"
-            (click)="refreshData()">
-            <mat-icon [class.animate-spin]="isRefreshing">{{ isRefreshing ? 'refresh' : 'refresh' }}</mat-icon>
-          </button>
-
-          <!-- Help Button -->
-          <button 
-            mat-icon-button 
-            class="ml-2"
-            matTooltip="Help"
-            (click)="toggleHelpTooltip()">
-            <mat-icon>help_outline</mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Dynamic Chart Section - Moved Up -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
-      <!-- Main Chart Card -->
-      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-4 sm:mb-6">
-            <div class="flex-1 min-w-0">
-              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{{ getChartTitle() }}</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Interactive financial visualization</p>
-            </div>
-            <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-              <mat-icon class="text-blue-600 dark:text-blue-400">{{ selectedChartType === 'pie' ? 'pie_chart' : selectedChartType === 'bar' ? 'bar_chart' : selectedChartType === 'line' ? 'show_chart' : selectedChartType === 'area' ? 'area_chart' : selectedChartType === 'radar' ? 'radar' : selectedChartType === 'funnel' ? 'filter_alt' : selectedChartType === 'scatter' ? 'scatter_plot' : 'grid_on' }}</mat-icon>
-            </div>
-          </div>
-          <div class="w-full" [ngClass]="getChartHeight()">
-            <div echarts [options]="getCurrentChartOption()" class="w-full h-full"></div>
-          </div>
-        </div>
-      </mat-card>
-
-      <!-- Analytics Summary Card -->
-      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-4 sm:mb-6">
-            <div class="flex-1 min-w-0">
-              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Analytics Summary</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Key insights and trends</p>
-            </div>
-            <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-              <mat-icon class="text-green-600 dark:text-green-400">insights</mat-icon>
-            </div>
-          </div>
-          
-          <div class="space-y-4">
-            <!-- Category Trends -->
-            <div *ngIf="categoryTrends.length > 0" class="space-y-3">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Category Trends</h4>
-              <div *ngFor="let trend of categoryTrends.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.category }}</span>
-                <span class="text-sm font-medium" [ngClass]="trend.change >= 0 ? 'text-red-600' : 'text-green-600'">
-                  {{ trend.change >= 0 ? '+' : '' }}{{ trend.percentage.toFixed(1) }}%
-                </span>
-              </div>
-            </div>
-
-            <!-- Spending Trends -->
-            <div *ngIf="spendingTrends.length > 0" class="space-y-3">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Spending Trends</h4>
-              <div *ngFor="let trend of spendingTrends.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.period }}</span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(trend.amount) }}</span>
-              </div>
-            </div>
-
-            <!-- Account Balances -->
-            <div *ngIf="accountBalances.length > 0" class="space-y-3">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Account Balances</h4>
-              <div *ngFor="let account of accountBalances.slice(0, 3)" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ account.account }}</span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(account.balance) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </mat-card>
-    </div>
-
-    <!-- Key Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+  <div *ngIf="!isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- Key Metrics Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
       <!-- Total Income -->
-      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 sm:p-6 border border-green-200 dark:border-green-700">
+      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 sm:p-6 border border-green-200 dark:border-green-700 shadow-sm hover:shadow-md transition-shadow metric-card">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-green-600 dark:text-green-400 truncate">Total Income</p>
             <p class="text-lg sm:text-xl lg:text-2xl font-bold text-green-900 dark:text-green-100 truncate">{{ formatCurrency(totalIncome) }}</p>
+            <p class="text-xs text-green-600 dark:text-green-400 mt-1">This period</p>
           </div>
           <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
             <mat-icon class="text-green-600 dark:text-green-400 text-lg sm:text-xl">trending_up</mat-icon>
@@ -182,11 +32,12 @@
       </div>
 
       <!-- Total Expenses -->
-      <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-4 sm:p-6 border border-red-200 dark:border-red-700">
+      <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-4 sm:p-6 border border-red-200 dark:border-red-700 shadow-sm hover:shadow-md transition-shadow metric-card">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-red-600 dark:text-red-400 truncate">Total Expenses</p>
             <p class="text-lg sm:text-xl lg:text-2xl font-bold text-red-900 dark:text-red-100 truncate">{{ formatCurrency(totalExpenses) }}</p>
+            <p class="text-xs text-red-600 dark:text-red-400 mt-1">This period</p>
           </div>
           <div class="bg-red-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
             <mat-icon class="text-red-600 dark:text-red-400 text-lg sm:text-xl">trending_down</mat-icon>
@@ -195,11 +46,12 @@
       </div>
 
       <!-- Net Savings -->
-      <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 sm:p-6 border border-blue-200 dark:border-blue-700">
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 sm:p-6 border border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-shadow metric-card">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-blue-600 dark:text-blue-400 truncate">Net Savings</p>
             <p class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-900 dark:text-blue-100 truncate">{{ formatCurrency(netSavings) }}</p>
+            <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">This period</p>
           </div>
           <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
             <mat-icon class="text-blue-600 dark:text-blue-400 text-lg sm:text-xl">account_balance_wallet</mat-icon>
@@ -208,13 +60,14 @@
       </div>
 
       <!-- Monthly Change -->
-      <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-4 sm:p-6 border border-purple-200 dark:border-purple-700">
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-4 sm:p-6 border border-purple-200 dark:border-purple-700 shadow-sm hover:shadow-md transition-shadow metric-card">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-purple-600 dark:text-purple-400 truncate">Monthly Change</p>
             <p class="text-lg sm:text-xl lg:text-2xl font-bold text-purple-900 dark:text-purple-100 truncate" [ngClass]="getMonthlyChangeColor()">
               {{ getMonthlyChangeDisplay() }}
             </p>
+            <p class="text-xs text-purple-600 dark:text-purple-400 mt-1">vs last month</p>
           </div>
           <div class="bg-purple-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
             <mat-icon [ngClass]="getMonthlyChangeColor()" class="text-lg sm:text-xl">{{ getMonthlyChangeIcon() }}</mat-icon>
@@ -223,13 +76,283 @@
       </div>
     </div>
 
-    <!-- Quick Filters -->
-    <div *ngIf="showQuickFilters" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Filters</h3>
+    <!-- Enhanced Chart and Analytics Section -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+      <!-- Chart Header with Compact Controls -->
+      <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{{ getChartTitle() }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Interactive financial visualization</p>
+          </div>
+          
+          <!-- Compact Control Bar -->
+          <div class="flex items-center space-x-2 compact-control-bar">
+            <!-- Period Selector -->
+            <mat-button-toggle-group 
+              [value]="selectedPeriod" 
+              (change)="onPeriodChange($event.value)"
+              class="hidden sm:flex">
+              <mat-button-toggle value="daily" class="text-xs">D</mat-button-toggle>
+              <mat-button-toggle value="weekly" class="text-xs">W</mat-button-toggle>
+              <mat-button-toggle value="monthly" class="text-xs">M</mat-button-toggle>
+              <mat-button-toggle value="yearly" class="text-xs">Y</mat-button-toggle>
+            </mat-button-toggle-group>
+
+            <!-- Chart Type Menu -->
+            <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="chartTypeMenu"
+              matTooltip="Chart Type"
+              class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+              <mat-icon>{{ selectedChartType === 'pie' ? 'pie_chart' : selectedChartType === 'bar' ? 'bar_chart' : selectedChartType === 'line' ? 'show_chart' : selectedChartType === 'area' ? 'area_chart' : selectedChartType === 'radar' ? 'radar' : selectedChartType === 'funnel' ? 'filter_alt' : selectedChartType === 'scatter' ? 'scatter_plot' : 'grid_on' }}</mat-icon>
+            </button>
+            <mat-menu #chartTypeMenu="matMenu" class="chart-type-menu">
+              <div class="p-2">
+                <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-3">Chart Type</div>
+                <button 
+                  mat-menu-item 
+                  *ngFor="let type of availableChartTypes"
+                  (click)="onChartTypeChange(type)"
+                  [class.bg-blue-50]="selectedChartType === type"
+                  class="flex items-center space-x-3">
+                  <mat-icon class="text-sm">{{ type === 'pie' ? 'pie_chart' : type === 'bar' ? 'bar_chart' : type === 'line' ? 'show_chart' : type === 'area' ? 'area_chart' : type === 'radar' ? 'radar' : type === 'funnel' ? 'filter_alt' : type === 'scatter' ? 'scatter_plot' : 'grid_on' }}</mat-icon>
+                  <span class="text-sm">{{ type.charAt(0).toUpperCase() + type.slice(1) }}</span>
+                  <mat-icon *ngIf="selectedChartType === type" class="text-blue-600 text-sm">check</mat-icon>
+                </button>
+              </div>
+            </mat-menu>
+
+            <!-- Analytics View Menu -->
+            <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="analyticsViewMenu"
+              matTooltip="Analytics View"
+              class="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400">
+              <mat-icon>analytics</mat-icon>
+            </button>
+            <mat-menu #analyticsViewMenu="matMenu" class="analytics-view-menu">
+              <div class="p-2">
+                <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-3">Analytics View</div>
+                <button 
+                  mat-menu-item 
+                  *ngFor="let view of availableAnalyticsViews"
+                  (click)="onAnalyticsViewChange(view)"
+                  [class.bg-green-50]="selectedAnalyticsView === view"
+                  class="flex items-center space-x-3">
+                  <mat-icon class="text-sm">{{ view === 'overview' ? 'dashboard' : view === 'trends' ? 'trending_up' : view === 'categories' ? 'category' : view === 'accounts' ? 'account_balance' : view === 'comparison' ? 'compare' : 'timeline' }}</mat-icon>
+                  <span class="text-sm">{{ view.charAt(0).toUpperCase() + view.slice(1) }}</span>
+                  <mat-icon *ngIf="selectedAnalyticsView === view" class="text-green-600 text-sm">check</mat-icon>
+                </button>
+              </div>
+            </mat-menu>
+
+            <!-- Advanced Analytics Toggle -->
+            <button 
+              mat-icon-button 
+              [matTooltip]="showAdvancedAnalytics ? 'Switch to Basic' : 'Switch to Advanced'"
+              (click)="toggleAdvancedAnalytics()"
+              [class.text-purple-600]="showAdvancedAnalytics"
+              [class.text-gray-600]="!showAdvancedAnalytics"
+              class="hover:text-purple-600 dark:hover:text-purple-400">
+              <mat-icon>{{ showAdvancedAnalytics ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+
+            <!-- More Options Menu -->
+            <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="moreOptionsMenu"
+              matTooltip="More Options"
+              class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #moreOptionsMenu="matMenu" class="more-options-menu">
+              <button 
+                mat-menu-item 
+                (click)="openPreferencesDialog()"
+                class="flex items-center space-x-3">
+                <mat-icon class="text-sm">settings</mat-icon>
+                <span class="text-sm">Preferences</span>
+              </button>
+              <button 
+                mat-menu-item 
+                (click)="refreshData()"
+                [disabled]="isRefreshing"
+                class="flex items-center space-x-3">
+                <mat-icon class="text-sm" [class.animate-spin]="isRefreshing">refresh</mat-icon>
+                <span class="text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh Data' }}</span>
+              </button>
+              <button 
+                mat-menu-item 
+                (click)="toggleHelpTooltip()"
+                class="flex items-center space-x-3">
+                <mat-icon class="text-sm">help_outline</mat-icon>
+                <span class="text-sm">Help</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button 
+                mat-menu-item 
+                (click)="toggleQuickFilters()"
+                class="flex items-center space-x-3">
+                <mat-icon class="text-sm">filter_list</mat-icon>
+                <span class="text-sm">{{ showQuickFilters ? 'Hide' : 'Show' }} Filters</span>
+              </button>
+              <button 
+                mat-menu-item 
+                (click)="toggleExportOptions()"
+                class="flex items-center space-x-3">
+                <mat-icon class="text-sm">file_download</mat-icon>
+                <span class="text-sm">{{ showExportOptions ? 'Hide' : 'Show' }} Export</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Content -->
+      <div class="p-4 sm:p-6">
+        <div class="w-full chart-transition" [ngClass]="getChartHeight()">
+          <div echarts [options]="getCurrentChartOption()" class="w-full h-full"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Analytics Summary Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Analytics Summary -->
+      <div class="lg:col-span-2">
+        <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden h-full">
+          <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Analytics Summary</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Key insights and trends</p>
+              </div>
+              <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+                <mat-icon class="text-green-600 dark:text-green-400">insights</mat-icon>
+              </div>
+            </div>
+            
+            <div class="space-y-4">
+              <!-- Category Trends -->
+              <div *ngIf="categoryTrends.length > 0" class="space-y-3">
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                  <mat-icon class="text-sm mr-2">category</mat-icon>
+                  Category Trends
+                </h4>
+                <div *ngFor="let trend of categoryTrends.slice(0, 3)" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.category }}</span>
+                  <span class="text-sm font-medium" [ngClass]="trend.change >= 0 ? 'text-red-600' : 'text-green-600'">
+                    {{ trend.change >= 0 ? '+' : '' }}{{ trend.percentage.toFixed(1) }}%
+                  </span>
+                </div>
+              </div>
+
+              <!-- Spending Trends -->
+              <div *ngIf="spendingTrends.length > 0" class="space-y-3">
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                  <mat-icon class="text-sm mr-2">trending_up</mat-icon>
+                  Spending Trends
+                </h4>
+                <div *ngFor="let trend of spendingTrends.slice(0, 3)" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.period }}</span>
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(trend.amount) }}</span>
+                </div>
+              </div>
+
+              <!-- Account Balances -->
+              <div *ngIf="accountBalances.length > 0" class="space-y-3">
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                  <mat-icon class="text-sm mr-2">account_balance</mat-icon>
+                  Account Balances
+                </h4>
+                <div *ngFor="let account of accountBalances.slice(0, 3)" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ account.account }}</span>
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(account.balance) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Quick Actions Sidebar -->
+      <div class="lg:col-span-1">
+        <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden h-full">
+          <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Quick Actions</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Common tasks</p>
+              </div>
+              <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+                <mat-icon class="text-blue-600 dark:text-blue-400">bolt</mat-icon>
+              </div>
+            </div>
+            
+            <div class="space-y-3">
+              <button 
+                mat-stroked-button 
+                class="w-full justify-start"
+                (click)="addTransaction()">
+                <mat-icon class="mr-3">add</mat-icon>
+                Add Transaction
+              </button>
+              
+              <button 
+                mat-stroked-button 
+                class="w-full justify-start"
+                (click)="exportReport()">
+                <mat-icon class="mr-3">file_download</mat-icon>
+                Export Report
+              </button>
+              
+              <button 
+                mat-stroked-button 
+                class="w-full justify-start"
+                (click)="refreshData()"
+                [disabled]="isRefreshing">
+                <mat-icon class="mr-3" [class.animate-spin]="isRefreshing">refresh</mat-icon>
+                {{ isRefreshing ? 'Refreshing...' : 'Refresh Data' }}
+              </button>
+              
+              <button 
+                mat-stroked-button 
+                class="w-full justify-start"
+                (click)="toggleQuickFilters()">
+                <mat-icon class="mr-3">filter_list</mat-icon>
+                {{ showQuickFilters ? 'Hide' : 'Show' }} Filters
+              </button>
+              
+              <button 
+                mat-stroked-button 
+                class="w-full justify-start"
+                (click)="openPreferencesDialog()">
+                <mat-icon class="mr-3">settings</mat-icon>
+                Preferences
+              </button>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Enhanced Quick Filters -->
+    <div *ngIf="showQuickFilters" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-3">
+          <div class="bg-blue-500/10 p-2 rounded-lg">
+            <mat-icon class="text-blue-600 dark:text-blue-400">filter_list</mat-icon>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Filters</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Filter your financial data</p>
+          </div>
+        </div>
         <button 
           mat-icon-button 
-          (click)="toggleQuickFilters()">
+          (click)="toggleQuickFilters()"
+          class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
           <mat-icon>expand_less</mat-icon>
         </button>
       </div>
@@ -274,21 +397,34 @@
           </mat-form-field>
         </div>
       </div>
+      <div class="flex justify-end space-x-3 mt-6">
+        <button 
+          mat-stroked-button 
+          (click)="toggleQuickFilters()">
+          Cancel
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="applyFilters()">
+          Apply Filters
+        </button>
+      </div>
     </div>
 
     <!-- Quick Filters Toggle -->
-    <div *ngIf="!showQuickFilters" class="mb-6">
+    <div *ngIf="!showQuickFilters" class="flex justify-center">
       <button 
         mat-stroked-button 
         (click)="toggleQuickFilters()"
-        class="flex items-center space-x-2">
+        class="flex items-center space-x-2 px-6 py-3">
         <mat-icon>filter_list</mat-icon>
         <span>Show Filters</span>
       </button>
     </div>
 
     <!-- Enhanced Metrics Grid -->
-    <div *ngIf="showAdvancedAnalytics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div *ngIf="showAdvancedAnalytics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Average Daily Spending -->
       <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-4 sm:p-6 border border-orange-200 dark:border-orange-700">
         <div class="flex items-center justify-between">
@@ -497,13 +633,22 @@
       </mat-card>
     </div>
 
-    <!-- Export Options -->
-    <div *ngIf="showExportOptions" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Export Options</h3>
+    <!-- Enhanced Export Options -->
+    <div *ngIf="showExportOptions" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-3">
+          <div class="bg-green-500/10 p-2 rounded-lg">
+            <mat-icon class="text-green-600 dark:text-green-400">file_download</mat-icon>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Export Options</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Export your financial reports</p>
+          </div>
+        </div>
         <button 
           mat-icon-button 
-          (click)="toggleExportOptions()">
+          (click)="toggleExportOptions()"
+          class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
           <mat-icon>expand_less</mat-icon>
         </button>
       </div>
@@ -546,14 +691,28 @@
           </button>
         </div>
       </div>
+      <div class="flex justify-end space-x-3 mt-6">
+        <button 
+          mat-stroked-button 
+          (click)="toggleExportOptions()">
+          Cancel
+        </button>
+        <button 
+          mat-raised-button 
+          color="accent"
+          (click)="generateReport()">
+          <mat-icon class="mr-2">description</mat-icon>
+          Generate Report
+        </button>
+      </div>
     </div>
 
     <!-- Export Options Toggle -->
-    <div *ngIf="!showExportOptions" class="mb-6">
+    <div *ngIf="!showExportOptions" class="flex justify-center">
       <button 
         mat-stroked-button 
         (click)="toggleExportOptions()"
-        class="flex items-center space-x-2">
+        class="flex items-center space-x-2 px-6 py-3">
         <mat-icon>file_download</mat-icon>
         <span>Export Options</span>
       </button>

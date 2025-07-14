@@ -28,7 +28,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       Breakpoints.Tablet,
       Breakpoints.Web
     ]).subscribe(result => {
-      if (result.breakpoints[Breakpoints.HandsetPortrait] || result.breakpoints[Breakpoints.HandsetLandscape]) {
+      if (result.breakpoints[Breakpoints.HandsetPortrait]) {
         this.deviceType = { mobile: true, tablet: false, desktop: false };
       } else if (result.breakpoints[Breakpoints.TabletPortrait] || result.breakpoints[Breakpoints.TabletLandscape]) {
         this.deviceType = { mobile: false, tablet: true, desktop: false };
