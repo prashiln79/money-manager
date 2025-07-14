@@ -101,13 +101,6 @@ import { CustomDateRangeDialogComponent } from './util/components/custom-date-ra
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
 import { FeedbackComponent } from './component/feedback/feedback.component';
 
-// Admin Components
-import { AdminComponent } from './component/admin/admin.component';
-import { AdminFeedbackComponent } from './component/admin/admin-feedback/admin-feedback.component';
-import { AdminUsersComponent } from './component/admin/admin-users/admin-users.component';
-import { AdminAnalyticsComponent } from './component/admin/admin-analytics/admin-analytics.component';
-import { AdminSettingsComponent } from './component/admin/admin-settings/admin-settings.component';
-
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 
@@ -177,14 +170,7 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
     CustomDateRangeDialogComponent,
     ProfileComponent,
     NotificationSettingsComponent,
-    FeedbackComponent,
-    
-    // Admin Components
-    AdminComponent,
-    AdminFeedbackComponent,
-    AdminUsersComponent,
-    AdminAnalyticsComponent,
-    AdminSettingsComponent
+    FeedbackComponent
   ],
   imports: [
     BrowserModule,

@@ -29,7 +29,8 @@ import {
   query,
   where,
   getDocs,
-  limit
+  limit,
+  deleteDoc
 } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError, timer } from 'rxjs';
@@ -994,5 +995,138 @@ export class UserService {
   public isAdmin(uid: string): boolean {
     const user = this.getCachedUserData(uid);
     return user?.role === 'admin';
+  }
+
+  /**
+   * Get all users for admin purposes
+   */
+  async getAllUsers(): Promise<any[]> {
+    try {
+      const usersRef = collection(this.firestore, 'users');
+      const querySnapshot = await getDocs(usersRef);
+      
+      const users: any[] = [];
+      for (const doc of querySnapshot.docs) {
+        const userData = doc.data();
+        users.push({
+          uid: doc.id,
+          email: userData['email'],
+          displayName: userData['firstName'] + ' ' + userData['lastName'],
+          photoURL: userData['photoURL'],
+          emailVerified: userData['emailVerified'] || false,
+          createdAt: userData['createdAt']?.toDate?.() || new Date(),
+          lastSignInAt: userData['lastLoginAt']?.toDate?.() || null,
+          isAdmin: userData['role'] === 'admin',
+          status: userData['status'] || 'active',
+          totalTransactions: userData['totalTransactions'] || 0,
+          totalCategories: userData['totalCategories'] || 0,
+          role: userData['role'] || 'free'
+        });
+      }
+      
+      return users;
+    } catch (error) {
+      console.error('Error fetching all users:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update user status
+   */
+  async updateUserStatus(uid: string, status: 'active' | 'suspended' | 'pending'): Promise<void> {
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      await updateDoc(userRef, {
+        status: status,
+        updatedAt: serverTimestamp()
+      });
+      
+      this.logAuditEvent('USER_STATUS_UPDATED', uid, {
+        status: status,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Toggle admin role for user
+   */
+  async toggleAdminRole(uid: string): Promise<void> {
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const newRole = userData['role'] === 'admin' ? 'free' : 'admin';
+        
+        await updateDoc(userRef, {
+          role: newRole,
+          updatedAt: serverTimestamp()
+        });
+        
+        this.logAuditEvent('ADMIN_ROLE_TOGGLED', uid, {
+          newRole: newRole,
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling admin role:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user statistics for admin dashboard
+   */
+  async getUserStatistics(): Promise<any> {
+    try {
+      const usersRef = collection(this.firestore, 'users');
+      const querySnapshot = await getDocs(usersRef);
+      
+      const stats = {
+        totalUsers: querySnapshot.size,
+        activeUsers: 0,
+        adminUsers: 0,
+        verifiedUsers: 0,
+        totalTransactions: 0,
+        totalCategories: 0
+      };
+      
+      querySnapshot.forEach(doc => {
+        const userData = doc.data();
+        if (userData['status'] === 'active') stats.activeUsers++;
+        if (userData['role'] === 'admin') stats.adminUsers++;
+        if (userData['emailVerified']) stats.verifiedUsers++;
+        stats.totalTransactions += userData['totalTransactions'] || 0;
+        stats.totalCategories += userData['totalCategories'] || 0;
+      });
+      
+      return stats;
+    } catch (error) {
+      console.error('Error fetching user statistics:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete user account
+   */
+  async deleteUser(uid: string): Promise<void> {
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      await deleteDoc(userRef);
+      
+      this.logAuditEvent('USER_DELETED', uid, {
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
   }
 }

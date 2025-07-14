@@ -20,7 +20,6 @@ import { ImportTransactionsComponent } from './component/dashboard/transaction-l
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 import { FeedbackComponent } from './component/feedback/feedback.component';
-import { AdminComponent } from './component/admin/admin.component';
 
 const routes: Routes = [
   { path: 'landing', component: LandingComponent },
@@ -147,10 +146,10 @@ const routes: Routes = [
     ]
   },
   
-  // Admin routes
+  // Admin routes - Lazy loaded
   {
     path: 'admin',
-    component: AdminComponent,
+    loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule),
     canActivate: [AuthGuard, AdminGuard],
     data: {
       requireEmailVerification: true,

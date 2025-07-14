@@ -6,6 +6,7 @@ import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { UserService } from 'src/app/util/service/user.service';
+import { FeedbackService } from 'src/app/util/service/feedback.service';
 
 @Component({
   selector: 'app-admin',
@@ -68,6 +69,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private router: Router,
     private userService: UserService,
+    private feedbackService: FeedbackService,
     private notificationService: NotificationService
   ) {
     // Observe breakpoints for mobile detection
@@ -97,7 +99,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Check if user is admin (you can implement your own admin check logic)
+      // Check if user is admin
       this.isAdmin = await this.checkAdminStatus();
       
       if (!this.isAdmin) {
@@ -121,18 +123,24 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   private async loadDashboardStats(): Promise<void> {
     try {
-      // Load statistics from your services
-      // This is a placeholder - implement actual data loading
+      // Load user statistics
+      const userStats = await this.userService.getUserStatistics();
+      
+      // Load feedback statistics
+      const allFeedback = await this.feedbackService.getAllFeedback();
+      const pendingFeedback = allFeedback.filter(f => f.status === 'pending').length;
+      
       this.dashboardStats = {
-        totalUsers: 150,
-        totalFeedback: 25,
-        pendingFeedback: 8,
-        activeUsers: 89,
-        totalTransactions: 1247,
-        totalCategories: 12
+        totalUsers: userStats.totalUsers,
+        totalFeedback: allFeedback.length,
+        pendingFeedback: pendingFeedback,
+        activeUsers: userStats.activeUsers,
+        totalTransactions: userStats.totalTransactions,
+        totalCategories: userStats.totalCategories
       };
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
+      this.notificationService.error('Failed to load dashboard statistics');
     }
   }
 

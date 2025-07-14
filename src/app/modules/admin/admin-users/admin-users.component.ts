@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Auth } from '@angular/fire/auth';
 import { NotificationService } from 'src/app/util/service/notification.service';
+import { UserService } from 'src/app/util/service/user.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
 export interface UserData {
@@ -62,6 +63,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private auth: Auth,
+    private userService: UserService,
     private dialog: MatDialog,
     private notificationService: NotificationService
   ) {
@@ -113,49 +115,8 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   private async loadUsers(): Promise<void> {
     this.isLoading = true;
     try {
-      // Load users from your service
-      // This is a placeholder - implement actual data loading
-      this.usersList = [
-        {
-          uid: 'user1',
-          email: 'john.doe@example.com',
-          displayName: 'John Doe',
-          photoURL: 'https://via.placeholder.com/40',
-          emailVerified: true,
-          createdAt: new Date('2024-01-15'),
-          lastSignInAt: new Date('2024-01-20'),
-          isAdmin: false,
-          status: 'active',
-          totalTransactions: 45,
-          totalCategories: 8
-        },
-        {
-          uid: 'user2',
-          email: 'jane.smith@example.com',
-          displayName: 'Jane Smith',
-          photoURL: 'https://via.placeholder.com/40',
-          emailVerified: true,
-          createdAt: new Date('2024-01-10'),
-          lastSignInAt: new Date('2024-01-19'),
-          isAdmin: true,
-          status: 'active',
-          totalTransactions: 23,
-          totalCategories: 5
-        },
-        {
-          uid: 'user3',
-          email: 'bob.wilson@example.com',
-          displayName: 'Bob Wilson',
-          photoURL: 'https://via.placeholder.com/40',
-          emailVerified: false,
-          createdAt: new Date('2024-01-18'),
-          lastSignInAt: new Date('2024-01-18'),
-          isAdmin: false,
-          status: 'pending',
-          totalTransactions: 0,
-          totalCategories: 0
-        }
-      ];
+      // Load users from UserService
+      this.usersList = await this.userService.getAllUsers();
       this.applyFilters();
     } catch (error) {
       console.error('Error loading users:', error);
@@ -239,7 +200,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
 
   public async updateUserStatus(user: UserData, newStatus: 'active' | 'suspended' | 'pending'): Promise<void> {
     try {
-      // Implement user status update logic
+      await this.userService.updateUserStatus(user.uid, newStatus);
       user.status = newStatus;
       this.notificationService.success(`User status updated to ${newStatus}`);
     } catch (error) {
@@ -248,33 +209,22 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async toggleAdminRole(user: UserData): Promise<void> {
-    try {
-      // Implement admin role toggle logic
-      user.isAdmin = !user.isAdmin;
-      this.notificationService.success(`Admin role ${user.isAdmin ? 'granted' : 'revoked'} for ${user.displayName || user.email}`);
-    } catch (error) {
-      console.error('Error toggling admin role:', error);
-      this.notificationService.error('Failed to update admin role');
-    }
-  }
-
   public async deleteUser(user: UserData): Promise<void> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: this.isMobile ? '90vw' : '400px',
+      width: '400px',
       data: {
         title: 'Delete User',
-        message: `Are you sure you want to delete user ${user.displayName || user.email}? This action cannot be undone.`,
+        message: `Are you sure you want to delete ${user.displayName || user.email}? This action cannot be undone.`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
-        type: 'delete'
+        confirmColor: 'warn'
       }
     });
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result) {
         try {
-          // Implement user deletion logic
+          await this.userService.deleteUser(user.uid);
           this.usersList = this.usersList.filter(u => u.uid !== user.uid);
           this.applyFilters();
           this.notificationService.success('User deleted successfully');
@@ -287,11 +237,19 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   }
 
   public sendEmailToUser(user: UserData): void {
-    const subject = 'Message from Money Manager Admin';
-    const body = `Dear ${user.displayName || user.email},\n\nThis is a message from the Money Manager administration team.\n\nBest regards,\nMoney Manager Team`;
-    
-    const mailtoLink = `mailto:${user.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailtoLink);
+    // Implement email functionality
+    this.notificationService.info(`Email functionality will be implemented for ${user.email}`);
+  }
+
+  public async toggleAdminRole(user: UserData): Promise<void> {
+    try {
+      await this.userService.toggleAdminRole(user.uid);
+      user.isAdmin = !user.isAdmin;
+      this.notificationService.success(`Admin role ${user.isAdmin ? 'granted' : 'revoked'} for ${user.displayName || user.email}`);
+    } catch (error) {
+      console.error('Error toggling admin role:', error);
+      this.notificationService.error('Failed to update admin role');
+    }
   }
 
   public getPaginatedUsers(): UserData[] {
@@ -315,16 +273,22 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   }
 
   public exportUsers(): void {
-    // Implement CSV export functionality
-    const csvContent = this.generateCSV();
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    this.notificationService.success('Users exported successfully');
+    try {
+      const csvContent = this.generateCSV();
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      this.notificationService.success('Users exported successfully');
+    } catch (error) {
+      console.error('Error exporting users:', error);
+      this.notificationService.error('Failed to export users');
+    }
   }
 
   private generateCSV(): string {
