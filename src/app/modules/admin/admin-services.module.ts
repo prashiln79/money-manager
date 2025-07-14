@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
-
-// Admin-specific services can be added here
-// For now, we're using the existing services from the main app
+import { AdminSidebarService } from './admin-sidebar.service';
 
 @NgModule({
   providers: [
-    // Admin-specific services can be provided here
+    AdminSidebarService
+    // Other admin-specific services can be added here
     // Example: AdminNotificationService, AdminAnalyticsService, etc.
   ]
 })

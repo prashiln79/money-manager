@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { UserService } from 'src/app/util/service/user.service';
 import { FeedbackService } from 'src/app/util/service/feedback.service';
+import { AdminSidebarService, AdminSidebarState } from './admin-sidebar.service';
+import { AdminSidebarSection, AdminSidebarNavItem } from './admin-sidebar.config';
 
 @Component({
   selector: 'app-admin',
@@ -15,44 +17,16 @@ import { FeedbackService } from 'src/app/util/service/feedback.service';
 })
 export class AdminComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
+  isSidebarOpen: boolean = false;
   currentUser: any = null;
   isAdmin: boolean = false;
-  activeSection: string = 'dashboard';
+  userPermissions: string[] = ['admin'];
   private destroy$ = new Subject<void>();
 
-  // Admin navigation sections
-  adminSections = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: 'dashboard',
-      description: 'Overview and statistics'
-    },
-    {
-      id: 'feedback',
-      label: 'User Feedback',
-      icon: 'feedback',
-      description: 'View and manage user feedback'
-    },
-    {
-      id: 'users',
-      label: 'Users',
-      icon: 'people',
-      description: 'Manage user accounts'
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: 'analytics',
-      description: 'App usage statistics'
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: 'settings',
-      description: 'Admin configuration'
-    }
-  ];
+  // Admin navigation sections from service
+  adminSections: AdminSidebarSection[] = [];
+  adminNavigationItems: AdminSidebarNavItem[] = [];
+  activeSection: string = 'dashboard';
 
   // Dashboard statistics
   dashboardStats = {
@@ -70,13 +44,17 @@ export class AdminComponent implements OnInit, OnDestroy {
     private router: Router,
     private userService: UserService,
     private feedbackService: FeedbackService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private adminSidebarService: AdminSidebarService
   ) {
     // Observe breakpoints for mobile detection
     this.breakpointObserver.observe([Breakpoints.Handset])
       .pipe(takeUntil(this.destroy$))
       .subscribe(result => {
         this.isMobile = result.matches;
+        if (!this.isMobile) {
+          this.isSidebarOpen = false;
+        }
       });
   }
 
@@ -108,6 +86,9 @@ export class AdminComponent implements OnInit, OnDestroy {
         return;
       }
 
+      // Initialize sidebar service
+      this.initializeSidebar();
+      
       // Load dashboard statistics
       await this.loadDashboardStats();
       
@@ -119,6 +100,20 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   private async checkAdminStatus(): Promise<boolean> {
     return this.userService.isAdmin(this.auth.currentUser?.uid || '');
+  }
+
+  private initializeSidebar(): void {
+    // Set user permissions
+    this.adminSidebarService.setUserPermissions(this.userPermissions);
+    
+    // Subscribe to sidebar state changes
+    this.adminSidebarService.getSidebarState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((state: AdminSidebarState) => {
+        this.adminSections = state.sections;
+        this.adminNavigationItems = state.navigationItems;
+        this.activeSection = state.activeSection;
+      });
   }
 
   private async loadDashboardStats(): Promise<void> {
@@ -138,6 +133,14 @@ export class AdminComponent implements OnInit, OnDestroy {
         totalTransactions: userStats.totalTransactions,
         totalCategories: userStats.totalCategories
       };
+
+      // Add badge to feedback item if there are pending items
+      if (pendingFeedback > 0) {
+        this.adminSidebarService.addBadgeToItem('feedback', {
+          text: pendingFeedback.toString(),
+          color: 'warn'
+        });
+      }
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
       this.notificationService.error('Failed to load dashboard statistics');
@@ -145,11 +148,43 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   public setActiveSection(sectionId: string): void {
-    this.activeSection = sectionId;
+    this.adminSidebarService.setActiveSection(sectionId);
+    // Close sidebar on mobile after navigation
+    if (this.isMobile) {
+      this.isSidebarOpen = false;
+    }
   }
 
-  public getActiveSection(): any {
-    return this.adminSections.find(section => section.id === this.activeSection);
+  public getActiveSection(): AdminSidebarNavItem | undefined {
+    return this.adminSidebarService.getActiveSection();
+  }
+
+  public getActiveSectionLabel(): string {
+    return this.adminSidebarService.getActiveSectionLabel();
+  }
+
+  public toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  public closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
+
+  public toggleSection(sectionId: string): void {
+    this.adminSidebarService.toggleSection(sectionId);
+  }
+
+  public isSectionExpanded(sectionId: string): boolean {
+    return this.adminSidebarService.isSectionExpanded(sectionId);
+  }
+
+  public isSectionCollapsible(sectionId: string): boolean {
+    return this.adminSidebarService.isSectionCollapsible(sectionId);
+  }
+
+  public getSectionItems(sectionId: string): AdminSidebarNavItem[] {
+    return this.adminSidebarService.getSectionItems(sectionId);
   }
 
   public logout(): void {
