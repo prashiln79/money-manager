@@ -138,6 +138,77 @@ export const accountsReducer = createReducer(
     error
   })),
   
+  // Update Account Balance for Transaction
+  on(AccountsActions.updateAccountBalanceForTransaction, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  
+  on(AccountsActions.updateAccountBalanceForTransactionSuccess, (state, { accountId, newBalance }) => {
+    const account = state.entities[accountId];
+    if (account) {
+      return {
+        ...state,
+        entities: {
+          ...state.entities,
+          [accountId]: {
+            ...account,
+            balance: newBalance,
+            updatedAt: new Date()
+          }
+        },
+        loading: false,
+        error: null
+      };
+    }
+    return state;
+  }),
+  
+  on(AccountsActions.updateAccountBalanceForTransactionFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  
+  // Update Account Balance for Multiple Transactions
+  on(AccountsActions.updateAccountBalanceForTransactions, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  
+  on(AccountsActions.updateAccountBalanceForTransactionsSuccess, (state) => ({
+    ...state,
+    loading: false,
+    error: null
+  })),
+  
+  on(AccountsActions.updateAccountBalanceForTransactionsFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  
+  // Update Account Balance for Account Transfer
+  on(AccountsActions.updateAccountBalanceForAccountTransfer, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  
+  on(AccountsActions.updateAccountBalanceForAccountTransferSuccess, (state) => ({
+    ...state,
+    loading: false,
+    error: null
+  })),
+  
+  on(AccountsActions.updateAccountBalanceForAccountTransferFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  
   // Clear State
   on(AccountsActions.clearAccounts, () => initialState)
 ); 

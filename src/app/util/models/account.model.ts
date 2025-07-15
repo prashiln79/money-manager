@@ -31,14 +31,14 @@ export interface Account {
 	name: string;
 	type: AccountType;
 	balance: number;
-	createdAt: Timestamp;
-	updatedAt?: Timestamp;
+	createdAt: Timestamp | Date;
+	updatedAt?: Timestamp | Date;
 	description?: string;
 	accountNumber?: string;
 	institution?: string;
 	currency?: string;
 	isActive?: boolean;
-	lastSyncAt?: Timestamp;
+	lastSyncAt?: Timestamp | Date;
 	syncStatus?: SyncStatus;
 	// Loan-specific properties (only used when type is 'loan')
 	loanDetails?: LoanDetails;

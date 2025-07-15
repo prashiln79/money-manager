@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs } from '@angular/fire/firestore';
+import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, writeBatch } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Account, CreateAccountRequest, UpdateAccountRequest } from '../models/account.model';
+import { Transaction } from '../models/transaction.model';
 
 @Injectable({
     providedIn: 'root'
@@ -89,6 +90,174 @@ export class AccountsService {
             }).catch(error => {
                 observer.error(error);
             });
+        });
+    }
+
+    // 🔹 Update account balance based on transaction changes
+    updateAccountBalanceForTransaction(
+        userId: string, 
+        accountId: string, 
+        transactionType: 'create' | 'update' | 'delete',
+        oldTransaction?: Transaction,
+        newTransaction?: Transaction
+    ): Observable<number> {
+        return new Observable<number>(observer => {
+            const updateBalanceAsync = async () => {
+                try {
+                    // Get current account
+                    const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
+                    const accountSnap = await getDoc(accountRef);
+                    
+                    if (!accountSnap.exists()) {
+                        observer.error('Account not found');
+                        return;
+                    }
+
+                    const account = accountSnap.data() as Account;
+                    let balanceChange = 0;
+
+                    switch (transactionType) {
+                        case 'create':
+                            if (newTransaction) {
+                                balanceChange = newTransaction.type === 'income' ? newTransaction.amount : -newTransaction.amount;
+                            }
+                            break;
+                        
+                        case 'update':
+                            if (oldTransaction && newTransaction) {
+                                // Calculate the difference
+                                const oldAmount = oldTransaction.type === 'income' ? oldTransaction.amount : -oldTransaction.amount;
+                                const newAmount = newTransaction.type === 'income' ? newTransaction.amount : -newTransaction.amount;
+                                balanceChange = newAmount - oldAmount;
+                            }
+                            break;
+                        
+                        case 'delete':
+                            if (oldTransaction) {
+                                // Reverse the transaction effect
+                                balanceChange = oldTransaction.type === 'income' ? -oldTransaction.amount : oldTransaction.amount;
+                            }
+                            break;
+                    }
+
+                    // Update account balance
+                    const newBalance = (account.balance || 0) + balanceChange;
+                    await updateDoc(accountRef, { 
+                        balance: newBalance,
+                        updatedAt: new Date() as any
+                    });
+
+                    observer.next(newBalance);
+                    observer.complete();
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            updateBalanceAsync();
+        });
+    }
+
+    // 🔹 Update account balance for multiple transactions (batch update)
+    updateAccountBalanceForTransactions(
+        userId: string,
+        transactions: { accountId: string; type: 'income' | 'expense'; amount: number }[]
+    ): Observable<void> {
+        return new Observable<void>(observer => {
+            const updateBalancesAsync = async () => {
+                try {
+                    const batch = writeBatch(this.firestore);
+                    const accountBalanceChanges = new Map<string, number>();
+
+                    // Calculate balance changes for each account
+                    transactions.forEach(transaction => {
+                        const currentChange = accountBalanceChanges.get(transaction.accountId) || 0;
+                        const transactionChange = transaction.type === 'income' ? transaction.amount : -transaction.amount;
+                        accountBalanceChanges.set(transaction.accountId, currentChange + transactionChange);
+                    });
+
+                    // Update each account's balance
+                    for (const [accountId, balanceChange] of accountBalanceChanges) {
+                        const accountRef = doc(this.firestore, `users/${userId}/accounts/${accountId}`);
+                        const accountSnap = await getDoc(accountRef);
+                        
+                        if (accountSnap.exists()) {
+                            const account = accountSnap.data() as Account;
+                            const newBalance = (account.balance || 0) + balanceChange;
+                            batch.update(accountRef, { 
+                                balance: newBalance,
+                                updatedAt: new Date() as any
+                            });
+                        }
+                    }
+
+                    await batch.commit();
+                    observer.next();
+                    observer.complete();
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            updateBalancesAsync();
+        });
+    }
+
+    // 🔹 Update account balance when transaction account is changed
+    updateAccountBalanceForAccountTransfer(
+        userId: string,
+        oldAccountId: string,
+        newAccountId: string,
+        transaction: Transaction
+    ): Observable<void> {
+        return new Observable<void>(observer => {
+            const updateBalancesAsync = async () => {
+                try {
+                    const batch = writeBatch(this.firestore);
+                    
+                    // Get both accounts
+                    const oldAccountRef = doc(this.firestore, `users/${userId}/accounts/${oldAccountId}`);
+                    const newAccountRef = doc(this.firestore, `users/${userId}/accounts/${newAccountId}`);
+                    
+                    const [oldAccountSnap, newAccountSnap] = await Promise.all([
+                        getDoc(oldAccountRef),
+                        getDoc(newAccountRef)
+                    ]);
+                    
+                    if (!oldAccountSnap.exists() || !newAccountSnap.exists()) {
+                        observer.error('One or both accounts not found');
+                        return;
+                    }
+
+                    const oldAccount = oldAccountSnap.data() as Account;
+                    const newAccount = newAccountSnap.data() as Account;
+                    
+                    // Calculate the transaction effect
+                    const transactionEffect = transaction.type === 'income' ? transaction.amount : -transaction.amount;
+                    
+                    // Update old account (remove the transaction effect)
+                    const oldAccountNewBalance = (oldAccount.balance || 0) - transactionEffect;
+                    batch.update(oldAccountRef, { 
+                        balance: oldAccountNewBalance,
+                        updatedAt: new Date() as any
+                    });
+                    
+                    // Update new account (add the transaction effect)
+                    const newAccountNewBalance = (newAccount.balance || 0) + transactionEffect;
+                    batch.update(newAccountRef, { 
+                        balance: newAccountNewBalance,
+                        updatedAt: new Date() as any
+                    });
+                    
+                    await batch.commit();
+                    observer.next();
+                    observer.complete();
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            updateBalancesAsync();
         });
     }
 

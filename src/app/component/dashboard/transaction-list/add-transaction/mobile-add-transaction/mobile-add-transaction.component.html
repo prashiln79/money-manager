@@ -177,7 +177,7 @@
 			</div>
 
 			<!-- Payment Method Field -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm" *ngIf="this.transactionForm.get('type')?.value === TransactionType.EXPENSE">
 				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 					Payment Method
 				</label>

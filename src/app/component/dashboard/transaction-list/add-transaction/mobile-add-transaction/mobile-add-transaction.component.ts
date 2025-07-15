@@ -60,6 +60,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     { value: PaymentMethod.DIGITAL_WALLET, label: 'Digital Wallet', icon: 'account_balance_wallet' },
   ];
   public editMode: boolean = false;
+  public TransactionType = TransactionType;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,

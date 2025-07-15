@@ -69,6 +69,44 @@ export class AccountsEffects {
         ))
   ));
 
+  updateAccountBalanceForTransaction$ = createEffect(() => this.actions$.pipe(
+    ofType(AccountsActions.updateAccountBalanceForTransaction),
+    mergeMap(({ userId, accountId, transactionType, oldTransaction, newTransaction }) => 
+      this.accountsService.updateAccountBalanceForTransaction(userId, accountId, transactionType, oldTransaction, newTransaction)
+        .pipe(
+          map((newBalance) => {
+            return AccountsActions.updateAccountBalanceForTransactionSuccess({ 
+              accountId, 
+              newBalance 
+            });
+          }),
+          catchError(error => of(AccountsActions.updateAccountBalanceForTransactionFailure({ error })))
+        ))
+  ));
+
+  updateAccountBalanceForTransactions$ = createEffect(() => this.actions$.pipe(
+    ofType(AccountsActions.updateAccountBalanceForTransactions),
+    mergeMap(({ userId, transactions }) => 
+      this.accountsService.updateAccountBalanceForTransactions(userId, transactions)
+        .pipe(
+          map(() => AccountsActions.updateAccountBalanceForTransactionsSuccess()),
+          catchError(error => of(AccountsActions.updateAccountBalanceForTransactionsFailure({ error })))
+        ))
+  ));
+
+  updateAccountBalanceForAccountTransfer$ = createEffect(() => this.actions$.pipe(
+    ofType(AccountsActions.updateAccountBalanceForAccountTransfer),
+    mergeMap(({ userId, oldAccountId, newAccountId, transaction }) => 
+      this.accountsService.updateAccountBalanceForAccountTransfer(userId, oldAccountId, newAccountId, transaction)
+        .pipe(
+          map(() => {
+            // Reload accounts to get the updated balances
+            return AccountsActions.loadAccounts({ userId });
+          }),
+          catchError(error => of(AccountsActions.updateAccountBalanceForAccountTransferFailure({ error })))
+        ))
+  ));
+
   constructor(
     private actions$: Actions,
     private accountsService: AccountsService

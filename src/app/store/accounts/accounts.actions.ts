@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Account, CreateAccountRequest, UpdateAccountRequest } from '../../util/models/account.model';
+import { Transaction } from '../../util/models/transaction.model';
 
 // Load Accounts
 export const loadAccounts = createAction(
@@ -78,6 +79,66 @@ export const getAccountSuccess = createAction(
 
 export const getAccountFailure = createAction(
   '[Accounts] Get Account Failure',
+  props<{ error: any }>()
+);
+
+// Update Account Balance for Transaction
+export const updateAccountBalanceForTransaction = createAction(
+  '[Accounts] Update Account Balance For Transaction',
+  props<{ 
+    userId: string; 
+    accountId: string; 
+    transactionType: 'create' | 'update' | 'delete';
+    oldTransaction?: Transaction;
+    newTransaction?: Transaction;
+  }>()
+);
+
+export const updateAccountBalanceForTransactionSuccess = createAction(
+  '[Accounts] Update Account Balance For Transaction Success',
+  props<{ accountId: string; newBalance: number }>()
+);
+
+export const updateAccountBalanceForTransactionFailure = createAction(
+  '[Accounts] Update Account Balance For Transaction Failure',
+  props<{ error: any }>()
+);
+
+// Update Account Balance for Multiple Transactions
+export const updateAccountBalanceForTransactions = createAction(
+  '[Accounts] Update Account Balance For Transactions',
+  props<{ 
+    userId: string; 
+    transactions: { accountId: string; type: 'income' | 'expense'; amount: number }[];
+  }>()
+);
+
+export const updateAccountBalanceForTransactionsSuccess = createAction(
+  '[Accounts] Update Account Balance For Transactions Success'
+);
+
+export const updateAccountBalanceForTransactionsFailure = createAction(
+  '[Accounts] Update Account Balance For Transactions Failure',
+  props<{ error: any }>()
+);
+
+// Update Account Balance for Account Transfer
+export const updateAccountBalanceForAccountTransfer = createAction(
+  '[Accounts] Update Account Balance For Account Transfer',
+  props<{ 
+    userId: string; 
+    oldAccountId: string;
+    newAccountId: string;
+    transaction: Transaction;
+  }>()
+);
+
+export const updateAccountBalanceForAccountTransferSuccess = createAction(
+  '[Accounts] Update Account Balance For Account Transfer Success'
+);
+
+export const updateAccountBalanceForAccountTransferFailure = createAction(
+  '[Accounts] Update Account Balance For Account Transfer Failure',
   props<{ error: any }>()
 );
 
