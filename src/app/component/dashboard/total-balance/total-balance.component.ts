@@ -7,6 +7,7 @@ import { Observable, Subscription } from 'rxjs';
 import { AppState } from '../../../store/app.state';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import moment from 'moment';
 
 @Component({
   selector: 'total-balance',
@@ -21,14 +22,17 @@ export class TotalBalanceComponent implements OnInit, OnDestroy {
   netBalance$: Observable<number>;
   transactionsLoading$: Observable<boolean>;
   transactionsError$: Observable<any>;
-  
+  totalExpensesByMonth$: Observable<number>;
+  totalIncomeByMonth$: Observable<number>;
+
   // Local properties
   totalSpendAmt = 0;
   totalIncomeAmt = 0;
+  showYearly = false;
   userCurrency = this.currencyService.getDefaultCurrency();
   private subscriptions = new Subscription();
-  
-  constructor( 
+
+  constructor(
     private auth: Auth,
     private notificationService: NotificationService,
     private currencyService: CurrencyService,
@@ -36,7 +40,9 @@ export class TotalBalanceComponent implements OnInit, OnDestroy {
   ) {
     // Initialize selectors
     this.totalIncome$ = this.store.select(TransactionsSelectors.selectTotalIncome);
+    this.totalIncomeByMonth$ = this.store.select(TransactionsSelectors.selectTotalIncomeByMonth(moment().month(), moment().year()));
     this.totalExpenses$ = this.store.select(TransactionsSelectors.selectTotalExpenses);
+    this.totalExpensesByMonth$ = this.store.select(TransactionsSelectors.selectTotalExpensesByMonth(moment().month(), moment().year()));
     this.netBalance$ = this.store.select(TransactionsSelectors.selectNetBalance);
     this.transactionsLoading$ = this.store.select(TransactionsSelectors.selectTransactionsLoading);
     this.transactionsError$ = this.store.select(TransactionsSelectors.selectTransactionsError);
@@ -82,6 +88,10 @@ export class TotalBalanceComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  toggleExpenseIncome() {
+    this.showYearly = !this.showYearly;
   }
 
 }

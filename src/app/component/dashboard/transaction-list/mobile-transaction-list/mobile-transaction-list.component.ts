@@ -27,6 +27,7 @@ import { Store } from '@ngrx/store';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { RecurringInterval } from 'src/app/util/config/enums';
 import { FilterService } from 'src/app/util/service/filter.service';
+import { CategoryService } from 'src/app/util/service/category.service';
 
 interface SortOption {
   value: string;
@@ -86,7 +87,8 @@ export class MobileTransactionListComponent
     private readonly dialog: MatDialog,
     public readonly dateService: DateService,
     private readonly store: Store<AppState>,
-    private readonly filterService: FilterService
+    private readonly filterService: FilterService,
+    private readonly categoryService: CategoryService
   ) {}
 
   ngOnInit() {
@@ -535,5 +537,9 @@ export class MobileTransactionListComponent
 
   openImportDialog() {
     this.importTransactions.emit();
+  }
+
+  getCategoryName(categoryId: string): string {
+    return this.categoryService.getCategoryNameById(categoryId);
   }
 }

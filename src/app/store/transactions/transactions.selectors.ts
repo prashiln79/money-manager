@@ -63,9 +63,25 @@ export const selectTotalIncome = createSelector(
   (transactions) => transactions.reduce((sum, t) => sum + t.amount, 0)
 );
 
+export const selectTotalIncomeByMonth = (month: number, year: number) => createSelector(
+  selectTransactionsByType('income'),
+  (transactions) => transactions.filter(t => {
+    const transactionDate:any = new Date((t.date as Timestamp)?.seconds * 1000) || new Date();
+    return transactionDate.getMonth() === month && transactionDate.getFullYear() === year;
+  }).reduce((sum, t) => sum + t.amount, 0)
+);
+
 export const selectTotalExpenses = createSelector(
   selectTransactionsByType('expense'),
   (transactions) => transactions.reduce((sum, t) => sum + t.amount, 0)
+);
+
+export const selectTotalExpensesByMonth = (month: number, year: number) => createSelector(
+  selectTransactionsByType('expense'),
+  (transactions) => transactions.filter(t => {
+    const transactionDate:any = new Date((t.date as Timestamp)?.seconds * 1000) || new Date();
+    return transactionDate.getMonth() === month && transactionDate.getFullYear() === year;
+  }).reduce((sum, t) => sum + t.amount, 0)
 );
 
 export const selectNetBalance = createSelector(

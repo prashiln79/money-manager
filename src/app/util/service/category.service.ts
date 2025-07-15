@@ -7,12 +7,23 @@ import { TransactionType } from '../config/enums';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import * as CategoriesActions from 'src/app/store/categories/categories.actions';
+import * as CategoriesSelectors from 'src/app/store/categories/categories.selectors';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CategoryService {
-    constructor(private firestore: Firestore, private store: Store<AppState>) { }
+    private categories: { [key: string]: Category } = {};
+    constructor(private firestore: Firestore, private store: Store<AppState>) { 
+
+        this.store.select(CategoriesSelectors.selectAllCategories).subscribe(categories => {
+            categories.forEach((category: Category) => {
+                if (category.id) {
+                    this.categories[category.id] = category;
+                }
+            });
+        });
+    }
 
     private getUserCategoriesCollection(userId: string) {
         return collection(this.firestore, `users/${userId}/categories`);
@@ -134,5 +145,9 @@ export class CategoryService {
             });
                 
         });
+    }
+
+    getCategoryNameById(categoryId: string):string {
+        return this.categories[categoryId]?.name || '';
     }
 }

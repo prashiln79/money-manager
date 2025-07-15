@@ -6,11 +6,11 @@
     </div>
     
     <!-- Total Spend and Income -->
-    <div *ngIf="!(transactionsLoading$ | async)" class="text-center">
+    <div *ngIf="!(transactionsLoading$ | async)" class="text-center" (click)="toggleExpenseIncome()">
       <div class="text-lg text-muted text-gray-500">You Expense | Income</div>
       <div class="text-responsive-lg mt-1 font-bold text-primary">
-        {{ totalExpenses$ | async | currency }} &nbsp; | &nbsp;
-        <span class="text-gray-500">{{ totalIncome$ | async | currency }}</span>
+        {{ showYearly ? (totalExpenses$ | async | currency) : (totalExpensesByMonth$ | async | currency) }} &nbsp; | &nbsp;
+        <span class="text-gray-500">{{ showYearly ? (totalIncome$ | async | currency) : (totalIncomeByMonth$ | async | currency) }}</span>
       </div>
     </div>
     
