@@ -59,6 +59,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     { value: PaymentMethod.CASH, label: 'Cash', icon: 'money' },
     { value: PaymentMethod.DIGITAL_WALLET, label: 'Digital Wallet', icon: 'account_balance_wallet' },
   ];
+  public editMode: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -84,19 +85,26 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       categoryName: [''],
       categoryType: [''],
       accountId: ['', Validators.required],
-      // Tax fields
       taxAmount: [0, [Validators.min(0)]],
       taxPercentage: [0, [Validators.min(0), Validators.max(100)]],
       taxes: [[]],
-      // Payment method
       paymentMethod: [''],
+      // Recurring fields
+      isRecurring: [false],
+      recurringInterval: [RecurringInterval.MONTHLY],
+      recurringStartDate: [moment().format('YYYY-MM-DD')],
+      recurringEndDate: [moment().add(1, 'year').format('YYYY-MM-DD')],
+      recurringAmount: [0],
+      recurringNotes: [''],
+      recurringCategoryId: [''],
+      recurringCategoryName: [''],
     });
     this.isMobile = this.breakpointObserver.isMatched('(max-width: 640px)');
   }
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
-    
+
     // Subscribe to categories
     this.store.select(selectAllCategories).subscribe((categories) => {
       this.categoryList = categories;
@@ -116,35 +124,33 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   }
 
   private initializeFormData(): void {
-    // Only initialize if both categories and accounts are loaded
     if (this.categoryList.length > 0 && this.accountList.length > 0) {
       if (this.dialogData?.id) {
-        // Edit mode - populate with existing data
+        this.editMode = true;
+        let category = this.categoryList.find(cat => cat.id === this.dialogData.categoryId);
         this.transactionForm.patchValue({
           payee: this.dialogData.payee || '',
           amount: this.dialogData.amount || '',
-          date: this.dialogData.date ? 
-            moment(this.dateService.toDate(this.dialogData.date)).format('YYYY-MM-DD') : 
+          date: this.dialogData.date ?
+            moment(this.dateService.toDate(this.dialogData.date)).format('YYYY-MM-DD') :
             moment().format('YYYY-MM-DD'),
           description: this.dialogData.notes || '',
           categoryId: this.dialogData.categoryId || '',
-          categoryName: this.dialogData.categoryName || '',
-          categoryType: this.dialogData.categoryType || '',
+          categoryName: category?.name || '',
+          categoryType: category?.type || '',
           accountId: this.dialogData.accountId || '',
-          // Tax fields
           taxAmount: this.dialogData.taxAmount || 0,
           taxPercentage: this.dialogData.taxPercentage || 0,
           taxes: this.dialogData.taxes || [],
-          // Payment method
           paymentMethod: this.dialogData.paymentMethod || '',
         });
-        
+
 
       } else {
         // Add mode - set default values
         const defaultCategory = this.categoryList[0];
         const defaultAccount = this.accountList[0];
-        
+
         this.transactionForm.patchValue({
           payee: defaultCategory?.name || '',
           amount: '',
@@ -181,7 +187,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
       try {
         this.loaderService.show();
-        
+
         const formData = this.transactionForm.value;
         const transactionData = {
           payee: formData.payee,
@@ -192,16 +198,18 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           type: formData.categoryType as TransactionType,
           date: new Date(formData.date + ' ' + this.dateService.now().toDate().toLocaleTimeString()),
           notes: formData.description,
-          // Tax fields
           taxAmount: formData.taxAmount || 0,
           taxPercentage: formData.taxPercentage || 0,
           taxes: formData.taxes || [],
-          // Payment method
           paymentMethod: formData.paymentMethod || '',
+          isRecurring: formData.isRecurring || false,
+          recurringInterval: formData.recurringInterval || RecurringInterval.MONTHLY,
+          status: TransactionStatus.COMPLETED,
+          updatedBy: this.userId,
+          updatedAt: new Date(),
         };
-        
+
         if (this.dialogData?.id) {
-          // Update existing transaction
           await this.store.dispatch(
             TransactionsActions.updateTransaction({
               userId: this.userId,
@@ -209,7 +217,6 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
               transaction: transactionData,
             })
           );
-
           this.notificationService.success('Transaction updated successfully');
         } else {
           // Create new transaction
@@ -219,9 +226,6 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
               transaction: {
                 userId: this.userId,
                 ...transactionData,
-                isRecurring: false,
-                recurringInterval: RecurringInterval.MONTHLY,
-                status: TransactionStatus.COMPLETED,
                 syncStatus: SyncStatus.PENDING,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -233,7 +237,6 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           this.notificationService.success('Transaction added successfully');
           this.hapticFeedback.successVibration();
         }
-
         this.dialogRef.close(true);
       } catch (error) {
         console.error('Error saving transaction:', error);
@@ -295,12 +298,12 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   onCategoryChange(event: any): void {
     const categoryId = event.value;
     const category = this.categoryList.find(cat => cat.id === categoryId);
-    if(category) {
+    if (category) {
       this.transactionForm.patchValue({
         categoryName: category.name,
         categoryType: category.type,
         categoryId: category.id,
-        payee: this.transactionForm.get('payee')?.value || category.name,
+        payee: this.editMode ? this.dialogData.payee : category.name,
       });
     }
   }
@@ -311,7 +314,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   onTaxPercentageChange(): void {
     const amount = this.transactionForm.get('amount')?.value || 0;
     const percentage = this.transactionForm.get('taxPercentage')?.value || 0;
-    
+
     if (amount > 0 && percentage > 0) {
       const calculatedTaxAmount = (amount * percentage) / 100;
       this.transactionForm.patchValue({
@@ -326,7 +329,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   onTaxAmountChange(): void {
     const amount = this.transactionForm.get('amount')?.value || 0;
     const taxAmount = this.transactionForm.get('taxAmount')?.value || 0;
-    
+
     if (amount > 0 && taxAmount > 0) {
       const calculatedPercentage = (taxAmount / amount) * 100;
       this.transactionForm.patchValue({
@@ -341,7 +344,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   onAmountChange(): void {
     const amount = this.transactionForm.get('amount')?.value || 0;
     const taxAmount = this.transactionForm.get('taxAmount')?.value || 0;
-    
+
     // If there's a tax amount but no percentage, calculate the percentage
     if (amount > 0 && taxAmount > 0) {
       const calculatedPercentage = (taxAmount / amount) * 100;

@@ -92,6 +92,7 @@ interface RateLimitEntry {
 export class UserService {
   private readonly userSubject = new BehaviorSubject<any>(null);
   public readonly user$ = this.userSubject.asObservable();
+  public isAdmin: boolean = false;
   
   // Security tracking
   private readonly loginAttempts = new Map<string, { count: number; lastAttempt: number; lockedUntil?: number }>();
@@ -114,7 +115,8 @@ export class UserService {
    * Initialize authentication state listener with enhanced security
    */
   private initializeAuthState(): void {
-    onAuthStateChanged(getAuth(), (user) => {
+    onAuthStateChanged(getAuth(), async (user) => {
+      await this.checkIfAdmin(user);
       console.log(
         'Auth state changed:',
         user ? 'User logged in' : 'User logged out'
@@ -135,6 +137,20 @@ export class UserService {
         this.logAuditEvent('USER_LOGOUT', undefined, { timestamp: new Date().toISOString() });
       }
     });
+  }
+
+  async checkIfAdmin(user: any): Promise<void> {
+    try {
+      if (user) {
+        const idTokenResult = await user.getIdTokenResult();
+        this.isAdmin = !!idTokenResult.claims['admin'];
+      } else {
+        this.isAdmin = false;
+      }
+    } catch (error) {
+      console.error('Error checking admin claim:', error);
+      this.isAdmin = false;
+    }
   }
 
   /**
@@ -990,11 +1006,6 @@ export class UserService {
     console.warn('Force logout triggered:', reason);
     this.logAuditEvent('FORCE_LOGOUT', this.getUser()?.uid, { reason });
     this.signOut();
-  }
-
-  public isAdmin(uid: string): boolean {
-    const user = this.getCachedUserData(uid);
-    return user?.role === 'admin';
   }
 
   /**

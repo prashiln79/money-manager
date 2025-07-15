@@ -56,8 +56,6 @@ export class AdminGuard implements CanActivate {
   }
 
   private async isUserAdmin(): Promise<boolean> {
-
-    
-    return this.userService.isAdmin(this.auth.currentUser?.uid || '');
+    return this.userService.isAdmin;
   }
 } 

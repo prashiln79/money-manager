@@ -23,7 +23,10 @@ export class SideBarComponent implements AfterViewInit {
     private userService: UserService
   ){
     this.navigationSections = getAllNavigationItems();
-    this.isAdmin = this.userService.isAdmin(this.auth.currentUser?.uid || '');
+  }
+
+  ngOnInit() {
+    this.isAdmin = this.userService.isAdmin;
   }
 
   toggleSection(section: SidebarNavParent) {

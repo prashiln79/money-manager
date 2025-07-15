@@ -99,7 +99,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private async checkAdminStatus(): Promise<boolean> {
-    return this.userService.isAdmin(this.auth.currentUser?.uid || '');
+    return this.userService.isAdmin;
   }
 
   private initializeSidebar(): void {
