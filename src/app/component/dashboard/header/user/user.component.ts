@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { UserService } from 'src/app/util/service/user.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { User } from 'src/app/util/models/user.model';
 
 @Component({
   selector: 'app-user',
@@ -29,14 +30,35 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 })
 export class UserComponent {
   isOpen = false;
-  public user = this.userService.getUser();
+  public user: User | null = null;
 
   constructor(
     private userService: UserService,
     private notificationService: NotificationService,
     private router: Router
   ) {
-    this.user;
+  }
+
+  ngOnInit() {
+    this.userService.user$.subscribe((user) => {
+      this.user = {
+        uid: user?.uid,
+        email: user?.email,
+        firstName: user?.displayName,
+        photoURL: user?.photoURL,
+        emailVerified: user?.emailVerified,
+        phoneNumber: user?.phoneNumber,
+        providerId: user?.providerId,
+        displayName: user?.displayName,
+        role: user?.role,
+        createdAt: user?.createdAt,
+        lastName: user?.lastName,
+        phone: user?.phone,
+        dateOfBirth: user?.dateOfBirth,
+        occupation: user?.occupation,
+        monthlyIncome: user?.monthlyIncome,
+      };
+    });
   }
 
   toggle(event?: Event) {

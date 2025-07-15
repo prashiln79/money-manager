@@ -33,6 +33,11 @@ export interface User {
 	monthlyIncome?: number;
 	preferences?: UserPreferences;
 	updatedAt?:  Date | Timestamp;
+	photoURL?: string;
+	emailVerified?: boolean;
+	phoneNumber?: string;
+	providerId?: string;
+	displayName?: string;
 }
 
 /**
