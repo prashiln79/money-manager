@@ -41,7 +41,6 @@
   align-items: center;
   margin-bottom: 24px;
   padding: 16px;
-  background: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -53,6 +52,9 @@
 
 .header-content {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .header-title {
@@ -218,6 +220,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.8rem;
 }
 
 .dark .account-name {
@@ -229,6 +232,7 @@
   color: #6b7280;
   margin: 0;
   line-height: 1.4;
+  font-style: italic;
 }
 
 .dark .account-type {
@@ -687,4 +691,10 @@
 .action-button:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+.add-category-btn {
+  position: absolute;
+  bottom: 8rem;
+  right: 1rem;
 }

@@ -20,9 +20,17 @@
 				<h4 class="header-title">Your Accounts</h4>
 				<p class="header-subtitle">({{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }})</p>
 			</div>
-			<button mat-fab color="primary" (click)="addAccount()" class="add-account-btn">
+
+			<button mat-fab color="primary" *ngIf="isMobile" (click)="addAccount()" class="add-category-btn z-[100]">
 				<mat-icon>add</mat-icon>
 			</button>
+		
+			<div class="fab-button" *ngIf="!isMobile">
+				<button mat-fab color="primary" (click)="addAccount()" class="desktop-fab-btn">
+					<mat-icon>add</mat-icon>
+				</button>
+			</div>
+
 		</div>
 
 		<!-- Empty State -->
@@ -57,7 +65,7 @@
 								<h3 class="account-name">{{ account.name }}</h3>
 								
 								@if(isLoanAccount(account)){
-									<p class="account-type"><b>Interest Rate:</b> {{ getLoanDetails(account)?.interestRate +'%'  }}</p>
+									<p class="account-type"><b>Loan Interest Rate:</b> {{ getLoanDetails(account)?.interestRate +'%'  }}</p>
 								}@else{
 									<p class="account-type">{{ account.type  | titlecase }}</p>
 								}

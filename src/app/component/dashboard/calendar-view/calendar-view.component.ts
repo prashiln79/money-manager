@@ -627,7 +627,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.showCalendar = false;
     setTimeout(() => {
       this.showCalendar = true;
-    }, 1000);
+    }, 0);
   }
 
 }
