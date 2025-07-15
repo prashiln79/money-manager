@@ -68,7 +68,7 @@
       </button>
 
       <!-- Reports -->
-      <button 
+      <!-- <button 
         (click)="reports()"
         class="group flex flex-col items-center gap-2"
       >
@@ -79,7 +79,21 @@
         </div>
         <span class="text-xs font-medium transition-colors duration-200" 
               [class]="isReportsActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Report</span>
+      </button> -->
+
+      <button 
+        (click)="navigateTo('/dashboard/category')"
+        class="group flex flex-col items-center gap-2"
+      >
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200" 
+             [class]="isCategoryActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+             (click)="navigateTo('/dashboard/category')">
+          <mat-icon class="text-lg relative bottom-1" [class]="isCategoryActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">layers</mat-icon>
+        </div>
+        <span class="text-xs font-medium transition-colors duration-200" 
+              [class]="isCategoryActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Category</span>
       </button>
+      
 
       <!-- More -->
       <button 
@@ -102,9 +116,9 @@
           <span>Accounts</span>
         </button>
 
-        <button mat-menu-item (click)="navigateTo('/dashboard/category')" class="menu-item">
-          <mat-icon>receipt</mat-icon>
-          <span>Categories</span>
+        <button mat-menu-item (click)="navigateTo('/dashboard/reports')" class="menu-item">
+          <mat-icon>bar_chart</mat-icon>
+          <span>Reports</span>
         </button>
 
         <button mat-menu-item (click)="sharePWA()" class="menu-item">

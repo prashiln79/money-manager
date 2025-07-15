@@ -269,6 +269,7 @@
     transition: all 0.2s ease;
     border-left: 4px solid transparent;
     
+    
     @media (max-width: 640px) {
       padding: 1rem;
       border-radius: 10px;
@@ -302,7 +303,7 @@
     
     // Category Info
     .category-info {
-      padding: 10px;
+      padding: 0 10px 10px 10px;
       flex: 1;
       
       .category-icon-name {
@@ -363,6 +364,10 @@
               color: #1f2937;
               margin: 0;
               line-height: 1.2;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              width: 80%;
               
               @media (max-width: 640px) {
                 font-size: 1rem;
@@ -482,14 +487,12 @@
       .category-type {
         display: inline-block;
         padding: 0.25rem 0.5rem;
-        background: #f3f4f6;
         color: #6b7280;
         border-radius: 5px;
         font-size: clamp(0.625rem, 1.5vw, 0.875rem);
         font-weight: 500;
         text-transform: capitalize;
         align-self: flex-start;
-        border: 1px dashed;
         
         @media (max-width: 640px) {
           font-size: 0.75rem;

@@ -226,6 +226,10 @@
 										<span class="category-spent-value">{{ category.type === 'expense' ? calculateTotalSpentPerMonth(category) : calculateTotalIncomePerMonth(category) | currency }}</span>
 										<span class="category-spent-period">/ Monthly </span>
 									</div>
+									<div class="category-spent mt-[-10px]" >
+										<span class="category-spent-label">Type:</span>
+										<span class="category-spent-label font-semibold" >{{ category.type | titlecase }}</span>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -248,7 +252,7 @@
 									<mat-icon>delete</mat-icon> Delete
 								</button>
 							</mat-menu>
-							<span class="category-type" *ngIf="!category?.budget?.hasBudget">{{ category.type }}</span>
+							<!-- <span class="category-type" *ngIf="!category?.budget?.hasBudget">{{ category.type }}</span> -->
 							<button matIconButton [matMenuTriggerFor]="menu">
 								<mat-icon>more_vert</mat-icon>
 							</button>

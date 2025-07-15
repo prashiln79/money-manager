@@ -2,7 +2,7 @@
   <div class="dialog-header">
     <h2 mat-dialog-title>
       <mat-icon class="header-icon">account_balance_wallet</mat-icon>
-      {{ data.isEdit ? 'Edit' : 'Set' }} Budget for {{ data.category.name }}
+      {{ data.isEdit ? 'Edit' : 'Set' }} Budget
     </h2>
     <button mat-icon-button (click)="onCancel()" class="close-button">
       <mat-icon>close</mat-icon>
@@ -13,12 +13,12 @@
     <form [formGroup]="budgetForm" class="budget-form">
       
       <!-- Enable Budget Toggle -->
-      <div class="form-field">
-        <mat-slide-toggle 
+      <div class="form-field-toggle">
+        <span class="toggle-label text-sm font-semibold">Set budget for {{ data.category.name }}</span> <mat-slide-toggle 
           formControlName="hasBudget" 
           color="primary"
           class="budget-toggle">
-          <span class="toggle-label">Set budget for this category</span>
+         
         </mat-slide-toggle>
       </div>
 
