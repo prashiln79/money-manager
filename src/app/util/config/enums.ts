@@ -20,6 +20,7 @@ export enum AccountType {
   CREDIT = 'credit',
   LOAN = 'loan',
   INVESTMENT = 'investment'
+  
 }
 
 /**

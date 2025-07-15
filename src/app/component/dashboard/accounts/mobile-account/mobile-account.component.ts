@@ -13,6 +13,7 @@ import {
   createAccount,
   updateAccount,
 } from 'src/app/store/accounts/accounts.actions';
+import { AccountType } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'app-mobile-account',
@@ -23,11 +24,12 @@ export class MobileAccountComponent {
   accountForm: FormGroup;
   public userId: any;
   public isSubmitting = false;
-  public accountTypes = [
-    { value: 'bank', label: 'Bank Account' },
-    { value: 'cash', label: 'Cash' },
-    { value: 'credit', label: 'Credit Card' },
-    { value: 'loan', label: 'Loan' },
+  public accountTypes:{value:AccountType,label:string}[] = [
+    {value:AccountType.BANK,label:'Bank Account'},
+    {value:AccountType.CASH,label:'Cash'},
+    {value:AccountType.CREDIT,label:'Credit Card'},
+    {value:AccountType.LOAN,label:'Loan'},
+    {value:AccountType.INVESTMENT,label:'Investment'},
   ];
 
   public repaymentFrequencies = [
