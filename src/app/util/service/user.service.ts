@@ -1110,11 +1110,11 @@ export class UserService {
       
       querySnapshot.forEach(doc => {
         const userData = doc.data();
-        if (userData['status'] === 'active') stats.activeUsers++;
+        if (userData['isActive'] === 'active') stats.activeUsers++;
         if (userData['role'] === 'admin') stats.adminUsers++;
-        if (userData['emailVerified']) stats.verifiedUsers++;
-        stats.totalTransactions += userData['totalTransactions'] || 0;
-        stats.totalCategories += userData['totalCategories'] || 0;
+        // if (userData['emailVerified']) stats.verifiedUsers++;
+        // stats.totalTransactions += userData['totalTransactions'] || 0;
+        // stats.totalCategories += userData['totalCategories'] || 0;
       });
       
       return stats;
