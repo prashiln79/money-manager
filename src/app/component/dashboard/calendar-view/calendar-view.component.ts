@@ -30,6 +30,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   selectedDate: Date | null = null;
   selectedDateTransactions: Transaction[] = [];
   
+  
   // Date range selection properties
   isRangeMode = false;
   startDate: Date | null = null;
@@ -94,13 +95,12 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   }
 
   loadTransactions() {
-    const currentUser = this.userService.getUser();
-    if (currentUser) {
       this.subscription.add(
         this.store.select(TransactionsSelectors.selectAllTransactions).subscribe({
           next: (transactions) => {
             this.transactions = transactions;
             this.updatePieChart();
+            this.updateCalendar();
           },
           error: (error) => {
             console.error('Error loading transactions:', error);
@@ -108,9 +108,6 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
           }
         })
       );
-    } else {
-      this.notificationService.error('User not authenticated');
-    }
   }
 
   loadCategories() {
@@ -388,13 +385,22 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       let classes = '';
       
       // Check if date has transactions
+      const isIncomeTx = this.transactions.some(transaction => {
+        const transactionMoment = moment(this.dateService.toDate(transaction.date)).startOf('day');
+        return transactionMoment.isSame(cellMoment, 'day') && transaction.type === TransactionType.INCOME;
+      });
+
       const hasTransactions = this.transactions.some(transaction => {
         const transactionMoment = moment(this.dateService.toDate(transaction.date)).startOf('day');
         return transactionMoment.isSame(cellMoment, 'day');
       });
       
       if (hasTransactions) {
-        classes += 'has-transactions ';
+        if(isIncomeTx){
+          classes += 'has-transactions has-income ';
+        }else{
+          classes += 'has-transactions has-expense ';
+        }
       }
       
       // Range mode highlighting
@@ -490,6 +496,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       const transactionMoment = moment(this.dateService.toDate(transaction.date));
       return transactionMoment.isBetween(startMoment, endMoment, 'day', '[]'); // inclusive
     });
+    
   }
 
   // Format date to string for comparison using Moment.js
@@ -615,4 +622,12 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.isControlsExpanded = this.isRangeMode = false;
     this.filterService.clearSelectedDate();
   }
+
+  updateCalendar() {
+    this.showCalendar = false;
+    setTimeout(() => {
+      this.showCalendar = true;
+    }, 1000);
+  }
+
 }

@@ -259,8 +259,15 @@
 
 // Custom styling for dates with transactions
 ::ng-deep .mat-calendar-body-cell.has-transactions {
-  .mat-calendar-body-cell-content {
-    @apply bg-primary ; 
+  &.has-income {
+    .mat-calendar-body-cell-content {
+      background-color: #a6eeb3 !important;
+    }
+  }
+  &.has-expense {
+    .mat-calendar-body-cell-content {
+      background-color: #c8dbdf !important;
+    }
     color: white !important;
     font-weight: bold;
     border-radius: 50%;
@@ -352,18 +359,3 @@
   }
 }
 
-// Dark theme support
-.dark {
-  ::ng-deep .mat-calendar-body-cell.has-transactions {
-    .mat-calendar-body-cell-content {
-      background-color: #60a5fa !important;
-      color: #1f2937 !important;
-    }
-  }
-  
-  ::ng-deep .mat-calendar-body-cell.has-transactions:hover {
-    .mat-calendar-body-cell-content {
-       @apply bg-primary;
-    }
-  }
-}
