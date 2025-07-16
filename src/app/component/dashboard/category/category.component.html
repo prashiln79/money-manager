@@ -29,7 +29,7 @@
 			</div>
 
 			<!-- Empty State -->
-			<div *ngIf="categories.length === 0" class="empty-state">
+			<div *ngIf="categories.length === 0 && !home" class="empty-state">
 				<div class="empty-icon">
 					<mat-icon>local_offer</mat-icon>
 				</div>
@@ -409,10 +409,6 @@
 					</div>
 					}
 				}
-			</div>
-
-			<div *ngIf="home" class="flex justify-center">
-				<a routerLink="/dashboard/category" class="text-primary hover:underline text-xs">View All Categories <mat-icon class="text-xs top-[10px] relative">arrow_forward</mat-icon></a>
 			</div>
 		</section>
 	</div>

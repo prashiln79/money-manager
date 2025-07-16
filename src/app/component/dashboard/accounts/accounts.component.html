@@ -21,7 +21,7 @@
 	<div class="accounts-grid">
 		<!-- Accounts List Section -->
 		<section class="accounts-list">
-			<div class="section-header">
+			<div class="section-header" *ngIf="!home">
 				<div class="header-content">
 					<h2 class="section-title">Manage Accounts</h2>
 					<p class="section-subtitle">({{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }})</p>
@@ -29,7 +29,7 @@
 			</div>
 
 			<!-- Total Balance Summary Card -->
-			<div class="balance-summary-card" *ngIf="((accounts$ | async)?.length ?? 0) > 0">
+			<div class="balance-summary-card" [ngClass]="{'mt-[-12px] m-1': home}" *ngIf="((accounts$ | async)?.length ?? 0) > 0">
 				<div class="balance-summary-header">
 					<mat-icon class="balance-icon">account_balance</mat-icon>
 					<h3 class="balance-summary-title">Total Balance</h3>
@@ -58,7 +58,7 @@
 			</div>
 
 			<!-- Empty State -->
-			<div *ngIf="(accounts$ | async)?.length === 0" class="empty-state">
+			<div *ngIf="(accounts$ | async)?.length === 0 && !home" class="empty-state">
 				<div class="empty-icon">
 					<mat-icon>account_balance</mat-icon>
 				</div>
@@ -71,7 +71,7 @@
 			</div>
 
 			<!-- Accounts List -->
-			<div *ngIf="(accounts$ | async) as accounts" class="accounts-grid-list">
+			<div *ngIf="!home && (accounts$ | async) as accounts" class="accounts-grid-list">
 				@for (account of accounts; track account.accountId) {
 				<div class="account-item" [class]="getBalanceClass(account)" [class.expanded]="expandedAccount?.accountId === account.accountId">
 					<div class="account-content">

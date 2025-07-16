@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, Observable, of } from 'rxjs';
@@ -22,6 +22,9 @@ import { AccountType } from 'src/app/util/config/enums';
   styleUrls: ['./accounts.component.scss']
 })
 export class AccountsComponent implements OnInit, OnDestroy {
+
+  @Input() home: boolean = false;
+  
   // Observables from store
   public accounts$: Observable<Account[]> = of([]);
   public isLoading$: Observable<boolean>;

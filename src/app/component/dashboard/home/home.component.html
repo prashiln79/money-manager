@@ -1,5 +1,9 @@
-<section class="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-5 lg:grid-cols-7 lg:px-5 lg:gap-4 xl ">
-	<calendar-view class="lg:col-span-2" ></calendar-view>
-	<transaction-category [home]="true" class="lg:col-span-5" *ngIf="deviceType.mobile"></transaction-category>
+<section class="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-5 lg:grid-cols-7 lg:px-5 lg:gap-4 xl">
+	<calendar-view class="lg:col-span-2"></calendar-view>
+	@if (deviceType.mobile) {
+	<user-category [home]="true" class="lg:col-span-5"></user-category>
+	<user-accounts [home]="true"></user-accounts>
+
+	}
 	<transaction-list *ngIf="!deviceType.mobile" class="lg:col-span-5"></transaction-list>
 </section>

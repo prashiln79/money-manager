@@ -24,7 +24,7 @@ import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
-  selector: 'transaction-category',
+  selector: 'user-category',
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })
