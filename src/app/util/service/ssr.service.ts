@@ -16,7 +16,7 @@ import { Inject, Injectable, PLATFORM_ID } from "@angular/core";
     }
 
     isClientSide(): boolean {
-        return isPlatformServer(this.platformId);
+        return !isPlatformServer(this.platformId);
     }
 
 

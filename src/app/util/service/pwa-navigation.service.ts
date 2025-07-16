@@ -1,8 +1,9 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, Inject, PLATFORM_ID } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router, NavigationEnd, NavigationStart, Event as RouterEvent } from '@angular/router';
 import { BehaviorSubject, Observable, filter, takeUntil, Subject, map } from 'rxjs';
 import { Platform } from '@angular/cdk/platform';
+import { isPlatformServer } from '@angular/common';
 
 export interface NavigationState {
   canGoBack: boolean;
@@ -40,9 +41,12 @@ export class PwaNavigationService {
     private location: Location,
     private router: Router,
     private platform: Platform,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    this.initializePwaNavigation();
+    if (!isPlatformServer(this.platformId)) {
+      this.initializePwaNavigation();
+    }
   }
 
   private initializePwaNavigation(): void {
@@ -84,12 +88,14 @@ export class PwaNavigationService {
       });
     };
 
-    window.addEventListener('popstate', popstateHandler);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('popstate', popstateHandler);
 
-    // Store for cleanup
-    this.destroy$.subscribe(() => {
-      window.removeEventListener('popstate', popstateHandler);
-    });
+      // Store for cleanup
+      this.destroy$.subscribe(() => {
+        window.removeEventListener('popstate', popstateHandler);
+      });
+    }
 
     // Handle hardware back button on mobile
     if (isMobile) {
@@ -108,11 +114,17 @@ export class PwaNavigationService {
   }
 
   private isStandalonePwa(): boolean {
+    if (isPlatformServer(this.platformId)) {
+      return false; // Default to false on server-side
+    }
     return window.matchMedia('(display-mode: standalone)').matches ||
            (window.navigator as any).standalone === true;
   }
 
   private isMobileDevice(): boolean {
+    if (isPlatformServer(this.platformId)) {
+      return false; // Default to false on server-side
+    }
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
 

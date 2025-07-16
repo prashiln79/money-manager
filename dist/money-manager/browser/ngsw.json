@@ -1,0 +1,221 @@
+{
+  "configVersion": 1,
+  "timestamp": 1752664762499,
+  "index": "https://prashiln79.github.io/wallet/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "https://prashiln79.github.io/wallet/chunk-BDRRPAEY.js",
+        "https://prashiln79.github.io/wallet/chunk-BYGCKXVO.js",
+        "https://prashiln79.github.io/wallet/chunk-JDGB2ZQ4.js",
+        "https://prashiln79.github.io/wallet/chunk-KVQGDCCU.js",
+        "https://prashiln79.github.io/wallet/chunk-LKDXID24.js",
+        "https://prashiln79.github.io/wallet/chunk-VG2YU3S7.js",
+        "https://prashiln79.github.io/wallet/chunk-Y7YXV4PQ.js",
+        "https://prashiln79.github.io/wallet/favicon.ico",
+        "https://prashiln79.github.io/wallet/index.html",
+        "https://prashiln79.github.io/wallet/main-Q4P5XMWL.js",
+        "https://prashiln79.github.io/wallet/manifest.webmanifest",
+        "https://prashiln79.github.io/wallet/polyfills-7GJDLKRV.js",
+        "https://prashiln79.github.io/wallet/styles-42J7YYNB.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "https://prashiln79.github.io/wallet/assets/icon/add-txn.svg",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-128x128.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-144x144.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-152x152.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-192x192.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-384x384.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-48x48.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-512x512.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-72x72.png",
+        "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-96x96.png",
+        "https://prashiln79.github.io/wallet/assets/icon/system-uicons.svg",
+        "https://prashiln79.github.io/wallet/assets/icon/test.svg",
+        "https://prashiln79.github.io/wallet/assets/images/logo.svg",
+        "https://prashiln79.github.io/wallet/assets/images/profile.png",
+        "https://prashiln79.github.io/wallet/assets/images/screenshot/img1.png",
+        "https://prashiln79.github.io/wallet/assets/images/screenshot/img2.png",
+        "https://prashiln79.github.io/wallet/assets/images/screenshot/img3.png",
+        "https://prashiln79.github.io/wallet/assets/images/screenshot/img4.png",
+        "https://prashiln79.github.io/wallet/assets/images/sign-in.png",
+        "https://prashiln79.github.io/wallet/icons/icon-128x128.png",
+        "https://prashiln79.github.io/wallet/icons/icon-144x144.png",
+        "https://prashiln79.github.io/wallet/icons/icon-152x152.png",
+        "https://prashiln79.github.io/wallet/icons/icon-192x192.png",
+        "https://prashiln79.github.io/wallet/icons/icon-384x384.png",
+        "https://prashiln79.github.io/wallet/icons/icon-48x48.png",
+        "https://prashiln79.github.io/wallet/icons/icon-512x512.png",
+        "https://prashiln79.github.io/wallet/icons/icon-72x72.png",
+        "https://prashiln79.github.io/wallet/icons/icon-96x96.png",
+        "https://prashiln79.github.io/wallet/media/sign-in-TAB6YH4B.png"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "fonts",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [],
+      "patterns": [
+        "https:\\/\\/fonts\\.googleapis\\.com\\/css2\\?family=Roboto:wght@300;400;500&display=swap",
+        "https:\\/\\/fonts\\.googleapis\\.com\\/icon\\?family=Material\\+Icons"
+      ]
+    },
+    {
+      "name": "icons",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "firebase-api",
+      "patterns": [
+        "https:\\/\\/www\\.googleapis\\.com\\/.*",
+        "https:\\/\\/firestore\\.googleapis\\.com\\/.*",
+        "https:\\/\\/firebasestorage\\.googleapis\\.com\\/.*",
+        "https:\\/\\/identitytoolkit\\.googleapis\\.com\\/.*"
+      ],
+      "strategy": "performance",
+      "maxSize": 100,
+      "maxAge": 604800000,
+      "timeoutMs": 10000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    },
+    {
+      "name": "auth-api",
+      "patterns": [
+        "https:\\/\\/securetoken\\.googleapis\\.com\\/.*",
+        "https:\\/\\/identitytoolkit\\.googleapis\\.com\\/v1\\/accounts:signInWithPassword",
+        "https:\\/\\/identitytoolkit\\.googleapis\\.com\\/v1\\/accounts:signUp"
+      ],
+      "strategy": "freshness",
+      "maxSize": 10,
+      "maxAge": 3600000,
+      "timeoutMs": 5000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    },
+    {
+      "name": "api-cache",
+      "patterns": [
+        "\\/api\\/.*"
+      ],
+      "strategy": "freshness",
+      "maxSize": 50,
+      "maxAge": 3600000,
+      "timeoutMs": 5000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    },
+    {
+      "name": "static-assets",
+      "patterns": [
+        "https:\\/\\/cdn\\.jsdelivr\\.net\\/.*",
+        "https:\\/\\/unpkg\\.com\\/.*"
+      ],
+      "strategy": "performance",
+      "maxSize": 200,
+      "maxAge": 2592000000,
+      "timeoutMs": 5000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
+  "hashTable": {
+    "https://prashiln79.github.io/wallet/assets/icon/add-txn.svg": "2b9d534434024f27a8eb50a25d0469d58ec39497",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-128x128.png": "7bff3f8bbbcbf9e5fe66545f26fd6b1fd5bf5420",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-144x144.png": "3ae63017116383827436fafaaadea0045570ba92",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-152x152.png": "9e1082927a17bc2c63bba71434a33d15ab8edde9",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-192x192.png": "35c33a191c3718f2db339a3cbdeea4b974666726",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-384x384.png": "e4073198e8408c1b64f4111321f8a635b1274a26",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-48x48.png": "aa66666d4841b5b699e1886473d34060b23ef600",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-512x512.png": "1ba671fbd7e7ec01645dc27c087a1a9e6784a94f",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-72x72.png": "00bcf6dfd40cf02da208cd094f914e3598a1e41e",
+    "https://prashiln79.github.io/wallet/assets/icon/app-icon/icon-96x96.png": "ec2cea95079d053a34b659b57e8030a0bbb53b5c",
+    "https://prashiln79.github.io/wallet/assets/icon/system-uicons.svg": "c3a33e237031853fd016b36a8c3d04766e5b1709",
+    "https://prashiln79.github.io/wallet/assets/icon/test.svg": "71f9dbbf00b4febc9dc44f7b9349eb61f7707b36",
+    "https://prashiln79.github.io/wallet/assets/images/logo.svg": "3f31b3c769a15a90ad1df088a149f20a31a437f3",
+    "https://prashiln79.github.io/wallet/assets/images/profile.png": "2f9d3e443da016049a7b813e2f3f015b5242e871",
+    "https://prashiln79.github.io/wallet/assets/images/screenshot/img1.png": "fd186a352e09fd0b04b00c3b11d8717539a6fd08",
+    "https://prashiln79.github.io/wallet/assets/images/screenshot/img2.png": "ee9ff323544a055ea1ab4a2999248af19a0f4f95",
+    "https://prashiln79.github.io/wallet/assets/images/screenshot/img3.png": "a9caa33820b03bc41e04eea9db06c9fadee2d098",
+    "https://prashiln79.github.io/wallet/assets/images/screenshot/img4.png": "6f98183a5163bae4ef9b72624488ff3d14ced0c3",
+    "https://prashiln79.github.io/wallet/assets/images/sign-in.png": "c4e2ea81b5e92d26db0113451c9d5598cf5b6ef5",
+    "https://prashiln79.github.io/wallet/chunk-BDRRPAEY.js": "dcb1668ebb62bb2fd5abee5ac248383ed70e33f5",
+    "https://prashiln79.github.io/wallet/chunk-BYGCKXVO.js": "ec7a1aa70b20d1a141222365bec23cdebd4359bd",
+    "https://prashiln79.github.io/wallet/chunk-JDGB2ZQ4.js": "57547e1e569391aa02bfd3a3be54527c01326a9a",
+    "https://prashiln79.github.io/wallet/chunk-KVQGDCCU.js": "18441ec55012aa5e6482b1b0eed74562143c21bd",
+    "https://prashiln79.github.io/wallet/chunk-LKDXID24.js": "25ed9b211a39ba010880726b4a89a0cc43d32cb2",
+    "https://prashiln79.github.io/wallet/chunk-VG2YU3S7.js": "5cfbf842307b9e5738336a75f21bfb7bbe830e33",
+    "https://prashiln79.github.io/wallet/chunk-Y7YXV4PQ.js": "adac961f942b294bd1640d934651f427e2ebf573",
+    "https://prashiln79.github.io/wallet/favicon.ico": "68fcfa7f111d7fd87c87ccd89019a811c34ea012",
+    "https://prashiln79.github.io/wallet/icons/icon-128x128.png": "7bff3f8bbbcbf9e5fe66545f26fd6b1fd5bf5420",
+    "https://prashiln79.github.io/wallet/icons/icon-144x144.png": "3ae63017116383827436fafaaadea0045570ba92",
+    "https://prashiln79.github.io/wallet/icons/icon-152x152.png": "9e1082927a17bc2c63bba71434a33d15ab8edde9",
+    "https://prashiln79.github.io/wallet/icons/icon-192x192.png": "35c33a191c3718f2db339a3cbdeea4b974666726",
+    "https://prashiln79.github.io/wallet/icons/icon-384x384.png": "e4073198e8408c1b64f4111321f8a635b1274a26",
+    "https://prashiln79.github.io/wallet/icons/icon-48x48.png": "aa66666d4841b5b699e1886473d34060b23ef600",
+    "https://prashiln79.github.io/wallet/icons/icon-512x512.png": "1ba671fbd7e7ec01645dc27c087a1a9e6784a94f",
+    "https://prashiln79.github.io/wallet/icons/icon-72x72.png": "00bcf6dfd40cf02da208cd094f914e3598a1e41e",
+    "https://prashiln79.github.io/wallet/icons/icon-96x96.png": "ec2cea95079d053a34b659b57e8030a0bbb53b5c",
+    "https://prashiln79.github.io/wallet/index.html": "030d9fa8aacf14b6ff2eca1491a2d48b98e6af63",
+    "https://prashiln79.github.io/wallet/main-Q4P5XMWL.js": "59dd05f66654472e935ea89e60210250172faa07",
+    "https://prashiln79.github.io/wallet/manifest.webmanifest": "ac7fffd37e96f8350646cfd58fd5ff1af8146bd5",
+    "https://prashiln79.github.io/wallet/media/sign-in-TAB6YH4B.png": "c4e2ea81b5e92d26db0113451c9d5598cf5b6ef5",
+    "https://prashiln79.github.io/wallet/polyfills-7GJDLKRV.js": "c0ffed56fdd0aae538663d8a376bbeeb78762696",
+    "https://prashiln79.github.io/wallet/styles-42J7YYNB.css": "4a9c5e542dc55aca28924f77b7ee0e2167bd2ae3"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "freshness"
+}

@@ -69,7 +69,7 @@
                 }
               ],
               "serviceWorker": "ngsw-config.json",
-              "appShell": true
+              "appShell": false
             },
             "development": {
               "optimization": false,

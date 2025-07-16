@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, Observable, fromEvent, merge } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { SwUpdate } from '@angular/service-worker';
 import { UserService } from './user.service';
 import { APP_CONFIG } from '../config/config';
+import { isPlatformServer } from '@angular/common';
 
 export interface NetworkStatus {
   online: boolean;
@@ -18,7 +19,7 @@ export interface NetworkStatus {
 })
 export class OfflineService {
   private networkStatusSubject = new BehaviorSubject<NetworkStatus>({
-    online: navigator.onLine
+    online: false // Will be set properly in constructor
   });
 
   public networkStatus$: Observable<NetworkStatus> = this.networkStatusSubject.asObservable();
@@ -26,13 +27,24 @@ export class OfflineService {
     map(status => status.online)
   );
 
-  constructor(private swUpdate: SwUpdate, private userService: UserService) {
-    this.initializeNetworkMonitoring();
-    this.initializeServiceWorkerUpdates();
-    this.checkForAppUpdates();
+  constructor(
+    private swUpdate: SwUpdate, 
+    private userService: UserService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    if (!isPlatformServer(this.platformId)) {
+      this.networkStatusSubject.next({ online: navigator.onLine });
+      this.initializeNetworkMonitoring();
+      this.initializeServiceWorkerUpdates();
+      this.checkForAppUpdates();
+    }
   }
 
   private initializeNetworkMonitoring(): void {
+    if (isPlatformServer(this.platformId)) {
+      return; // Skip on server-side
+    }
+    
     // Monitor online/offline events
     const online$ = fromEvent(window, 'online').pipe(map(() => true));
     const offline$ = fromEvent(window, 'offline').pipe(map(() => false));
@@ -120,6 +132,9 @@ export class OfflineService {
   }
 
   private isMobileDevice(): boolean {
+    if (isPlatformServer(this.platformId)) {
+      return false; // Default to desktop on server-side
+    }
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
 

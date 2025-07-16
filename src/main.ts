@@ -4,6 +4,11 @@ import { AppModule } from './app/app.module';
 
 // PWA Navigation and Service Worker initialization
 function initializePwaFeatures() {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return; // Skip on server-side
+  }
+  
   // Handle PWA installation
   let deferredPrompt: any;
   
@@ -52,8 +57,13 @@ function initializePwaFeatures() {
 
 // Intelligent cache management that preserves authentication
 function initializeCacheManagement() {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return; // Skip on server-side
+  }
+  
   // Check if this is a mobile device
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
   if (isMobile) {
     // Use weekly versioning to reduce unnecessary cache clears
@@ -75,6 +85,11 @@ function initializeCacheManagement() {
 }
 
 async function performSmartCacheUpdate(oldVersion: string, newVersion: string): Promise<void> {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return; // Skip on server-side
+  }
+  
   try {
     console.log(`Performing smart cache update from ${oldVersion} to ${newVersion}`);
     
@@ -98,6 +113,11 @@ async function performSmartCacheUpdate(oldVersion: string, newVersion: string): 
 }
 
 function preserveAuthData(): any {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return {}; // Return empty object on server-side
+  }
+  
   const authData: any = {};
   
   // Preserve Firebase Auth state
@@ -122,6 +142,11 @@ function preserveAuthData(): any {
 }
 
 function restoreAuthData(authData: any): void {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return; // Skip on server-side
+  }
+  
   // Restore preserved data
   Object.keys(authData).forEach(key => {
     localStorage.setItem(key, authData[key]);
@@ -129,6 +154,11 @@ function restoreAuthData(authData: any): void {
 }
 
 async function clearApplicationCaches(): Promise<void> {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return; // Skip on server-side
+  }
+  
   try {
     // Clear service worker caches (excluding auth-related caches)
     if ('caches' in window) {

@@ -1,6 +1,7 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Inject, PLATFORM_ID } from "@angular/core";
 import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 import { APP_CONFIG } from "../config/config";
+import { isPlatformServer } from "@angular/common";
 
 @Injectable({
   providedIn: "root",
@@ -16,10 +17,16 @@ export class NotificationService {
 
   // Check if device is mobile
   private isMobile(): boolean {
+    if (isPlatformServer(this.platformId)) {
+      return false; // Default to desktop on server-side
+    }
     return window.innerWidth <= 768;
   }
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   // Show success message
   success(message: string, action: string = "Close"): void {

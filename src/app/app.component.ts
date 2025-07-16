@@ -15,7 +15,7 @@ import { SsrService } from './util/service/ssr.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
   public title = APP_CONFIG.APP_NAME;
-  isOnline = navigator.onLine;
+  isOnline = false; // Will be set properly in ngOnInit
   navigationState: NavigationState;
   private destroy$ = new Subject<void>();
 
@@ -37,6 +37,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    if (this.ssrService.isClientSide()) {
+      this.isOnline = navigator.onLine;
+    }
     this.initializePwaFeatures();
     this.setupEventListeners();
   }
