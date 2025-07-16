@@ -14,6 +14,7 @@ import { AppState } from '../../../store/app.state';
 import * as AccountsActions from '../../../store/accounts/accounts.actions';
 import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
 import { DateService } from 'src/app/util/service/date.service';
+import { AccountType } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'user-accounts',
@@ -317,7 +318,13 @@ export class AccountsComponent implements OnInit, OnDestroy {
    * Get total negative balance
    */
   public getTotalNegativeBalance(): number {
-    return this.getNegativeAccounts().reduce((total, account) => total + account.balance, 0);
+    return this.getNegativeAccounts().reduce((total, account) => {
+      if (account.type === AccountType.LOAN) {
+        const loanDetails = account.loanDetails as LoanDetails;
+        return total - loanDetails.remainingBalance;
+      }
+      return total + account.balance;
+    }, 0);
   }
 
   /**

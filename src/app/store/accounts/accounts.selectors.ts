@@ -1,5 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { AccountsState } from './accounts.state';
+import { AccountType } from 'src/app/util/config/enums';
+import { LoanDetails } from 'src/app/util/models';
 
 export const selectAccountsState = createFeatureSelector<AccountsState>('accounts');
 
@@ -46,7 +48,13 @@ export const selectActiveAccounts = createSelector(
 
 export const selectTotalBalance = createSelector(
   selectAllAccounts,
-  (accounts) => accounts.reduce((sum, account) => sum + account.balance, 0)
+  (accounts) => accounts.reduce((sum, account) => {
+    if (account.type === AccountType.LOAN) {
+      const loanDetails = account.loanDetails as LoanDetails;
+      return sum - loanDetails.remainingBalance;
+    }
+    return sum + account.balance;
+  }, 0)
 );
 
 export const selectTotalBalanceByType = (type: 'bank' | 'cash' | 'credit' | 'loan') => createSelector(

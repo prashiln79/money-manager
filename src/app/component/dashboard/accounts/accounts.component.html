@@ -82,7 +82,7 @@
 								</div>
 								<div class="account-details">
 									<div class="account-header">
-										<h3 class="account-name">{{ account.name }}</h3>
+										<h3 class="account-name">{{ account.name | titlecase }}</h3>
 									</div>
 
 									<!-- Account Type Information -->
@@ -101,7 +101,7 @@
 									<div class="account-balance-info">
 										<span class="balance-label">Balance:</span>
 										<span class="balance-value" [class]="account.balance >= 0 ? 'positive' : 'negative'">
-											{{ account.balance | currency }}
+											{{ isLoanAccount(account) ? (getLoanDetails(account)?.remainingBalance | currency) : account.balance | currency }}
 										</span>
 									</div>
 								</div>
