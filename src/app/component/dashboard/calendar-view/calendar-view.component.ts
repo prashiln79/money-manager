@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatCalendarCellClassFunction } from '@angular/material/datepicker';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { MatCalendar, MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { UserService } from '../../../util/service/user.service';
 import { FilterService } from '../../../util/service/filter.service';
 import { NotificationService } from '../../../util/service/notification.service';
@@ -23,6 +23,8 @@ import { EChartsOption } from 'echarts';
   styleUrl: './calendar-view.component.scss'
 })
 export class CalendarViewComponent implements OnInit, OnDestroy {
+
+  @ViewChild('calendar') calendar!: MatCalendar<Date>;  
 
   isMobile = false;
   transactions: Transaction[] = [];
@@ -624,10 +626,9 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   }
 
   updateCalendar() {
-    this.showCalendar = false;
-    setTimeout(() => {
-      this.showCalendar = true;
-    }, 0);
+    if(this.calendar){
+      this.calendar.updateTodaysDate();
+    }
   }
 
 }

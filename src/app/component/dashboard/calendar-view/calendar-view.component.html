@@ -206,6 +206,7 @@
   <!-- Calendar -->
   <div class="calendar-container" *ngIf="showCalendar && !showPieChart">
     <mat-calendar 
+      #calendar
       [dateClass]="dateClass"
       [selected]="selectedDate"
       (selectedChange)="onDateSelected($event)">
