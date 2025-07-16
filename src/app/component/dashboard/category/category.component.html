@@ -202,7 +202,7 @@
 									</div>
 									<div class="category-details">
 										<div class="category-header">
-											<h3 class="category-name">{{ category.name }}</h3>
+											<h3 class="category-name">{{ category.name }} <span class="text-[0.6rem] text-gray-400"> {{category.type | titlecase}}</span></h3>
 										</div>
 
 										<!-- Budget Information -->
@@ -227,10 +227,10 @@
 											<span class="category-spent-value">{{ category.type === 'expense' ? (calculateTotalSpentPerMonth(category) | currency) : (calculateTotalIncomePerMonth(category) | currency) }}</span>
 											<span class="category-spent-period"> (Monthly) </span>
 										</div>
-										<div class="category-spent mt-[-10px]" >
+										<!-- <div class="category-spent mt-[-10px]" >
 											<span class="category-spent-label">Type:</span>
 											<span class="category-spent-label font-semibold" >{{ category.type | titlecase }}</span>
-										</div>
+										</div> -->
 									</div>
 								</div>
 							</div>
