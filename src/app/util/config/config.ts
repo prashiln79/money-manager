@@ -152,7 +152,7 @@ export const APP_CONFIG = {
 
   // Security configuration
   SECURITY: {
-    SESSION_TIMEOUT: 30 * 60 * 1000, // 30 minutes
+    SESSION_TIMEOUT: 24 * 60 * 60 * 1000, // 1 day
     MAX_LOGIN_ATTEMPTS: 5,
     LOCKOUT_DURATION: 15 * 60 * 1000, // 15 minutes
     PASSWORD_HISTORY_SIZE: 5
