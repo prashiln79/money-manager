@@ -14,6 +14,7 @@ import {
   updateAccount,
 } from 'src/app/store/accounts/accounts.actions';
 import { AccountType } from 'src/app/util/config/enums';
+import { SsrService } from 'src/app/util/service/ssr.service';
 
 @Component({
   selector: 'app-mobile-account',
@@ -52,7 +53,8 @@ export class MobileAccountComponent {
     private notificationService: NotificationService,
     private router: Router,
     private hapticFeedback: HapticFeedbackService,
-    private validationService: ValidationService
+    private validationService: ValidationService,
+    private ssrService: SsrService
   ) {
     this.accountForm = this.fb.group({
       name: ['', this.validationService.getAccountNameValidators()],
@@ -149,10 +151,12 @@ export class MobileAccountComponent {
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
-    window.addEventListener('popstate', (event) => {
-      this.dialogRef.close();
-      event.preventDefault();
-    });
+    if (this.ssrService.isClientSide()) {
+      window.addEventListener('popstate', (event) => {
+        this.dialogRef.close();
+        event.preventDefault();
+      });
+    }
   }
 
   async onSubmit(): Promise<void> {

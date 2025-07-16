@@ -6,6 +6,7 @@ import { PwaNavigationService, NavigationState } from './util/service/pwa-naviga
 import { OfflineService } from './util/service/offline.service';
 import { Subject, takeUntil } from 'rxjs';
 import { APP_CONFIG } from './util/config/config';
+import { SsrService } from './util/service/ssr.service';
 
 @Component({
   selector: 'app-root',
@@ -19,10 +20,11 @@ export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private location: Location, 
+    private location: Location,
     private loaderService: LoaderService,
     private pwaNavigationService: PwaNavigationService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private ssrService: SsrService
   ) {
     this.navigationState = {
       canGoBack: false,
@@ -62,26 +64,28 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private setupEventListeners(): void {
-    // Handle online/offline events
-    window.addEventListener('online', () => this.isOnline = true);
-    window.addEventListener('offline', () => this.isOnline = false);
+    if (this.ssrService.isClientSide()) {
+      // Handle online/offline events
+      window.addEventListener('online', () => this.isOnline = true);
+      window.addEventListener('offline', () => this.isOnline = false);
 
-    // Handle beforeunload for PWA
-    window.addEventListener('beforeunload', (event) => {
-      if (this.navigationState.isStandalone) {
-        // Save current state before app closes
-        this.saveAppState();
-      }
-    });
+      // Handle beforeunload for PWA
+      window.addEventListener('beforeunload', (event) => {
+        if (this.navigationState.isStandalone) {
+          // Save current state before app closes
+          this.saveAppState();
+        }
+      });
 
-    // Handle visibility change for PWA
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        this.handleAppBackground();
-      } else if (document.visibilityState === 'visible') {
-        this.handleAppForeground();
-      }
-    });
+      // Handle visibility change for PWA
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          this.handleAppBackground();
+        } else if (document.visibilityState === 'visible') {
+          this.handleAppForeground();
+        }
+      });
+    }
   }
 
   private saveAppState(): void {
@@ -91,7 +95,7 @@ export class AppComponent implements OnInit, OnDestroy {
       navigationStack: this.navigationState.navigationStack,
       timestamp: Date.now()
     };
-    
+
     try {
       localStorage.setItem('app-state', JSON.stringify(appState));
     } catch (error) {
@@ -102,7 +106,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private handleAppBackground(): void {
     // App is going to background
     this.saveAppState();
-    
+
     // Pause any ongoing operations
     this.loaderService.hide();
   }
@@ -138,21 +142,23 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Method to handle PWA-specific actions
   handlePwaAction(action: string): void {
-    switch (action) {
-      case 'back':
-        this.goBack();
-        break;
-      case 'forward':
-        this.goForward();
-        break;
-      case 'home':
-        this.pwaNavigationService.navigateTo('/dashboard');
-        break;
-      case 'refresh':
-        window.location.reload();
-        break;
-      default:
-        console.warn('Unknown PWA action:', action);
+    if (this.ssrService.isClientSide()) {
+      switch (action) {
+        case 'back':
+          this.goBack();
+          break;
+        case 'forward':
+          this.goForward();
+          break;
+        case 'home':
+          this.pwaNavigationService.navigateTo('/dashboard');
+          break;
+        case 'refresh':
+          window.location.reload();
+          break;
+        default:
+          console.warn('Unknown PWA action:', action);
+      }
     }
   }
 

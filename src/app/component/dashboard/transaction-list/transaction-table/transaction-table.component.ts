@@ -12,6 +12,7 @@ import { Category } from 'src/app/util/models';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { APP_CONFIG } from 'src/app/util/config/config';
+import { SsrService } from 'src/app/util/service/ssr.service';
 
 @Component({
   selector: 'transaction-table',
@@ -49,7 +50,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     private auth: Auth,
     private dateService: DateService,
     private filterService: FilterService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private ssrService: SsrService
   ) {}
 
   ngOnInit() {
@@ -77,6 +79,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   }
 
   private updateColumnVisibility() {
+    if (this.ssrService.isClientSide()) {
     const screenWidth = window.innerWidth;
     
     if (screenWidth < this.MOBILE_BREAKPOINT) {
@@ -87,7 +90,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
       this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Actions'];
     } else {
       // Desktop: Show all columns
-      this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+        this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+      }
     }
   }
 

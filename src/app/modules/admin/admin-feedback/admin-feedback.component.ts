@@ -8,6 +8,7 @@ import { Auth } from '@angular/fire/auth';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { FeedbackService, FeedbackData } from 'src/app/util/service/feedback.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { SsrService } from 'src/app/util/service/ssr.service';
 
 export interface FeedbackFilter {
   status: string;
@@ -78,7 +79,8 @@ export class AdminFeedbackComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private feedbackService: FeedbackService,
     private dialog: MatDialog,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private ssrService: SsrService
   ) {
     // Observe breakpoints for mobile detection
     this.breakpointObserver.observe([Breakpoints.Handset])
@@ -255,7 +257,7 @@ export class AdminFeedbackComponent implements OnInit, OnDestroy {
 
   public formatDate(timestamp: any): string {
     if (!timestamp) return 'N/A';
-    
+
     const date = timestamp.toDate?.() || new Date(timestamp);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -329,16 +331,18 @@ export class AdminFeedbackComponent implements OnInit, OnDestroy {
   }
 
   public exportFeedback(): void {
-    // Implement CSV export functionality
-    const csvContent = this.generateCSV();
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `feedback-export-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    this.notificationService.success('Feedback exported successfully');
+    if (this.ssrService.isClientSide()) {
+      // Implement CSV export functionality
+      const csvContent = this.generateCSV();
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `feedback-export-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      this.notificationService.success('Feedback exported successfully');
+    }
   }
 
   private generateCSV(): string {

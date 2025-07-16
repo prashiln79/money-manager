@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { OfflineService } from '../../service/offline.service';
+import { SsrService } from '../../service/ssr.service';
 
 @Component({
   selector: 'app-offline-page',
@@ -74,12 +75,14 @@ import { OfflineService } from '../../service/offline.service';
   `]
 })
 export class OfflinePageComponent {
-  constructor(private offlineService: OfflineService) {}
+  constructor(private offlineService: OfflineService, private ssrService: SsrService) { }
 
   retryConnection(): void {
     // Check if we're back online
     if (this.offlineService.isCurrentlyOnline()) {
-      window.location.reload();
+      if (this.ssrService.isClientSide()) {
+        window.location.reload();
+      }
     } else {
       // Show a message that we're still offline
       alert('Still offline. Please check your internet connection.');

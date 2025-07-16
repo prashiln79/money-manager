@@ -18,6 +18,7 @@ import { Store } from '@ngrx/store';
 import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { APP_CONFIG } from 'src/app/util/config/config';
+import { SsrService } from 'src/app/util/service/ssr.service';
 
 @Component({
   selector: 'import-transactions',
@@ -56,9 +57,12 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
     private papa: Papa,
     private auth: Auth,
     private store: Store<AppState>,
+    private ssrService: SsrService
   ) {
     this.checkScreenSize();
-    window.addEventListener('resize', () => this.checkScreenSize());
+    if (this.ssrService.isClientSide()) {
+      window.addEventListener('resize', () => this.checkScreenSize());
+    }
     this.loadAccountsAndCategories();
   }
 
@@ -67,7 +71,9 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    window.removeEventListener('resize', () => this.checkScreenSize());
+    if (this.ssrService.isClientSide()) {
+      window.removeEventListener('resize', () => this.checkScreenSize());
+    }
   }
 
   private async loadAccountsAndCategories() {
@@ -108,7 +114,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   updateTransaction(transactionIndex: number, field: string, value: any) {
     if (transactionIndex >= 0 && transactionIndex < this.parsedTransactions.length) {
       this.parsedTransactions[transactionIndex][field] = value;
-      
+
       // Update category based on type if needed
       if (field === 'type') {
         const transaction = this.parsedTransactions[transactionIndex];
@@ -174,7 +180,9 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   }
 
   private checkScreenSize() {
-    this.isMobile = window.innerWidth < 768;
+    if (this.ssrService.isClientSide()) {
+      this.isMobile = window.innerWidth < 768;
+    }
   }
 
   onFileSelected(event: any) {
@@ -388,8 +396,8 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
         return rawDate && typeof rawDate !== 'string'
           ? true
           : rawDate.trim() !== '' &&
-              !rawDate.includes('Date') &&
-              !rawDate.includes('*');
+          !rawDate.includes('Date') &&
+          !rawDate.includes('*');
       })
       .map((row, idx) => {
         const rawDate = row[dateKey];
@@ -617,43 +625,45 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
 
   downloadTemplate() {
     try {
-      // CSV Template
-      const csv =
-        `payee,amount,type,category,date\nSample Payee,${APP_CONFIG.VALIDATION.MIN_AMOUNT * 1000},income,Salary,2024-06-01\nSample Expense,${APP_CONFIG.VALIDATION.MIN_AMOUNT * 500},expense,Food,2024-06-01`;
-      const csvBlob = new Blob([csv], { type: 'text/csv' });
-      const csvUrl = window.URL.createObjectURL(csvBlob);
-      const csvLink = document.createElement('a');
-      csvLink.href = csvUrl;
-      csvLink.download = 'transaction_template.csv';
-      csvLink.click();
-      window.URL.revokeObjectURL(csvUrl);
+      if (this.ssrService.isClientSide()) {
+        // CSV Template
+        const csv =
+          `payee,amount,type,category,date\nSample Payee,${APP_CONFIG.VALIDATION.MIN_AMOUNT * 1000},income,Salary,2024-06-01\nSample Expense,${APP_CONFIG.VALIDATION.MIN_AMOUNT * 500},expense,Food,2024-06-01`;
+        const csvBlob = new Blob([csv], { type: 'text/csv' });
+        const csvUrl = window.URL.createObjectURL(csvBlob);
+        const csvLink = document.createElement('a');
+        csvLink.href = csvUrl;
+        csvLink.download = 'transaction_template.csv';
+        csvLink.click();
+        window.URL.revokeObjectURL(csvUrl);
 
-      // Excel Template
-      const excelData = [
-        ['payee', 'amount', 'type', 'category', 'date'],
-        ['Sample Payee', APP_CONFIG.VALIDATION.MIN_AMOUNT * 1000, 'income', 'Salary', '2024-06-01'],
-        ['Sample Expense', APP_CONFIG.VALIDATION.MIN_AMOUNT * 500, 'expense', 'Food', '2024-06-01'],
-      ];
+        // Excel Template
+        const excelData = [
+          ['payee', 'amount', 'type', 'category', 'date'],
+          ['Sample Payee', APP_CONFIG.VALIDATION.MIN_AMOUNT * 1000, 'income', 'Salary', '2024-06-01'],
+          ['Sample Expense', APP_CONFIG.VALIDATION.MIN_AMOUNT * 500, 'expense', 'Food', '2024-06-01'],
+        ];
 
-      const ws = XLSX.utils.aoa_to_sheet(excelData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+        const ws = XLSX.utils.aoa_to_sheet(excelData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
 
-      // Generate Excel file
-      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const excelBlob = new Blob([excelBuffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
-      const excelUrl = window.URL.createObjectURL(excelBlob);
-      const excelLink = document.createElement('a');
-      excelLink.href = excelUrl;
-      excelLink.download = 'transaction_template.xlsx';
-      excelLink.click();
-      window.URL.revokeObjectURL(excelUrl);
+        // Generate Excel file
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const excelBlob = new Blob([excelBuffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        const excelUrl = window.URL.createObjectURL(excelBlob);
+        const excelLink = document.createElement('a');
+        excelLink.href = excelUrl;
+        excelLink.download = 'transaction_template.xlsx';
+        excelLink.click();
+        window.URL.revokeObjectURL(excelUrl);
 
-      this.notificationService.success(
-        'CSV and Excel templates downloaded successfully'
-      );
+        this.notificationService.success(
+          'CSV and Excel templates downloaded successfully'
+        );
+      }
     } catch (error) {
       console.error('Error downloading templates:', error);
       this.notificationService.error('Failed to download templates');
@@ -713,8 +723,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
 
     if (validTransactions.length < selected.length) {
       this.notificationService.warning(
-        `${
-          selected.length - validTransactions.length
+        `${selected.length - validTransactions.length
         } transactions were skipped due to validation errors`
       );
     }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { OfflineService } from '../../service/offline.service';
+import { SsrService } from '../../service/ssr.service';
 
 @Component({
   selector: 'app-cache-manager',
@@ -111,7 +112,7 @@ export class CacheManagerComponent {
   isUpdating = false;
   isChecking = false;
 
-  constructor(private offlineService: OfflineService) {}
+  constructor(private offlineService: OfflineService, private ssrService: SsrService) { }
 
   async clearApplicationCache(): Promise<void> {
     this.isClearing = true;
@@ -142,8 +143,10 @@ export class CacheManagerComponent {
   async checkForUpdates(): Promise<void> {
     this.isChecking = true;
     try {
-      // This will trigger the service worker update check
-      window.location.reload();
+      if (this.ssrService.isClientSide()) {
+        // This will trigger the service worker update check
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Failed to check for updates:', error);
       alert('Failed to check for updates. Please try again.');

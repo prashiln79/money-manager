@@ -22,6 +22,7 @@ import { Store } from '@ngrx/store';
 import { createCategory, updateCategory } from 'src/app/store/categories/categories.actions';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { TransactionType } from 'src/app/util/config/enums';
+import { SsrService } from 'src/app/util/service/ssr.service';
 
 @Component({
   selector: 'app-mobile-category-add-edit-popup',
@@ -49,7 +50,8 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     private hapticFeedback: HapticFeedbackService,
     private dialog: MatDialog,
     private budgetService: CategoryBudgetService,
-    private validationService: ValidationService
+    private validationService: ValidationService,
+    private ssrService: SsrService
   ) {
     this.categoryForm = this.fb.group({
       name: ['', this.validationService.getCategoryNameValidators()],
@@ -57,19 +59,20 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       icon: ['category', Validators.required],
       color: ['#46777f', Validators.required],
     });
-    
+
     this.budgetForm = this.budgetService.createBudgetForm();
     this.budgetPeriods = this.budgetService.getBudgetPeriods();
   }
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid || '';
-
-    // Handle browser back button
-    window.addEventListener('popstate', (event) => {
-      this.dialogRef.close();
-      event.preventDefault();
-    });
+    if (this.ssrService.isClientSide()) {
+      // Handle browser back button
+      window.addEventListener('popstate', (event) => {
+        this.dialogRef.close();
+        event.preventDefault();
+      });
+    }
 
     if (this.dialogData) {
       // Edit mode - populate form with existing data
@@ -79,7 +82,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
         icon: this.dialogData.icon || 'category',
         color: this.dialogData.color || '#46777f',
       });
-      
+
       // Initialize budget form if category has budget
       if (this.dialogData.budget?.hasBudget) {
         this.showBudgetSection = true;
@@ -94,7 +97,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
 
       try {
         const formValue = this.categoryForm.value;
-       // const budgetData = this.budgetService.getBudgetDataFromForm(this.budgetForm);
+        // const budgetData = this.budgetService.getBudgetDataFromForm(this.budgetForm);
 
         if (this.dialogData?.id) {
           // Update existing category

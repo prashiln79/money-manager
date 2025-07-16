@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/cor
 import { PwaSwService } from '../../service/pwa-sw.service';
 import { Subject } from 'rxjs';
 import { APP_CONFIG } from '../../config/config';
+import { SsrService } from '../../service/ssr.service';
 
 @Component({
   selector: 'app-pwa-install-prompt',
@@ -247,7 +248,7 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
   private deferredPrompt: any;
   private destroy$ = new Subject<void>();
 
-  constructor(private pwaSwService: PwaSwService) {}
+  constructor(private pwaSwService: PwaSwService, private ssrService: SsrService) {}
 
   ngOnInit(): void {
     this.detectMobileDevice();
@@ -266,9 +267,10 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
 
   private setupInstallPrompt(): void {
     // Listen for beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      this.deferredPrompt = e;
+    if (this.ssrService.isClientSide()) {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        this.deferredPrompt = e;
       // Only show prompt if it's a mobile device
       if (this.isMobileDevice) {
         this.showInstallPrompt = true;
@@ -288,6 +290,7 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
     // Check if app is already installed
     if (this.pwaSwService.isAppInstalled()) {
       this.showInstallPrompt = false;
+      }
     }
   }
 

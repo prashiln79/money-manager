@@ -1,6 +1,7 @@
 import { Directive, ElementRef, HostListener, Input, OnInit, Renderer2 } from '@angular/core';
 import { SecurityService } from '../service/security.service';
 import { SecurityEventType, SecurityLevel } from '../service/security.service';
+import { SsrService } from '../service/ssr.service';
 
 /**
  * Security directive for client-side security features
@@ -11,7 +12,7 @@ import { SecurityEventType, SecurityLevel } from '../service/security.service';
   standalone: true
 })
 export class SecurityDirective implements OnInit {
-  
+
   @Input() appSecurity: 'strict' | 'moderate' | 'relaxed' = 'moderate';
   @Input() enableSanitization = true;
   @Input() enableMonitoring = true;
@@ -35,8 +36,9 @@ export class SecurityDirective implements OnInit {
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
-    private securityService: SecurityService
-  ) {}
+    private securityService: SecurityService,
+    private ssrService: SsrService
+  ) { }
 
   ngOnInit(): void {
     this.setupSecurityFeatures();
@@ -63,7 +65,7 @@ export class SecurityDirective implements OnInit {
    */
   private sanitizeElement(): void {
     const element = this.el.nativeElement;
-    
+
     if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
       this.sanitizeInputElement(element);
     } else {
@@ -78,13 +80,13 @@ export class SecurityDirective implements OnInit {
     // Add input validation
     this.renderer.setAttribute(element, 'autocomplete', 'off');
     this.renderer.setAttribute(element, 'spellcheck', 'false');
-    
+
     // Add pattern validation for suspicious content
     if (this.blockSuspiciousInput) {
       const pattern = this.suspiciousPatterns
         .map(p => p.source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
         .join('|');
-      
+
       if (pattern) {
         this.renderer.setAttribute(element, 'pattern', `^(?!.*(${pattern})).*$`);
       }
@@ -97,7 +99,7 @@ export class SecurityDirective implements OnInit {
   private sanitizeContentElement(element: HTMLElement): void {
     // Remove dangerous tags and attributes
     this.removeDangerousContent(element);
-    
+
     // Sanitize existing content
     this.sanitizeContent(element.innerHTML);
   }
@@ -142,15 +144,15 @@ export class SecurityDirective implements OnInit {
    */
   private sanitizeContent(content: string): string {
     let sanitized = content;
-    
+
     // Remove suspicious patterns
     this.suspiciousPatterns.forEach(pattern => {
       sanitized = sanitized.replace(pattern, '');
     });
-    
+
     // Remove HTML comments that might contain malicious code
     sanitized = sanitized.replace(/<!--[\s\S]*?-->/g, '');
-    
+
     return sanitized;
   }
 
@@ -180,10 +182,10 @@ export class SecurityDirective implements OnInit {
   private monitorInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     const value = target.value;
-    
+
     if (this.isSuspiciousContent(value)) {
       this.handleSuspiciousInput('input', value);
-      
+
       if (this.appSecurity === 'strict') {
         target.value = this.sanitizeContent(value);
       }
@@ -197,10 +199,10 @@ export class SecurityDirective implements OnInit {
     const clipboardData = (event as ClipboardEvent).clipboardData;
     if (clipboardData) {
       const pastedText = clipboardData.getData('text/plain');
-      
+
       if (this.isSuspiciousContent(pastedText)) {
         this.handleSuspiciousInput('paste', pastedText);
-        
+
         if (this.appSecurity === 'strict') {
           event.preventDefault();
         }
@@ -214,12 +216,12 @@ export class SecurityDirective implements OnInit {
   private monitorDrop(event: Event): void {
     const dropEvent = event as DragEvent;
     const files = dropEvent.dataTransfer?.files;
-    
+
     if (files && files.length > 0) {
       Array.from(files).forEach(file => {
         if (this.isSuspiciousFile(file)) {
           this.handleSuspiciousFile(file);
-          
+
           if (this.appSecurity === 'strict') {
             event.preventDefault();
           }
@@ -241,7 +243,7 @@ export class SecurityDirective implements OnInit {
   private isSuspiciousFile(file: File): boolean {
     const dangerousExtensions = ['.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js'];
     const fileName = file.name.toLowerCase();
-    
+
     return dangerousExtensions.some(ext => fileName.endsWith(ext));
   }
 
@@ -284,18 +286,19 @@ export class SecurityDirective implements OnInit {
    */
   private addSecurityAttributes(): void {
     const element = this.el.nativeElement;
-    
-    // Add CSP nonce if available
-    if (window.crypto && window.crypto.getRandomValues) {
-      const nonce = Array.from(window.crypto.getRandomValues(new Uint8Array(16)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      
-      this.renderer.setAttribute(element, 'data-security-nonce', nonce);
+    if (this.ssrService.isClientSide()) {
+      // Add CSP nonce if available
+      if (window.crypto && window.crypto.getRandomValues) {
+        const nonce = Array.from(window.crypto.getRandomValues(new Uint8Array(16)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+
+        this.renderer.setAttribute(element, 'data-security-nonce', nonce);
+      }
+
+      // Add security level attribute
+      this.renderer.setAttribute(element, 'data-security-level', this.appSecurity);
     }
-    
-    // Add security level attribute
-    this.renderer.setAttribute(element, 'data-security-level', this.appSecurity);
   }
 
   /**
@@ -324,7 +327,7 @@ export class SecurityDirective implements OnInit {
     if (this.enableMonitoring) {
       const element = this.el.nativeElement as HTMLInputElement;
       const value = element.value;
-      
+
       if (value && this.isSuspiciousContent(value)) {
         this.handleSuspiciousInput('blur', value);
       }
@@ -347,14 +350,14 @@ export class SecurityDirective implements OnInit {
         { ctrl: true, shift: true, key: 'c' }, // Developer tools
         { ctrl: true, shift: true, key: 'j' }  // Developer tools
       ];
-      
+
       const isBlocked = blockedCombinations.some(combo => {
         return (combo.ctrl === undefined || combo.ctrl === event.ctrlKey) &&
-               (combo.shift === undefined || combo.shift === event.shiftKey) &&
-               (combo.f12 === undefined || combo.f12 === (event.key === 'F12')) &&
-               event.key.toLowerCase() === combo.key;
+          (combo.shift === undefined || combo.shift === event.shiftKey) &&
+          (combo.f12 === undefined || combo.f12 === (event.key === 'F12')) &&
+          event.key.toLowerCase() === combo.key;
       });
-      
+
       if (isBlocked) {
         event.preventDefault();
         this.securityService.logSecurityEvent(

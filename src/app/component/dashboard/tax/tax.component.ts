@@ -11,6 +11,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { APP_CONFIG } from '../../../util/config/config';
+import { SsrService } from 'src/app/util/service/ssr.service';
 
 @Component({
   selector: 'app-tax',
@@ -20,25 +21,25 @@ import { APP_CONFIG } from '../../../util/config/config';
 export class TaxComponent implements OnInit, OnDestroy {
 
   selectedRegime: 'old' | 'new' = 'old';
-  
+
   // Tax calculation data
   oldRegimeCalculation: TaxCalculation | null = null;
   newRegimeCalculation: TaxCalculation | null = null;
   gstCalculation: GSTCalculation | null = null;
-  
+
   // Form data
   taxForm: FormGroup;
   deductions: TaxDeduction[] = [];
-  
+
   // Transaction data
   transactions: Transaction[] = [];
   totalIncome: number = 0;
-  
+
   // UI states
   isLoading: boolean = false;
   showInputForm: boolean = false;
   showComparison: boolean = false;
-  
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -48,7 +49,8 @@ export class TaxComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private dialog: MatDialog,
     private fb: FormBuilder,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private ssrService: SsrService
   ) {
     this.taxForm = this.fb.group({
       totalIncome: [0, this.validationService.getTaxIncomeValidators()],
@@ -104,7 +106,7 @@ export class TaxComponent implements OnInit, OnDestroy {
    */
   private updateDeductions(): void {
     const formValue = this.taxForm.value;
-    
+
     this.deductions = [
       { section: '80C', description: 'ELSS, PPF, EPF, Life Insurance, etc.', maxAmount: 150000, currentAmount: formValue.section80C || 0 },
       { section: '80D', description: 'Health Insurance Premium', maxAmount: 25000, currentAmount: formValue.section80D || 0 },
@@ -125,28 +127,28 @@ export class TaxComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    
+
     try {
       const formValue = this.taxForm.value;
       const totalIncome = formValue.totalIncome || 0;
-      
+
       // Update deductions
       this.updateDeductions();
-      
+
       // Calculate tax for both regimes
       this.oldRegimeCalculation = this.taxService.calculateOldRegimeTax(totalIncome, this.deductions);
       this.newRegimeCalculation = this.taxService.calculateNewRegimeTax(totalIncome);
-      
+
       // Calculate GST if base amount is provided
       if (formValue.gstBaseAmount && formValue.gstBaseAmount > 0) {
         this.gstCalculation = this.taxService.calculateGST(formValue.gstBaseAmount);
       } else {
         this.gstCalculation = null;
       }
-      
+
       this.showComparison = true;
       this.notificationService.success('Tax calculation completed successfully!');
-      
+
     } catch (error) {
       console.error('Error calculating tax:', error);
       this.notificationService.error('Failed to calculate tax. Please check your inputs.');
@@ -167,18 +169,19 @@ export class TaxComponent implements OnInit, OnDestroy {
     try {
       const calculation = this.selectedRegime === 'old' ? this.oldRegimeCalculation! : this.newRegimeCalculation!;
       const report = this.taxService.generateTaxReport(calculation, this.gstCalculation || undefined);
-      
-      // Create and download file
-      const blob = new Blob([report], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `tax-report-${this.selectedRegime}-regime-${new Date().toISOString().split('T')[0]}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
+      if (this.ssrService.isClientSide()) {
+        // Create and download file
+        const blob = new Blob([report], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `tax-report-${this.selectedRegime}-regime-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
+
       this.notificationService.success('Tax report downloaded successfully!');
     } catch (error) {
       console.error('Error downloading report:', error);

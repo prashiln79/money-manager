@@ -14,6 +14,7 @@ import * as CategoriesSelectors from '../../../store/categories/categories.selec
 import { DateService } from 'src/app/util/service/date.service';
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { EChartsOption } from 'echarts';
+import { SsrService } from 'src/app/util/service/ssr.service';
 
 interface CategorySpending {
   category: string;
@@ -194,7 +195,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private notificationService: NotificationService,
     private store: Store<AppState>,
-    public dateService: DateService
+    public dateService: DateService,
+    private ssrService: SsrService
   ) {
     // Initialize selectors
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
@@ -1762,8 +1764,10 @@ export class ReportsComponent implements OnInit, OnDestroy {
     });
 
     // Listen for window resize to handle chart resizing
-    window.addEventListener('resize', () => {
-      setTimeout(() => this.updateCharts(), 100);
-    });
+    if (this.ssrService.isClientSide()) {
+      window.addEventListener('resize', () => {
+        setTimeout(() => this.updateCharts(), 100);
+      });
+    }
   }
 } 

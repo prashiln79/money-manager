@@ -116,7 +116,7 @@ function handleUnauthorizedError(
   
   // Log the security event
   logSecurityEvent('UNAUTHORIZED_REQUEST', {
-    url: window.location.href,
+    url: window?.location?.href || '',
     timestamp: new Date().toISOString()
   });
   
@@ -136,7 +136,7 @@ function handleForbiddenError(notificationService: NotificationService): void {
   console.warn('Forbidden request detected');
   
   logSecurityEvent('FORBIDDEN_REQUEST', {
-    url: window.location.href,
+    url: window?.location?.href || '',
     timestamp: new Date().toISOString()
   });
   
@@ -150,7 +150,7 @@ function handleRateLimitError(notificationService: NotificationService): void {
   console.warn('Rate limit exceeded');
   
   logSecurityEvent('RATE_LIMIT_EXCEEDED', {
-    url: window.location.href,
+    url: window?.location?.href || '',
     timestamp: new Date().toISOString()
   });
   
@@ -164,7 +164,7 @@ function handleServerError(notificationService: NotificationService): void {
   console.error('Server error detected');
   
   logSecurityEvent('SERVER_ERROR', {
-    url: window.location.href,
+    url: window?.location?.href || '',
     timestamp: new Date().toISOString()
   });
   
@@ -180,7 +180,7 @@ function handleGenericError(error: HttpErrorResponse, notificationService: Notif
   logSecurityEvent('HTTP_ERROR', {
     status: error.status,
     statusText: error.statusText,
-    url: error.url || window.location.href,
+    url: error.url || window?.location?.href || '',
     timestamp: new Date().toISOString()
   });
   
@@ -200,7 +200,7 @@ function logSecurityEvent(eventType: string, data: any): void {
     data,
     userAgent: navigator.userAgent,
     timestamp: new Date().toISOString(),
-    url: window.location.href
+    url: window?.location?.href || ''
   };
 
   console.log('Security Event:', securityEvent);
