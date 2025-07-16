@@ -1,5 +1,5 @@
 import { NgModule, isDevMode } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -119,6 +119,7 @@ import { CurrencyPipe } from './util/pipes';
 
 // Security
 import { securityInterceptor } from './util/interceptors/security.interceptor';
+import { RouterModule } from '@angular/router';
 
 
 @NgModule({
@@ -227,6 +228,7 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
       registrationStrategy: 'registerImmediately',
       scope: './'
     }),
+         RouterModule,
   ],
   providers: [
     provideAnimationsAsync(),
@@ -268,6 +270,7 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
       console.log("✅ Firebase Cloud Messaging initialized");
       return messaging;
     }),
+     provideClientHydration(),
   ],
   bootstrap: [AppComponent]
 })
