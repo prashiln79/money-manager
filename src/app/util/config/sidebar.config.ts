@@ -24,43 +24,43 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
     children: [
       {
         label: 'dashboard',
-        route: 'home',
+        route: '/dashboard/home',
         icon: 'dashboard',
         order: 1
       },
       {
         label: 'accounts',
-        route: 'accounts',
+        route: '/dashboard/accounts',
         icon: 'account_balance',
         order: 2
       },
       {
         label: 'transactions',
-        route: 'transactions',
+        route: '/dashboard/transactions',
         icon: 'receipt_long',
         order: 3
       },
       {
         label: 'categories',
-        route: 'category',
+        route: '/dashboard/category',
         icon: 'category',
         order: 4
       },
       {
         label: 'budgets',
-        route: 'budgets',
+        route: '/dashboard/budgets',
         icon: 'pie_chart',
         order: 5
       },
       // {
       //   label: 'goals',
-      //   route: 'goals',
+      //   route: '/dashboard/goals',
       //   icon: 'flag',
       //   order: 6
       // },
       {
         label: 'reports',
-        route: 'reports',
+        route: '/dashboard/reports',
         icon: 'analytics',
         order: 7
       }
@@ -75,19 +75,19 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
     children: [
       {
         label: 'calendar',
-        route: 'calendar-view',
+        route: '/dashboard/calendar-view',
         icon: 'calendar_today',
         order: 1
       },
       {
         label: 'notes',
-        route: 'notes',
+        route: '/dashboard/notes',
         icon: 'note',
         order: 2
       },
       {
         label: 'tax',
-        route: 'tax',
+        route: '/dashboard/tax',
         icon: 'calculate',
         order: 3
       }
@@ -102,25 +102,25 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
     children: [
       {
         label: 'profile',
-        route: 'profile',
+        route: '/dashboard/profile',
         icon: 'account_circle',
         order: 1
       },
       // {
       //   label: 'subscription',
-      //   route: 'subscription',
+      //   route: '/dashboard/subscription',
       //   icon: 'card_membership',
       //   order: 2
       // },
       {
         label: 'notifications',
-        route: 'notifications',
+        route: '/dashboard/notifications',
         icon: 'notifications',
         order: 3
       },
       {
         label: 'feedback',
-        route: 'feedback',
+        route: '/dashboard/feedback',
         icon: 'feedback',
         order: 4
       }

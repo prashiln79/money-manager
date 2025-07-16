@@ -20,8 +20,10 @@ import { ImportTransactionsComponent } from './component/dashboard/transaction-l
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 import { FeedbackComponent } from './component/feedback/feedback.component';
+import { AppShellComponent } from './app-shell/app-shell.component';
 
-const routes: Routes = [
+export const routes: Routes = [
+  { path: 'shell', component: AppShellComponent },
   { path: 'landing', component: LandingComponent },
   { path: 'sign-in', component: SignInComponent },
   { path: 'sign-up', component: SignInComponent },

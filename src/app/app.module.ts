@@ -109,9 +109,6 @@ import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-ba
 import { PwaNavigationBarComponent } from './util/components/pwa-navigation-bar/pwa-navigation-bar.component';
 import { PwaInstallPromptComponent } from './util/components/pwa-install-prompt/pwa-install-prompt.component';
 
-// App Shell Component
-import { AppShellComponent } from './util/components/app-shell/app-shell.component';
-import { SkeletonLoaderComponent } from './util/components/app-shell/skeleton-loader/skeleton-loader.component';
 
 // NgRx Store
 import { AppStoreModule } from './store';
@@ -162,8 +159,6 @@ import { RouterModule } from '@angular/router';
     PwaBackButtonComponent,
     PwaNavigationBarComponent,
     PwaInstallPromptComponent,
-    AppShellComponent,
-    SkeletonLoaderComponent,
     MobileAccountComponent,
     AddAccountDialogComponent,
     MobileAccountsListComponent,
