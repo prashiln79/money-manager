@@ -13,6 +13,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as AccountsActions from '../../../store/accounts/accounts.actions';
 import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
+import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
   selector: 'user-accounts',
@@ -44,7 +45,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
     private readonly dialog: MatDialog,
     private readonly breakpointObserver: BreakpointObserver,
     private readonly notificationService: NotificationService,
-    private readonly store: Store<AppState>
+    private readonly store: Store<AppState>,
+    public readonly dateService: DateService
   ) {
     // Initialize selectors
     this.accounts$ = this.store.select(AccountsSelectors.selectAllAccounts) || of([]);
@@ -288,5 +290,49 @@ export class AccountsComponent implements OnInit, OnDestroy {
     // This is a placeholder - in a real app, you would fetch transactions from a service
     // For now, return an empty array
     return [];
+  }
+
+  /**
+   * Get positive balance accounts
+   */
+  public getPositiveAccounts(): Account[] {
+    return this.accounts.filter(account => account.balance > 0);
+  }
+
+  /**
+   * Get negative balance accounts
+   */
+  public getNegativeAccounts(): Account[] {
+    return this.accounts.filter(account => account.balance < 0);
+  }
+
+  /**
+   * Get total positive balance
+   */
+  public getTotalPositiveBalance(): number {
+    return this.getPositiveAccounts().reduce((total, account) => total + account.balance, 0);
+  }
+
+  /**
+   * Get total negative balance
+   */
+  public getTotalNegativeBalance(): number {
+    return this.getNegativeAccounts().reduce((total, account) => total + account.balance, 0);
+  }
+
+  /**
+   * Get account statistics (placeholder implementation)
+   */
+  public getAccountStats(account: Account): any {
+    // This is a placeholder - in a real app, you would calculate these from actual transaction data
+    return {
+      totalTransactions: 0,
+      totalDeposits: 0,
+      totalWithdrawals: 0,
+      averageTransaction: 0,
+      largestTransaction: 0,
+      thisMonth: 0,
+      lastMonth: 0
+    };
   }
 }
