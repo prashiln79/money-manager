@@ -218,14 +218,14 @@
 													<div class="progress-fill" [style.width.%]="Math.min(category.budget?.budgetProgressPercentage || 0, 100)" [style.background-color]="getBudgetProgressColor(category)"></div>
 												</div>
 												<span class="progress-text">
-													{{ category.budget?.budgetSpent | currency }} / {{ category.budget?.budgetAmount | currency }} ({{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%)
+													{{ category.budget?.budgetSpent | currency }} ({{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%)
 												</span>
 											</div>
 										</div>
 										<div class="category-spent" *ngIf="!category?.budget?.hasBudget">
 											<span class="category-spent-label">{{ category.type === 'expense' ? 'Spent:' : 'Income:' }}</span>
-											<span class="category-spent-value">{{ category.type === 'expense' ? calculateTotalSpentPerMonth(category) : calculateTotalIncomePerMonth(category) | currency }}</span>
-											<span class="category-spent-period">/ Monthly </span>
+											<span class="category-spent-value">{{ category.type === 'expense' ? (calculateTotalSpentPerMonth(category) | currency) : (calculateTotalIncomePerMonth(category) | currency) }}</span>
+											<span class="category-spent-period"> (Monthly) </span>
 										</div>
 										<div class="category-spent mt-[-10px]" >
 											<span class="category-spent-label">Type:</span>
