@@ -225,7 +225,6 @@
 										<div class="category-spent" *ngIf="!category?.budget?.hasBudget">
 											<span class="category-spent-label">{{ category.type === 'expense' ? 'Spent:' : 'Income:' }}</span>
 											<span class="category-spent-value">{{ category.type === 'expense' ? (calculateTotalSpentPerMonth(category) | currency) : (calculateTotalIncomePerMonth(category) | currency) }}</span>
-											<span class="category-spent-period"> (Monthly) </span>
 										</div>
 										<!-- <div class="category-spent mt-[-10px]" >
 											<span class="category-spent-label">Type:</span>
