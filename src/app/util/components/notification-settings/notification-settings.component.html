@@ -171,5 +171,34 @@
         <p>Enable the master toggle above to configure your notification preferences.</p>
       </div>
     </div>
+
+    <!-- Debug Section -->
+    <div class="setting-section debug-section">
+      <div class="section-header">
+        <h3>Debug Tools</h3>
+        <p>Tools to help troubleshoot notification issues</p>
+      </div>
+      
+      <div class="debug-buttons">
+        <button 
+          class="btn btn-secondary"
+          (click)="debugServiceWorker()">
+          <span class="btn-icon">🔍</span>
+          <span class="btn-text">Debug Service Worker</span>
+        </button>
+        
+        <button 
+          class="btn btn-secondary"
+          (click)="forceServiceWorkerRegistration()">
+          <span class="btn-icon">🔄</span>
+          <span class="btn-text">Force Re-registration</span>
+        </button>
+      </div>
+      
+      <div class="debug-info" *ngIf="debugInfo">
+        <h4>Debug Information</h4>
+        <pre>{{ debugInfo | json }}</pre>
+      </div>
+    </div>
   </div>
 </div> 

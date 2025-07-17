@@ -359,7 +359,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Range</label>
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appearance="fill" class="w-full">
             <mat-select>
               <mat-option value="7">Last 7 days</mat-option>
               <mat-option value="30">Last 30 days</mat-option>
@@ -370,7 +370,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appearance="fill" class="w-full">
             <mat-select>
               <mat-option value="all">All Categories</mat-option>
               <mat-option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</mat-option>
@@ -379,7 +379,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account</label>
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appearance="fill" class="w-full">
             <mat-select>
               <mat-option value="all">All Accounts</mat-option>
               <mat-option *ngFor="let account of accounts" [value]="account.name">{{ account.name }}</mat-option>
@@ -388,7 +388,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Transaction Type</label>
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appearance="fill" class="w-full">
             <mat-select>
               <mat-option value="all">All Types</mat-option>
               <mat-option value="income">Income</mat-option>
@@ -655,7 +655,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Export Format</label>
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appearance="fill" class="w-full">
             <mat-select [(ngModel)]="userPreferences.exportFormat">
               <mat-option value="pdf">PDF Report</mat-option>
               <mat-option value="excel">Excel Spreadsheet</mat-option>
@@ -666,7 +666,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Range</label>
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appearance="fill" class="w-full">
             <mat-select>
               <mat-option value="current">Current Month</mat-option>
               <mat-option value="last3">Last 3 Months</mat-option>
@@ -845,7 +845,7 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Default Chart Type</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.defaultChartType">
                     <mat-option *ngFor="let type of availableChartTypes" [value]="type">
                       {{ type.charAt(0).toUpperCase() + type.slice(1) }}
@@ -856,7 +856,7 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Default Analytics View</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.defaultAnalyticsView">
                     <mat-option *ngFor="let view of availableAnalyticsViews" [value]="view">
                       {{ view.charAt(0).toUpperCase() + view.slice(1) }}
@@ -867,7 +867,7 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Default Period</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.defaultPeriod">
                     <mat-option value="daily">Daily</mat-option>
                     <mat-option value="weekly">Weekly</mat-option>
@@ -884,7 +884,7 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Chart Height</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.chartHeight">
                     <mat-option value="small">Small</mat-option>
                     <mat-option value="medium">Medium</mat-option>
@@ -895,7 +895,7 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Currency Format</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.currencyFormat">
                     <mat-option value="INR">Indian Rupee (₹)</mat-option>
                     <mat-option value="USD">US Dollar ($)</mat-option>
@@ -906,7 +906,7 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Format</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.dateFormat">
                     <mat-option value="DD/MM/YYYY">DD/MM/YYYY</mat-option>
                     <mat-option value="MM/DD/YYYY">MM/DD/YYYY</mat-option>
@@ -945,14 +945,14 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Refresh Interval (minutes)</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <input matInput type="number" [(ngModel)]="userPreferences.refreshInterval" min="1" max="60">
                 </mat-form-field>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Export Format</label>
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.exportFormat">
                     <mat-option value="pdf">PDF</mat-option>
                     <mat-option value="excel">Excel</mat-option>
@@ -977,7 +977,7 @@
 
             <div *ngIf="userPreferences.emailReports">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Frequency</label>
-              <mat-form-field appearance="outline" class="w-full">
+              <mat-form-field appearance="fill" class="w-full">
                 <mat-select [(ngModel)]="userPreferences.emailFrequency">
                   <mat-option value="daily">Daily</mat-option>
                   <mat-option value="weekly">Weekly</mat-option>

@@ -1,0 +1,208 @@
+<div class="splitwise-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="title-section">
+        <mat-icon class="title-icon">group</mat-icon>
+        <h1 class="title">Splitwise</h1>
+        <p class="subtitle">Split expenses with friends and family</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="openCreateGroupDialog()"
+          class="create-group-btn">
+          <mat-icon>add</mat-icon>
+          Create Group
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your groups...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="main-content">
+    <!-- Invitations Section -->
+    <div *ngIf="invitations.length > 0" class="invitations-section">
+      <mat-card class="invitations-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>mail</mat-icon>
+            Pending Invitations
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="invitations-list">
+            <div *ngFor="let invitation of invitations" class="invitation-item">
+              <div class="invitation-info">
+                <div class="invitation-details">
+                  <h4>{{ invitation.groupName }}</h4>
+                  <p>Invited by {{ invitation.invitedByDisplayName }}</p>
+                  <small>{{ formatDate(invitation.createdAt) }}</small>
+                </div>
+                <div class="invitation-actions">
+                  <button 
+                    mat-button 
+                    color="primary" 
+                    (click)="acceptInvitation(invitation)"
+                    class="accept-btn">
+                    <mat-icon>check</mat-icon>
+                    Accept
+                  </button>
+                  <button 
+                    mat-button 
+                    color="warn" 
+                    (click)="declineInvitation(invitation)"
+                    class="decline-btn">
+                    <mat-icon>close</mat-icon>
+                    Decline
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Groups Section -->
+    <div class="groups-section">
+      <!-- Groups List -->
+      <div class="groups-list">
+        <div *ngFor="let group of groups" 
+             class="group-item"
+             [class.selected]="selectedGroup?.id === group.id"
+             (click)="selectGroup(group)">
+          <div class="group-info">
+            <div class="group-header">
+              <h3 class="group-name">{{ group.name }}</h3>
+              <div class="group-meta">
+                <span class="member-count">
+                  <mat-icon>people</mat-icon>
+                  {{ getGroupMemberCount(group) }} members
+                </span>
+                <span class="group-role" *ngIf="getCurrentUserRole(group)">
+                  {{ getCurrentUserRole(group) }}
+                </span>
+              </div>
+            </div>
+            <p class="group-description" *ngIf="group.description">
+              {{ group.description }}
+            </p>
+            <div class="group-footer">
+              <span class="currency">{{ group.currency }}</span>
+              <span class="created-date">Created {{ formatDate(group.createdAt) }}</span>
+            </div>
+          </div>
+          <div class="group-actions">
+            <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="groupMenu"
+              (click)="$event.stopPropagation()">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #groupMenu="matMenu">
+              <button mat-menu-item (click)="openAddMemberDialog(group)">
+                <mat-icon>person_add</mat-icon>
+                Add Member
+              </button>
+              <button mat-menu-item (click)="openSplitTransactionDialog(group)">
+                <mat-icon>receipt</mat-icon>
+                Add Expense
+              </button>
+              <mat-divider></mat-divider>
+              <button 
+                mat-menu-item 
+                (click)="deleteGroup(group)"
+                *ngIf="canManageGroup(group)"
+                class="delete-action">
+                <mat-icon>delete</mat-icon>
+                Delete Group
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="groups.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">group</mat-icon>
+          <h3>No Groups Yet</h3>
+          <p>Create your first group to start splitting expenses with friends and family.</p>
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="openCreateGroupDialog()">
+            <mat-icon>add</mat-icon>
+            Create Your First Group
+          </button>
+        </div>
+      </div>
+
+      <!-- Selected Group Details -->
+      <div *ngIf="selectedGroup" class="group-details">
+        <mat-card class="details-card">
+          <mat-card-header>
+            <mat-card-title>{{ selectedGroup.name }}</mat-card-title>
+            <mat-card-subtitle>
+              {{ selectedGroup.description || 'No description' }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+              <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="selectedGroup && openSplitTransactionDialog(selectedGroup)"
+                class="add-expense-btn">
+                <mat-icon>add</mat-icon>
+                Add Expense
+              </button>
+              <button 
+                mat-stroked-button 
+                (click)="selectedGroup && openAddMemberDialog(selectedGroup)"
+                class="add-member-btn">
+                <mat-icon>person_add</mat-icon>
+                Add Member
+              </button>
+            </div>
+
+            <!-- Members List -->
+            <div class="members-section">
+              <h4>Members</h4>
+              <div class="members-list">
+                <div *ngFor="let member of selectedGroup.members" class="member-item">
+                  <div class="member-info">
+                    <div class="member-avatar">
+                      <img *ngIf="member.photoURL" [src]="member.photoURL" [alt]="member.displayName">
+                      <mat-icon *ngIf="!member.photoURL">person</mat-icon>
+                    </div>
+                    <div class="member-details">
+                      <span class="member-name">{{ member.displayName }}</span>
+                      <span class="member-email">{{ member.email }}</span>
+                      <span class="member-role">{{ member.role }}</span>
+                    </div>
+                  </div>
+                  <div class="member-balance">
+                    <span class="balance-amount" 
+                          [class.positive]="member.balance > 0"
+                          [class.negative]="member.balance < 0"
+                          [class.neutral]="member.balance === 0">
+                                             {{ formatCurrency(member.balance, selectedGroup.currency) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div> 

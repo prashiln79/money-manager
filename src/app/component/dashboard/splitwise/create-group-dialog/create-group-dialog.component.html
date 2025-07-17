@@ -1,0 +1,89 @@
+<div class="create-group-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>group_add</mat-icon>
+      Create New Group
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="group-form">
+    <div class="form-content">
+      <!-- Group Name -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Group Name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter group name" maxlength="50">
+        <mat-icon matSuffix>group</mat-icon>
+        <mat-error *ngIf="groupForm.get('name')?.hasError('required')">
+          Group name is required
+        </mat-error>
+        <mat-error *ngIf="groupForm.get('name')?.hasError('minlength')">
+          Group name must be at least 2 characters
+        </mat-error>
+        <mat-error *ngIf="groupForm.get('name')?.hasError('maxlength')">
+          Group name must not exceed 50 characters
+        </mat-error>
+        <mat-hint>{{ groupForm.get('name')?.value?.length || 0 }}/50</mat-hint>
+      </mat-form-field>
+
+      <!-- Description -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Description (Optional)</mat-label>
+        <textarea matInput formControlName="description" 
+                  placeholder="Describe your group" 
+                  rows="3" 
+                  maxlength="200"></textarea>
+        <mat-icon matSuffix>description</mat-icon>
+        <mat-error *ngIf="groupForm.get('description')?.hasError('maxlength')">
+          Description must not exceed 200 characters
+        </mat-error>
+        <mat-hint>{{ groupForm.get('description')?.value?.length || 0 }}/200</mat-hint>
+      </mat-form-field>
+
+      <!-- Currency -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Currency</mat-label>
+        <mat-select formControlName="currency">
+          <mat-option *ngFor="let currency of currencies" [value]="currency">
+            {{ currency }} - {{ getCurrencyDisplayName(currency) }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>attach_money</mat-icon>
+        <mat-error *ngIf="groupForm.get('currency')?.hasError('required')">
+          Currency is required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Info Section -->
+      <div class="info-section">
+        <mat-icon class="info-icon">info</mat-icon>
+        <div class="info-content">
+          <h4>What happens next?</h4>
+          <ul>
+            <li>You'll be added as the group admin</li>
+            <li>You can invite friends by email</li>
+            <li>Start adding shared expenses</li>
+            <li>Track who owes what to whom</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" mat-button (click)="onCancel()" [disabled]="isSubmitting">
+        Cancel
+      </button>
+      <button type="submit" 
+              mat-raised-button 
+              color="primary" 
+              [disabled]="groupForm.invalid || isSubmitting"
+              class="create-btn">
+        <mat-spinner *ngIf="isSubmitting" diameter="20" class="spinner"></mat-spinner>
+        <mat-icon *ngIf="!isSubmitting">add</mat-icon>
+        {{ isSubmitting ? 'Creating...' : 'Create Group' }}
+      </button>
+    </div>
+  </form>
+</div> 

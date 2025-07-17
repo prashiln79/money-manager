@@ -80,7 +80,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeComponent();
     this.subscribeToStoreData();
-    this.notificationService.showPushNotificationSettings();
   }
 
   ngOnDestroy(): void {

@@ -61,6 +61,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   ];
   public editMode: boolean = false;
   public TransactionType = TransactionType;
+  public isSplitTransaction: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -99,6 +100,10 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       recurringNotes: [''],
       recurringCategoryId: [''],
       recurringCategoryName: [''],
+      // Split transaction fields
+      isSplitTransaction: [false],
+      splitGroupId: [''],
+      splitAmount: [0],
     });
     this.isMobile = this.breakpointObserver.isMatched('(max-width: 640px)');
   }
@@ -364,6 +369,24 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       taxPercentage: 0,
       taxes: []
     });
+  }
+
+  /**
+   * Toggle split transaction mode
+   */
+  toggleSplitTransaction(): void {
+    this.isSplitTransaction = !this.isSplitTransaction;
+    this.transactionForm.patchValue({
+      isSplitTransaction: this.isSplitTransaction
+    });
+  }
+
+  /**
+   * Open Splitwise component for split transactions
+   */
+  openSplitwise(): void {
+    // Navigate to Splitwise component
+    this.router.navigate(['/dashboard/splitwise']);
   }
 
 

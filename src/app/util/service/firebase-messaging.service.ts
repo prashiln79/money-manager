@@ -22,7 +22,6 @@ export interface NotificationPayload {
 export interface NotificationAction {
   action: string;
   title: string;
-  icon?: string;
 }
 
 // Use the built-in NotificationPermission type instead of custom interface
@@ -35,6 +34,7 @@ export class FirebaseMessagingService {
   private tokenSubject = new BehaviorSubject<string | null>(null);
   private permissionSubject = new BehaviorSubject<NotificationPermission>('default');
   private notificationSubject = new BehaviorSubject<NotificationPayload | null>(null);
+  private swRegistration: ServiceWorkerRegistration | null = null;
 
   public token$: Observable<string | null> = this.tokenSubject.asObservable();
   public permission$: Observable<NotificationPermission> = this.permissionSubject.asObservable();
@@ -51,6 +51,15 @@ export class FirebaseMessagingService {
         console.warn('This browser does not support notifications');
         return;
       }
+
+      // Check if service worker is supported
+      if (!('serviceWorker' in navigator)) {
+        console.warn('Service Worker not supported');
+        return;
+      }
+
+      // Register Firebase messaging service worker first
+      await this.registerFirebaseMessagingSW();
 
       // Initialize Firebase messaging
       this.messaging = getMessaging();
@@ -82,6 +91,38 @@ export class FirebaseMessagingService {
       
     } catch (error) {
       console.error('Failed to initialize Firebase messaging:', error);
+    }
+  }
+
+  private async registerFirebaseMessagingSW(): Promise<void> {
+    try {
+      // Check if Firebase messaging service worker is already registered
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const firebaseSW = registrations.find(reg => 
+        reg.scope.includes('firebase-cloud-messaging-push-scope') ||
+        reg.active?.scriptURL.includes('firebase-messaging-sw.js')
+      );
+
+      if (firebaseSW) {
+        console.log('Firebase messaging service worker already registered');
+        this.swRegistration = firebaseSW;
+        return;
+      }
+
+      // Register Firebase messaging service worker
+      console.log('Registering Firebase messaging service worker...');
+      this.swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+        scope: '/firebase-cloud-messaging-push-scope'
+      });
+
+      console.log('Firebase messaging service worker registered successfully:', this.swRegistration);
+      
+      // Wait for the service worker to be ready
+      await this.swRegistration.update();
+      
+    } catch (error) {
+      console.error('Failed to register Firebase messaging service worker:', error);
+      throw error;
     }
   }
 
@@ -130,8 +171,14 @@ export class FirebaseMessagingService {
         return null;
       }
 
+      // Ensure service worker is ready
+      if (this.swRegistration) {
+        await this.swRegistration.update();
+      }
+
       const token = await getToken(this.messaging, {
-        vapidKey: environment.vapidKey
+        vapidKey: environment.vapidKey,
+        serviceWorkerRegistration: this.swRegistration || undefined
       });
 
       if (token) {
@@ -160,7 +207,8 @@ export class FirebaseMessagingService {
 
       // Force token refresh
       const token = await getToken(this.messaging, {
-        vapidKey: environment.vapidKey
+        vapidKey: environment.vapidKey,
+        serviceWorkerRegistration: this.swRegistration || undefined
       });
 
       if (token) {
@@ -270,20 +318,8 @@ export class FirebaseMessagingService {
     return 'Notification' in window && 'serviceWorker' in navigator;
   }
 
-  public getPermissionStatus(): NotificationPermission {
-    return Notification.permission;
-  }
-
-  public async deleteToken(): Promise<void> {
-    try {
-      if (this.messaging) {
-        // Note: Firebase v9+ doesn't have a direct deleteToken method
-        // We'll just clear the stored token
-        this.clearStoredToken();
-      }
-    } catch (error) {
-      console.error('Error deleting FCM token:', error);
-    }
+  public getServiceWorkerRegistration(): ServiceWorkerRegistration | null {
+    return this.swRegistration;
   }
 
   // Method to send test notification

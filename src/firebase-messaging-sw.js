@@ -14,41 +14,60 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log('Firebase initialized in service worker');
+} catch (error) {
+  console.error('Failed to initialize Firebase in service worker:', error);
+}
 
 // Initialize Firebase Cloud Messaging
-const messaging = firebase.messaging();
+let messaging;
+try {
+  messaging = firebase.messaging();
+  console.log('Firebase messaging initialized in service worker');
+} catch (error) {
+  console.error('Failed to initialize Firebase messaging in service worker:', error);
+}
 
 // Handle background messages
-messaging.onBackgroundMessage((payload) => {
-  console.log('Background message received:', payload);
+if (messaging) {
+  messaging.onBackgroundMessage((payload) => {
+    console.log('Background message received:', payload);
 
-  const notificationTitle = payload.notification?.title || 'Money Manager';
-  const notificationOptions = {
-    body: payload.notification?.body || 'You have a new notification',
-    icon: payload.notification?.icon || '/icons/icon-192x192.png',
-    badge: payload.notification?.badge || '/icons/icon-72x72.png',
-    image: payload.notification?.image,
-    data: payload.data || {},
-    tag: payload.notification?.tag,
-    requireInteraction: payload.notification?.requireInteraction || false,
-    silent: payload.notification?.silent || false,
-    timestamp: payload.notification?.timestamp || Date.now(),
-    actions: payload.notification?.actions || [
-      {
-        action: 'view',
-        title: 'View'
-      },
-      {
-        action: 'dismiss',
-        title: 'Dismiss'
-      }
-    ]
-  };
+    const notificationTitle = payload.notification?.title || 'Money Manager';
+    const notificationOptions = {
+      body: payload.notification?.body || 'You have a new notification',
+      icon: payload.notification?.icon || '/icons/icon-192x192.png',
+      badge: payload.notification?.badge || '/icons/icon-72x72.png',
+      image: payload.notification?.image,
+      data: payload.data || {},
+      tag: payload.notification?.tag,
+      requireInteraction: payload.notification?.requireInteraction || false,
+      silent: payload.notification?.silent || false,
+      timestamp: payload.notification?.timestamp || Date.now(),
+      actions: payload.notification?.actions || [
+        {
+          action: 'view',
+          title: 'View'
+        },
+        {
+          action: 'dismiss',
+          title: 'Dismiss'
+        }
+      ]
+    };
 
-  // Show notification
-  return self.registration.showNotification(notificationTitle, notificationOptions);
-});
+    // Show notification
+    return self.registration.showNotification(notificationTitle, notificationOptions)
+      .then(() => {
+        console.log('Background notification shown successfully');
+      })
+      .catch((error) => {
+        console.error('Failed to show background notification:', error);
+      });
+  });
+}
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
@@ -133,6 +152,12 @@ self.addEventListener('push', (event) => {
 
       event.waitUntil(
         self.registration.showNotification(notificationTitle, notificationOptions)
+          .then(() => {
+            console.log('Push notification shown successfully');
+          })
+          .catch((error) => {
+            console.error('Failed to show push notification:', error);
+          })
       );
     } catch (error) {
       console.error('Error parsing push data:', error);
@@ -147,8 +172,16 @@ self.addEventListener('push', (event) => {
 
       event.waitUntil(
         self.registration.showNotification(notificationTitle, notificationOptions)
+          .then(() => {
+            console.log('Fallback notification shown successfully');
+          })
+          .catch((error) => {
+            console.error('Failed to show fallback notification:', error);
+          })
       );
     }
+  } else {
+    console.log('Push event received without data');
   }
 });
 
@@ -171,4 +204,14 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+// Handle service worker errors
+self.addEventListener('error', (event) => {
+  console.error('Service worker error:', event.error);
+});
+
+// Handle unhandled promise rejections
+self.addEventListener('unhandledrejection', (event) => {
+  console.error('Service worker unhandled rejection:', event.reason);
 }); 

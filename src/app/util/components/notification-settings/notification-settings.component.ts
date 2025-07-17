@@ -19,6 +19,7 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
   fcmToken: string | null = null;
   isLoading = false;
   notificationsEnabled = true;
+  debugInfo: any = {};
 
   notificationTypes = [
     {
@@ -63,27 +64,24 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
       key: 'soundEnabled',
       title: 'Sound',
       description: 'Play sound for notifications',
-      icon: '🔊'
+      icon: '🔊',
+      value: true
     },
     {
       key: 'vibrationEnabled',
       title: 'Vibration',
       description: 'Vibrate device for notifications',
-      icon: '📳'
+      icon: '📳',
+      value: true
     },
     {
       key: 'requireInteraction',
       title: 'Require Interaction',
-      description: 'Keep notifications until manually dismissed',
-      icon: '👆'
+      description: 'Keep notifications until user interacts',
+      icon: '👆',
+      value: false
     }
   ];
-
-  settings = {
-    soundEnabled: true,
-    vibrationEnabled: true,
-    requireInteraction: false
-  };
 
   constructor(
     private messagingService: FirebaseMessagingService,
@@ -93,6 +91,7 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadSettings();
     this.subscribeToMessagingEvents();
+    this.collectDebugInfo();
   }
 
   ngOnDestroy(): void {
@@ -101,21 +100,36 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
   }
 
   private loadSettings(): void {
-    // Load notification settings from localStorage
-    const savedSettings = localStorage.getItem('notification-settings');
-    if (savedSettings) {
-      this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
-    }
+    // Load notification types settings
+    this.notificationTypes.forEach(type => {
+      const stored = localStorage.getItem(`notification_${type.key}`);
+      type.enabled = stored ? JSON.parse(stored) : true;
+    });
 
-    const savedTypes = localStorage.getItem('notification-types');
-    if (savedTypes) {
-      this.notificationTypes = JSON.parse(savedTypes);
-    }
+    // Load advanced settings
+    this.advancedSettings.forEach(setting => {
+      const stored = localStorage.getItem(`notification_advanced_${setting.key}`);
+      setting.value = stored ? JSON.parse(stored) : setting.value;
+    });
 
-    const savedEnabled = localStorage.getItem('notifications-enabled');
-    if (savedEnabled !== null) {
-      this.notificationsEnabled = JSON.parse(savedEnabled);
-    }
+    // Load master toggle state
+    const masterState = localStorage.getItem('notifications_enabled');
+    this.notificationsEnabled = masterState ? JSON.parse(masterState) : true;
+  }
+
+  private saveSettings(): void {
+    // Save notification types settings
+    this.notificationTypes.forEach(type => {
+      localStorage.setItem(`notification_${type.key}`, JSON.stringify(type.enabled));
+    });
+
+    // Save advanced settings
+    this.advancedSettings.forEach(setting => {
+      localStorage.setItem(`notification_advanced_${setting.key}`, JSON.stringify(setting.value));
+    });
+
+    // Save master toggle state
+    localStorage.setItem('notifications_enabled', JSON.stringify(this.notificationsEnabled));
   }
 
   private subscribeToMessagingEvents(): void {
@@ -134,39 +148,40 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(token => {
         this.fcmToken = token;
+        this.collectDebugInfo();
       });
   }
 
-  toggleMasterNotifications(event: MatSlideToggleChange): void {
-    this.notificationsEnabled = event.checked;
-    this.saveNotificationsEnabled();
-    
-    if (this.notificationsEnabled && this.permissionStatus === 'default') {
-      this.requestPermission();
-    }
-    
-    this.showMessage(
-      `Notifications ${this.notificationsEnabled ? 'enabled' : 'disabled'}`,
-      'success'
-    );
+  private collectDebugInfo(): void {
+    this.debugInfo = {
+      browser: navigator.userAgent,
+      serviceWorker: 'serviceWorker' in navigator,
+      notifications: 'Notification' in window,
+      permission: Notification.permission,
+      fcmToken: this.fcmToken,
+      swRegistration: this.messagingService.getServiceWorkerRegistration(),
+      isSupported: this.messagingService.isSupported(),
+      storedToken: this.messagingService.getStoredToken(),
+      timestamp: new Date().toISOString()
+    };
   }
 
   async requestPermission(): Promise<void> {
     this.isLoading = true;
     try {
       const permission = await this.messagingService.requestPermission();
+      console.log('Permission result:', permission);
+      
       if (permission === 'granted') {
-        this.showMessage('Notifications enabled successfully!', 'success');
-      } else {
-        this.notificationsEnabled = false;
+        this.notificationsEnabled = true;
         this.saveNotificationsEnabled();
-        this.showMessage('Notification permission denied', 'error');
+        this.notificationService.success('Notifications enabled successfully!');
+      } else {
+        this.notificationService.error('Notification permission denied');
       }
     } catch (error) {
       console.error('Error requesting permission:', error);
-      this.notificationsEnabled = false;
-      this.saveNotificationsEnabled();
-      this.showMessage('Failed to enable notifications', 'error');
+      this.notificationService.error('Failed to request notification permission');
     } finally {
       this.isLoading = false;
     }
@@ -176,10 +191,10 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     try {
       this.messagingService.sendTestNotification();
-      this.showMessage('Test notification sent!', 'success');
+      this.notificationService.success('Test notification sent!');
     } catch (error) {
       console.error('Error sending test notification:', error);
-      this.showMessage('Failed to send test notification', 'error');
+      this.notificationService.error('Failed to send test notification');
     } finally {
       this.isLoading = false;
     }
@@ -190,13 +205,13 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
     try {
       const token = await this.messagingService.refreshToken();
       if (token) {
-        this.showMessage('Token refreshed successfully!', 'success');
+        this.notificationService.success('Token refreshed successfully!');
       } else {
-        this.showMessage('Failed to refresh token', 'error');
+        this.notificationService.error('Failed to refresh token');
       }
     } catch (error) {
       console.error('Error refreshing token:', error);
-      this.showMessage('Failed to refresh token', 'error');
+      this.notificationService.error('Failed to refresh token');
     } finally {
       this.isLoading = false;
     }
@@ -205,75 +220,121 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
   copyToken(): void {
     if (this.fcmToken) {
       navigator.clipboard.writeText(this.fcmToken).then(() => {
-        this.showMessage('Token copied to clipboard!', 'success');
+        this.notificationService.success('Token copied to clipboard!');
       }).catch(() => {
-        this.showMessage('Failed to copy token', 'error');
+        this.notificationService.error('Failed to copy token');
       });
     }
   }
 
-  toggleNotificationType(key: string, event: MatSlideToggleChange): void {
-    const type = this.notificationTypes.find(t => t.key === key);
-    if (type) {
-      type.enabled = event.checked;
-      this.saveNotificationTypes();
-      this.showMessage(`${type.title} ${event.checked ? 'enabled' : 'disabled'}`, 'success');
+  toggleMasterNotifications(event: MatSlideToggleChange): void {
+    this.notificationsEnabled = event.checked;
+    this.saveNotificationsEnabled();
+    
+    if (this.notificationsEnabled && this.permissionStatus === 'default') {
+      this.requestPermission();
     }
   }
 
-  updateSetting(key: string, event: MatSlideToggleChange): void {
-    this.settings[key as keyof typeof this.settings] = event.checked;
-    this.saveSettings();
-    this.showMessage('Settings updated', 'success');
+  toggleNotificationType(typeKey: string, event: MatSlideToggleChange): void {
+    const type = this.notificationTypes.find(t => t.key === typeKey);
+    if (type) {
+      type.enabled = event.checked;
+      this.saveSettings();
+    }
   }
 
-  getSettingValue(key: string): boolean {
-    return this.settings[key as keyof typeof this.settings] || false;
+  updateSetting(settingKey: string, event: MatSlideToggleChange): void {
+    const setting = this.advancedSettings.find(s => s.key === settingKey);
+    if (setting) {
+      setting.value = event.checked;
+      this.saveSettings();
+    }
   }
 
-  private saveSettings(): void {
-    localStorage.setItem('notification-settings', JSON.stringify(this.settings));
-  }
-
-  private saveNotificationTypes(): void {
-    localStorage.setItem('notification-types', JSON.stringify(this.notificationTypes));
+  getSettingValue(settingKey: string): boolean {
+    const setting = this.advancedSettings.find(s => s.key === settingKey);
+    return setting ? setting.value : false;
   }
 
   private saveNotificationsEnabled(): void {
-    localStorage.setItem('notifications-enabled', JSON.stringify(this.notificationsEnabled));
-  }
-
-  openPermissionHelp(): void {
-    this.showMessage('Check browser settings to enable notifications', 'info');
-  }
-
-  getPermissionText(): string {
-    switch (this.permissionStatus) {
-      case 'granted':
-        return 'Enabled';
-      case 'denied':
-        return 'Blocked';
-      case 'default':
-        return 'Not Set';
-      default:
-        return 'Unknown';
-    }
+    localStorage.setItem('notifications_enabled', JSON.stringify(this.notificationsEnabled));
   }
 
   getStatusIcon(): string {
     switch (this.permissionStatus) {
-      case 'granted':
-        return '✅';
-      case 'denied':
-        return '❌';
-      case 'default':
-        return '⏳';
-      default:
-        return '❓';
+      case 'granted': return '✅';
+      case 'denied': return '❌';
+      default: return '❓';
     }
   }
 
-  private showMessage(message: string, type: 'success' | 'error' | 'info'): void {
-    this.notificationService[type](message);
+  getPermissionText(): string {
+    switch (this.permissionStatus) {
+      case 'granted': return 'Granted';
+      case 'denied': return 'Denied';
+      default: return 'Not Set';
+    }
+  }
+
+  openPermissionHelp(): void {
+    const helpText = `
+To enable notifications:
+1. Click the lock/info icon in your browser's address bar
+2. Find "Notifications" in the site settings
+3. Change it from "Block" to "Allow"
+4. Refresh the page
+    `;
+    alert(helpText);
+  }
+
+  // Debug methods
+  async debugServiceWorker(): Promise<void> {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      console.log('All service worker registrations:', registrations);
+      
+      const firebaseSW = registrations.find(reg => 
+        reg.scope.includes('firebase-cloud-messaging-push-scope') ||
+        reg.active?.scriptURL.includes('firebase-messaging-sw.js')
+      );
+      
+      if (firebaseSW) {
+        console.log('Firebase SW found:', firebaseSW);
+        console.log('Firebase SW state:', firebaseSW.active?.state);
+        console.log('Firebase SW script URL:', firebaseSW.active?.scriptURL);
+      } else {
+        console.log('No Firebase service worker found');
+      }
+      
+      this.collectDebugInfo();
+      console.log('Debug info:', this.debugInfo);
+    } catch (error) {
+      console.error('Debug error:', error);
+    }
+  }
+
+  async forceServiceWorkerRegistration(): Promise<void> {
+    try {
+      // Force re-registration of Firebase messaging service worker
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const firebaseSW = registrations.find(reg => 
+        reg.scope.includes('firebase-cloud-messaging-push-scope')
+      );
+      
+      if (firebaseSW) {
+        await firebaseSW.unregister();
+        console.log('Unregistered existing Firebase SW');
+      }
+      
+      // Wait a bit then try to get token again
+      setTimeout(async () => {
+        await this.messagingService.refreshToken();
+        this.collectDebugInfo();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Force registration error:', error);
+    }
   }
 } 

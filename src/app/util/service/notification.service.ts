@@ -66,19 +66,4 @@ export class NotificationService {
     this.snackBar.open(message, action, config);
   }
 
-  showPushNotificationSettings(): void {
-    const permission = Notification.permission;
-    if (permission === 'granted') {
-      
-      new Notification('Push Notification Settings', {
-        body: 'Push notification settings',
-          icon: 'https://www.google.com/favicon.ico',
-        data: {
-          url: 'https://www.google.com'
-        }
-      });
-    } else {
-      this.error('Notifications disabled');
-    }
-  }
 }

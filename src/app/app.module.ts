@@ -34,6 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDividerModule } from '@angular/material/divider';
 
 // ngx-papaparse
 import { Papa } from 'ngx-papaparse';
@@ -104,6 +105,12 @@ import { FeedbackComponent } from './component/feedback/feedback.component';
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 
+// Splitwise Components
+import { SplitwiseComponent } from './component/dashboard/splitwise/splitwise.component';
+import { CreateGroupDialogComponent } from './component/dashboard/splitwise/create-group-dialog/create-group-dialog.component';
+import { AddMemberDialogComponent } from './component/dashboard/splitwise/add-member-dialog/add-member-dialog.component';
+import { SplitTransactionDialogComponent } from './component/dashboard/splitwise/split-transaction-dialog/split-transaction-dialog.component';
+
 // PWA Components
 import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
 import { PwaNavigationBarComponent } from './util/components/pwa-navigation-bar/pwa-navigation-bar.component';
@@ -166,7 +173,11 @@ import { RouterModule } from '@angular/router';
     CustomDateRangeDialogComponent,
     ProfileComponent,
     NotificationSettingsComponent,
-    FeedbackComponent
+    FeedbackComponent,
+    SplitwiseComponent,
+    CreateGroupDialogComponent,
+    AddMemberDialogComponent,
+    SplitTransactionDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -203,6 +214,7 @@ import { RouterModule } from '@angular/router';
     MatSlideToggleModule,
     MatAutocompleteModule,
     MatExpansionModule,
+    MatDividerModule,
 
     // Utility
     IconModule,

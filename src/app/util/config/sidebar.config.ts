@@ -90,6 +90,12 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         route: '/dashboard/tax',
         icon: 'calculate',
         order: 3
+      },
+      {
+        label: 'splitwise',
+        route: '/dashboard/splitwise',
+        icon: 'group',
+        order: 4
       }
     ]
   },

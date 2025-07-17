@@ -1,0 +1,99 @@
+<div class="add-member-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>person_add</mat-icon>
+      Add Member to {{ group.name }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="member-form">
+    <div class="form-content">
+      <!-- Email -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Email Address</mat-label>
+        <input matInput 
+               formControlName="email" 
+               placeholder="Enter member's email address"
+               type="email"
+               (input)="onEmailChange()">
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="memberForm.get('email')?.hasError('required')">
+          Email is required
+        </mat-error>
+        <mat-error *ngIf="memberForm.get('email')?.hasError('email')">
+          Please enter a valid email address
+        </mat-error>
+        <mat-error *ngIf="memberForm.get('email')?.hasError('alreadyMember')">
+          This person is already a member of the group
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Role -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Role</mat-label>
+        <mat-select formControlName="role">
+          <mat-option *ngFor="let role of roles" [value]="role">
+            <div class="role-option">
+              <div class="role-name">{{ getRoleDisplayName(role) }}</div>
+              <div class="role-description">{{ getRoleDescription(role) }}</div>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>admin_panel_settings</mat-icon>
+        <mat-error *ngIf="memberForm.get('role')?.hasError('required')">
+          Role is required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Info Section -->
+      <div class="info-section">
+        <mat-icon class="info-icon">info</mat-icon>
+        <div class="info-content">
+          <h4>What happens when you add a member?</h4>
+          <ul>
+            <li>They'll receive an email invitation</li>
+            <li>Once accepted, they can add expenses</li>
+            <li>They'll see all group transactions</li>
+            <li>You can manage their role later</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Current Members Preview -->
+      <div class="members-preview">
+        <h4>Current Members ({{ group.members.length }})</h4>
+        <div class="members-list">
+          <div *ngFor="let member of group.members" class="member-item">
+            <div class="member-avatar">
+              <img *ngIf="member.photoURL" [src]="member.photoURL" [alt]="member.displayName">
+              <mat-icon *ngIf="!member.photoURL">person</mat-icon>
+            </div>
+            <div class="member-info">
+              <span class="member-name">{{ member.displayName }}</span>
+              <span class="member-email">{{ member.email }}</span>
+            </div>
+            <span class="member-role">{{ getRoleDisplayName(member.role) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" mat-button (click)="onCancel()" [disabled]="isSubmitting">
+        Cancel
+      </button>
+      <button type="submit" 
+              mat-raised-button 
+              color="primary" 
+              [disabled]="memberForm.invalid || isSubmitting"
+              class="add-btn">
+        <mat-spinner *ngIf="isSubmitting" diameter="20" class="spinner"></mat-spinner>
+        <mat-icon *ngIf="!isSubmitting">person_add</mat-icon>
+        {{ isSubmitting ? 'Adding...' : 'Add Member' }}
+      </button>
+    </div>
+  </form>
+</div> 
