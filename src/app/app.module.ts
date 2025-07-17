@@ -109,7 +109,6 @@ import { NotificationSettingsComponent } from './util/components/notification-se
 import { SplitwiseComponent } from './component/dashboard/splitwise/splitwise.component';
 import { CreateGroupDialogComponent } from './component/dashboard/splitwise/create-group-dialog/create-group-dialog.component';
 import { AddMemberDialogComponent } from './component/dashboard/splitwise/add-member-dialog/add-member-dialog.component';
-import { SplitTransactionDialogComponent } from './component/dashboard/splitwise/split-transaction-dialog/split-transaction-dialog.component';
 
 // PWA Components
 import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
@@ -177,7 +176,6 @@ import { RouterModule } from '@angular/router';
     SplitwiseComponent,
     CreateGroupDialogComponent,
     AddMemberDialogComponent,
-    SplitTransactionDialogComponent
   ],
   imports: [
     BrowserModule,

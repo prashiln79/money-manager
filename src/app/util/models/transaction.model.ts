@@ -58,6 +58,8 @@ export interface Transaction extends Auditable, RecurrenceInfo {
   status: TransactionStatus;
   paymentMethod?: PaymentMethod;
   tags?: string[];
+  isSplitTransaction?: boolean;
+  splitGroupId?: string;
 
   // Tax support
   taxAmount?: number;       // total tax amount (optional)

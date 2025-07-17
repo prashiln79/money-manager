@@ -14,6 +14,8 @@ import * as CategoriesActions from '../../store/categories/categories.actions';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { AccountsService } from './accounts.service';
 import * as AccountsActions from '../../store/accounts/accounts.actions';
+import { CreateSplitTransactionRequest, SplitwiseGroup, TransactionSplit } from '../models/splitwise.model';
+import { SplitwiseService } from './splitwise.service';
 
 
 interface OfflineOperation {
@@ -38,7 +40,8 @@ export class TransactionsService {
         private offlineService: OfflineService,
         private dateService: DateService,
         private store: Store<AppState>,
-        private accountsService: AccountsService
+        private accountsService: AccountsService,
+        private splitwiseService: SplitwiseService
     ) {
         this.initializeOfflineHandling();
     }
@@ -202,8 +205,12 @@ export class TransactionsService {
                     if (this.isOnline) {
                         try {
                             const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
-                            await addDoc(transactionsCollection, transactionData);
-                            
+                            const transactionRef = await addDoc(transactionsCollection, transactionData);
+
+                            if (transaction.isSplitTransaction) {
+                                await this.createSplitTransaction(transaction.splitGroupId, transaction, transactionRef.id, userId);
+                            }
+
                             // Update category budget if categoryId exists
                             if (transaction.categoryId) {
                                 this.store.dispatch(CategoriesActions.updateBudgetSpent({
@@ -507,4 +514,33 @@ export class TransactionsService {
             await this.processOfflineQueue();
         }
     }
+
+      /**
+   * Create split transaction
+   */
+  private async createSplitTransaction(selectedGroupId:any,  formData: any, originalTransactionId: string, userId: string): Promise<void> {
+
+    const selectedGroup: SplitwiseGroup | undefined = await this.splitwiseService.getUserGroups(userId).then(groups => groups.find(group => group.id === selectedGroupId));
+
+    if (!selectedGroup) {
+      throw new Error('No group selected for split transaction');
+    }
+
+    // Create equal splits for all group members
+    const splits: Omit<TransactionSplit, 'email' | 'displayName'>[] = selectedGroup!.members.map((member:any) => ({
+      userId: member.userId,
+      amount: parseFloat(formData.amount) / selectedGroup!.members.length,
+      percentage: 100 / selectedGroup!.members.length,
+      isPaid: member.userId === userId // Current user is marked as paid
+    }));
+
+    const request: CreateSplitTransactionRequest = {
+      groupId: selectedGroup!.id!,
+      amount: parseFloat(formData.amount),
+      splits: splits,
+      originalTransactionId: originalTransactionId
+    };
+
+    await this.splitwiseService.createSplitTransaction(request);
+  }
 }

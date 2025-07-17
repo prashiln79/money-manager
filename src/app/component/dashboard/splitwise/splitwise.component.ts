@@ -9,7 +9,6 @@ import { SplitwiseService } from 'src/app/util/service/splitwise.service';
 import { SplitwiseGroup, GroupInvitation } from 'src/app/util/models/splitwise.model';
 import { CreateGroupDialogComponent } from './create-group-dialog/create-group-dialog.component';
 import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
-import { SplitTransactionDialogComponent } from './split-transaction-dialog/split-transaction-dialog.component';
 
 @Component({
   selector: 'app-splitwise',
@@ -55,8 +54,8 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
     try {
       // Load groups and invitations in parallel
       const [groups, invitations] = await Promise.all([
-        this.splitwiseService.getUserGroups().toPromise(),
-        this.splitwiseService.getUserInvitations().toPromise()
+        this.splitwiseService.getUserGroups(this.currentUser?.uid || ''),
+        this.splitwiseService.getUserInvitations()
       ]);
 
       this.groups = groups || [];
@@ -93,22 +92,6 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(AddMemberDialogComponent, {
       width: this.isMobile ? '90vw' : '400px',
       maxWidth: this.isMobile ? '400px' : '90vw',
-      data: { group },
-      disableClose: true,
-      panelClass: 'mobile-dialog'
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadData();
-      }
-    });
-  }
-
-  openSplitTransactionDialog(group: SplitwiseGroup): void {
-    const dialogRef = this.dialog.open(SplitTransactionDialogComponent, {
-      width: this.isMobile ? '95vw' : '600px',
-      maxWidth: this.isMobile ? '600px' : '95vw',
       data: { group },
       disableClose: true,
       panelClass: 'mobile-dialog'

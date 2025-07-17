@@ -46,13 +46,7 @@ export interface SplitTransaction {
   id?: string;
   groupId: string;
   originalTransactionId?: string; // Reference to the original transaction
-  payee: string;
   amount: number;
-  type: TransactionType;
-  date: Date | Timestamp;
-  notes?: string;
-  categoryId: string;
-  category: string;
   createdBy: string;
   splits: TransactionSplit[];
   totalAmount: number;
@@ -229,13 +223,8 @@ export interface AddMemberRequest {
  */
 export interface CreateSplitTransactionRequest {
   groupId: string;
-  payee: string;
+  originalTransactionId?: string; // Optional link to original transaction
   amount: number;
-  type: TransactionType;
-  date: Date;
-  notes?: string;
-  categoryId: string;
-  category: string;
   splits: Omit<TransactionSplit, 'email' | 'displayName'>[];
 }
 

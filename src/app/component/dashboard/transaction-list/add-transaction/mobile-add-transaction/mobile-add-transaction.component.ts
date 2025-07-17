@@ -37,6 +37,8 @@ import {
 } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { SplitwiseService } from 'src/app/util/service/splitwise.service';
+import { SplitwiseGroup, CreateSplitTransactionRequest, TransactionSplit } from 'src/app/util/models/splitwise.model';
 
 @Component({
   selector: 'app-mobile-add-transaction',
@@ -62,6 +64,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public editMode: boolean = false;
   public TransactionType = TransactionType;
   public isSplitTransaction: boolean = false;
+  public groups: SplitwiseGroup[] = [];
+  public selectedGroup: SplitwiseGroup | null = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -76,7 +80,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     private loaderService: LoaderService,
     private dateService: DateService,
     private validationService: ValidationService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private splitwiseService: SplitwiseService
   ) {
     this.transactionForm = this.fb.group({
       payee: ['', this.validationService.getTransactionPayeeValidators()],
@@ -122,6 +127,9 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       this.accountList = accounts;
       this.initializeFormData();
     });
+
+    // Load Splitwise groups
+    this.loadGroups();
 
     window.addEventListener('popstate', (event) => {
       this.dialogRef.close();
@@ -188,6 +196,13 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
   async onSubmit(): Promise<void> {
     this.transactionForm.markAllAsTouched();
+    
+    // Additional validation for split transactions
+    if (this.transactionForm.get('isSplitTransaction')?.value && !this.selectedGroup) {
+      this.notificationService.error('Please select a group for split transaction');
+      return;
+    }
+    
     if (this.transactionForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
 
@@ -211,6 +226,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           isRecurring: formData.isRecurring || false,
           recurringInterval: formData.recurringInterval || RecurringInterval.MONTHLY,
           status: TransactionStatus.COMPLETED,
+          isSplitTransaction: formData.isSplitTransaction || false,
+          splitGroupId: formData.splitGroupId || '',
           updatedBy: this.userId,
           updatedAt: new Date(),
         };
@@ -225,8 +242,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           );
           this.notificationService.success('Transaction updated successfully');
         } else {
-          // Create new transaction
-          await this.store.dispatch(
+          // Always create a regular transaction first
+          const regularTransaction = await this.store.dispatch(
             TransactionsActions.createTransaction({
               userId: this.userId,
               transaction: {
@@ -240,6 +257,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
               },
             })
           );
+
           this.notificationService.success('Transaction added successfully');
           this.hapticFeedback.successVibration();
         }
@@ -379,6 +397,33 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     this.transactionForm.patchValue({
       isSplitTransaction: this.isSplitTransaction
     });
+    
+    // Update validation for splitGroupId
+    const splitGroupIdControl = this.transactionForm.get('splitGroupId');
+    if (this.isSplitTransaction) {
+      splitGroupIdControl?.setValidators([Validators.required]);
+    } else {
+      splitGroupIdControl?.clearValidators();
+      splitGroupIdControl?.setValue('');
+    }
+    splitGroupIdControl?.updateValueAndValidity();
+  }
+
+  /**
+   * Load user's Splitwise groups
+   */
+  private loadGroups(): void {
+    this.splitwiseService.getUserGroups(this.userId).then((groups) => {
+      this.groups = groups;
+    });
+  }
+
+  /**
+   * Handle group selection for split transactions
+   */
+  onGroupChange(event: any): void {
+    const groupId = event.value;
+    this.selectedGroup = this.groups.find(group => group.id === groupId) || null;
   }
 
   /**
@@ -388,6 +433,5 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     // Navigate to Splitwise component
     this.router.navigate(['/dashboard/splitwise']);
   }
-
 
 }

@@ -44,6 +44,7 @@ import {
 } from '../models/splitwise.model';
 import { SyncStatus } from '../config/enums';
 import { User } from '../models/user.model';
+import { promises } from 'dns';
 
 @Injectable({
   providedIn: 'root'
@@ -116,26 +117,15 @@ export class SplitwiseService {
   /**
    * Get all groups for current user
    */
-  getUserGroups(): Observable<SplitwiseGroup[]> {
-    const userId = this.auth.currentUser?.uid;
-    if (!userId) return of([]);
+  async getUserGroups(userId: string): Promise<SplitwiseGroup[]> {
+    if (!userId) return Promise.resolve([]);
 
-    return from(
-      getDocs(
-        query(
-          collection(this.firestore, `splitwise/${userId}/groups`),
-          where('isActive', '==', true),
-          orderBy('updatedAt', 'desc')
-        )
-      )
-    ).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as SplitwiseGroup))
-      )
-    );
+    const groupRef = query(collection(this.firestore, `splitwise/${userId}/groups`), where('isActive', '==', true), orderBy('updatedAt', 'desc'));
+    const groupSnapshot = await getDocs(groupRef);
+    return groupSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as SplitwiseGroup));
   }
 
   /**
@@ -333,13 +323,8 @@ export class SplitwiseService {
 
       const splitTransactionData: Omit<SplitTransaction, 'id'> = {
         groupId: request.groupId,
-        payee: request.payee,
+        originalTransactionId: (request as any).originalTransactionId, // Link to original transaction if provided
         amount: request.amount,
-        type: request.type,
-        date: this.dateService.toTimestamp(request.date) || new Date(),
-        notes: request.notes || '',
-        categoryId: request.categoryId,
-        category: request.category,
         createdBy: userId,
         splits: splitsWithDetails,
         totalAmount: request.amount,
@@ -614,27 +599,17 @@ export class SplitwiseService {
   /**
    * Get pending invitations for user
    */
-  getUserInvitations(): Observable<GroupInvitation[]> {
+  async getUserInvitations(): Promise<GroupInvitation[]> {
     const user = this.auth.currentUser;
-    if (!user?.email) return of([]);
+    if (!user?.email) return Promise.resolve([]);
 
-    return from(
-      getDocs(
-        query(
-          collection(this.firestore, `splitwise/${user.uid}/invitations`),
-          where('invitedEmail', '==', user.email),
-          where('status', '==', InvitationStatus.PENDING),
-          orderBy('createdAt', 'desc')
-        )
-      )
-    ).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as GroupInvitation))
-      )
-    );
+    const invitationRef = collection(this.firestore, `splitwise/${user.uid}/invitations`);
+    const invitationSnapshot = await getDocs(invitationRef);
+    return invitationSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as GroupInvitation));
+
   }
 
   /**

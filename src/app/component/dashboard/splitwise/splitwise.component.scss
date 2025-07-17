@@ -227,7 +227,7 @@
     &.selected {
       border-color: #b2b3b6;
       color: white;
-      background-color: #405887;
+      background-color: #a1a1a1;
     }
 
     .group-info {
@@ -313,7 +313,7 @@
       right: 15px;
 
       .mat-icon-button {
-        color: #666;
+        color: white !important;
       }
     }
   }

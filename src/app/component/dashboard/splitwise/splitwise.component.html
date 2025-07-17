@@ -112,10 +112,6 @@
                 <mat-icon>person_add</mat-icon>
                 Add Member
               </button>
-              <button mat-menu-item (click)="openSplitTransactionDialog(group)">
-                <mat-icon>receipt</mat-icon>
-                Add Expense
-              </button>
               <mat-divider></mat-divider>
               <button 
                 mat-menu-item 
@@ -144,14 +140,6 @@
           <mat-card-content>
             <!-- Quick Actions -->
             <div class="quick-actions">
-              <button 
-                mat-raised-button 
-                color="primary" 
-                (click)="selectedGroup && openSplitTransactionDialog(selectedGroup)"
-                class="add-expense-btn">
-                <mat-icon>add</mat-icon>
-                Add Expense
-              </button>
               <button 
                 mat-stroked-button 
                 (click)="selectedGroup && openAddMemberDialog(selectedGroup)"
