@@ -1,14 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Auth } from '@angular/fire/auth';
 import { NotificationService } from 'src/app/util/service/notification.service';
-import { SplitwiseService } from 'src/app/util/service/splitwise.service';
 import { SplitwiseGroup, GroupInvitation } from 'src/app/util/models/splitwise.model';
 import { CreateGroupDialogComponent } from './create-group-dialog/create-group-dialog.component';
 import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
+
+// NgRx
+import { AppState } from '../../store/app.state';
+import * as SplitwiseActions from './store/splitwise.actions';
+import { selectSplitwiseState } from './store/splitwise.selectors';
 
 @Component({
   selector: 'app-splitwise',
@@ -22,12 +27,13 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
   currentUser: any = null;
   selectedGroup: SplitwiseGroup | null = null;
+  error: string | null = null;
   private destroy$ = new Subject<void>();
 
   constructor(
     private breakpointObserver: BreakpointObserver,
     private auth: Auth,
-    private splitwiseService: SplitwiseService,
+    private store: Store<AppState>,
     private dialog: MatDialog,
     private notificationService: NotificationService
   ) {
@@ -42,6 +48,7 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.auth.currentUser;
     this.loadData();
+    this.subscribeToStore();
   }
 
   ngOnDestroy(): void {
@@ -49,28 +56,32 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async loadData(): Promise<void> {
-    this.isLoading = true;
-    try {
-      // Load groups and invitations in parallel
-      const [groups, invitations] = await Promise.all([
-        this.splitwiseService.getUserGroups(this.currentUser?.uid || ''),
-        this.splitwiseService.getUserInvitations()
-      ]);
+  private subscribeToStore(): void {
+    this.store.select(selectSplitwiseState)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(state => {
+        this.groups = state.groups;
+        this.invitations = state.invitations;
+        this.isLoading = state.loading;
+        this.selectedGroup = state.selectedGroup;
+        this.error = state.error;
 
-      this.groups = groups || [];
-      this.invitations = invitations || [];
+        // Auto-select first group if none selected
+        if (!this.selectedGroup && this.groups.length > 0) {
+          this.selectGroup(this.groups[0]);
+        }
 
-      // Auto-select first group if none selected
-      if (!this.selectedGroup && this.groups.length > 0) {
-        this.selectedGroup = this.groups[0];
-      }
-    } catch (error) {
-      console.error('Error loading splitwise data:', error);
-      this.notificationService.error('Failed to load data');
-    } finally {
-      this.isLoading = false;
-    }
+        // Show error notification if there's an error
+        if (this.error) {
+          this.notificationService.error(this.error);
+          this.store.dispatch(SplitwiseActions.clearError());
+        }
+      });
+  }
+
+  loadData(): void {
+    this.store.dispatch(SplitwiseActions.loadGroups());
+    this.store.dispatch(SplitwiseActions.loadInvitations());
   }
 
   openCreateGroupDialog(): void {
@@ -83,7 +94,7 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadData();
+        this.store.dispatch(SplitwiseActions.createGroup({ request: result }));
       }
     });
   }
@@ -99,47 +110,33 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadData();
+        this.store.dispatch(SplitwiseActions.addMember({ 
+          groupId: group.id!, 
+          request: result 
+        }));
       }
     });
   }
 
-  async acceptInvitation(invitation: GroupInvitation): Promise<void> {
-    try {
-      await this.splitwiseService.acceptInvitation(invitation.id!);
-      this.notificationService.success('Invitation accepted successfully');
-      this.loadData();
-    } catch (error) {
-      console.error('Error accepting invitation:', error);
-      this.notificationService.error('Failed to accept invitation');
-    }
+  acceptInvitation(invitation: GroupInvitation): void {
+    this.store.dispatch(SplitwiseActions.acceptInvitation({ invitationId: invitation.id! }));
   }
 
-  async declineInvitation(invitation: GroupInvitation): Promise<void> {
-    try {
-      await this.splitwiseService.declineInvitation(invitation.id!);
-      this.notificationService.success('Invitation declined');
-      this.loadData();
-    } catch (error) {
-      console.error('Error declining invitation:', error);
-      this.notificationService.error('Failed to decline invitation');
-    }
+  declineInvitation(invitation: GroupInvitation): void {
+    this.store.dispatch(SplitwiseActions.declineInvitation({ invitationId: invitation.id! }));
   }
 
   selectGroup(group: SplitwiseGroup): void {
-    this.selectedGroup = group;
+    this.store.dispatch(SplitwiseActions.selectGroup({ group }));
+    
+    // Load transactions and settlements for the selected group
+    this.store.dispatch(SplitwiseActions.loadTransactions({ groupId: group.id! }));
+    this.store.dispatch(SplitwiseActions.loadSettlements({ groupId: group.id! }));
   }
 
-  async deleteGroup(group: SplitwiseGroup): Promise<void> {
+  deleteGroup(group: SplitwiseGroup): void {
     if (confirm(`Are you sure you want to delete the group "${group.name}"?`)) {
-      try {
-        await this.splitwiseService.deleteGroup(group.id!);
-        this.notificationService.success('Group deleted successfully');
-        this.loadData();
-      } catch (error) {
-        console.error('Error deleting group:', error);
-        this.notificationService.error('Failed to delete group');
-      }
+      this.store.dispatch(SplitwiseActions.deleteGroup({ groupId: group.id! }));
     }
   }
 

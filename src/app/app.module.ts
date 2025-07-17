@@ -105,10 +105,8 @@ import { FeedbackComponent } from './component/feedback/feedback.component';
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 
-// Splitwise Components
-import { SplitwiseComponent } from './component/dashboard/splitwise/splitwise.component';
-import { CreateGroupDialogComponent } from './component/dashboard/splitwise/create-group-dialog/create-group-dialog.component';
-import { AddMemberDialogComponent } from './component/dashboard/splitwise/add-member-dialog/add-member-dialog.component';
+// Splitwise Module
+import { SplitwiseModule } from './modules/splitwise/splitwise.module';
 
 // PWA Components
 import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-back-button.component';
@@ -173,9 +171,7 @@ import { RouterModule } from '@angular/router';
     ProfileComponent,
     NotificationSettingsComponent,
     FeedbackComponent,
-    SplitwiseComponent,
-    CreateGroupDialogComponent,
-    AddMemberDialogComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -226,6 +222,9 @@ import { RouterModule } from '@angular/router';
     
     // NgRx Store
     AppStoreModule,
+    
+    // Splitwise Module
+    SplitwiseModule,
     
     // Enhanced Service Worker with offline support
     ServiceWorkerModule.register('ngsw-worker.js', {

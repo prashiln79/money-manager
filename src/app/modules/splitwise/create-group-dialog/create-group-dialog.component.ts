@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Auth } from '@angular/fire/auth';
-import { NotificationService } from 'src/app/util/service/notification.service';
-import { SplitwiseService } from 'src/app/util/service/splitwise.service';
 import { CreateGroupRequest } from 'src/app/util/models/splitwise.model';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -24,8 +22,6 @@ export class CreateGroupDialogComponent implements OnInit {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<CreateGroupDialogComponent>,
     private auth: Auth,
-    private splitwiseService: SplitwiseService,
-    private notificationService: NotificationService,
     private store: Store<AppState>
   ) {
     this.userCurrency$ = this.store.select(ProfileSelectors.selectUserCurrency);
@@ -63,11 +59,10 @@ export class CreateGroupDialogComponent implements OnInit {
           initialMembers: formData.initialMembers || []
         };
 
-        await this.splitwiseService.createGroup(request);
-        this.dialogRef.close(true);
+        // Return the request to be handled by the parent component via NgRx
+        this.dialogRef.close(request);
       } catch (error) {
         console.error('Error creating group:', error);
-        this.notificationService.error('Failed to create group');
       } finally {
         this.isSubmitting = false;
       }

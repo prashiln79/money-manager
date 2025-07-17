@@ -2,8 +2,6 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Auth } from '@angular/fire/auth';
-import { NotificationService } from 'src/app/util/service/notification.service';
-import { SplitwiseService } from 'src/app/util/service/splitwise.service';
 import { SplitwiseGroup, AddMemberRequest, GroupMemberRole } from 'src/app/util/models/splitwise.model';
 
 @Component({
@@ -21,9 +19,7 @@ export class AddMemberDialogComponent implements OnInit {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<AddMemberDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { group: SplitwiseGroup },
-    private auth: Auth,
-    private splitwiseService: SplitwiseService,
-    private notificationService: NotificationService
+    private auth: Auth
   ) {
     this.group = data.group;
     this.memberForm = this.fb.group({
@@ -53,11 +49,10 @@ export class AddMemberDialogComponent implements OnInit {
           role: formData.role
         };
 
-        await this.splitwiseService.addMemberToGroup(this.group.id!, request);
-        this.dialogRef.close(true);
+        // Return the request to be handled by the parent component via NgRx
+        this.dialogRef.close(request);
       } catch (error) {
         console.error('Error adding member:', error);
-        this.notificationService.error('Failed to add member');
       } finally {
         this.isSubmitting = false;
       }

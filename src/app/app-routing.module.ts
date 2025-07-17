@@ -14,7 +14,7 @@ import { LandingComponent } from './component/landing/landing.component';
 import { TaxComponent } from './component/dashboard/tax/tax.component';
 import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
 import { GoalsComponent } from './component/dashboard/goals/goals.component';
-import { SplitwiseComponent } from './component/dashboard/splitwise/splitwise.component';
+import { SplitwiseComponent } from './modules/splitwise/splitwise.component';
 import { BudgetsComponent } from './component/dashboard/budgets/budgets.component';
 import { NotesComponent } from './component/dashboard/notes/notes.component';
 import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction';
