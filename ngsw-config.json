@@ -9,7 +9,6 @@
       "resources": {
         "files": [
           "/favicon.ico",
-          "/index.csr.html",
           "/index.html",
           "/manifest.webmanifest",
           "/*.css",
@@ -23,7 +22,7 @@
       "updateMode": "prefetch",
       "resources": {
         "files": [
-          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+          "/assets/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
       }
     },
@@ -60,9 +59,9 @@
       ],
       "cacheConfig": {
         "strategy": "performance",
-        "maxSize": 100,
+        "maxSize": 1000,
         "maxAge": "7d",
-        "timeout": "10s"
+        "timeout": "1s"
       }
     },
     {
@@ -73,10 +72,10 @@
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
       ],
       "cacheConfig": {
-        "strategy": "freshness",
+        "strategy": "performance",
         "maxSize": 10,
         "maxAge": "1h",
-        "timeout": "5s"
+        "timeout": "1s"
       }
     },
     {
@@ -85,10 +84,10 @@
         "/api/**"
       ],
       "cacheConfig": {
-        "strategy": "freshness",
+        "strategy": "performance",
         "maxSize": 50,
         "maxAge": "1h",
-        "timeout": "5s"
+        "timeout": "1s"
       }
     },
     {
@@ -101,7 +100,19 @@
         "strategy": "performance",
         "maxSize": 200,
         "maxAge": "30d",
-        "timeout": "5s"
+        "timeout": "1s"
+      }
+    },
+    {
+      "name": "google-fonts-static",
+      "urls": [
+        "https://fonts.gstatic.com/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 1000,
+        "maxAge": "365d",
+        "timeout": "1s"
       }
     }
   ],
@@ -111,5 +122,5 @@
     "!/**/*__*",
     "!/**/*__*/**"
   ],
-  "navigationRequestStrategy": "freshness"
+  "navigationRequestStrategy": "performance"
 }
