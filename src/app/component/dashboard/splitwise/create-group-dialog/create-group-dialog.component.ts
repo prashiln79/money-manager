@@ -5,7 +5,10 @@ import { Auth } from '@angular/fire/auth';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { SplitwiseService } from 'src/app/util/service/splitwise.service';
 import { CreateGroupRequest } from 'src/app/util/models/splitwise.model';
-import { CurrencyCode } from 'src/app/util/config/enums';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import * as ProfileSelectors from 'src/app/store/profile/profile.selectors';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-create-group-dialog',
@@ -15,27 +18,26 @@ import { CurrencyCode } from 'src/app/util/config/enums';
 export class CreateGroupDialogComponent implements OnInit {
   groupForm: FormGroup;
   isSubmitting = false;
-  currencies = Object.values(CurrencyCode);
+  userCurrency$: Observable<string | undefined>;
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<CreateGroupDialogComponent>,
     private auth: Auth,
     private splitwiseService: SplitwiseService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private store: Store<AppState>
   ) {
+    this.userCurrency$ = this.store.select(ProfileSelectors.selectUserCurrency);
     this.groupForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       description: ['', [Validators.maxLength(200)]],
-      currency: ['USD', Validators.required],
       initialMembers: [[]]
     });
   }
 
   ngOnInit(): void {
-    // Set default currency based on user's locale or preference
-    const userCurrency = this.getUserCurrency();
-    this.groupForm.patchValue({ currency: userCurrency });
+    // Currency will be set from user's profile preference in onSubmit
   }
 
   async onSubmit(): Promise<void> {
@@ -44,10 +46,20 @@ export class CreateGroupDialogComponent implements OnInit {
 
       try {
         const formData = this.groupForm.value;
+        const userCurrency = this.store.select(ProfileSelectors.selectUserCurrency);
+        
+        // Get the current currency value
+        let currency = 'USD'; // Default fallback
+        userCurrency.subscribe(curr => {
+          if (curr) {
+            currency = curr;
+          }
+        }).unsubscribe();
+
         const request: CreateGroupRequest = {
           name: formData.name.trim(),
           description: formData.description?.trim() || '',
-          currency: formData.currency,
+          currency: currency,
           initialMembers: formData.initialMembers || []
         };
 
@@ -82,33 +94,5 @@ export class CreateGroupDialogComponent implements OnInit {
     return '';
   }
 
-  private getUserCurrency(): string {
-    // Try to get currency from user's locale
-    try {
-      const locale = navigator.language || 'en-US';
-      const currency = new Intl.NumberFormat(locale, { style: 'currency' }).resolvedOptions().currency;
-      if (currency && this.currencies.includes(currency as CurrencyCode)) {
-        return currency;
-      }
-    } catch (error) {
-      console.warn('Could not determine user currency from locale');
-    }
 
-    // Default to USD
-    return 'USD';
-  }
-
-  getCurrencyDisplayName(currency: string): string {
-    const currencyNames: { [key: string]: string } = {
-      'USD': 'US Dollar',
-      'EUR': 'Euro',
-      'GBP': 'British Pound',
-      'INR': 'Indian Rupee',
-      'CAD': 'Canadian Dollar',
-      'AUD': 'Australian Dollar',
-      'JPY': 'Japanese Yen',
-      'CNY': 'Chinese Yuan'
-    };
-    return currencyNames[currency] || currency;
-  }
 } 

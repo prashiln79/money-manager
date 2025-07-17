@@ -129,23 +129,11 @@
           </div>
         </div>
 
-        <!-- Empty State -->
-        <div *ngIf="groups.length === 0" class="empty-state">
-          <mat-icon class="empty-icon">group</mat-icon>
-          <h3>No Groups Yet</h3>
-          <p>Create your first group to start splitting expenses with friends and family.</p>
-          <button 
-            mat-raised-button 
-            color="primary" 
-            (click)="openCreateGroupDialog()">
-            <mat-icon>add</mat-icon>
-            Create Your First Group
-          </button>
-        </div>
+  
       </div>
 
       <!-- Selected Group Details -->
-      <div *ngIf="selectedGroup" class="group-details">
+      <div *ngIf="selectedGroup && !isMobile" class="group-details">
         <mat-card class="details-card">
           <mat-card-header>
             <mat-card-title>{{ selectedGroup.name }}</mat-card-title>

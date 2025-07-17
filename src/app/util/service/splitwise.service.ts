@@ -54,28 +54,29 @@ export class SplitwiseService {
     private auth: Auth,
     private notificationService: NotificationService,
     private dateService: DateService
-  ) {}
+  ) { }
 
   // ==================== GROUP MANAGEMENT ====================
 
   /**
    * Create a new group
    */
+
   async createGroup(request: CreateGroupRequest): Promise<string> {
     try {
-      const userId = this.auth.currentUser?.uid;
-      if (!userId) throw new Error('User not authenticated');
-
       const user = this.auth.currentUser;
+      if (!user?.uid) throw new Error('User not authenticated');
+      const userId = user.uid;
+
       const groupData: Omit<SplitwiseGroup, 'id'> = {
         name: request.name,
         description: request.description || '',
         createdBy: userId,
         members: [{
-          userId: userId,
-          email: user?.email || '',
-          displayName: user?.displayName || '',
-          photoURL: user?.photoURL || '',
+          userId,
+          email: user.email || '',
+          displayName: user.displayName || '',
+          photoURL: user.photoURL || '',
           role: GroupMemberRole.ADMIN,
           joinedAt: new Date(),
           isActive: true,
@@ -88,17 +89,14 @@ export class SplitwiseService {
         syncStatus: SyncStatus.SYNCED
       };
 
-      const groupRef = await addDoc(collection(this.firestore, 'splitwise_groups'), groupData);
-      
-      // Log activity
-      await this.logGroupActivity(groupRef.id, userId, GroupActivityAction.GROUP_CREATED, {
-        groupName: request.name
-      });
+      const groupRef = await addDoc(
+        collection(this.firestore, `splitwise/${userId}/groups`),
+        groupData
+      );
 
-      // Send invitations to initial members if provided
-      if (request.initialMembers && request.initialMembers.length > 0) {
+      if (request.initialMembers?.length) {
         for (const email of request.initialMembers) {
-          if (email !== user?.email) {
+          if (email !== user.email) {
             await this.sendGroupInvitation(groupRef.id, email);
           }
         }
@@ -106,12 +104,14 @@ export class SplitwiseService {
 
       this.notificationService.success('Group created successfully');
       return groupRef.id;
+
     } catch (error) {
       console.error('Error creating group:', error);
       this.notificationService.error('Failed to create group');
       throw error;
     }
   }
+
 
   /**
    * Get all groups for current user
@@ -123,14 +123,13 @@ export class SplitwiseService {
     return from(
       getDocs(
         query(
-          collection(this.firestore, 'splitwise_groups'),
-          where('members', 'array-contains', { userId: userId }),
+          collection(this.firestore, `splitwise/${userId}/groups`),
           where('isActive', '==', true),
           orderBy('updatedAt', 'desc')
         )
       )
     ).pipe(
-      map(snapshot => 
+      map(snapshot =>
         snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -143,7 +142,10 @@ export class SplitwiseService {
    * Get group by ID
    */
   getGroup(groupId: string): Observable<SplitwiseGroup | null> {
-    return from(getDoc(doc(this.firestore, 'splitwise_groups', groupId))).pipe(
+    const userId = this.auth.currentUser?.uid;
+    if (!userId) return of(null);
+    
+    return from(getDoc(doc(this.firestore, `splitwise/${userId}/groups`, groupId))).pipe(
       map(doc => {
         if (doc.exists()) {
           return { id: doc.id, ...doc.data() } as SplitwiseGroup;
@@ -169,12 +171,7 @@ export class SplitwiseService {
       if (request.description !== undefined) updateData.description = request.description;
       if (request.currency) updateData.currency = request.currency;
 
-      await updateDoc(doc(this.firestore, 'splitwise_groups', groupId), updateData);
-      
-      // Log activity
-      await this.logGroupActivity(groupId, userId, GroupActivityAction.GROUP_CREATED, {
-        changes: request
-      });
+      await updateDoc(doc(this.firestore, `splitwise/${userId}/groups`, groupId), updateData);
 
       this.notificationService.success('Group updated successfully');
     } catch (error) {
@@ -189,11 +186,14 @@ export class SplitwiseService {
    */
   async deleteGroup(groupId: string): Promise<void> {
     try {
-      await updateDoc(doc(this.firestore, 'splitwise_groups', groupId), {
+      const userId = this.auth.currentUser?.uid;
+      if (!userId) throw new Error('User not authenticated');
+
+      await updateDoc(doc(this.firestore, `splitwise/${userId}/groups`, groupId), {
         isActive: false,
         updatedAt: new Date()
       });
-      
+
       this.notificationService.success('Group deleted successfully');
     } catch (error) {
       console.error('Error deleting group:', error);
@@ -219,7 +219,7 @@ export class SplitwiseService {
         limit(1)
       );
       const userSnapshot = await getDocs(userQuery);
-      
+
       if (userSnapshot.empty) {
         // Send invitation instead
         await this.sendGroupInvitation(groupId, request.email);
@@ -233,16 +233,16 @@ export class SplitwiseService {
         userId: userDoc.id,
         email: userData.email,
         displayName: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email,
-        photoURL: userData.photoURL,
+        photoURL: userData?.photoURL || '',
         role: request.role || GroupMemberRole.MEMBER,
         joinedAt: new Date(),
         isActive: true,
         balance: 0
       };
 
-      const groupRef = doc(this.firestore, 'splitwise_groups', groupId);
+      const groupRef = doc(this.firestore, `splitwise/${userId}/groups`, groupId);
       const groupDoc = await getDoc(groupRef);
-      
+
       if (!groupDoc.exists()) {
         throw new Error('Group not found');
       }
@@ -255,10 +255,6 @@ export class SplitwiseService {
         updatedAt: new Date()
       });
 
-      // Log activity
-      await this.logGroupActivity(groupId, userId, GroupActivityAction.MEMBER_JOINED, {
-        memberEmail: request.email
-      });
 
       this.notificationService.success('Member added successfully');
     } catch (error) {
@@ -276,9 +272,9 @@ export class SplitwiseService {
       const userId = this.auth.currentUser?.uid;
       if (!userId) throw new Error('User not authenticated');
 
-      const groupRef = doc(this.firestore, 'splitwise_groups', groupId);
+      const groupRef = doc(this.firestore, `splitwise/${userId}/groups`, groupId);
       const groupDoc = await getDoc(groupRef);
-      
+
       if (!groupDoc.exists()) {
         throw new Error('Group not found');
       }
@@ -291,10 +287,6 @@ export class SplitwiseService {
         updatedAt: new Date()
       });
 
-      // Log activity
-      await this.logGroupActivity(groupId, userId, GroupActivityAction.MEMBER_LEFT, {
-        memberUserId: memberUserId
-      });
 
       this.notificationService.success('Member removed successfully');
     } catch (error) {
@@ -315,13 +307,13 @@ export class SplitwiseService {
       if (!userId) throw new Error('User not authenticated');
 
       // Get group and member details
-      const groupDoc = await getDoc(doc(this.firestore, 'splitwise_groups', request.groupId));
+      const groupDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/groups`, request.groupId));
       if (!groupDoc.exists()) {
         throw new Error('Group not found');
       }
 
       const groupData = groupDoc.data() as SplitwiseGroup;
-      
+
       // Calculate total amount and validate splits
       const totalAmount = request.splits.reduce((sum, split) => sum + split.amount, 0);
       if (Math.abs(totalAmount - request.amount) > 0.01) {
@@ -358,17 +350,12 @@ export class SplitwiseService {
         syncStatus: SyncStatus.SYNCED
       };
 
-      const transactionRef = await addDoc(collection(this.firestore, 'splitwise_transactions'), splitTransactionData);
+      const transactionRef = await addDoc(collection(this.firestore, `splitwise/${userId}/transactions`), splitTransactionData);
 
       // Update member balances
       await this.updateMemberBalances(request.groupId, splitsWithDetails);
 
-      // Log activity
-      await this.logGroupActivity(request.groupId, userId, GroupActivityAction.TRANSACTION_ADDED, {
-        transactionId: transactionRef.id,
-        amount: request.amount,
-        payee: request.payee
-      });
+
 
       this.notificationService.success('Split transaction created successfully');
       return transactionRef.id;
@@ -383,16 +370,19 @@ export class SplitwiseService {
    * Get split transactions for a group
    */
   getGroupTransactions(groupId: string): Observable<SplitTransaction[]> {
+    const userId = this.auth.currentUser?.uid;
+    if (!userId) return of([]);
+
     return from(
       getDocs(
         query(
-          collection(this.firestore, 'splitwise_transactions'),
+          collection(this.firestore, `splitwise/${userId}/transactions`),
           where('groupId', '==', groupId),
           orderBy('date', 'desc')
         )
       )
     ).pipe(
-      map(snapshot => 
+      map(snapshot =>
         snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -405,7 +395,10 @@ export class SplitwiseService {
    * Get split transaction by ID
    */
   getSplitTransaction(transactionId: string): Observable<SplitTransaction | null> {
-    return from(getDoc(doc(this.firestore, 'splitwise_transactions', transactionId))).pipe(
+    const userId = this.auth.currentUser?.uid;
+    if (!userId) return of(null);
+    
+    return from(getDoc(doc(this.firestore, `splitwise/${userId}/transactions`, transactionId))).pipe(
       map(doc => {
         if (doc.exists()) {
           return { id: doc.id, ...doc.data() } as SplitTransaction;
@@ -444,13 +437,13 @@ export class SplitwiseService {
         }
 
         // Get group for member details
-        const transactionDoc = await getDoc(doc(this.firestore, 'splitwise_transactions', transactionId));
+        const transactionDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/transactions`, transactionId));
         if (!transactionDoc.exists()) {
           throw new Error('Transaction not found');
         }
 
         const transactionData = transactionDoc.data() as SplitTransaction;
-        const groupDoc = await getDoc(doc(this.firestore, 'splitwise_groups', transactionData.groupId));
+        const groupDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/groups`, transactionData.groupId));
         const groupData = groupDoc.data() as SplitwiseGroup;
 
         const splitsWithDetails: TransactionSplit[] = request.splits.map(split => {
@@ -470,14 +463,12 @@ export class SplitwiseService {
         await this.updateMemberBalances(transactionData.groupId, splitsWithDetails);
       }
 
-      await updateDoc(doc(this.firestore, 'splitwise_transactions', transactionId), updateData);
+      await updateDoc(doc(this.firestore, `splitwise/${userId}/transactions`, transactionId), updateData);
 
       // Log activity
-      const transactionDoc = await getDoc(doc(this.firestore, 'splitwise_transactions', transactionId));
+      const transactionDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/transactions`, transactionId));
       const transactionData = transactionDoc.data() as SplitTransaction;
-      await this.logGroupActivity(transactionData.groupId, userId, GroupActivityAction.TRANSACTION_UPDATED, {
-        transactionId: transactionId
-      });
+
 
       this.notificationService.success('Split transaction updated successfully');
     } catch (error) {
@@ -495,7 +486,7 @@ export class SplitwiseService {
       const userId = this.auth.currentUser?.uid;
       if (!userId) throw new Error('User not authenticated');
 
-      const transactionDoc = await getDoc(doc(this.firestore, 'splitwise_transactions', transactionId));
+      const transactionDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/transactions`, transactionId));
       if (!transactionDoc.exists()) {
         throw new Error('Transaction not found');
       }
@@ -510,12 +501,8 @@ export class SplitwiseService {
       await this.updateMemberBalances(transactionData.groupId, reversedSplits);
 
       // Delete transaction
-      await deleteDoc(doc(this.firestore, 'splitwise_transactions', transactionId));
+      await deleteDoc(doc(this.firestore, `splitwise/${userId}/transactions`, transactionId));
 
-      // Log activity
-      await this.logGroupActivity(transactionData.groupId, userId, GroupActivityAction.TRANSACTION_DELETED, {
-        transactionId: transactionId
-      });
 
       this.notificationService.success('Split transaction deleted successfully');
     } catch (error) {
@@ -547,8 +534,8 @@ export class SplitwiseService {
         updatedAt: new Date()
       };
 
-      const settlementRef = await addDoc(collection(this.firestore, 'splitwise_settlements'), settlementData);
-      
+      const settlementRef = await addDoc(collection(this.firestore, `splitwise/${userId}/settlements`), settlementData);
+
       this.notificationService.success('Settlement created successfully');
       return settlementRef.id;
     } catch (error) {
@@ -566,19 +553,16 @@ export class SplitwiseService {
       const userId = this.auth.currentUser?.uid;
       if (!userId) throw new Error('User not authenticated');
 
-      await updateDoc(doc(this.firestore, 'splitwise_settlements', settlementId), {
+      await updateDoc(doc(this.firestore, `splitwise/${userId}/settlements`, settlementId), {
         status: SettlementStatus.COMPLETED,
         settledAt: new Date(),
         updatedAt: new Date()
       });
 
       // Log activity
-      const settlementDoc = await getDoc(doc(this.firestore, 'splitwise_settlements', settlementId));
+      const settlementDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/settlements`, settlementId));
       const settlementData = settlementDoc.data() as SplitSettlement;
-      await this.logGroupActivity(settlementData.groupId, userId, GroupActivityAction.SETTLEMENT_COMPLETED, {
-        settlementId: settlementId,
-        amount: settlementData.amount
-      });
+
 
       this.notificationService.success('Settlement completed successfully');
     } catch (error) {
@@ -599,7 +583,7 @@ export class SplitwiseService {
       if (!userId) throw new Error('User not authenticated');
 
       const user = this.auth.currentUser;
-      const groupDoc = await getDoc(doc(this.firestore, 'splitwise_groups', groupId));
+      const groupDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/groups`, groupId));
       const groupData = groupDoc.data() as SplitwiseGroup;
 
       const invitationData: Omit<GroupInvitation, 'id'> = {
@@ -615,12 +599,9 @@ export class SplitwiseService {
         updatedAt: new Date()
       };
 
-      await addDoc(collection(this.firestore, 'splitwise_invitations'), invitationData);
+      await addDoc(collection(this.firestore, `splitwise/${userId}/invitations`), invitationData);
 
-      // Log activity
-      await this.logGroupActivity(groupId, userId, GroupActivityAction.INVITATION_SENT, {
-        invitedEmail: email
-      });
+
 
       this.notificationService.success('Invitation sent successfully');
     } catch (error) {
@@ -640,14 +621,14 @@ export class SplitwiseService {
     return from(
       getDocs(
         query(
-          collection(this.firestore, 'splitwise_invitations'),
+          collection(this.firestore, `splitwise/${user.uid}/invitations`),
           where('invitedEmail', '==', user.email),
           where('status', '==', InvitationStatus.PENDING),
           orderBy('createdAt', 'desc')
         )
       )
     ).pipe(
-      map(snapshot => 
+      map(snapshot =>
         snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -664,7 +645,7 @@ export class SplitwiseService {
       const userId = this.auth.currentUser?.uid;
       if (!userId) throw new Error('User not authenticated');
 
-      const invitationDoc = await getDoc(doc(this.firestore, 'splitwise_invitations', invitationId));
+      const invitationDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/invitations`, invitationId));
       if (!invitationDoc.exists()) {
         throw new Error('Invitation not found');
       }
@@ -684,7 +665,7 @@ export class SplitwiseService {
         balance: 0
       };
 
-      const groupRef = doc(this.firestore, 'splitwise_groups', invitationData.groupId);
+      const groupRef = doc(this.firestore, `splitwise/${userId}/groups`, invitationData.groupId);
       const groupDoc = await getDoc(groupRef);
       const groupData = groupDoc.data() as SplitwiseGroup;
       const updatedMembers = [...groupData.members, newMember];
@@ -695,15 +676,11 @@ export class SplitwiseService {
       });
 
       // Update invitation status
-      await updateDoc(doc(this.firestore, 'splitwise_invitations', invitationId), {
+      await updateDoc(doc(this.firestore, `splitwise/${userId}/invitations`, invitationId), {
         status: InvitationStatus.ACCEPTED,
         updatedAt: new Date()
       });
 
-      // Log activity
-      await this.logGroupActivity(invitationData.groupId, userId, GroupActivityAction.INVITATION_ACCEPTED, {
-        invitationId: invitationId
-      });
 
       this.notificationService.success('Invitation accepted successfully');
     } catch (error) {
@@ -718,7 +695,10 @@ export class SplitwiseService {
    */
   async declineInvitation(invitationId: string): Promise<void> {
     try {
-      await updateDoc(doc(this.firestore, 'splitwise_invitations', invitationId), {
+      const userId = this.auth.currentUser?.uid;
+      if (!userId) throw new Error('User not authenticated');
+
+      await updateDoc(doc(this.firestore, `splitwise/${userId}/invitations`, invitationId), {
         status: InvitationStatus.DECLINED,
         updatedAt: new Date()
       });
@@ -737,7 +717,10 @@ export class SplitwiseService {
    * Update member balances
    */
   private async updateMemberBalances(groupId: string, splits: TransactionSplit[]): Promise<void> {
-    const groupRef = doc(this.firestore, 'splitwise_groups', groupId);
+    const userId = this.auth.currentUser?.uid;
+    if (!userId) return;
+    
+    const groupRef = doc(this.firestore, `splitwise/${userId}/groups`, groupId);
     const groupDoc = await getDoc(groupRef);
     const groupData = groupDoc.data() as SplitwiseGroup;
 
@@ -758,46 +741,27 @@ export class SplitwiseService {
     });
   }
 
-  /**
-   * Log group activity
-   */
-  private async logGroupActivity(
-    groupId: string, 
-    userId: string, 
-    action: GroupActivityAction, 
-    details: any
-  ): Promise<void> {
-    const user = this.auth.currentUser;
-    const activityData: Omit<GroupActivity, 'id'> = {
-      groupId: groupId,
-      userId: userId,
-      userEmail: user?.email || '',
-      userDisplayName: user?.displayName || '',
-      action: action,
-      details: details,
-      timestamp: new Date()
-    };
-
-    await addDoc(collection(this.firestore, 'splitwise_activities'), activityData);
-  }
 
   /**
    * Get group summary
    */
   async getGroupSummary(groupId: string): Promise<GroupSummary> {
+    const userId = this.auth.currentUser?.uid;
+    if (!userId) throw new Error('User not authenticated');
+
     const [transactions, settlements] = await Promise.all([
       getDocs(query(
-        collection(this.firestore, 'splitwise_transactions'),
+        collection(this.firestore, `splitwise/${userId}/transactions`),
         where('groupId', '==', groupId)
       )),
       getDocs(query(
-        collection(this.firestore, 'splitwise_settlements'),
+        collection(this.firestore, `splitwise/${userId}/settlements`),
         where('groupId', '==', groupId),
         where('status', '==', SettlementStatus.PENDING)
       ))
     ]);
 
-    const groupDoc = await getDoc(doc(this.firestore, 'splitwise_groups', groupId));
+    const groupDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/groups`, groupId));
     const groupData = groupDoc.data() as SplitwiseGroup;
 
     const totalAmount = transactions.docs.reduce((sum, doc) => {
@@ -821,11 +785,14 @@ export class SplitwiseService {
    * Get member balances for a group
    */
   async getMemberBalances(groupId: string): Promise<MemberBalance[]> {
-    const groupDoc = await getDoc(doc(this.firestore, 'splitwise_groups', groupId));
+    const userId = this.auth.currentUser?.uid;
+    if (!userId) throw new Error('User not authenticated');
+
+    const groupDoc = await getDoc(doc(this.firestore, `splitwise/${userId}/groups`, groupId));
     const groupData = groupDoc.data() as SplitwiseGroup;
 
     const transactions = await getDocs(query(
-      collection(this.firestore, 'splitwise_transactions'),
+      collection(this.firestore, `splitwise/${userId}/transactions`),
       where('groupId', '==', groupId)
     ));
 

@@ -42,19 +42,7 @@
         <mat-hint>{{ groupForm.get('description')?.value?.length || 0 }}/200</mat-hint>
       </mat-form-field>
 
-      <!-- Currency -->
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Currency</mat-label>
-        <mat-select formControlName="currency">
-          <mat-option *ngFor="let currency of currencies" [value]="currency">
-            {{ currency }} - {{ getCurrencyDisplayName(currency) }}
-          </mat-option>
-        </mat-select>
-        <mat-icon matSuffix>attach_money</mat-icon>
-        <mat-error *ngIf="groupForm.get('currency')?.hasError('required')">
-          Currency is required
-        </mat-error>
-      </mat-form-field>
+
 
       <!-- Info Section -->
       <div class="info-section">

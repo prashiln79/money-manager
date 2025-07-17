@@ -1,6 +1,6 @@
 .splitwise-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f9fafb;
   padding: 20px;
 
   @media (max-width: 768px) {
@@ -17,6 +17,9 @@
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
+    @apply bg-primary;
+    padding: 1rem;
+    border-radius: 1rem;
 
     @media (max-width: 768px) {
       flex-direction: column;
@@ -222,8 +225,9 @@
     }
 
     &.selected {
-      border-color: #667eea;
-      background: rgba(102, 126, 234, 0.05);
+      border-color: #b2b3b6;
+      color: white;
+      background-color: #405887;
     }
 
     .group-info {
@@ -240,7 +244,7 @@
 
         .group-name {
           margin: 0;
-          color: #333;
+          color: inherit;
           font-weight: 600;
           font-size: 1.2rem;
         }
@@ -254,7 +258,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            color: #666;
+            color: inherit;
             font-size: 0.9rem;
 
             mat-icon {
@@ -277,7 +281,10 @@
       }
 
       .group-description {
-        color: #666;
+        color: inherit
+        
+        
+        ;
         margin: 0 0 15px 0;
         font-size: 0.95rem;
         line-height: 1.4;
@@ -288,10 +295,11 @@
         justify-content: space-between;
         align-items: center;
         font-size: 0.85rem;
-        color: #999;
+        color: inherit;
 
         .currency {
-          background: #f0f0f0;
+          border: 1px solid #667eea;
+        
           padding: 4px 8px;
           border-radius: 8px;
           font-weight: 500;
