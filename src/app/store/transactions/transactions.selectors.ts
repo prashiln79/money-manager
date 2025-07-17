@@ -89,3 +89,8 @@ export const selectNetBalance = createSelector(
   selectTotalExpenses,
   (income, expenses) => income - expenses
 ); 
+
+export const selectLatestTransaction = createSelector(
+  selectAllTransactions,
+  (transactions) => transactions[0]
+);

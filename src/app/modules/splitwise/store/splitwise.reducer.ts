@@ -174,6 +174,24 @@ export const splitwiseReducer = createReducer(
     error
   })),
 
+  // Create Split Transaction
+  on(SplitwiseActions.createSplitTransaction, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(SplitwiseActions.createSplitTransactionSuccess, (state, { transaction }) => ({
+    ...state,
+    transactions: [...state.transactions, transaction],
+    loading: false,
+    error: null
+  })),
+  on(SplitwiseActions.createSplitTransactionFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+
   // Clear Error
   on(SplitwiseActions.clearError, (state) => ({
     ...state,

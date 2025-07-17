@@ -148,6 +148,21 @@ export class SplitwiseEffects {
     ))
   ));
 
+  createSplitTransaction$ = createEffect(() => this.actions$.pipe(
+    ofType(SplitwiseActions.createSplitTransaction),
+    mergeMap((action) => from(this.userService.getCurrentUser()).pipe(
+      mergeMap(user => {
+        if (!user?.uid) {
+          return of(SplitwiseActions.createSplitTransactionFailure({ error: 'User not authenticated' }));
+        }
+        return this.splitwiseService.createSplitTransaction(action.request, user.uid).pipe(
+          map(transaction => SplitwiseActions.createSplitTransactionSuccess({ transaction })),
+          catchError(error => of(SplitwiseActions.createSplitTransactionFailure({ error: error.message })))
+        );
+      })
+    ))
+  ));
+
   constructor(
     private actions$: Actions,
     private splitwiseService: SplitwiseService,

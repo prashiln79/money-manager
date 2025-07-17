@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { SplitwiseGroup, GroupInvitation, SplitTransaction, SplitSettlement, CreateGroupRequest, AddMemberRequest } from '../../../util/models/splitwise.model';
+import { SplitwiseGroup, GroupInvitation, SplitTransaction, SplitSettlement, CreateGroupRequest, AddMemberRequest, CreateSplitTransactionRequest } from '../../../util/models/splitwise.model';
 
 // Load Groups
 export const loadGroups = createAction('[Splitwise] Load Groups');
@@ -124,6 +124,20 @@ export const loadSettlementsSuccess = createAction(
 );
 export const loadSettlementsFailure = createAction(
   '[Splitwise] Load Settlements Failure',
+  props<{ error: string }>()
+);
+
+// Create Split Transaction
+export const createSplitTransaction = createAction(
+  '[Splitwise] Create Split Transaction',
+  props<{ request: CreateSplitTransactionRequest }>()
+);
+export const createSplitTransactionSuccess = createAction(
+  '[Splitwise] Create Split Transaction Success',
+  props<{ transaction: SplitTransaction }>()
+);
+export const createSplitTransactionFailure = createAction(
+  '[Splitwise] Create Split Transaction Failure',
   props<{ error: string }>()
 );
 

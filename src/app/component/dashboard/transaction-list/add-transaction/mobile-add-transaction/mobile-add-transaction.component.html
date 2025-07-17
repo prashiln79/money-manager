@@ -97,8 +97,8 @@
 					</div>
 					<mat-form-field appearance="fill" class="w-full">
 						<mat-label>Select a category</mat-label>
-						<mat-select formControlName="categoryId" (selectionChange)="onCategoryChange($event)">
-							@for (item of categoryList; track item) {
+						<mat-select formControlName="categoryId" (selectionChange)="onCategoryChange($event.value)">
+							@for (item of categoryList$ | async; track item) {
 								<mat-option [value]="item.id">{{ item?.name }}</mat-option>
 							}
 						</mat-select>
@@ -163,7 +163,7 @@
 					<mat-form-field appearance="fill" class="w-full">
 						<mat-label>Select an account</mat-label>
 						<mat-select formControlName="accountId">
-							@for (account of accountList; track account.accountId) {
+							@for (account of accountList$ | async; track account.accountId) {
 								<mat-option [value]="account.accountId">{{ account.name }} ({{ account.type | titlecase }})</mat-option>
 							}
 						</mat-select>
@@ -237,8 +237,8 @@
 							</label>
 							<mat-form-field appearance="fill" class="w-full">
 								<mat-label>Choose a group to split with</mat-label>
-								<mat-select formControlName="splitGroupId" (selectionChange)="onGroupChange($event)">
-									@for (group of groups; track group.id) {
+								<mat-select formControlName="splitGroupId">
+									@for (group of groups$ | async; track group.id) {
 										<mat-option [value]="group.id">
 											<div class="flex items-center justify-between w-full">
 												<span>{{ group.name }}</span>
@@ -247,7 +247,7 @@
 										</mat-option>
 									}
 								</mat-select>
-								@if(groups.length === 0) {
+								<!-- @if(groups.length === 0) {
 									<mat-hint class="text-orange-600">
 										No groups available. 
 										<button 
@@ -258,7 +258,7 @@
 											Create a group
 										</button>
 									</mat-hint>
-								}
+								} -->
 								@if(transactionForm.get('splitGroupId')?.hasError('required') && transactionForm.get('splitGroupId')?.touched) {
 									<mat-error>Please select a group for split transaction</mat-error>
 								}
@@ -266,18 +266,18 @@
 						</div>
 
 						<!-- Split Info -->
-						@if(selectedGroup) {
+						@if(transactionForm.get('splitGroupId')?.value) {
 							<div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
 								<div class="flex items-center gap-2 mb-2">
 									<mat-icon class="text-sm text-blue-600 dark:text-blue-400">info</mat-icon>
 									<span class="text-sm font-medium text-blue-800 dark:text-blue-200">Split Details</span>
 								</div>
-								<div class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+								<!-- <div class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
 									<p>• Amount will be split equally among {{ selectedGroup.members.length }} members</p>
 									<p>• Each member will owe ₹{{ ((transactionForm.get('amount')?.value || 0) / selectedGroup.members.length).toFixed(2) }}</p>
 									<p>• You will be marked as the payer</p>
 									<p>• A regular transaction will also be created in your account</p>
-								</div>
+								</div> -->
 							</div>
 						}
 					</div>

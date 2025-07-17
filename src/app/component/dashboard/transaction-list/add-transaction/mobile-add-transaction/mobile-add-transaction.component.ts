@@ -37,8 +37,13 @@ import {
 } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { SplitwiseService } from 'src/app/util/service/splitwise.service';
 import { SplitwiseGroup, CreateSplitTransactionRequest, TransactionSplit } from 'src/app/util/models/splitwise.model';
+import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
+import { selectGroups } from 'src/app/modules/splitwise/store/splitwise.selectors';
+import { loadGroups } from 'src/app/modules/splitwise/store/splitwise.actions';
+import { filter, map, Observable, take } from 'rxjs';
+import { selectLatestTransaction } from 'src/app/store/transactions/transactions.selectors';
+import { Transaction } from 'src/app/util/models/transaction.model';
 
 @Component({
   selector: 'app-mobile-add-transaction',
@@ -49,8 +54,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   @ViewChild('amountInput', { static: false }) amountInput!: ElementRef;
 
   transactionForm: FormGroup;
-  public categoryList: Array<Category> = [];
-  public accountList: Array<any> = [];
+  public categoryList$: Observable<Category[]>;
+  public accountList$: Observable<any[]>;
   public userId: any;
   public isSubmitting = false;
   public isMobile: boolean = false;
@@ -64,8 +69,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public editMode: boolean = false;
   public TransactionType = TransactionType;
   public isSplitTransaction: boolean = false;
-  public groups: SplitwiseGroup[] = [];
-  public selectedGroup: SplitwiseGroup | null = null;
+  public groups$: Observable<SplitwiseGroup[]>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -83,6 +87,13 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     private breakpointObserver: BreakpointObserver,
     private splitwiseService: SplitwiseService
   ) {
+
+    this.store.dispatch(loadGroups());// Load groups
+    this.groups$ = this.store.select(selectGroups);
+    this.categoryList$ = this.store.select(selectAllCategories);
+    this.accountList$ = this.store.select(selectAllAccounts);
+
+
     this.transactionForm = this.fb.group({
       payee: ['', this.validationService.getTransactionPayeeValidators()],
       amount: ['', this.validationService.getTransactionAmountValidators()],
@@ -115,21 +126,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.userId = this.auth.currentUser?.uid;
-
-    // Subscribe to categories
-    this.store.select(selectAllCategories).subscribe((categories) => {
-      this.categoryList = categories;
-      this.initializeFormData();
-    });
-
-    // Subscribe to accounts
-    this.store.select(selectAllAccounts).subscribe((accounts) => {
-      this.accountList = accounts;
-      this.initializeFormData();
-    });
-
-    // Load Splitwise groups
-    this.loadGroups();
+    this.initializeFormData();
 
     window.addEventListener('popstate', (event) => {
       this.dialogRef.close();
@@ -137,52 +134,57 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     });
   }
 
+
   private initializeFormData(): void {
-    if (this.categoryList.length > 0 && this.accountList.length > 0) {
-      if (this.dialogData?.id) {
-        this.editMode = true;
-        let category = this.categoryList.find(cat => cat.id === this.dialogData.categoryId);
+    if (this.dialogData?.id) {
+      this.editMode = true;
+      this.transactionForm.patchValue({
+        payee: this.dialogData.payee || '',
+        amount: this.dialogData.amount || '',
+        date: this.dialogData.date ?
+          moment(this.dateService.toDate(this.dialogData.date)).format('YYYY-MM-DD') :
+          moment().format('YYYY-MM-DD'),
+        description: this.dialogData.notes || '',
+        categoryId: this.dialogData.categoryId || '',
+        categoryName: this.dialogData.categoryName || '',
+        categoryType: this.dialogData.categoryType || '',
+        accountId: this.dialogData.accountId || '',
+        taxAmount: this.dialogData.taxAmount || 0,
+        taxPercentage: this.dialogData.taxPercentage || 0,
+        taxes: this.dialogData.taxes || [],
+        paymentMethod: this.dialogData.paymentMethod || '',
+      });
+    } else {
+      this.transactionForm.patchValue({
+        payee: '',
+        amount: '',
+        date: moment().format('YYYY-MM-DD'),
+        description: '',
+        categoryId: '',
+        categoryName: '',
+        categoryType: '',
+        accountId: '',
+        taxAmount: 0,
+        taxPercentage: 0,
+        taxes: [],
+        paymentMethod: '',
+      });
+      this.getLatestTransaction();
+    }
+  }
+
+  private getLatestTransaction(): void {
+    this.store.select(selectLatestTransaction).pipe(take(1)).subscribe((transaction: Transaction) => {
+      if (transaction) {
         this.transactionForm.patchValue({
-          payee: this.dialogData.payee || '',
-          amount: this.dialogData.amount || '',
-          date: this.dialogData.date ?
-            moment(this.dateService.toDate(this.dialogData.date)).format('YYYY-MM-DD') :
-            moment().format('YYYY-MM-DD'),
-          description: this.dialogData.notes || '',
-          categoryId: this.dialogData.categoryId || '',
-          categoryName: category?.name || '',
-          categoryType: category?.type || '',
-          accountId: this.dialogData.accountId || '',
-          taxAmount: this.dialogData.taxAmount || 0,
-          taxPercentage: this.dialogData.taxPercentage || 0,
-          taxes: this.dialogData.taxes || [],
-          paymentMethod: this.dialogData.paymentMethod || '',
-        });
-
-
-      } else {
-        // Add mode - set default values
-        const defaultCategory = this.categoryList[0];
-        const defaultAccount = this.accountList[0];
-
-        this.transactionForm.patchValue({
-          payee: defaultCategory?.name || '',
-          amount: '',
-          date: moment().format('YYYY-MM-DD'),
-          description: '',
-          categoryId: defaultCategory?.id || '',
-          categoryName: defaultCategory?.name || '',
-          categoryType: defaultCategory?.type || '',
-          accountId: defaultAccount?.accountId || '',
-          // Tax fields
-          taxAmount: 0,
-          taxPercentage: 0,
-          taxes: [],
-          // Payment method
-          paymentMethod: '',
+          categoryName: transaction.category,
+          categoryType: transaction.type,
+          categoryId: transaction.categoryId,
+          payee: transaction.payee,
+          accountId: transaction.accountId,
         });
       }
-    }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -196,13 +198,13 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
   async onSubmit(): Promise<void> {
     this.transactionForm.markAllAsTouched();
-    
+
     // Additional validation for split transactions
-    if (this.transactionForm.get('isSplitTransaction')?.value && !this.selectedGroup) {
+    if (this.transactionForm.get('isSplitTransaction')?.value && !this.transactionForm.get('splitGroupId')?.value) {
       this.notificationService.error('Please select a group for split transaction');
       return;
     }
-    
+
     if (this.transactionForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
 
@@ -319,17 +321,20 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onCategoryChange(event: any): void {
-    const categoryId = event.value;
-    const category = this.categoryList.find(cat => cat.id === categoryId);
-    if (category) {
+  onCategoryChange(categoryId: string): void {
+    if (!categoryId) return;
+  
+    this.categoryList$.pipe(
+      take(1),
+      map((categories: Category[]) => categories.find(c => c.id === categoryId)),
+      filter((category): category is Category => !!category)
+    ).subscribe((category: Category) => {
       this.transactionForm.patchValue({
         categoryName: category.name,
         categoryType: category.type,
-        categoryId: category.id,
         payee: this.editMode ? this.dialogData.payee : category.name,
       });
-    }
+    });
   }
 
   /**
@@ -397,7 +402,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     this.transactionForm.patchValue({
       isSplitTransaction: this.isSplitTransaction
     });
-    
+
     // Update validation for splitGroupId
     const splitGroupIdControl = this.transactionForm.get('splitGroupId');
     if (this.isSplitTransaction) {
@@ -409,22 +414,6 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     splitGroupIdControl?.updateValueAndValidity();
   }
 
-  /**
-   * Load user's Splitwise groups
-   */
-  private loadGroups(): void {
-    this.splitwiseService.getUserGroups(this.userId).then((groups) => {
-      this.groups = groups;
-    });
-  }
-
-  /**
-   * Handle group selection for split transactions
-   */
-  onGroupChange(event: any): void {
-    const groupId = event.value;
-    this.selectedGroup = this.groups.find(group => group.id === groupId) || null;
-  }
 
   /**
    * Open Splitwise component for split transactions
