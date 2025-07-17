@@ -46,12 +46,12 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         icon: 'category',
         order: 4
       },
-      {
-        label: 'budgets',
-        route: '/dashboard/budgets',
-        icon: 'pie_chart',
-        order: 5
-      },
+      // {
+      //   label: 'budgets',
+      //   route: '/dashboard/budgets',
+      //   icon: 'pie_chart',
+      //   order: 5
+      // },
       // {
       //   label: 'goals',
       //   route: '/dashboard/goals',
@@ -73,18 +73,18 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
     isExpanded: true,
     isCollapsible: true,
     children: [
-      {
-        label: 'calendar',
-        route: '/dashboard/calendar-view',
-        icon: 'calendar_today',
-        order: 1
-      },
-      {
-        label: 'notes',
-        route: '/dashboard/notes',
-        icon: 'note',
-        order: 2
-      },
+      // {
+      //   label: 'calendar',
+      //   route: '/dashboard/calendar-view',
+      //   icon: 'calendar_today',
+      //   order: 1
+      // },
+      // {
+      //   label: 'notes',
+      //   route: '/dashboard/notes',
+      //   icon: 'note',
+      //   order: 2
+      // },
       {
         label: 'tax',
         route: '/dashboard/tax',
@@ -92,7 +92,7 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         order: 3
       },
       {
-        label: 'splitwise',
+        label: 'Splitwise',
         route: '/dashboard/splitwise',
         icon: 'group',
         order: 4
@@ -107,7 +107,7 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
     isCollapsible: true,
     children: [
       {
-        label: 'profile',
+        label: 'Profile',
         route: '/dashboard/profile',
         icon: 'account_circle',
         order: 1
@@ -119,13 +119,13 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
       //   order: 2
       // },
       {
-        label: 'notifications',
+        label: 'Notifications',
         route: '/dashboard/notifications',
         icon: 'notifications',
         order: 3
       },
       {
-        label: 'feedback',
+        label: 'Feedback',
         route: '/dashboard/feedback',
         icon: 'feedback',
         order: 4
