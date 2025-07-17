@@ -29,7 +29,7 @@
 			</div>
 
 			<!-- Empty State -->
-			<div *ngIf="categories.length === 0 && !home" class="empty-state">
+			<div *ngIf="categories && categories.length === 0 && !home" class="empty-state">
 				<div class="empty-icon">
 					<mat-icon>local_offer</mat-icon>
 				</div>
@@ -261,7 +261,7 @@
 						</div>
 
 						<!-- Expand/Collapse Button -->
-						<div class="expand-section">
+						<div class="expand-section" *ngIf="!isMobile">
 							<button mat-button (click)="toggleCategoryExpansion(category)" class="expand-btn">
 								<mat-icon>{{ expandedCategory?.id === category.id ? 'expand_less' : 'expand_more' }}</mat-icon>
 								<span>{{ expandedCategory?.id === category.id ? 'Show Less' : 'Show More' }}</span>

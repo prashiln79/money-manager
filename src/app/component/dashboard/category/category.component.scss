@@ -304,6 +304,10 @@
     .category-info {
       padding: 0 10px 10px 10px;
       flex: 1;
+
+      @media (max-width: 640px) {
+        padding: 0;
+      }
       
       .category-icon-name {
         display: flex;

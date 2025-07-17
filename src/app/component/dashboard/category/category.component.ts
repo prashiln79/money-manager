@@ -31,13 +31,13 @@ import { DateService } from 'src/app/util/service/date.service';
 export class CategoryComponent implements OnInit, OnDestroy {
 
   @Input() home: boolean = false;
-  public categories$: Observable<Category[]>;
+
   public isLoading$: Observable<boolean>;
   public error$: Observable<any>;
   public transactions$: Observable<Transaction[]>;
   public Math = Math; // Make Math available in template
 
-  public categories: Category[] = [];
+  public categories!: Category[];
   public transactions: Transaction[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
@@ -67,7 +67,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private budgetService: CategoryBudgetService,
     public dateService: DateService
   ) {
-    this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
+   
     this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
     this.error$ = this.store.select(CategoriesSelectors.selectCategoriesError);
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
@@ -108,8 +108,12 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToStoreData(): void {
-    this.categories$.pipe(takeUntil(this.destroy$)).subscribe(categories => {
-      this.categories = categories.sort((a, b) => a.name.localeCompare(b.name));
+    this.store.select(CategoriesSelectors.selectAllCategories).subscribe(categories => {
+      this.categories = categories.sort((a, b) => {
+        if (a.budget?.hasBudget && !b.budget?.hasBudget) return -1;
+        if (!a.budget?.hasBudget && b.budget?.hasBudget) return 1;
+        return a.name.localeCompare(b.name);
+      });
       this.initializeCategorySuggestions();
     });
 
