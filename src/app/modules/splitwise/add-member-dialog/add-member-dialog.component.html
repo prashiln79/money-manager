@@ -1,76 +1,102 @@
 <div class="add-member-dialog">
+  <!-- Dialog Header -->
   <div class="dialog-header">
-    <h2 mat-dialog-title>
-      <mat-icon>person_add</mat-icon>
-      Add Member to {{ group.name }}
-    </h2>
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">person_add</mat-icon>
+        <h2 mat-dialog-title>Add Member</h2>
+      </div>
+      <p class="header-subtitle">Add a new member to "{{ group.name }}"</p>
+    </div>
     <button mat-icon-button (click)="onCancel()" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
+  <!-- Form Content -->
   <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="member-form">
-    <div class="form-content">
-      <!-- Email -->
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Email Address</mat-label>
-        <input matInput 
-               formControlName="email" 
-               placeholder="Enter member's email address"
-               type="email"
-               (input)="onEmailChange()">
-        <mat-icon matSuffix>email</mat-icon>
-        <mat-error *ngIf="memberForm.get('email')?.hasError('required')">
-          Email is required
-        </mat-error>
-        <mat-error *ngIf="memberForm.get('email')?.hasError('email')">
-          Please enter a valid email address
-        </mat-error>
-        <mat-error *ngIf="memberForm.get('email')?.hasError('alreadyMember')">
-          This person is already a member of the group
-        </mat-error>
-      </mat-form-field>
+    <mat-dialog-content class="form-content">
+      <!-- Email Field -->
+      <div class="form-section">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput 
+                 formControlName="email" 
+                 placeholder="Enter member's email address"
+                 type="email"
+                 (input)="onEmailChange()">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="memberForm.get('email')?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="memberForm.get('email')?.hasError('email')">
+            Please enter a valid email address
+          </mat-error>
+          <mat-error *ngIf="memberForm.get('email')?.hasError('alreadyMember')">
+            This person is already a member of the group
+          </mat-error>
+        </mat-form-field>
+      </div>
 
-      <!-- Role -->
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Role</mat-label>
-        <mat-select formControlName="role">
-          <mat-option *ngFor="let role of roles" [value]="role">
-            <div class="role-option">
-              <div class="role-name">{{ getRoleDisplayName(role) }}</div>
-              <div class="role-description">{{ getRoleDescription(role) }}</div>
-            </div>
-          </mat-option>
-        </mat-select>
-        <mat-icon matSuffix>admin_panel_settings</mat-icon>
-        <mat-error *ngIf="memberForm.get('role')?.hasError('required')">
-          Role is required
-        </mat-error>
-      </mat-form-field>
+      <!-- Role Field -->
+      <div class="form-section">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            <mat-option *ngFor="let role of roles" [value]="role">
+              <div class="role-option">
+                <div class="role-info">
+                  <span class="role-name">{{ getRoleDisplayName(role) }}</span>
+                  <span class="role-description">{{ getRoleDescription(role) }}</span>
+                </div>
+                <mat-icon class="role-icon" *ngIf="role === 'admin'">admin_panel_settings</mat-icon>
+                <mat-icon class="role-icon" *ngIf="role === 'member'">person</mat-icon>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="memberForm.get('role')?.hasError('required')">
+            Role is required
+          </mat-error>
+        </mat-form-field>
+      </div>
 
-   
-
-      <!-- Current Members Preview -->
-      <div class="members-preview">
-        <h4>Current Members ({{ group.members.length }})</h4>
+      <!-- Current Members Section -->
+      <div class="members-section">
+        <div class="section-header">
+          <h4 class="section-title">
+            <mat-icon class="section-icon">people</mat-icon>
+            Current Members
+          </h4>
+          <span class="member-count">{{ group.members.length }} member{{ group.members.length !== 1 ? 's' : '' }}</span>
+        </div>
+        
         <div class="members-list">
           <div *ngFor="let member of group.members" class="member-item">
             <div class="member-avatar">
               <img *ngIf="member.photoURL" [src]="member.photoURL" [alt]="member.displayName">
               <mat-icon *ngIf="!member.photoURL">person</mat-icon>
             </div>
-            <div class="member-info">
+            <div class="member-details">
               <span class="member-name">{{ member.displayName }}</span>
               <span class="member-email">{{ member.email }}</span>
             </div>
-            <span class="member-role">{{ getRoleDisplayName(member.role) }}</span>
+            <div class="member-role">
+              <mat-chip [color]="member.role === 'admin' ? 'accent' : 'primary'" selected>
+                {{ getRoleDisplayName(member.role) }}
+              </mat-chip>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </mat-dialog-content>
 
-    <div class="dialog-actions">
-      <button type="button" mat-button (click)="onCancel()" [disabled]="isSubmitting">
+    <!-- Dialog Actions -->
+    <mat-dialog-actions class="dialog-actions">
+      <button type="button" 
+              mat-stroked-button 
+              (click)="onCancel()" 
+              [disabled]="isSubmitting"
+              class="cancel-btn">
         Cancel
       </button>
       <button type="submit" 
@@ -80,8 +106,8 @@
               class="add-btn">
         <mat-spinner *ngIf="isSubmitting" diameter="20" class="spinner"></mat-spinner>
         <mat-icon *ngIf="!isSubmitting">person_add</mat-icon>
-        {{ isSubmitting ? 'Adding...' : 'Add Member' }}
+        <span>{{ isSubmitting ? 'Adding...' : 'Add Member' }}</span>
       </button>
-    </div>
+    </mat-dialog-actions>
   </form>
 </div> 

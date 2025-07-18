@@ -23,10 +23,7 @@
 		<div class="empty-icon">💳</div>
 		<h3 class="empty-title">No accounts yet</h3>
 		<p class="empty-text">Add your first account to get started</p>
-		<button mat-raised-button 
-				color="primary" 
-				(click)="onAddAccount()"
-				class="empty-action">
+		<button mat-raised-button color="primary" (click)="onAddAccount()" class="empty-action">
 			<mat-icon>add</mat-icon>
 			Add Account
 		</button>
@@ -34,12 +31,8 @@
 
 	<!-- Accounts List -->
 	<div *ngIf="accounts.length > 0" class="accounts-list">
-		<div *ngFor="let account of accounts; trackBy: trackByAccountId"
-			 class="account-item"
-			 [class.selected]="selectedAccount?.accountId === account.accountId"
-			 [class]="getBalanceClass(account)"
-			 (click)="onAccountClick(account)">
-			
+		@for (account of accounts; track account.accountId) {
+		<div class="account-item" [class.selected]="selectedAccount?.accountId === account.accountId" [class]="getBalanceClass(account)" (click)="onAccountClick(account)">
 			<div class="account-content">
 				<div class="account-info">
 					<div class="account-icon">
@@ -49,11 +42,11 @@
 						<h3 class="account-name">{{ account.name }}</h3>
 
 						@if(isLoanAccount(account)){
-							<p class="account-type"><b>Interest Rate:</b> {{ getLoanDetails(account)?.interestRate +'%'  }}</p>
-							<p class="account-type"><b>Next Due:</b> {{ getLoanDetails(account)?.nextDueDate | date:'MMM d, yyyy'  }}</p>
-							<p class="account-type"><b>Monthly Interest:</b> {{ calculateMonthlyInterest(account) | currency  }}</p>
+						<p class="account-type"><b>Interest Rate:</b> {{ getLoanDetails(account)?.interestRate +'%' }}</p>
+						<p class="account-type"><b>Next Due:</b> {{ getLoanDetails(account)?.nextDueDate | date:'MMM d, yyyy' }}</p>
+						<p class="account-type"><b>Monthly Interest:</b> {{ calculateMonthlyInterest(account) | currency }}</p>
 						}@else{
-							<p class="account-type">{{ account.type  | titlecase }}</p>
+						<p class="account-type">{{ account.type | titlecase }}</p>
 						}
 
 						<!-- Loan-specific information -->
@@ -74,7 +67,7 @@
 						</div> -->
 					</div>
 				</div>
-				
+
 				<div class="account-balance" [class.loan-account-balance]="isLoanAccount(account)">
 					<span class="balance-amount">{{ account.balance | currency }}</span>
 				</div>
@@ -83,20 +76,15 @@
 			<!-- Action Buttons (shown when selected) -->
 			<div *ngIf="selectedAccount?.accountId === account.accountId" class="account-actions">
 				<div class="actions-container">
-					<button mat-icon-button 
-							class="action-button edit-btn" 
-							(click)="onEditAccount(account)"
-							matTooltip="Edit account">
+					<button mat-icon-button class="action-button edit-btn" (click)="onEditAccount(account)" matTooltip="Edit account">
 						<mat-icon>edit</mat-icon>
 					</button>
-					<button mat-icon-button 
-							class="action-button delete-btn" 
-							(click)="onDeleteAccount(account)"
-							matTooltip="Delete account">
+					<button mat-icon-button class="action-button delete-btn" (click)="onDeleteAccount(account)" matTooltip="Delete account">
 						<mat-icon>delete</mat-icon>
 					</button>
 				</div>
 			</div>
 		</div>
+		}
 	</div>
-</div> 
+</div>

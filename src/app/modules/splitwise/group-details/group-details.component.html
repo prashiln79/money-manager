@@ -1,0 +1,168 @@
+<div class="group-details-container">
+	<!-- Loading State -->
+	<div *ngIf="isLoading" class="loading-state">
+		<mat-spinner diameter="40"></mat-spinner>
+		<p>Loading group details...</p>
+	</div>
+
+	<!-- Main Content -->
+	<div *ngIf="!isLoading && group" class="main-content">
+		<!-- Header -->
+		<div class="header">
+			<div class="header-content">
+				        <div class="header-actions">
+          <button mat-icon-button (click)="goBack()" class="back-btn">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="groupMenu" class="more-actions-btn">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #groupMenu="matMenu">
+            <button mat-menu-item (click)="openAddMemberDialog()" class="add-member-btn">
+              <mat-icon>person_add</mat-icon>
+              Add Member
+            </button>
+            <!-- <button mat-menu-item (click)="toggleMembers()" class="members-toggle-btn" >
+              <mat-icon>people</mat-icon>
+              Members
+            </button> -->
+            <button mat-menu-item (click)="deleteGroup()" *ngIf="canManageGroup()" class="delete-action">
+              <mat-icon>delete</mat-icon>
+              Delete Group
+            </button>
+          </mat-menu>
+        </div>
+				<div class="title-section">
+					<h1 class="title">{{ group.name }}</h1>
+					<p class="subtitle">{{ group.description || 'No description' }}</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Group Stats -->
+		<div class="stats-section">
+			<mat-card class="stats-card">
+				<div class="stats-grid">
+					<div class="stat-item">
+						<div class="stat-value">{{ getGroupMemberCount() }}</div>
+						<div class="stat-label">Members</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-value">{{ formatCurrency(getTotalBalance(), group.currency) }}</div>
+						<div class="stat-label">Total Balance</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-value">{{ getTransactionCount() }}</div>
+						<div class="stat-label">Transactions</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-value">{{ formatCurrency(getTotalTransactionAmount(), group.currency) }}</div>
+						<div class="stat-label">Total Spent</div>
+					</div>
+				</div>
+			</mat-card>
+		</div>
+
+		
+
+		<!-- Transactions Section -->
+		<div class="transactions-section">
+			<mat-card class="transactions-card">
+				<mat-card-header>
+					<mat-card-title>
+						<mat-icon>receipt</mat-icon>
+						Transactions ({{ getTransactionCount() }})
+					</mat-card-title>
+					<mat-card-subtitle>
+						Total: {{ formatCurrency(getTotalTransactionAmount(), group.currency) }}
+					</mat-card-subtitle>
+				</mat-card-header>
+				<mat-card-content>
+					<!-- Transactions List -->
+					<div *ngIf="transactions.length > 0" class="transactions-list">
+						<div *ngFor="let transaction of transactions" class="transaction-item">
+							<div class="transaction-header">
+								<div class="transaction-info">
+									<div class="transaction-amount">
+										{{ formatCurrency(transaction.totalAmount, transaction.currency) }}
+									</div>
+									<div class="transaction-meta">
+										<span class="transaction-creator">by {{ getTransactionCreatorName(transaction) }}</span>
+										<span class="transaction-date">{{ formatDate(transaction.createdAt) }}</span>
+									</div>
+								</div>
+								<div class="transaction-status">
+									<mat-chip [color]="getTransactionStatusColor(transaction.status)" selected>
+										{{ getTransactionStatusText(transaction.status) }}
+									</mat-chip>
+								</div>
+							</div>
+
+							<div class="transaction-splits">
+								<div class="splits-summary">
+									<span class="splits-count">{{ getTransactionSplitsSummary(transaction) }}</span>
+								</div>
+								<div class="splits-details">
+									<div *ngFor="let split of transaction.splits" class="split-item">
+										<div class="split-member">
+											<span class="member-name">{{ split.displayName }}</span>
+											<span class="split-amount">{{ formatCurrency(split.amount, transaction.currency) }}</span>
+										</div>
+										<div class="split-status">
+											<mat-icon [class.paid]="split.isPaid" [class.unpaid]="!split.isPaid">
+												{{ split.isPaid ? 'check_circle' : 'pending' }}
+											</mat-icon>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</div>
+
+		<!-- Settlements Section -->
+		<div class="settlements-section" *ngIf="settlements.length > 0">
+			<mat-card class="settlements-card">
+				<mat-card-header>
+					<mat-card-title>
+						<mat-icon>swap_horiz</mat-icon>
+						Settlements ({{ getSettlementCount() }})
+					</mat-card-title>
+				</mat-card-header>
+				<mat-card-content>
+					<div class="settlements-list">
+						<div *ngFor="let settlement of settlements" class="settlement-item">
+							<div class="settlement-info">
+								<div class="settlement-parties">
+									<span class="from-user">{{ getMemberName(settlement.fromUserId) }}</span>
+									<mat-icon>arrow_forward</mat-icon>
+									<span class="to-user">{{ getMemberName(settlement.toUserId) }}</span>
+								</div>
+								<div class="settlement-amount">
+									{{ formatCurrency(settlement.amount, settlement.currency) }}
+								</div>
+							</div>
+							<div class="settlement-status">
+								<mat-chip [color]="settlement.status === 'completed' ? 'success' : 'warning'" selected>
+									{{ settlement.status === 'completed' ? 'Completed' : 'Pending' }}
+								</mat-chip>
+							</div>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</div>
+	</div>
+
+	<!-- Error State -->
+	<div *ngIf="!isLoading && !group" class="error-state">
+		<mat-icon class="error-icon">error</mat-icon>
+		<h3>Group Not Found</h3>
+		<p>The group you're looking for doesn't exist or you don't have access to it.</p>
+		<button mat-raised-button color="primary" (click)="goBack()">
+			Go Back
+		</button>
+	</div>
+</div>

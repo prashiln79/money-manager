@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+// Routing
+import { SplitwiseRoutingModule } from './splitwise-routing.module';
+
 // Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
@@ -27,6 +30,10 @@ import { EffectsModule } from '@ngrx/effects';
 import { SplitwiseComponent } from './splitwise.component';
 import { CreateGroupDialogComponent } from './create-group-dialog/create-group-dialog.component';
 import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
+import { GroupComponent } from './group/group.component';
+import { GroupDetailsComponent } from './group-details/group-details.component';
+import { MembersComponent } from './members-page/members/members.component';
+import { MembersPageComponent } from './members-page/members-page.component';
 
 // Store
 import { splitwiseReducer } from './store/splitwise.reducer';
@@ -44,13 +51,18 @@ import { CurrencyPipe } from '../../util/pipes/currency.pipe';
   declarations: [
     SplitwiseComponent,
     CreateGroupDialogComponent,
-    AddMemberDialogComponent
+    AddMemberDialogComponent,
+    GroupComponent,
+    GroupDetailsComponent,
+    MembersComponent,
+    MembersPageComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
+    SplitwiseRoutingModule,
     
     // Material Modules
     MatCardModule,

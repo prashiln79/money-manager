@@ -1,0 +1,39 @@
+<div class="group-item"
+     [class.selected]="isSelected"
+     (click)="onGroupClick()">
+  <div class="group-info">
+    <div class="group-header">
+      <h3 class="group-name">{{ group.name | titlecase }}</h3>
+      <div class="group-meta">
+        <span class="member-count">
+          <mat-icon>people</mat-icon>
+          {{ getGroupMemberCount() }} members
+        </span>
+        <span class="created-date text-sm text-gray-500">Created {{ formatDate(group.createdAt) }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-actions">
+    <button 
+      mat-icon-button 
+      [matMenuTriggerFor]="groupMenu"
+      (click)="$event.stopPropagation()">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #groupMenu="matMenu">
+      <button mat-menu-item (click)="openAddMemberDialog($event)">
+        <mat-icon>person_add</mat-icon>
+        Add Member
+      </button>
+      <mat-divider></mat-divider>
+      <button 
+        mat-menu-item 
+        (click)="onDeleteGroup($event)"
+        *ngIf="canManageGroup()"
+        class="delete-action">
+        <mat-icon>delete</mat-icon>
+        Delete Group
+      </button>
+    </mat-menu>
+  </div>
+</div> 

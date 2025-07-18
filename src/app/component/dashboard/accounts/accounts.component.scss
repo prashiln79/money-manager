@@ -158,7 +158,7 @@
     margin-bottom: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     @media (max-width: 640px) {
-      padding: 1rem;
+      padding: 0.5rem;
     }
     
     .balance-summary-header {
@@ -166,14 +166,14 @@
       align-items: center;
       gap: 0.75rem;
       .balance-icon {
-        color: #3b82f6;
+        @apply text-primary;
         font-size: 1.5rem;
         width: 1.5rem;
         height: 1.5rem;
       }
       
       .balance-summary-title {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: #1f2937;
         margin: 0;
@@ -256,7 +256,7 @@
         }
       }
     }
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid #4d98a4;
   }
   
   // Empty State
@@ -741,7 +741,7 @@
   }
   
   .balance-summary-card {
-    padding: 0.75rem;
+    padding: 0.5rem;
     margin: 0;
     
     .balance-summary-header {

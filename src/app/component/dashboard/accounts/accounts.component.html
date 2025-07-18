@@ -203,7 +203,8 @@
 										<p>No recent transactions</p>
 									</div>
 									<div class="transaction-list" *ngIf="getRecentTransactions(account)?.length">
-										<div class="transaction-item" *ngFor="let transaction of getRecentTransactions(account)">
+										@for (transaction of getRecentTransactions(account); track transaction.id) {
+										<div class="transaction-item">
 											<div class="transaction-info">
 												<span class="transaction-description">{{ transaction.description }}</span>
 												<span class="transaction-date">{{ transaction.date | date:'shortDate' }}</span>
@@ -212,6 +213,7 @@
 												{{ transaction.amount | currency }}
 											</span>
 										</div>
+										}
 									</div>
 								</div>
 							</mat-tab>

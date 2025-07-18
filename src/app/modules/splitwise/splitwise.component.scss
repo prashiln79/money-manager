@@ -225,9 +225,9 @@
     }
 
     &.selected {
-      border-color: #b2b3b6;
-      color: white;
-      background-color: #a1a1a1;
+      border-color: #e5e7ee;
+      color: #000000;
+      background-color: #ffffff;
     }
 
     .group-info {
@@ -253,6 +253,8 @@
           display: flex;
           gap: 15px;
           align-items: center;
+          width: 100%;
+          justify-content: space-between;
 
           .member-count {
             display: flex;

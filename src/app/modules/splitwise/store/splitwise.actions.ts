@@ -12,6 +12,20 @@ export const loadGroupsFailure = createAction(
   props<{ error: string }>()
 );
 
+// Load Group by ID
+export const loadGroupById = createAction(
+  '[Splitwise] Load Group by ID',
+  props<{ groupId: string }>()
+);
+export const loadGroupByIdSuccess = createAction(
+  '[Splitwise] Load Group by ID Success',
+  props<{ group: SplitwiseGroup }>()
+);
+export const loadGroupByIdFailure = createAction(
+  '[Splitwise] Load Group by ID Failure',
+  props<{ error: string }>()
+);
+
 // Load Invitations
 export const loadInvitations = createAction('[Splitwise] Load Invitations');
 export const loadInvitationsSuccess = createAction(

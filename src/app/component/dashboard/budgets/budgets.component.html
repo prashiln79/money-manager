@@ -1,34 +1,36 @@
 <div>
-    <h2>User Budgets</h2>
-  
-    <!-- List of Budgets -->
-    <div *ngFor="let budget of budgets">
-      <div>
-        <p>Category: {{ budget.category }}</p>
-        <p>Limit: {{ budget.limit | currency }}</p>
-        <p>Spent: {{ budget.spent | currency }}</p>
-        <p>Start Date: {{ dateService.toDate(budget.startDate) | date: 'short' }}</p>
-        <p>End Date: {{ dateService.toDate(budget.endDate) | date: 'short' }}</p>
-        <button (click)="deleteBudget(budget.budgetId)">Delete</button>
-        <button (click)="updateSpent(budget.budgetId, 50)">Add 50 to spent</button> <!-- Example button -->
-      </div>
-    </div>
-  
-    <!-- Add New Budget Form -->
-    <form (submit)="createBudget()">
-      <label for="category">Category:</label>
-      <input type="text" id="category" [(ngModel)]="newBudget.category" name="category" required />
-  
-      <label for="limit">Limit:</label>
-      <input type="number" id="limit" [(ngModel)]="newBudget.limit" name="limit" required />
-  
-      <label for="startDate">Start Date:</label>
-      <input type="date" id="startDate" [(ngModel)]="newBudget.startDate" name="startDate" required />
-  
-      <label for="endDate">End Date:</label>
-      <input type="date" id="endDate" [(ngModel)]="newBudget.endDate" name="endDate" required />
-  
-      <button type="submit">Add Budget</button>
-    </form>
-  </div>
-  
+	<h2>User Budgets</h2>
+
+	<!-- List of Budgets -->
+	@for (budget of budgets; track budget.budgetId) {
+	<div>
+		<div>
+			<p>Category: {{ budget.category }}</p>
+			<p>Limit: {{ budget.limit | currency }}</p>
+			<p>Spent: {{ budget.spent | currency }}</p>
+			<p>Start Date: {{ dateService.toDate(budget.startDate) | date: 'short' }}</p>
+			<p>End Date: {{ dateService.toDate(budget.endDate) | date: 'short' }}</p>
+			<button (click)="deleteBudget(budget.budgetId)">Delete</button>
+			<button (click)="updateSpent(budget.budgetId, 50)">Add 50 to spent</button>
+			<!-- Example button -->
+		</div>
+	</div>
+	}
+
+	<!-- Add New Budget Form -->
+	<form (submit)="createBudget()">
+		<label for="category">Category:</label>
+		<input type="text" id="category" [(ngModel)]="newBudget.category" name="category" required />
+
+		<label for="limit">Limit:</label>
+		<input type="number" id="limit" [(ngModel)]="newBudget.limit" name="limit" required />
+
+		<label for="startDate">Start Date:</label>
+		<input type="date" id="startDate" [(ngModel)]="newBudget.startDate" name="startDate" required />
+
+		<label for="endDate">End Date:</label>
+		<input type="date" id="endDate" [(ngModel)]="newBudget.endDate" name="endDate" required />
+
+		<button type="submit">Add Budget</button>
+	</form>
+</div>

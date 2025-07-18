@@ -137,7 +137,8 @@
 							<mat-tab label="Category Breakdown">
 								<div class="tab-content">
 									<div class="category-breakdown-list">
-										<div class="category-breakdown-item" *ngFor="let cat of getDetailedBudgetStats().categories">
+										@for (cat of getDetailedBudgetStats().categories; track cat.id) {
+										<div class="category-breakdown-item">
 											<div class="category-breakdown-header">
 												<mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
 												<span class="category-name">{{ cat.name }}</span>
@@ -173,6 +174,7 @@
 												</div>
 											</div>
 										</div>
+										}
 									</div>
 								</div>
 							</mat-tab>
@@ -363,7 +365,8 @@
 											<p>No recent transactions</p>
 										</div>
 										<div class="transaction-list" *ngIf="getRecentTransactions(category)?.length">
-											<div class="transaction-item" *ngFor="let transaction of getRecentTransactions(category)">
+											@for (transaction of getRecentTransactions(category); track transaction.id) {
+											<div class="transaction-item">
 												<div class="transaction-info">
 													<span class="transaction-description">{{ transaction.payee }}</span>
 													<span class="transaction-date">{{ dateService.toDate(transaction.date) | date:'shortDate' }}</span>
@@ -372,6 +375,7 @@
 													{{ transaction.amount | currency }}
 												</span>
 											</div>
+											}
 										</div>
 									</div>
 								</mat-tab>
