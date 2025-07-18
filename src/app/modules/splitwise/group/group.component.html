@@ -1,15 +1,18 @@
 <div class="group-item"
      [class.selected]="isSelected"
+     [class.mobile]="isMobile"
      (click)="onGroupClick()">
   <div class="group-info">
     <div class="group-header">
-      <h3 class="group-name">{{ group.name | titlecase }}</h3>
-      <div class="group-meta">
-        <span class="member-count">
-          <mat-icon>people</mat-icon>
-          {{ getGroupMemberCount() }} members
-        </span>
-        <span class="created-date text-sm text-gray-500">Created {{ formatDate(group.createdAt) }}</span>
+      <div class="group-title-section">
+        <h3 class="group-name">{{ group.name | titlecase }}</h3>
+        <div class="group-meta">
+          <span class="member-count">
+            <mat-icon>people</mat-icon>
+            <span class="member-text">{{ getGroupMemberCount() }} members</span>
+          </span>
+          <span class="created-date">Created {{ formatDate(group.createdAt) }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -17,13 +20,15 @@
     <button 
       mat-icon-button 
       [matMenuTriggerFor]="groupMenu"
-      (click)="$event.stopPropagation()">
+      (click)="$event.stopPropagation()"
+      class="menu-trigger"
+      [attr.aria-label]="'More options for ' + group.name">
       <mat-icon>more_vert</mat-icon>
     </button>
-    <mat-menu #groupMenu="matMenu">
-      <button mat-menu-item (click)="openAddMemberDialog($event)">
+    <mat-menu #groupMenu="matMenu" class="group-menu">
+      <button mat-menu-item (click)="openAddMemberDialog($event)" class="menu-item">
         <mat-icon>person_add</mat-icon>
-        Add Member
+        <span>Add Member</span>
       </button>
       <mat-divider></mat-divider>
       <button 
@@ -32,7 +37,7 @@
         *ngIf="canManageGroup()"
         class="delete-action">
         <mat-icon>delete</mat-icon>
-        Delete Group
+        <span>Delete Group</span>
       </button>
     </mat-menu>
   </div>
