@@ -213,6 +213,42 @@ export const splitwiseReducer = createReducer(
     error
   })),
 
+  // Update Split Transaction
+  on(SplitwiseActions.updateSplitTransaction, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(SplitwiseActions.updateSplitTransactionSuccess, (state, { transaction }) => ({
+    ...state,
+    transactions: state.transactions.map(t => t.id === transaction.id ? transaction : t),
+    loading: false,
+    error: null
+  })),
+  on(SplitwiseActions.updateSplitTransactionFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+
+  // Create Settlement
+  on(SplitwiseActions.createSettlement, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(SplitwiseActions.createSettlementSuccess, (state, { settlement }) => ({
+    ...state,
+    settlements: [...state.settlements, settlement],
+    loading: false,
+    error: null
+  })),
+  on(SplitwiseActions.createSettlementFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+
   // Remove Member
   on(SplitwiseActions.removeMember, (state) => ({
     ...state,

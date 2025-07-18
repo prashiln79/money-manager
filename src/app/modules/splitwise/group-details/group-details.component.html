@@ -13,15 +13,12 @@
 				<div class="header-navigation">
 					<button mat-icon-button (click)="goBack()" class="back-btn !z-[999]" aria-label="Go back">
 						<mat-icon (click)="goBack()">arrow_back</mat-icon>
-						
 					</button><span class="group-title">{{ group.name | titlecase }}</span>
 					<button mat-icon-button [matMenuTriggerFor]="groupMenu" class="more-actions-btn" aria-label="More options">
 						<mat-icon>more_vert</mat-icon>
 					</button>
-				
 				</div>
 				<div class="header-actions">
-					
 					<mat-menu #groupMenu="matMenu" class="group-menu">
 						<button mat-menu-item (click)="openAddMemberDialog()" class="menu-item">
 							<mat-icon>person_add</mat-icon>
@@ -42,33 +39,98 @@
 			<mat-card class="stats-card">
 				<div class="stats-grid">
 					<div class="stat-item">
-						<!-- <div class="stat-icon">
-							<mat-icon>people</mat-icon>
-						</div> -->
 						<div class="stat-content" (click)="openAddMemberDialog()">
 							<div class="stat-value">{{ getGroupMemberCount() }}</div>
 							<div class="stat-label">Members</div>
 						</div>
 					</div>
-					<!-- <div class="stat-item">
-						<div class="stat-icon">
-							<mat-icon>receipt</mat-icon>
-						</div>
-						<div class="stat-content">
-							<div class="stat-value">{{ getTransactionCount() }}</div>
-							<div class="stat-label">Transactions</div>
-						</div>
-					</div> -->
 					<div class="stat-item">
-						<!-- <div class="stat-icon">
-							<mat-icon>account_balance_wallet</mat-icon>
-						</div> -->
 						<div class="stat-content">
 							<div class="stat-value">{{ formatCurrency(getTotalBalance(), group.currency) }}</div>
 							<div class="stat-label">Total Balance</div>
 						</div>
 					</div>
 				</div>
+			</mat-card>
+		</div>
+
+		<!-- Member Balances Section -->
+		<div class="balances-section" *ngIf="showBalances">
+			<mat-card class="balances-card">
+				<mat-card-header>
+					<mat-card-title>
+						<mat-icon>account_balance_wallet</mat-icon>
+						<span>Member Balances</span>
+					</mat-card-title>
+					<mat-card-subtitle>
+						Who owes what to whom
+					</mat-card-subtitle>
+				</mat-card-header>
+				<mat-card-content>
+					<div class="balances-list">
+						<div *ngFor="let balance of getMemberBalances()" class="balance-item" [class.current-user]="balance.userId === currentUser?.uid">
+							<div class="balance-info">
+								<div class="member-name">
+									{{ balance.displayName }}
+									<span *ngIf="balance.userId === currentUser?.uid" class="current-user-badge">(You)</span>
+								</div>
+								<div class="balance-details">
+									<span class="paid">Paid: {{ formatCurrency(balance.totalPaid, group.currency) }}</span>
+									<span class="owed">Owed: {{ formatCurrency(balance.totalOwed, group.currency) }}</span>
+								</div>
+							</div>
+							<div class="net-balance" [class]="getBalanceColor(balance.netBalance)">
+								{{ formatCurrency(balance.netBalance, group.currency) }}
+								<span *ngIf="balance.userId === currentUser?.uid" class="status-indicator">
+									{{ getCurrentUserStatus(balance.netBalance) }}
+								</span>
+							</div>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</div>
+
+		<!-- Settlement Suggestions -->
+		<div class="settlement-suggestions" *ngIf="getSettlementSuggestions().length > 0">
+			<mat-card class="suggestions-card">
+				<mat-card-header>
+					<mat-card-title>
+						<mat-icon>swap_horiz</mat-icon>
+						<span>Settlement Suggestions</span>
+					</mat-card-title>
+					<mat-card-subtitle>
+						{{ getSettlementSubtitle() }}
+					</mat-card-subtitle>
+				</mat-card-header>
+				<mat-card-content>
+					<div class="suggestions-list">
+						<div *ngFor="let suggestion of getSettlementSuggestions()" class="suggestion-item" [class]="suggestion.type">
+							<div class="suggestion-info">
+								<div class="suggestion-message">
+									<span class="message-text">{{ getSettlementMessage(suggestion) }}</span>
+								</div>
+								<div class="settlement-parties">
+									<span class="from-user">{{ suggestion.fromUserName }}</span>
+									<mat-icon>arrow_forward</mat-icon>
+									<span class="to-user">{{ suggestion.toUserName }}</span>
+								</div>
+								<div class="settlement-amount">
+									{{ formatCurrency(suggestion.amount, suggestion.currency) }}
+								</div>
+							</div>
+							<button 
+								mat-raised-button 
+								[color]="suggestion.type === 'you_owe' ? 'warn' : 'primary'" 
+								size="small" 
+								(click)="createSettlement(suggestion)"
+								[disabled]="suggestion.type === 'others'">
+								<mat-icon>{{ suggestion.type === 'you_owe' ? 'payment' : 'check' }}</mat-icon>
+								{{ suggestion.type === 'you_owe' ? 'Pay' : 'Settle' }}
+							</button>
+						</div>
+					</div>
+				</mat-card-content>
 			</mat-card>
 		</div>
 
@@ -87,25 +149,35 @@
 				<mat-card-content>
 					<!-- Transactions List -->
 					<div *ngIf="transactions.length > 0" class="transactions-list">
-						<div *ngFor="let transaction of transactions" class="transaction-item">
-							<div class="transaction-header">
-								<div class="transaction-info">
-									<div class="transaction-amount">
-										{{ formatCurrency(transaction.totalAmount, transaction.currency) }}
-									</div>
-									<div class="transaction-meta">
-										<span class="transaction-creator">by {{ getTransactionCreatorName(transaction) }}</span>
-										<span class="transaction-date">{{ formatDate(transaction.createdAt) }}</span>
-									</div>
+						<div *ngFor="let transaction of transactions" class="transaction-item compact">
+							<div class="transaction-main">
+								<div class="transaction-amount">
+									{{ formatCurrency(transaction.totalAmount, transaction.currency) }}
 								</div>
-								<div class="transaction-status">
-									<mat-chip [color]="getTransactionStatusColor(transaction.status)" selected>
-										{{ getTransactionStatusText(transaction.status) }}
-									</mat-chip>
+								<div class="transaction-summary">
+									{{ getCompactTransactionSummary(transaction) }}
+								</div>
+								<div class="transaction-date">
+									{{ formatDate(transaction.createdAt) }}
 								</div>
 							</div>
+							
+							<div class="transaction-actions">
+								<mat-chip [color]="getTransactionStatusColor(transaction.status)" selected>
+									{{ getTransactionStatusText(transaction.status) }}
+								</mat-chip>
+								<button 
+									*ngIf="transaction.status !== 'completed'" 
+									mat-icon-button 
+									color="primary" 
+									(click)="settleTransaction(transaction)"
+									matTooltip="Settle transaction">
+									<mat-icon>check_circle</mat-icon>
+								</button>
+							</div>
 
-							<div class="transaction-splits">
+							<!-- Expandable Details -->
+							<div class="transaction-details" *ngIf="transaction.splits.length > 0">
 								<div class="splits-summary">
 									<span class="splits-count">{{ getTransactionSplitsSummary(transaction) }}</span>
 								</div>

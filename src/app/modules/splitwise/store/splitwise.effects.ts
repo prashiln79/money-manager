@@ -177,6 +177,53 @@ export class SplitwiseEffects {
     ))
   ));
 
+  updateSplitTransaction$ = createEffect(() => this.actions$.pipe(
+    ofType(SplitwiseActions.updateSplitTransaction),
+    mergeMap((action) => from(this.userService.getCurrentUser()).pipe(
+      mergeMap(user => {
+        if (!user?.uid) {
+          return of(SplitwiseActions.updateSplitTransactionFailure({ error: 'User not authenticated' }));
+        }
+        return from(this.splitwiseService.updateSplitTransaction(action.transactionId, action.updates)).pipe(
+          map(() => {
+            // Return a mock transaction since the service doesn't return the updated transaction
+            return SplitwiseActions.updateSplitTransactionSuccess({ 
+              transaction: { id: action.transactionId } as any 
+            });
+          }),
+          catchError(error => of(SplitwiseActions.updateSplitTransactionFailure({ error: error.message })))
+        );
+      })
+    ))
+  ));
+
+  createSettlement$ = createEffect(() => this.actions$.pipe(
+    ofType(SplitwiseActions.createSettlement),
+    mergeMap((action) => from(this.userService.getCurrentUser()).pipe(
+      mergeMap(user => {
+        if (!user?.uid) {
+          return of(SplitwiseActions.createSettlementFailure({ error: 'User not authenticated' }));
+        }
+        const request = {
+          groupId: action.groupId,
+          fromUserId: action.fromUserId,
+          toUserId: action.toUserId,
+          amount: action.amount,
+          notes: action.notes
+        };
+        return from(this.splitwiseService.createSettlement(request)).pipe(
+          map(settlementId => {
+            // Return a mock settlement since the service only returns the ID
+            return SplitwiseActions.createSettlementSuccess({ 
+              settlement: { id: settlementId } as any 
+            });
+          }),
+          catchError(error => of(SplitwiseActions.createSettlementFailure({ error: error.message })))
+        );
+      })
+    ))
+  ));
+
   removeMember$ = createEffect(() => this.actions$.pipe(
     ofType(SplitwiseActions.removeMember),
     mergeMap((action) => from(this.userService.getCurrentUser()).pipe(

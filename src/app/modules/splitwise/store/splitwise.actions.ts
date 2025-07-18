@@ -155,6 +155,34 @@ export const createSplitTransactionFailure = createAction(
   props<{ error: string }>()
 );
 
+// Update Split Transaction
+export const updateSplitTransaction = createAction(
+  '[Splitwise] Update Split Transaction',
+  props<{ groupId: string; transactionId: string; updates: any }>()
+);
+export const updateSplitTransactionSuccess = createAction(
+  '[Splitwise] Update Split Transaction Success',
+  props<{ transaction: SplitTransaction }>()
+);
+export const updateSplitTransactionFailure = createAction(
+  '[Splitwise] Update Split Transaction Failure',
+  props<{ error: string }>()
+);
+
+// Create Settlement
+export const createSettlement = createAction(
+  '[Splitwise] Create Settlement',
+  props<{ groupId: string; fromUserId: string; toUserId: string; amount: number; notes?: string }>()
+);
+export const createSettlementSuccess = createAction(
+  '[Splitwise] Create Settlement Success',
+  props<{ settlement: SplitSettlement }>()
+);
+export const createSettlementFailure = createAction(
+  '[Splitwise] Create Settlement Failure',
+  props<{ error: string }>()
+);
+
 // Remove Member
 export const removeMember = createAction(
   '[Splitwise] Remove Member',
