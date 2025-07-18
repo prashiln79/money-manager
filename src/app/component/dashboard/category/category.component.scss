@@ -222,7 +222,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    max-height: 60vh;
+    max-height: calc(92vh - 250px);
     overflow-y: auto;
     // padding-right: 0.5rem;
     
