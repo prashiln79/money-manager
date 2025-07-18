@@ -41,6 +41,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   public pageSizeOptions: number[] = [...APP_CONFIG.PAGINATION.PAGE_SIZE_OPTIONS]; // Use config values and make mutable
   selectedTx: any = null;
   longPressTimeout: any;
+  selectedTabIndex: number = 0;
   
   // Date filtering properties
   selectedDate: Date | null = null;
@@ -149,6 +150,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
           this.selectedDate = date;
           this.selectedDateRange = null;
           this.applyDateFilter();
+          this.selectedTabIndex = 0;
         }
       })
     );

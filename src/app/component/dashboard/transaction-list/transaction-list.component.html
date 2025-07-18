@@ -19,7 +19,7 @@
 } @else {
 
 <mat-card class="p-2 shadow-lg border-0 rounded-xl transaction-list-container h-[83vh]">
-	<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs">
+	<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs" [(selectedIndex)]="selectedTabIndex">
 		<mat-tab class="max-h-full">
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
