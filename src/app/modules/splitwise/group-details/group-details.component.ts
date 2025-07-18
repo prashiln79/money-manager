@@ -29,6 +29,7 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
   error: string | null = null;
   currentUser: any = null;
   isMobile: boolean = false;
+  isLoading: boolean = false;
   Math = Math; // Make Math available in template
   private destroy$ = new Subject<void>();
 
@@ -65,6 +66,7 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     this.store.select(selectSplitwiseState)
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
+        this.isLoading = state.loading;
         this.error = state.error;
 
         // Get the group from the selected group or find by ID
@@ -73,7 +75,7 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
           this.group = state.groups.find(g => g.id === groupId) || null;
 
           // If group not found in store, try to load it
-          if (!this.group ) {
+          if (!this.group && !this.isLoading) {
             this.splitwiseService.getGroupById(groupId).then(group => {
               this.group = group;
             });
@@ -248,5 +250,15 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
   toggleMembers(): void {
     // Navigate to the members page instead of toggling
     this.router.navigate(['dashboard/splitwise/members', this.group?.id]);
+  }
+
+  addTransaction(): void {
+    // Navigate to add transaction page or open dialog
+    this.router.navigate(['dashboard/transactions'], {
+      queryParams: { 
+        splitGroupId: this.group?.id,
+        returnUrl: this.router.url
+      }
+    });
   }
 } 

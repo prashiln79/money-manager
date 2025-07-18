@@ -472,6 +472,10 @@ export class TransactionsService {
                                     transactionType: 'delete',
                                     oldTransaction: transactionToDelete
                                 }));
+
+                                if(transactionToDelete.isSplitTransaction) {
+                                    await this.splitwiseService.deleteSplitTransactionRollback(transactionToDelete.id!, userId);
+                                }
                             }
                         } catch (error) {
                             console.error('Failed to delete transaction online:', error);

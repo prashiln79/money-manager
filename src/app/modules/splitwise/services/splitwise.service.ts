@@ -660,4 +660,29 @@ export class SplitwiseService {
 
     return Array.from(memberBalances.values());
   }
+
+
+  async deleteSplitTransactionRollback(originalTransactionId: string, userId: string): Promise<void> {
+    try {
+      const transactionsRef = collection(this.firestore, `splitwise/${userId}/transactions`);
+      const q = query(transactionsRef, where('originalTransactionId', '==', originalTransactionId));
+      const querySnapshot = await getDocs(q);
+  
+      if (querySnapshot.empty) {
+        throw new Error('Transaction not found');
+      }
+  
+      const transactionDoc = querySnapshot.docs[0]; // if only one exists
+      const transactionIdToDelete = transactionDoc.id;
+  
+      // Delete the document
+      await deleteDoc(doc(this.firestore, `splitwise/${userId}/transactions/${transactionIdToDelete}`));
+  
+      console.log(`Transaction with ID ${transactionIdToDelete} deleted successfully`);
+  
+    } catch (error) {
+      console.error('Error deleting split transaction rollback:', error);
+      throw error;
+    }
+  }
 } 

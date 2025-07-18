@@ -37,7 +37,7 @@ import {
 } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { SplitwiseGroup, CreateSplitTransactionRequest, TransactionSplit } from 'src/app/util/models/splitwise.model';
+import { SplitwiseGroup } from 'src/app/util/models/splitwise.model';
 import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
 import { selectGroups } from 'src/app/modules/splitwise/store/splitwise.selectors';
 import { loadGroups } from 'src/app/modules/splitwise/store/splitwise.actions';

@@ -1,36 +1,39 @@
 <div class="group-details-container">
-	
+	<!-- Loading State -->
+	<div *ngIf="isLoading" class="loading-state">
+		<mat-spinner diameter="40"></mat-spinner>
+		<p>Loading group details...</p>
+	</div>
 
 	<!-- Main Content -->
-	<div *ngIf=" group" class="main-content">
+	<div *ngIf="!isLoading && group" class="main-content">
 		<!-- Header -->
 		<div class="header">
 			<div class="header-content">
-				        <div class="header-actions">
-          <button mat-icon-button (click)="goBack()" class="back-btn">
-            <mat-icon (click)="goBack()">arrow_back</mat-icon>
-			
-          </button>
-		  <span class="text-sm font-bold">{{ group.name }}</span>
-          <button mat-icon-button [matMenuTriggerFor]="groupMenu" class="more-actions-btn">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #groupMenu="matMenu">
-            <button mat-menu-item (click)="openAddMemberDialog()" class="add-member-btn">
-              <mat-icon>person_add</mat-icon>
-              Add Member
-            </button>
-            <!-- <button mat-menu-item (click)="toggleMembers()" class="members-toggle-btn" >
-              <mat-icon>people</mat-icon>
-              Members
-            </button> -->
-            <button mat-menu-item (click)="deleteGroup()" *ngIf="canManageGroup()" class="delete-action">
-              <mat-icon>delete</mat-icon>
-              Delete Group
-            </button>
-          </mat-menu>
-        </div>
+				<div class="header-navigation">
+					<button mat-icon-button (click)="goBack()" class="back-btn !z-[999]" aria-label="Go back">
+						<mat-icon (click)="goBack()">arrow_back</mat-icon>
+						
+					</button><span class="group-title">{{ group.name | titlecase }}</span>
+					<button mat-icon-button [matMenuTriggerFor]="groupMenu" class="more-actions-btn" aria-label="More options">
+						<mat-icon>more_vert</mat-icon>
+					</button>
 				
+				</div>
+				<div class="header-actions">
+					
+					<mat-menu #groupMenu="matMenu" class="group-menu">
+						<button mat-menu-item (click)="openAddMemberDialog()" class="menu-item">
+							<mat-icon>person_add</mat-icon>
+							<span>Add Member</span>
+						</button>
+						<mat-divider></mat-divider>
+						<button mat-menu-item (click)="deleteGroup()" *ngIf="canManageGroup()" class="delete-action">
+							<mat-icon>delete</mat-icon>
+							<span>Delete Group</span>
+						</button>
+					</mat-menu>
+				</div>
 			</div>
 		</div>
 
@@ -39,26 +42,35 @@
 			<mat-card class="stats-card">
 				<div class="stats-grid">
 					<div class="stat-item">
-						<div class="stat-value">{{ getGroupMemberCount() }}</div>
-						<div class="stat-label">Members</div>
+						<!-- <div class="stat-icon">
+							<mat-icon>people</mat-icon>
+						</div> -->
+						<div class="stat-content">
+							<div class="stat-value">{{ getGroupMemberCount() }}</div>
+							<div class="stat-label">Members</div>
+						</div>
 					</div>
-					<div class="stat-item">
-						<div class="stat-value">{{ getTransactionCount() }}</div>
-						<div class="stat-label">Transactions</div>
-					</div>					
 					<!-- <div class="stat-item">
-						<div class="stat-value">{{ formatCurrency(getTotalTransactionAmount(), group.currency) }}</div>
-						<div class="stat-label">Total Spent</div>
+						<div class="stat-icon">
+							<mat-icon>receipt</mat-icon>
+						</div>
+						<div class="stat-content">
+							<div class="stat-value">{{ getTransactionCount() }}</div>
+							<div class="stat-label">Transactions</div>
+						</div>
 					</div> -->
 					<div class="stat-item">
-						<div class="stat-value">{{ formatCurrency(getTotalBalance(), group.currency) }}</div>
-						<div class="stat-label">Total Balance</div>
+						<!-- <div class="stat-icon">
+							<mat-icon>account_balance_wallet</mat-icon>
+						</div> -->
+						<div class="stat-content">
+							<div class="stat-value">{{ formatCurrency(getTotalBalance(), group.currency) }}</div>
+							<div class="stat-label">Total Balance</div>
+						</div>
 					</div>
 				</div>
 			</mat-card>
 		</div>
-
-		
 
 		<!-- Transactions Section -->
 		<div class="transactions-section">
@@ -66,7 +78,7 @@
 				<mat-card-header>
 					<mat-card-title>
 						<mat-icon>receipt</mat-icon>
-						Transactions ({{ getTransactionCount() }})
+						<span>Transactions ({{ getTransactionCount() }})</span>
 					</mat-card-title>
 					<mat-card-subtitle>
 						Total: {{ formatCurrency(getTotalTransactionAmount(), group.currency) }}
@@ -104,7 +116,7 @@
 											<span class="split-amount">{{ formatCurrency(split.amount, transaction.currency) }}</span>
 										</div>
 										<div class="split-status">
-											<mat-icon [class.paid]="split.isPaid" [class.unpaid]="!split.isPaid">
+											<mat-icon [class.paid]="split.isPaid" [class.unpaid]="!split.isPaid" [attr.aria-label]="split.isPaid ? 'Paid' : 'Pending'">
 												{{ split.isPaid ? 'check_circle' : 'pending' }}
 											</mat-icon>
 										</div>
@@ -112,6 +124,16 @@
 								</div>
 							</div>
 						</div>
+					</div>
+					
+					<!-- Empty State -->
+					<div *ngIf="transactions.length === 0" class="empty-state">
+						<mat-icon class="empty-icon">receipt</mat-icon>
+						<p>No transactions yet</p>
+						<button mat-raised-button color="primary" (click)="addTransaction()">
+							<mat-icon>add</mat-icon>
+							Add Transaction
+						</button>
 					</div>
 				</mat-card-content>
 			</mat-card>
@@ -123,7 +145,7 @@
 				<mat-card-header>
 					<mat-card-title>
 						<mat-icon>swap_horiz</mat-icon>
-						Settlements ({{ getSettlementCount() }})
+						<span>Settlements ({{ getSettlementCount() }})</span>
 					</mat-card-title>
 				</mat-card-header>
 				<mat-card-content>
@@ -152,11 +174,12 @@
 	</div>
 
 	<!-- Error State -->
-	<div *ngIf=" !group" class="error-state">
+	<div *ngIf="!isLoading && !group" class="error-state">
 		<mat-icon class="error-icon">error</mat-icon>
 		<h3>Group Not Found</h3>
 		<p>The group you're looking for doesn't exist or you don't have access to it.</p>
 		<button mat-raised-button color="primary" (click)="goBack()">
+			<mat-icon>arrow_back</mat-icon>
 			Go Back
 		</button>
 	</div>

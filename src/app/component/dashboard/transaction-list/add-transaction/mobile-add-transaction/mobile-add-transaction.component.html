@@ -216,7 +216,9 @@
 					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
 						Split with Group
 					</label>
-					<button 
+
+					<mat-slide-toggle formControlName="isSplitTransaction" (change)="toggleSplitTransaction()"></mat-slide-toggle>
+					<!-- <button 
 						type="button"
 						(click)="toggleSplitTransaction()"
 						class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200"
@@ -224,7 +226,7 @@
 					>
 						<mat-icon class="text-sm">{{ isSplitTransaction ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
 						{{ isSplitTransaction ? 'Split Enabled' : 'Split Disabled' }}
-					</button>
+					</button> -->
 				</div>
 
 				<!-- Split Transaction Options -->
@@ -266,20 +268,20 @@
 						</div>
 
 						<!-- Split Info -->
-						@if(transactionForm.get('splitGroupId')?.value) {
+						<!-- @if(transactionForm.get('splitGroupId')?.value) {
 							<div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
 								<div class="flex items-center gap-2 mb-2">
 									<mat-icon class="text-sm text-blue-600 dark:text-blue-400">info</mat-icon>
 									<span class="text-sm font-medium text-blue-800 dark:text-blue-200">Split Details</span>
 								</div>
-								<!-- <div class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+								<div class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
 									<p>• Amount will be split equally among {{ selectedGroup.members.length }} members</p>
 									<p>• Each member will owe ₹{{ ((transactionForm.get('amount')?.value || 0) / selectedGroup.members.length).toFixed(2) }}</p>
 									<p>• You will be marked as the payer</p>
 									<p>• A regular transaction will also be created in your account</p>
-								</div> -->
+								</div>
 							</div>
-						}
+						} -->
 					</div>
 				}
 			</div>
