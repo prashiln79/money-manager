@@ -14,6 +14,7 @@ import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog
 import { AppState } from '../../../store/app.state';
 import * as SplitwiseActions from '../store/splitwise.actions';
 import { selectSplitwiseState } from '../store/splitwise.selectors';
+import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-group-details',
@@ -24,7 +25,6 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
   group: SplitwiseGroup | null = null;
   transactions: SplitTransaction[] = [];
   settlements: SplitSettlement[] = [];
-  isLoading: boolean = false;
   error: string | null = null;
   currentUser: any = null;
   isMobile: boolean = false;
@@ -63,16 +63,15 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     this.store.select(selectSplitwiseState)
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
-        this.isLoading = state.loading;
         this.error = state.error;
 
         // Get the group from the selected group or find by ID
         const groupId = this.route.snapshot.paramMap.get('id');
         if (groupId) {
           this.group = state.groups.find(g => g.id === groupId) || null;
-          
+
           // If group not found in store, try to load it
-          if (!this.group && !this.isLoading) {
+          if (!this.group ) {
             this.store.dispatch(SplitwiseActions.loadGroupById({ groupId }));
           }
         }
@@ -115,9 +114,9 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        this.store.dispatch(SplitwiseActions.addMember({ 
-          groupId: this.group!.id!, 
-          request: result 
+        this.store.dispatch(SplitwiseActions.addMember({
+          groupId: this.group!.id!,
+          request: result
         }));
       }
     });
@@ -125,11 +124,21 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
   deleteGroup(): void {
     if (!this.group) return;
-
-    if (confirm(`Are you sure you want to delete the group "${this.group.name}"?`)) {
-      this.store.dispatch(SplitwiseActions.deleteGroup({ groupId: this.group.id! }));
-      this.goBack();
-    }
+    
+    this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Delete Group',
+        message: 'Are you sure you want to delete the group "${this.group.name}"?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    }).afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.store.dispatch(SplitwiseActions.deleteGroup({ groupId: this.group?.id! }));
+        this.goBack();
+      }
+    });
   }
 
   getCurrentUserRole(): string {

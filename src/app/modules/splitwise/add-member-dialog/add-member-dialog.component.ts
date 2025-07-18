@@ -13,7 +13,6 @@ export class AddMemberDialogComponent implements OnInit {
   memberForm: FormGroup;
   isSubmitting = false;
   group: SplitwiseGroup;
-  roles = Object.values(GroupMemberRole);
 
   constructor(
     private fb: FormBuilder,
@@ -23,8 +22,7 @@ export class AddMemberDialogComponent implements OnInit {
   ) {
     this.group = data.group;
     this.memberForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      role: [GroupMemberRole.MEMBER, Validators.required]
+      email: ['', [Validators.required, Validators.email]]
     });
   }
 
@@ -46,7 +44,7 @@ export class AddMemberDialogComponent implements OnInit {
         const formData = this.memberForm.value;
         const request: AddMemberRequest = {
           email: formData.email.trim().toLowerCase(),
-          role: formData.role
+          role: GroupMemberRole.MEMBER
         };
 
         // Return the request to be handled by the parent component via NgRx
@@ -76,6 +74,14 @@ export class AddMemberDialogComponent implements OnInit {
     return '';
   }
 
+
+
+  isEmailAlreadyMember(email: string): boolean {
+    return this.group.members.some(member => 
+      member.email.toLowerCase() === email.toLowerCase()
+    );
+  }
+
   getRoleDisplayName(role: string): string {
     const roleNames: { [key: string]: string } = {
       'admin': 'Admin',
@@ -84,24 +90,11 @@ export class AddMemberDialogComponent implements OnInit {
     return roleNames[role] || role;
   }
 
-  getRoleDescription(role: string): string {
-    const roleDescriptions: { [key: string]: string } = {
-      'admin': 'Can manage group settings and members',
-      'member': 'Can add expenses and view group activity'
-    };
-    return roleDescriptions[role] || '';
-  }
-
-  isEmailAlreadyMember(email: string): boolean {
-    return this.group.members.some(member => 
-      member.email.toLowerCase() === email.toLowerCase()
-    );
-  }
-
   onEmailChange(): void {
     const email = this.memberForm.get('email')?.value;
     if (email && this.isEmailAlreadyMember(email)) {
       this.memberForm.get('email')?.setErrors({ alreadyMember: true });
     }
   }
+
 } 

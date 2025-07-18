@@ -20,14 +20,9 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading your groups...</p>
-  </div>
 
   <!-- Main Content -->
-  <div *ngIf="!isLoading" class="main-content">
+  <div class="main-content">
     <!-- Invitations Section -->
     <div *ngIf="invitations.length > 0" class="invitations-section">
       <mat-card class="invitations-card">

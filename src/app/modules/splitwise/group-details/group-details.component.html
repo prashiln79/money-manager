@@ -1,12 +1,8 @@
 <div class="group-details-container">
-	<!-- Loading State -->
-	<div *ngIf="isLoading" class="loading-state">
-		<mat-spinner diameter="40"></mat-spinner>
-		<p>Loading group details...</p>
-	</div>
+	
 
 	<!-- Main Content -->
-	<div *ngIf="!isLoading && group" class="main-content">
+	<div *ngIf=" group" class="main-content">
 		<!-- Header -->
 		<div class="header">
 			<div class="header-content">
@@ -157,7 +153,7 @@
 	</div>
 
 	<!-- Error State -->
-	<div *ngIf="!isLoading && !group" class="error-state">
+	<div *ngIf=" !group" class="error-state">
 		<mat-icon class="error-icon">error</mat-icon>
 		<h3>Group Not Found</h3>
 		<p>The group you're looking for doesn't exist or you don't have access to it.</p>

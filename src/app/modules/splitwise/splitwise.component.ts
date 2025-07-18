@@ -13,6 +13,7 @@ import { CreateGroupDialogComponent } from './create-group-dialog/create-group-d
 import { AppState } from '../../store/app.state';
 import * as SplitwiseActions from './store/splitwise.actions';
 import { selectSplitwiseState } from './store/splitwise.selectors';
+import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-splitwise',
@@ -22,7 +23,6 @@ import { selectSplitwiseState } from './store/splitwise.selectors';
 export class SplitwiseComponent implements OnInit, OnDestroy {
   groups: SplitwiseGroup[] = [];
   invitations: GroupInvitation[] = [];
-  isLoading: boolean = false;
   isMobile: boolean = false;
   currentUser: any = null;
   error: string | null = null;
@@ -60,7 +60,6 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
       .subscribe(state => {
         this.groups = state.groups;
         this.invitations = state.invitations;
-        this.isLoading = state.loading;
         this.error = state.error;
 
         // Show error notification if there's an error
@@ -108,9 +107,19 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
 
 
   deleteGroup(group: SplitwiseGroup): void {
-    if (confirm(`Are you sure you want to delete the group "${group.name}"?`)) {
-      this.store.dispatch(SplitwiseActions.deleteGroup({ groupId: group.id! }));
-    }
+    this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Delete Group',
+        message: 'Are you sure you want to delete the group "${group.name}"?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    }).afterClosed().subscribe((result: any) => {   
+      if (result) {
+        this.store.dispatch(SplitwiseActions.deleteGroup({ groupId: group.id! }));
+      }
+    });
   }
 
 
