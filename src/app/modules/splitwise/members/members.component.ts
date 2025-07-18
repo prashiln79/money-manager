@@ -25,17 +25,23 @@ export class MembersComponent {
 
   getPositiveBalanceMembers(): any[] {
     if (!this.group) return [];
-    return this.group.members.filter(member => member.balance > 0);
+    // This should be calculated from transactions, not from member.balance
+    // For now, return empty array - this needs to be implemented with proper balance calculation
+    return [];
   }
 
   getNegativeBalanceMembers(): any[] {
     if (!this.group) return [];
-    return this.group.members.filter(member => member.balance < 0);
+    // This should be calculated from transactions, not from member.balance
+    // For now, return empty array - this needs to be implemented with proper balance calculation
+    return [];
   }
 
   getNeutralBalanceMembers(): any[] {
     if (!this.group) return [];
-    return this.group.members.filter(member => member.balance === 0);
+    // This should be calculated from transactions, not from member.balance
+    // For now, return empty array - this needs to be implemented with proper balance calculation
+    return [];
   }
 
   onAddMember(): void {

@@ -359,7 +359,8 @@ export class NotificationManagerService {
    * Get notification permission status
    */
   getPermissionStatus(): NotificationPermission {
-    return this.messagingService.getPermissionStatus();
+    // Get current permission status from the browser
+    return Notification.permission;
   }
 
   /**

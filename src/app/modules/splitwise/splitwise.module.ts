@@ -32,7 +32,6 @@ import { CreateGroupDialogComponent } from './create-group-dialog/create-group-d
 import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
 import { GroupComponent } from './group/group.component';
 import { GroupDetailsComponent } from './group-details/group-details.component';
-import { MembersComponent } from './members-page/members/members.component';
 import { MembersPageComponent } from './members-page/members-page.component';
 
 // Store
@@ -46,6 +45,7 @@ import { SplitwiseService } from './services/splitwise.service';
 import { LoaderComponent } from '../../util/components/loader/loader.component';
 import { TranslatePipe } from '../../util/pipes/translate.pipe';
 import { CurrencyPipe } from '../../util/pipes/currency.pipe';
+import { MembersComponent } from './members/members.component';
 
 @NgModule({
   declarations: [

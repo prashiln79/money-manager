@@ -90,8 +90,7 @@ export class SplitwiseService {
         photoURL: currentUser.photoURL || '',
         role: GroupMemberRole.ADMIN,
         joinedAt: new Date(),
-        isActive: true,
-        balance: 0
+        isActive: true
       }],
       currency: request.currency || 'USD',
       createdAt: new Date(),
@@ -111,7 +110,7 @@ export class SplitwiseService {
 
   deleteGroup(groupId: string, userId: string): Observable<void> {
     const groupRef = doc(this.firestore, `splitwise/${userId}/groups`, groupId);
-    return from(updateDoc(groupRef, { isActive: false, updatedAt: new Date() }));
+    return from(deleteDoc(groupRef));
   }
 
   // Invitations
@@ -175,8 +174,7 @@ export class SplitwiseService {
           displayName: request.email.split('@')[0], // Default display name
           role: request.role || GroupMemberRole.MEMBER,
           joinedAt: new Date(),
-          isActive: false, // Will be true when user accepts invitation
-          balance: 0
+          isActive: false // Will be true when user accepts invitation
         };
 
         const updatedMembers = [...group.members, newMember];
@@ -564,31 +562,13 @@ export class SplitwiseService {
   // ==================== UTILITY METHODS ====================
 
   /**
-   * Update member balances
+   * Update member balances - This method is deprecated since balance is no longer stored on GroupMember
+   * Balances are now calculated dynamically from transactions using getMemberBalances()
    */
   private async updateMemberBalances(groupId: string, splits: TransactionSplit[]): Promise<void> {
-    const userId = this.auth.currentUser?.uid;
-    if (!userId) return;
-    
-    const groupRef = doc(this.firestore, `splitwise/${userId}/groups`, groupId);
-    const groupDoc = await getDoc(groupRef);
-    const groupData = groupDoc.data() as SplitwiseGroup;
-
-    const updatedMembers = groupData.members.map(member => {
-      const split = splits.find(s => s.userId === member.userId);
-      if (split) {
-        return {
-          ...member,
-          balance: member.balance + split.amount
-        };
-      }
-      return member;
-    });
-
-    await updateDoc(groupRef, {
-      members: updatedMembers,
-      updatedAt: new Date()
-    });
+    // This method is no longer needed since balances are calculated dynamically
+    // from transactions rather than stored on GroupMember
+    console.warn('updateMemberBalances is deprecated. Use getMemberBalances() instead.');
   }
 
 

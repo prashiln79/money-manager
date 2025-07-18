@@ -154,6 +154,10 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
         taxes: this.dialogData.taxes || [],
         paymentMethod: this.dialogData.paymentMethod || '',
       });
+      this.isSplitTransaction = this.dialogData.isSplitTransaction || false;
+      this.transactionForm.get('isSplitTransaction')?.setValue(this.dialogData.isSplitTransaction || false);
+      this.transactionForm.get('splitGroupId')?.setValue(this.dialogData.splitGroupId || '');
+      this.transactionForm.get('splitAmount')?.setValue(this.dialogData.splitAmount || 0);
     } else {
       this.transactionForm.patchValue({
         payee: '',

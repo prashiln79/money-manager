@@ -15,6 +15,7 @@ import { AppState } from '../../../store/app.state';
 import * as SplitwiseActions from '../store/splitwise.actions';
 import { selectSplitwiseState } from '../store/splitwise.selectors';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { SplitwiseService } from '../services/splitwise.service';
 
 @Component({
   selector: 'app-group-details',
@@ -38,7 +39,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private dialog: MatDialog,
     private notificationService: NotificationService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private splitwiseService: SplitwiseService
   ) {
     // Observe breakpoints for mobile detection
     this.breakpointObserver.observe([Breakpoints.Handset])
@@ -72,7 +74,9 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
           // If group not found in store, try to load it
           if (!this.group ) {
-            this.store.dispatch(SplitwiseActions.loadGroupById({ groupId }));
+            this.splitwiseService.getGroupById(groupId).then(group => {
+              this.group = group;
+            });
           }
         }
 
@@ -172,7 +176,10 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
   getTotalBalance(): number {
     if (!this.group) return 0;
-    return this.group.members.reduce((total, member) => total + member.balance, 0);
+    // Calculate total balance from transactions instead of member.balance
+    return this.transactions.reduce((total, transaction) => {
+      return total + transaction.splits.reduce((splitTotal, split) => splitTotal + split.amount, 0);
+    }, 0);
   }
 
 

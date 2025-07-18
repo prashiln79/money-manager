@@ -28,7 +28,6 @@ export interface GroupMember {
   role: GroupMemberRole;
   joinedAt: Date | Timestamp;
   isActive: boolean;
-  balance: number; // Current balance in the group
 }
 
 /**

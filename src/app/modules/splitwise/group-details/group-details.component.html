@@ -8,8 +8,10 @@
 			<div class="header-content">
 				        <div class="header-actions">
           <button mat-icon-button (click)="goBack()" class="back-btn">
-            <mat-icon>arrow_back</mat-icon>
+            <mat-icon (click)="goBack()">arrow_back</mat-icon>
+			
           </button>
+		  <span class="text-sm font-bold">{{ group.name }}</span>
           <button mat-icon-button [matMenuTriggerFor]="groupMenu" class="more-actions-btn">
             <mat-icon>more_vert</mat-icon>
           </button>
@@ -28,10 +30,7 @@
             </button>
           </mat-menu>
         </div>
-				<div class="title-section">
-					<h1 class="title">{{ group.name }}</h1>
-					<p class="subtitle">{{ group.description || 'No description' }}</p>
-				</div>
+				
 			</div>
 		</div>
 
@@ -44,16 +43,16 @@
 						<div class="stat-label">Members</div>
 					</div>
 					<div class="stat-item">
-						<div class="stat-value">{{ formatCurrency(getTotalBalance(), group.currency) }}</div>
-						<div class="stat-label">Total Balance</div>
-					</div>
-					<div class="stat-item">
 						<div class="stat-value">{{ getTransactionCount() }}</div>
 						<div class="stat-label">Transactions</div>
-					</div>
-					<div class="stat-item">
+					</div>					
+					<!-- <div class="stat-item">
 						<div class="stat-value">{{ formatCurrency(getTotalTransactionAmount(), group.currency) }}</div>
 						<div class="stat-label">Total Spent</div>
+					</div> -->
+					<div class="stat-item">
+						<div class="stat-value">{{ formatCurrency(getTotalBalance(), group.currency) }}</div>
+						<div class="stat-label">Total Balance</div>
 					</div>
 				</div>
 			</mat-card>

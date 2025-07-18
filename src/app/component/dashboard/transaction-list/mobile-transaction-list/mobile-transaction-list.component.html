@@ -175,10 +175,15 @@
 					<div class="transaction-icon">
 						<div class="icon-container">
 							<mat-icon [style.color]="getCategoryColor(tx.category)">
+
 								{{ getCategoryIcon(tx.category) }}
 							</mat-icon>
+							@if(tx.isSplitTransaction) {
+								<mat-icon class="split-transaction">bookmark</mat-icon>
+							}
 						</div>
 					</div>
+					
 
 					<!-- Transaction Details -->
 					<div class="transaction-details">
