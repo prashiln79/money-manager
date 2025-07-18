@@ -10,19 +10,16 @@ import { Router } from '@angular/router';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { ValidationService } from 'src/app/util/service/validation.service';
-import {
-  Category,
-  AVAILABLE_ICONS,
-  AVAILABLE_COLORS,
-} from 'src/app/util/models';
+
 import { IconSelectorDialogComponent } from '../icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from '../color-selector-dialog/color-selector-dialog.component';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { createCategory, updateCategory } from 'src/app/store/categories/categories.actions';
-import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
-import { TransactionType } from 'src/app/util/config/enums';
+
 import { SsrService } from 'src/app/util/service/ssr.service';
+import { CATEGORY_ICONS, CATEGORY_COLORS } from 'src/app/util/config/config';
+import { Category } from 'src/app/util/models';
 
 @Component({
   selector: 'app-mobile-category-add-edit-popup',
@@ -31,13 +28,10 @@ import { SsrService } from 'src/app/util/service/ssr.service';
 })
 export class MobileCategoryAddEditPopupComponent implements OnInit {
   categoryForm: FormGroup;
-  budgetForm: FormGroup;
-  public availableIcons: string[] = AVAILABLE_ICONS;
-  public availableColors: string[] = AVAILABLE_COLORS;
-  public budgetPeriods: Array<{ value: string; label: string }>;
+  public availableIcons: string[] = CATEGORY_ICONS;
+  public availableColors: string[] = CATEGORY_COLORS;
   public isSubmitting: boolean = false;
   public userId: string = '';
-  public showBudgetSection: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: Category | null,
@@ -49,7 +43,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     private router: Router,
     private hapticFeedback: HapticFeedbackService,
     private dialog: MatDialog,
-    private budgetService: CategoryBudgetService,
+
     private validationService: ValidationService,
     private ssrService: SsrService
   ) {
@@ -59,9 +53,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       icon: ['category', Validators.required],
       color: ['#46777f', Validators.required],
     });
-
-    this.budgetForm = this.budgetService.createBudgetForm();
-    this.budgetPeriods = this.budgetService.getBudgetPeriods();
   }
 
   ngOnInit(): void {
@@ -83,21 +74,16 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
         color: this.dialogData.color || '#46777f',
       });
 
-      // Initialize budget form if category has budget
-      if (this.dialogData.budget?.hasBudget) {
-        this.showBudgetSection = true;
-        this.budgetService.initializeBudgetForm(this.budgetForm, this.dialogData);
-      }
+
     }
   }
 
   async onSubmit(): Promise<void> {
-    if (this.categoryForm.valid && this.budgetService.isBudgetFormValid(this.budgetForm) && !this.isSubmitting) {
+    if (this.categoryForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
 
       try {
         const formValue = this.categoryForm.value;
-        // const budgetData = this.budgetService.getBudgetDataFromForm(this.budgetForm);
 
         if (this.dialogData?.id) {
           // Update existing category
@@ -109,16 +95,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
               categoryType: formValue.type,
               icon: formValue.icon,
               color: formValue.color,
-              budgetData: {
-                budgetSpent: this.budgetForm.get('budgetSpent')?.value || 0,
-                hasBudget: this.budgetForm.get('hasBudget')?.value || false,
-                budgetAmount: this.budgetForm.get('budgetAmount')?.value || 0,
-                budgetPeriod: this.budgetForm.get('budgetPeriod')?.value || 'monthly',
-                budgetStartDate: this.budgetForm.get('budgetStartDate')?.value || new Date(),
-                budgetEndDate: this.budgetForm.get('budgetEndDate')?.value || null,
-                budgetAlertThreshold: this.budgetForm.get('budgetAlertThreshold')?.value || 80,
-                budgetAlertEnabled: this.budgetForm.get('budgetAlertEnabled')?.value || true
-              }
             })
           );
           this.notificationService.success('Category updated successfully');
@@ -151,22 +127,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     this.dialogRef.close(false);
   }
 
-  toggleBudgetSection(): void {
-    this.showBudgetSection = !this.showBudgetSection;
-    if (!this.showBudgetSection) {
-      // Reset budget form when hiding
-      this.budgetForm.reset({
-        hasBudget: false,
-        budgetAmount: 0,
-        budgetPeriod: 'monthly',
-        budgetStartDate: new Date(),
-        budgetEndDate: null,
-        budgetAlertThreshold: 80,
-        budgetAlertEnabled: true
-      });
-    }
-  }
-
   selectType(type: any): void {
     this.categoryForm.patchValue({ type });
   }
@@ -182,24 +142,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       return 'Category type is required';
     }
     return '';
-  }
-
-  getBudgetAmountError(): string {
-    const control = this.budgetForm.get('budgetAmount');
-    return control ? this.validationService.getBudgetAmountError(control) : '';
-  }
-
-  getBudgetPeriodError(): string {
-    const control = this.budgetForm.get('budgetPeriod');
-    if (control?.hasError('required')) {
-      return 'Budget period is required';
-    }
-    return '';
-  }
-
-  getBudgetThresholdError(): string {
-    const control = this.budgetForm.get('budgetAlertThreshold');
-    return control ? this.validationService.getBudgetThresholdError(control) : '';
   }
 
   openIconSelectorDialog(): void {

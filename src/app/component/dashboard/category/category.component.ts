@@ -11,7 +11,8 @@ import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-
 import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
 import { CategoryBudgetDialogComponent } from './category-budget-dialog/category-budget-dialog.component';
-import { Category, AVAILABLE_ICONS, AVAILABLE_COLORS, defaultCategoriesForNewUser, Budget } from 'src/app/util/models';
+import { Category, defaultCategoriesForNewUser, Budget } from 'src/app/util/models';
+import { CATEGORY_ICONS, CATEGORY_COLORS } from 'src/app/util/config/config';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
@@ -46,8 +47,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public isBudgetSummaryExpanded: boolean = false;
 
   public newCategory: Category = this.getEmptyCategory();
-  public availableIcons: string[] = AVAILABLE_ICONS;
-  public availableColors: string[] = AVAILABLE_COLORS;
+  public availableIcons: string[] = CATEGORY_ICONS;
+  public availableColors: string[] = CATEGORY_COLORS;
 
   public categorySuggestions: string[] = [];
   public filteredSuggestions: Observable<string[]> = of([]);

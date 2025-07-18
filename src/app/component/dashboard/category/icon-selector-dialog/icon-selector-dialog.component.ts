@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AVAILABLE_ICONS } from 'src/app/util/models';
+import { CATEGORY_ICONS } from 'src/app/util/config/config';
 
 export interface IconSelectorDialogData {
   currentIcon: string;
@@ -13,7 +13,7 @@ export interface IconSelectorDialogData {
   styleUrls: ['./icon-selector-dialog.component.scss']
 })
 export class IconSelectorDialogComponent implements OnInit {
-  public availableIcons: string[] = AVAILABLE_ICONS;
+  public availableIcons: string[] = CATEGORY_ICONS;
   public selectedIcon: string;
   public searchTerm: string = '';
   public filteredIcons: string[] = [];

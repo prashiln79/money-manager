@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AVAILABLE_COLORS } from 'src/app/util/models';
+import { CATEGORY_COLORS } from 'src/app/util/config/config';
 
 export interface ColorSelectorDialogData {
   currentColor: string;
@@ -13,7 +13,7 @@ export interface ColorSelectorDialogData {
   styleUrls: ['./color-selector-dialog.component.scss']
 })
 export class ColorSelectorDialogComponent implements OnInit {
-  public availableColors: string[] = AVAILABLE_COLORS;
+  public availableColors: string[] = CATEGORY_COLORS;
   public selectedColor: string;
   public searchTerm: string = '';
   public filteredColors: string[] = [];
