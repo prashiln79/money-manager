@@ -6,12 +6,13 @@ import {
   Router,
   CanActivateChild
 } from "@angular/router";
-import { Observable, of, throwError, timer } from "rxjs";
-import { catchError, map, switchMap, take, timeout, retry } from "rxjs/operators";
+import { Observable, of } from "rxjs";
+import { catchError, timeout } from "rxjs/operators";
 import { UserService } from "../service/user.service";
 import { getAuth, onAuthStateChanged, User } from '@angular/fire/auth';
 import { NotificationService } from "../service/notification.service";
 import { User as AppUser, UserRole } from "../models/user.model";
+import { LoaderService } from "../service/loader.service";
 
 interface SecurityConfig {
   readonly SESSION_TIMEOUT: number;
@@ -26,7 +27,7 @@ interface SecurityConfig {
 
 const SECURITY_CONFIG: SecurityConfig = {
   SESSION_TIMEOUT: 30 * 60 * 1000,
-  INACTIVITY_TIMEOUT: 60 * 60 * 1000, 
+  INACTIVITY_TIMEOUT: 60 * 60 * 1000,
   MAX_LOGIN_ATTEMPTS: 5,
   LOCKOUT_DURATION: 15 * 60 * 1000,
   PASSWORD_MIN_LENGTH: 8,
@@ -47,20 +48,13 @@ interface RoutePermission {
 })
 export class AuthGuard implements CanActivate, CanActivateChild {
 
-  private readonly loginAttempts = new Map<string, { count: number; lastAttempt: number; lockedUntil?: number }>();
   private readonly sessionStartTime = new Map<string, number>();
-  private readonly securityHeaders = new Map<string, string>([
-    ['X-Content-Type-Options', 'nosniff'],
-    ['X-Frame-Options', 'DENY'],
-    ['X-XSS-Protection', '1; mode=block'],
-    ['Referrer-Policy', 'strict-origin-when-cross-origin'],
-    ['Permissions-Policy', 'geolocation=(), microphone=(), camera=()']
-  ]);
 
   constructor(
     private router: Router,
     private userService: UserService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private loaderService: LoaderService
   ) {
     this.initializeSecurityHeaders();
     this.startSessionMonitoring();
@@ -75,78 +69,76 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private performSecurityCheck(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    this.loaderService.show();
+
     const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      this.backgroundSecurityCheck(route, state, currentUser);
+      return of(true);
+    }
 
     return new Observable<boolean>((observer) => {
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        unsubscribe(); // stop listening after first trigger
+      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        unsubscribe();
 
-        try {
-          console.log('[AuthGuard] Firebase user:', firebaseUser);
-
-          if (!firebaseUser) {
-            await this.handleUnauthenticatedUser(state);
+        if (!firebaseUser) {
+          this.handleUnauthenticatedUser(state).then(() => {
+            this.loaderService.hide();
             observer.next(false);
-            return;
-          }
-
-          // Ensure session timestamp is initialized
-          if (!this.sessionStartTime.has(firebaseUser.uid)) {
-            console.log('[AuthGuard] Initializing session for user:', firebaseUser.uid);
-            this.updateSessionTimestamp(firebaseUser.uid);
-          }
-
-          if (this.isSessionExpired(firebaseUser.uid)) {
-            await this.handleSessionExpired(firebaseUser, state);
-            observer.next(false);
-            return;
-          }
-
-          const userData = await this.userService.getCurrentUser();
-
-          if (!userData) {
-            await this.handleInvalidUserData(firebaseUser, state);
-            observer.next(false);
-            return;
-          }
-
-          const hasPermission = await this.checkRoutePermissions(route, userData, firebaseUser);
-
-          if (!hasPermission) {
-            await this.handleInsufficientPermissions(userData, state);
-            observer.next(false);
-            return;
-          }
-
-          this.updateSessionTimestamp(firebaseUser.uid);
-
-          this.logSecurityEvent('ROUTE_ACCESS_GRANTED', {
-            userId: firebaseUser.uid,
-            route: state.url,
-            timestamp: new Date().toISOString()
           });
-
+        } else {
+          this.backgroundSecurityCheck(route, state, firebaseUser);
           observer.next(true);
-        } catch (error) {
-          console.error('[AuthGuard] Error:', error);
-          await this.handleSecurityError(error, state);
-          observer.next(false);
+          this.loaderService.hide();
         }
       });
     }).pipe(
-      timeout(15000),
-      retry(1),
+      timeout(10000),
       catchError(error => {
-        console.error('[AuthGuard] Critical error:', error);
+        console.error('[AuthGuard] Timeout or error:', error);
         this.router.navigate(['/sign-in'], {
-          queryParams: {
-            error: 'auth_failed',
-            redirect: state.url
-          }
+          queryParams: { error: 'auth_timeout', redirect: state.url }
         });
         return of(false);
       })
     );
+  }
+
+  private backgroundSecurityCheck(route: ActivatedRouteSnapshot, state: RouterStateSnapshot, firebaseUser: User): void {
+    setTimeout(async () => {
+      try {
+        if (!this.sessionStartTime.has(firebaseUser.uid)) {
+          this.updateSessionTimestamp(firebaseUser.uid);
+        }
+
+        if (this.isSessionExpired(firebaseUser.uid)) {
+          await this.handleSessionExpired(firebaseUser, state);
+          return;
+        }
+
+        const userData = await this.userService.getCurrentUser();
+
+        if (!userData) {
+          await this.handleInvalidUserData(firebaseUser, state);
+          return;
+        }
+
+        const hasPermission = await this.checkRoutePermissions(route, userData, firebaseUser);
+        if (!hasPermission) {
+          await this.handleInsufficientPermissions(userData, state);
+          return;
+        }
+
+        this.updateSessionTimestamp(firebaseUser.uid);
+      } catch (error) {
+        console.error('[AuthGuard] Background error:', error);
+        await this.handleSecurityError(error, state);
+      } finally {
+        this.loaderService.hide();
+      }
+    }, 0);
   }
 
   private async checkRoutePermissions(route: ActivatedRouteSnapshot, userData: AppUser, firebaseUser: User): Promise<boolean> {
@@ -181,7 +173,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private async handleUnauthenticatedUser(state: RouterStateSnapshot): Promise<void> {
-    console.log('[AuthGuard] User not authenticated');
     this.router.navigate(['/sign-in'], {
       queryParams: {
         session: 'expired',
@@ -191,7 +182,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private async handleSessionExpired(firebaseUser: User, state: RouterStateSnapshot): Promise<void> {
-    console.log('[AuthGuard] Session expired:', firebaseUser.uid);
     this.sessionStartTime.delete(firebaseUser.uid);
     this.userService.clearCachedUserData();
     await this.userService.signOut();
@@ -205,7 +195,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private async handleInvalidUserData(firebaseUser: User, state: RouterStateSnapshot): Promise<void> {
-    console.error('[AuthGuard] Invalid user data for:', firebaseUser.uid);
     this.userService.clearCachedUserData();
     await this.userService.signOut();
     this.router.navigate(['/sign-in'], {
@@ -217,7 +206,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private async handleInsufficientPermissions(userData: AppUser, state: RouterStateSnapshot): Promise<void> {
-    console.warn('[AuthGuard] No permission:', userData.uid);
     this.notificationService.error('Access Denied: You do not have permission to access this page.');
     this.router.navigate(['/dashboard'], {
       queryParams: {
@@ -228,7 +216,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private async handleSecurityError(error: any, state: RouterStateSnapshot): Promise<void> {
-    console.error('[AuthGuard] Security error:', error);
     this.router.navigate(['/sign-in'], {
       queryParams: {
         error: 'security_error',
@@ -264,12 +251,20 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private hasTwoFactorEnabled(userData: AppUser): boolean {
-    return false; // Implement your logic
+    return false; // Replace with actual logic
   }
 
   private initializeSecurityHeaders(): void {
     if (!SECURITY_CONFIG.SECURE_HEADERS) return;
-    this.securityHeaders.forEach((value, key) => {
+    const headers = new Map<string, string>([
+      ['X-Content-Type-Options', 'nosniff'],
+      ['X-Frame-Options', 'DENY'],
+      ['X-XSS-Protection', '1; mode=block'],
+      ['Referrer-Policy', 'strict-origin-when-cross-origin'],
+      ['Permissions-Policy', 'geolocation=(), microphone=(), camera=()']
+    ]);
+
+    headers.forEach((value, key) => {
       if (typeof document !== 'undefined') {
         const meta = document.createElement('meta');
         meta.httpEquiv = key;
@@ -277,9 +272,5 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         document.head.appendChild(meta);
       }
     });
-  }
-
-  private logSecurityEvent(eventType: string, data: any): void {
-    console.log(`[SecurityEvent] ${eventType}`, data);
   }
 }
