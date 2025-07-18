@@ -45,8 +45,8 @@
     </div>
 
     <div *ngIf="filteredIcons.length > 0" class="icons-grid">
+      @for (icon of filteredIcons; track icon) {
       <button 
-        *ngFor="let icon of filteredIcons; trackBy: trackByIcon"
         type="button"
         (click)="selectIcon(icon)"
         class="icon-option"
@@ -55,6 +55,7 @@
         <mat-icon class="icon">{{ icon }}</mat-icon>
         <!-- <span class="icon-name">{{ icon }}</span> -->
       </button>
+      }
     </div>
   </div>
 

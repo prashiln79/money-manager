@@ -39,7 +39,8 @@
         </mat-card-header>
         <mat-card-content>
           <div class="invitations-list">
-            <div *ngFor="let invitation of invitations" class="invitation-item">
+            @for (invitation of invitations; track invitation.id) {
+            <div class="invitation-item">
               <div class="invitation-info">
                 <div class="invitation-details">
                   <h4>{{ invitation.groupName }}</h4>
@@ -66,6 +67,7 @@
                 </div>
               </div>
             </div>
+            }
           </div>
         </mat-card-content>
       </mat-card>
@@ -75,14 +77,15 @@
     <div class="groups-section">
       <!-- Groups List -->
       <div class="groups-list">
+        @for (group of groups; track group.id) {
         <app-group
-          *ngFor="let group of groups"
           [group]="group"
           [isSelected]="false"
           [isMobile]="isMobile"
           (addMember)="handleAddMember($event)"
           (deleteGroup)="deleteGroup($event)">
         </app-group>
+        }
       </div>
 
 

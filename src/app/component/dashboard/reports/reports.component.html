@@ -110,16 +110,19 @@
             <mat-menu #chartTypeMenu="matMenu" class="chart-type-menu">
               <div class="p-2">
                 <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-3">Chart Type</div>
+                @for (type of availableChartTypes; track type) {
                 <button 
                   mat-menu-item 
-                  *ngFor="let type of availableChartTypes"
                   (click)="onChartTypeChange(type)"
                   [class.bg-blue-50]="selectedChartType === type"
                   class="flex items-center space-x-3">
                   <mat-icon class="text-sm">{{ type === 'pie' ? 'pie_chart' : type === 'bar' ? 'bar_chart' : type === 'line' ? 'show_chart' : type === 'area' ? 'area_chart' : type === 'radar' ? 'radar' : type === 'funnel' ? 'filter_alt' : type === 'scatter' ? 'scatter_plot' : 'grid_on' }}</mat-icon>
                   <span class="text-sm">{{ type.charAt(0).toUpperCase() + type.slice(1) }}</span>
-                  <mat-icon *ngIf="selectedChartType === type" class="text-blue-600 text-sm">check</mat-icon>
+                  @if (selectedChartType === type) {
+                  <mat-icon class="text-blue-600 text-sm">check</mat-icon>
+                  }
                 </button>
+                }
               </div>
             </mat-menu>
 
@@ -134,16 +137,19 @@
             <mat-menu #analyticsViewMenu="matMenu" class="analytics-view-menu">
               <div class="p-2">
                 <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-3">Analytics View</div>
+                @for (view of availableAnalyticsViews; track view) {
                 <button 
                   mat-menu-item 
-                  *ngFor="let view of availableAnalyticsViews"
                   (click)="onAnalyticsViewChange(view)"
                   [class.bg-green-50]="selectedAnalyticsView === view"
                   class="flex items-center space-x-3">
                   <mat-icon class="text-sm">{{ view === 'overview' ? 'dashboard' : view === 'trends' ? 'trending_up' : view === 'categories' ? 'category' : view === 'accounts' ? 'account_balance' : view === 'comparison' ? 'compare' : 'timeline' }}</mat-icon>
                   <span class="text-sm">{{ view.charAt(0).toUpperCase() + view.slice(1) }}</span>
-                  <mat-icon *ngIf="selectedAnalyticsView === view" class="text-green-600 text-sm">check</mat-icon>
+                  @if (selectedAnalyticsView === view) {
+                  <mat-icon class="text-green-600 text-sm">check</mat-icon>
+                  }
                 </button>
+                }
               </div>
             </mat-menu>
 
@@ -240,12 +246,14 @@
                   <mat-icon class="text-sm mr-2">category</mat-icon>
                   Category Trends
                 </h4>
-                <div *ngFor="let trend of categoryTrends.slice(0, 3)" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                @for (trend of categoryTrends.slice(0, 3); track trend.category) {
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                   <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.category }}</span>
                   <span class="text-sm font-medium" [ngClass]="trend.change >= 0 ? 'text-red-600' : 'text-green-600'">
                     {{ trend.change >= 0 ? '+' : '' }}{{ trend.percentage.toFixed(1) }}%
                   </span>
                 </div>
+                }
               </div>
 
               <!-- Spending Trends -->
@@ -254,10 +262,12 @@
                   <mat-icon class="text-sm mr-2">trending_up</mat-icon>
                   Spending Trends
                 </h4>
-                <div *ngFor="let trend of spendingTrends.slice(0, 3)" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                @for (trend of spendingTrends.slice(0, 3); track trend.period) {
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                   <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.period }}</span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(trend.amount) }}</span>
                 </div>
+                }
               </div>
 
               <!-- Account Balances -->
@@ -266,10 +276,12 @@
                   <mat-icon class="text-sm mr-2">account_balance</mat-icon>
                   Account Balances
                 </h4>
-                <div *ngFor="let account of accountBalances.slice(0, 3)" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                @for (account of accountBalances.slice(0, 3); track account.account) {
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                   <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ account.account }}</span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(account.balance) }}</span>
                 </div>
+                }
               </div>
             </div>
           </div>
@@ -373,7 +385,9 @@
           <mat-form-field appearance="fill" class="w-full">
             <mat-select>
               <mat-option value="all">All Categories</mat-option>
-              <mat-option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</mat-option>
+              @for (category of categories; track category.name) {
+              <mat-option [value]="category.name">{{ category.name }}</mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -382,7 +396,9 @@
           <mat-form-field appearance="fill" class="w-full">
             <mat-select>
               <mat-option value="all">All Accounts</mat-option>
-              <mat-option *ngFor="let account of accounts" [value]="account.name">{{ account.name }}</mat-option>
+              @for (account of accounts; track account.name) {
+              <mat-option [value]="account.name">{{ account.name }}</mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -535,10 +551,12 @@
             </div>
           </div>
           <div class="space-y-3 sm:space-y-4">
-            <div *ngFor="let month of monthlyTrends.slice(-2)" class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            @for (month of monthlyTrends.slice(-2); track month.month) {
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <span class="text-gray-700 dark:text-gray-300 truncate">{{ month.month }}</span>
               <span class="font-semibold text-gray-900 dark:text-white ml-3 text-right">{{ formatCurrency(month.savings) }}</span>
             </div>
+            }
             <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
               <span class="text-gray-700 dark:text-gray-300">Change</span>
               <span class="font-semibold text-green-600 dark:text-green-400 ml-3 text-right">{{ getMonthlyChangeDisplay() }}</span>
@@ -562,7 +580,8 @@
           
           <!-- Categories List -->
           <div *ngIf="topCategories.length > 0" class="space-y-3">
-            <div *ngFor="let category of topCategories" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            @for (category of topCategories; track category.category) {
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div class="flex items-center space-x-3 min-w-0 flex-1">
                 <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 dark:bg-gray-600">
                   <mat-icon class="text-sm" [style.color]="category.color">{{ category.icon }}</mat-icon>
@@ -574,6 +593,7 @@
               </div>
               <span class="font-semibold text-gray-900 dark:text-white ml-3 text-right">{{ formatCurrency(category.amount) }}</span>
             </div>
+            }
           </div>
 
           <!-- No Data State -->
@@ -602,7 +622,8 @@
           
           <!-- Recent Transactions List -->
           <div *ngIf="recentTransactions.length > 0" class="space-y-3">
-            <div *ngFor="let transaction of recentTransactions" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            @for (transaction of recentTransactions; track transaction.id) {
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div class="flex items-center space-x-3 min-w-0 flex-1">
                 <mat-icon [ngClass]="getTransactionColor(transaction)" class="flex-shrink-0">{{ getTransactionIcon(transaction) }}</mat-icon>
                 <div class="min-w-0 flex-1">
@@ -619,6 +640,7 @@
                 </div>
               </div>
             </div>
+            }
           </div>
 
           <!-- No Data State -->
@@ -765,7 +787,8 @@
           <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 sm:p-6">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Trends</h4>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-              <div *ngFor="let month of monthlyTrends" class="text-center p-3 bg-white dark:bg-gray-600 rounded-lg">
+              @for (month of monthlyTrends; track month.month) {
+              <div class="text-center p-3 bg-white dark:bg-gray-600 rounded-lg">
                 <div class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 truncate">{{ month.month }}</div>
                 <div class="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400 truncate">{{ formatCurrency(month.income) }}</div>
                 <div class="text-xs sm:text-sm text-red-600 dark:text-red-400 truncate">{{ formatCurrency(month.expenses) }}</div>
@@ -773,6 +796,7 @@
                   {{ month.savings >= 0 ? '+' : '' }}{{ formatCurrency(month.savings) }}
                 </div>
               </div>
+              }
             </div>
           </div>
 
@@ -780,7 +804,8 @@
           <div *ngIf="topCategories.length > 0" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 sm:p-6">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Category Breakdown</h4>
             <div class="space-y-3">
-              <div *ngFor="let category of topCategories" class="flex items-center justify-between">
+              @for (category of topCategories; track category.category) {
+              <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3 min-w-0 flex-1">
                   <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 dark:bg-gray-600">
                     <mat-icon class="text-xs" [style.color]="category.color">{{ category.icon }}</mat-icon>
@@ -796,6 +821,7 @@
                   </span>
                 </div>
               </div>
+              }
             </div>
           </div>
         </div>
@@ -847,9 +873,11 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Default Chart Type</label>
                 <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.defaultChartType">
-                    <mat-option *ngFor="let type of availableChartTypes" [value]="type">
+                    @for (type of availableChartTypes; track type) {
+                    <mat-option [value]="type">
                       {{ type.charAt(0).toUpperCase() + type.slice(1) }}
                     </mat-option>
+                    }
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -858,9 +886,11 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Default Analytics View</label>
                 <mat-form-field appearance="fill" class="w-full">
                   <mat-select [(ngModel)]="userPreferences.defaultAnalyticsView">
-                    <mat-option *ngFor="let view of availableAnalyticsViews" [value]="view">
+                    @for (view of availableAnalyticsViews; track view) {
+                    <mat-option [value]="view">
                       {{ view.charAt(0).toUpperCase() + view.slice(1) }}
                     </mat-option>
+                    }
                   </mat-select>
                 </mat-form-field>
               </div>

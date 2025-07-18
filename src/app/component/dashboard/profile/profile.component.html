@@ -130,9 +130,11 @@
 					<mat-form-field appearance="fill" class="form-field">
 						<mat-label>Default Currency *</mat-label>
 						<mat-select formControlName="defaultCurrency" [disabled]="!isEditing">
-							<mat-option *ngFor="let currency of currencies" [value]="currency">
+							@for (currency of currencies; track currency) {
+							<mat-option [value]="currency">
 								{{ currency }}
 							</mat-option>
+							}
 						</mat-select>
 					</mat-form-field>
 
@@ -140,9 +142,11 @@
 					<mat-form-field appearance="fill" class="form-field">
 						<mat-label>Timezone *</mat-label>
 						<mat-select formControlName="timezone" [disabled]="!isEditing">
-							<mat-option *ngFor="let tz of timezones" [value]="tz.value">
+							@for (tz of timezones; track tz.value) {
+							<mat-option [value]="tz.value">
 								{{ tz.label }}
 							</mat-option>
+							}
 						</mat-select>
 					</mat-form-field>
 
@@ -150,9 +154,11 @@
 					<mat-form-field appearance="fill" class="form-field">
 						<mat-label>Language *</mat-label>
 						<mat-select formControlName="language" [disabled]="!isEditing">
-							<mat-option *ngFor="let lang of languages" [value]="lang.code">
+							@for (lang of languages; track lang.code) {
+							<mat-option [value]="lang.code">
 								{{ lang.name }}
 							</mat-option>
+							}
 						</mat-select>
 					</mat-form-field>
 				</div>

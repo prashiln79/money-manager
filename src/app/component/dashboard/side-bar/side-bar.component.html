@@ -44,7 +44,8 @@
 
 			<!-- Navigation -->
 			<nav class="flex-1 p-4">
-				<div *ngFor="let section of navigationSections" class="mb-6">
+				@for (section of navigationSections; track section.label) {
+				<div class="mb-6">
 					<!-- Section Header -->
 					<div *ngIf="section.label == 'Admin' && isAdmin"
 						class="flex items-center justify-between mb-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2.5 transition-all duration-200 group"
@@ -77,8 +78,8 @@
 						[class.opacity-100]="section.isExpanded"
 						
 					>
+						@for (child of section.children; track child.route) {
 						<a
-							*ngFor="let child of section.children"
 							[routerLink]="child.route"
 							routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm"
 							(click)="drawer.toggle()"
@@ -93,11 +94,13 @@
 							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg ml-1">{{ child.icon }}</mat-icon>
 							<span class="font-medium text-sm text-gray-700 group-hover:text-blue-700 transition-colors">{{ child.label | translate }}</span>
 						</a>
+						}
 					</div>
 
 					<!-- Divider (except for last section) -->
 					<div *ngIf="section !== navigationSections[navigationSections.length - 1]" class="mt-6 pt-4 border-t border-gray-100"></div>
 				</div>
+				}
 			</nav>
 
 			<!-- Footer -->

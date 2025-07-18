@@ -224,10 +224,12 @@
           Tax Deductions & Exemptions
         </h4>
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-3 border-b border-gray-100" *ngFor="let deduction of oldRegimeCalculation.deductions">
+          @for (deduction of oldRegimeCalculation.deductions; track deduction.section) {
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
             <span class="text-gray-600">{{ deduction.section }} ({{ deduction.description }})</span>
             <span class="font-semibold text-green-600">{{ formatCurrency(deduction.currentAmount) }}</span>
           </div>
+          }
           <div class="flex justify-between items-center py-4 bg-green-50 px-4 rounded-lg border-2 border-green-200">
             <span class="text-gray-700 font-semibold">Total Deductions</span>
             <span class="font-bold text-green-700 text-xl">{{ formatCurrency(oldRegimeCalculation.totalDeductions) }}</span>

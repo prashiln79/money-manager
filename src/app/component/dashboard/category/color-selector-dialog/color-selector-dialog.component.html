@@ -45,8 +45,8 @@
     </div>
 
     <div *ngIf="filteredColors.length > 0" class="colors-grid">
+      @for (color of filteredColors; track color) {
       <button 
-        *ngFor="let color of filteredColors; trackBy: trackByColor"
         type="button"
         (click)="selectColor(color)"
         class="color-option"
@@ -55,8 +55,11 @@
         [attr.aria-label]="'Select ' + color + ' color'">
         <div class="color-preview" [style.background-color]="color"></div>
         <!-- <span class="color-name">{{ color }}</span> -->
-        <mat-icon *ngIf="selectedColor === color" class="check-icon">check</mat-icon>
+        @if (selectedColor === color) {
+        <mat-icon class="check-icon">check</mat-icon>
+        }
       </button>
+      }
     </div>
   </div>
 

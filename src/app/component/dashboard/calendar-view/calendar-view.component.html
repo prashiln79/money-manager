@@ -79,18 +79,22 @@
           <mat-form-field appearance="fill" class="year-select">
             <mat-label>Year</mat-label>
             <mat-select [(value)]="selectedYear" (selectionChange)="onYearChange($event.value)">
-              <mat-option *ngFor="let year of availableYears" [value]="year">
+              @for (year of availableYears; track year) {
+              <mat-option [value]="year">
                 {{ year }}
               </mat-option>
+              }
             </mat-select>
           </mat-form-field>
           
           <mat-form-field appearance="fill" class="month-select">
             <mat-label>Month</mat-label>
             <mat-select [(value)]="selectedMonth" (selectionChange)="onMonthChange($event.value)">
-              <mat-option *ngFor="let month of availableMonths" [value]="month.value">
+              @for (month of availableMonths; track month.value) {
+              <mat-option [value]="month.value">
                 {{ month.label }}
               </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>

@@ -153,7 +153,8 @@
   <!-- Mobile Card View -->
   <div class="sm:hidden flex-1 overflow-auto max-h-full mobile-card-view">
     <div class="p-4 space-y-3">
-      <div *ngFor="let element of dataSource.data" class="transaction-card">
+      @for (element of dataSource.data; track element.id) {
+      <div class="transaction-card">
         <!-- Header Row -->
         <div class="card-header">
           <div class="left-section">
@@ -191,6 +192,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
 

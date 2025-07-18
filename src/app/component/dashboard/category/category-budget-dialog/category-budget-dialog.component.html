@@ -46,10 +46,11 @@
         <label class="field-label">Budget Period</label>
         <mat-form-field appearance="fill" class="form-input-field">
           <mat-select formControlName="budgetPeriod" class="form-select">
-            <mat-option *ngFor="let period of budgetPeriods" 
-                       [value]="period.value">
+            @for (period of budgetPeriods; track period.value) {
+            <mat-option [value]="period.value">
               {{ period.label }}
             </mat-option>
+            }
           </mat-select>
           <mat-error *ngIf="budgetPeriodControl?.hasError('required')">
             Budget period is required

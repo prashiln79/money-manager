@@ -199,9 +199,11 @@
               Budget Period *
             </label>
             <select formControlName="budgetPeriod" class="form-select">
-              <option *ngFor="let period of budgetPeriods" [value]="period.value">
+              @for (period of budgetPeriods; track period.value) {
+              <option [value]="period.value">
                 {{ period.label }}
               </option>
+              }
             </select>
             @if(getBudgetPeriodError() && budgetForm.get('budgetPeriod')?.touched) {
               <p class="error-message">{{ getBudgetPeriodError() }}</p>

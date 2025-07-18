@@ -16,9 +16,11 @@
             class="w-full"
             placeholder="Select account for imported transactions"
           >
-            <mat-option *ngFor="let account of accounts" [value]="account.accountId">
+            @for (account of accounts; track account.accountId) {
+            <mat-option [value]="account.accountId">
               {{ account.name }} ({{ account.type }})
             </mat-option>
+            }
           </mat-select>
         </div>
       </div>
@@ -87,8 +89,8 @@
 
       <!-- Mobile View -->
       <div *ngIf="isMobile" class="mobile-transactions">
+        @for (tx of parsedTransactions; track tx._idx; let i = $index) {
         <div 
-          *ngFor="let tx of parsedTransactions; let i = index" 
           class="transaction-card"
           [class.selected]="selectedToImport.has(tx._idx)"
           (click)="toggleSelect(tx._idx)"
@@ -125,9 +127,11 @@
                   (click)="$event.stopPropagation()"
                   class="edit-select"
                 >
-                  <mat-option *ngFor="let cat of getCategoriesForType(tx.type)" [value]="cat.name">
+                  @for (cat of getCategoriesForType(tx.type); track cat.name) {
+                  <mat-option [value]="cat.name">
                     {{ cat.name }}
                   </mat-option>
+                  }
                 </mat-select>
               </div>
             </div>
@@ -184,6 +188,7 @@
             <small class="text-gray-500">{{ tx.narration }}</small>
           </div>
         </div>
+        }
       </div>
 
       <!-- Desktop View -->
@@ -208,7 +213,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let tx of parsedTransactions; let i = index" class="transaction-row">
+              @for (tx of parsedTransactions; track tx._idx; let i = $index) {
+              <tr class="transaction-row">
                 <td class="checkbox-col">
                   <mat-checkbox 
                     [checked]="selectedToImport.has(tx._idx)" 
@@ -278,9 +284,11 @@
                     (selectionChange)="updateTransaction(i, 'category', $event.value)"
                     class="edit-select"
                   >
-                    <mat-option *ngFor="let cat of getCategoriesForType(tx.type)" [value]="cat.name">
+                    @for (cat of getCategoriesForType(tx.type); track cat.name) {
+                    <mat-option [value]="cat.name">
                       {{ cat.name }}
                     </mat-option>
+                    }
                   </mat-select>
                 </td>
                 
@@ -304,6 +312,7 @@
                            matTooltipPosition="above">info</mat-icon>
                 </td>
               </tr>
+              }
             </tbody>
           </table>
         </div>

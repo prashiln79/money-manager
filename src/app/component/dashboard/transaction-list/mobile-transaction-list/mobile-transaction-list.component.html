@@ -35,11 +35,15 @@
 			</button>
 
 			<mat-menu #sortMenu="matMenu" class="filter-menu">
-				<button *ngFor="let option of sortOptions" mat-menu-item [class.active-menu-item]="selectedSort === option.value" (click)="onSortChange(option.value)">
+				@for (option of sortOptions; track option.value) {
+				<button mat-menu-item [class.active-menu-item]="selectedSort === option.value" (click)="onSortChange(option.value)">
 					<mat-icon>{{ option.icon }}</mat-icon>
 					<span>{{ option.label }}</span>
-					<mat-icon *ngIf="selectedSort === option.value" class="check-icon">check</mat-icon>
+					@if (selectedSort === option.value) {
+					<mat-icon class="check-icon">check</mat-icon>
+					}
 				</button>
+				}
 			</mat-menu>
 
 			<!-- Type Menu -->
@@ -77,11 +81,15 @@
 					<mat-icon *ngIf="selectedCategory.includes('all')" class="check-icon">check</mat-icon>
 				</button>
 				<mat-divider></mat-divider>
-				<button *ngFor="let category of getCategoriesList()" mat-menu-item [class.active-menu-item]="isCategorySelected(category)" (click)="onCategoryChange(category)">
+				@for (category of getCategoriesList(); track category) {
+				<button mat-menu-item [class.active-menu-item]="isCategorySelected(category)" (click)="onCategoryChange(category)">
 					<mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
 					<span>{{ category }}</span>
-					<mat-icon *ngIf="isCategorySelected(category)" class="check-icon">check</mat-icon>
+					@if (isCategorySelected(category)) {
+					<mat-icon class="check-icon">check</mat-icon>
+					}
 				</button>
+				}
 			</mat-menu>
 
 			<!-- Date Range Menu -->

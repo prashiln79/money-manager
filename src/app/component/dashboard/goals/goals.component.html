@@ -2,7 +2,8 @@
     <h2>User Goals</h2>
   
     <!-- List of Goals -->
-    <div *ngFor="let goal of goals">
+    @for (goal of goals; track goal.goalId) {
+    <div>
       <div>
         <p>Title: {{ goal.title }}</p>
         <p>Target Amount: {{ goal.targetAmount | currency }}</p>
@@ -12,6 +13,7 @@
         <button (click)="updateCurrentAmount(goal.goalId, 100)">Add 100 to current amount</button> <!-- Example button -->
       </div>
     </div>
+    }
   
     <!-- Add New Goal Form -->
     <form (submit)="createGoal()">

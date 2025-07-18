@@ -38,9 +38,11 @@
         (change)="onCategoryChange()"
         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
-        <option *ngFor="let category of categories" [value]="category.value">
+        @for (category of categories; track category.value) {
+        <option [value]="category.value">
           {{ category.label }}
         </option>
+        }
       </select>
     </div>
   </div>
@@ -83,9 +85,11 @@
               [(ngModel)]="newNote.category"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option *ngFor="let category of categories.slice(1)" [value]="category.value">
+              @for (category of categories.slice(1); track category.value) {
+              <option [value]="category.value">
                 {{ category.label }}
               </option>
+              }
             </select>
           </div>
           
@@ -98,8 +102,8 @@
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
             <div class="flex flex-wrap gap-2 mt-2">
+              @for (tag of newNote.tags; track tag) {
               <span 
-                *ngFor="let tag of newNote.tags" 
                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
               >
                 {{ tag }}
@@ -107,6 +111,7 @@
                   <mat-icon class="text-xs">close</mat-icon>
                 </button>
               </span>
+              }
             </div>
           </div>
         </div>
@@ -127,7 +132,8 @@
 
   <!-- Notes List -->
   <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-    <div *ngFor="let note of filteredNotes" class="relative">
+    @for (note of filteredNotes; track note.id) {
+    <div class="relative">
       <mat-card class="h-full shadow-lg border-0 rounded-xl hover:shadow-xl transition-shadow" 
                 [class.border-l-4]="note.isImportant"
                 [class.border-l-red-500]="note.isImportant">
@@ -165,12 +171,13 @@
           <p class="text-gray-600 mb-4 line-clamp-3">{{ note.content }}</p>
           
           <div class="flex flex-wrap gap-2 mb-3">
+            @for (tag of note.tags; track tag) {
             <span 
-              *ngFor="let tag of note.tags" 
               class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
             >
               {{ tag }}
             </span>
+            }
           </div>
           
           <div class="text-xs text-gray-400">
@@ -179,6 +186,7 @@
         </div>
       </mat-card>
     </div>
+    }
   </div>
 
   <!-- Empty State -->
