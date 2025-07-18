@@ -23,6 +23,27 @@ export const splitwiseReducer = createReducer(
     error
   })),
 
+  // Load Group by ID
+  on(SplitwiseActions.loadGroupById, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(SplitwiseActions.loadGroupByIdSuccess, (state, { group }) => ({
+    ...state,
+    groups: state.groups.find(g => g.id === group.id) 
+      ? state.groups.map(g => g.id === group.id ? group : g)
+      : [...state.groups, group],
+    selectedGroup: group,
+    loading: false,
+    error: null
+  })),
+  on(SplitwiseActions.loadGroupByIdFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+
   // Load Invitations
   on(SplitwiseActions.loadInvitations, (state) => ({
     ...state,
@@ -187,6 +208,23 @@ export const splitwiseReducer = createReducer(
     error: null
   })),
   on(SplitwiseActions.createSplitTransactionFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+
+  // Remove Member
+  on(SplitwiseActions.removeMember, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(SplitwiseActions.removeMemberSuccess, (state, { groupId }) => ({
+    ...state,
+    loading: false,
+    error: null
+  })),
+  on(SplitwiseActions.removeMemberFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error

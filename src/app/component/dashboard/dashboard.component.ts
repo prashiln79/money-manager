@@ -9,6 +9,7 @@ import { loadCategories } from 'src/app/store/categories/categories.actions';
 import { loadBudgets } from 'src/app/store/budgets/budgets.actions';
 import { loadGoals } from 'src/app/store/goals/goals.actions';
 import { loadTransactions } from 'src/app/store/transactions/transactions.actions';
+import { InvitationPopupService } from 'src/app/util/service/invitation-popup.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +22,8 @@ export class DashboardComponent {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private store: Store<AppState>,
-    private userService: UserService
+    private userService: UserService,
+    private invitationPopupService: InvitationPopupService
   ) {
     this.breakpointObserver
       .observe([Breakpoints.Handset])
@@ -47,5 +49,7 @@ export class DashboardComponent {
     this.store.dispatch(
       loadTransactions({ userId: this.userService.getUser()?.uid })
     );
+
+    this.invitationPopupService.showInvitationsAfterLogin();
   }
 }

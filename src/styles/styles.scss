@@ -175,6 +175,30 @@
   }
 }
 
+/* Invitation Popup Dialog Styles */
+.invitation-popup-dialog {
+  .mat-dialog-container {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .mat-dialog-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Mobile responsive for invitation popup */
+@media (max-width: 600px) {
+  .invitation-popup-dialog {
+    .mat-dialog-container {
+      margin: 16px !important;
+      border-radius: 12px !important;
+    }
+  }
+}
+
 // Remove Later *****
 html {
   scroll-behavior: smooth;

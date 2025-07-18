@@ -307,6 +307,45 @@
 				font-size: 0.7rem;
 			}
 		}
+
+		.status-message {
+			font-size: 0.75rem;
+			margin: 0.25rem 0 0 0;
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+			padding: 0.5rem;
+			border-radius: 6px;
+			font-weight: 500;
+
+			@media (max-width: 360px) {
+				font-size: 0.7rem;
+			}
+
+			&.user-found {
+				color: #059669;
+				background-color: #d1fae5;
+				border: 1px solid #a7f3d0;
+
+				.dark & {
+					color: #6ee7b7;
+					background-color: #064e3b;
+					border-color: #047857;
+				}
+			}
+
+			&.user-not-found {
+				color: #d97706;
+				background-color: #fef3c7;
+				border: 1px solid #fde68a;
+
+				.dark & {
+					color: #fbbf24;
+					background-color: #451a03;
+					border-color: #92400e;
+				}
+			}
+		}
 	}
 }
 

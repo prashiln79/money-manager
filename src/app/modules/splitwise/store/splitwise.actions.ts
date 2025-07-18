@@ -155,5 +155,19 @@ export const createSplitTransactionFailure = createAction(
   props<{ error: string }>()
 );
 
+// Remove Member
+export const removeMember = createAction(
+  '[Splitwise] Remove Member',
+  props<{ groupId: string; userId: string }>()
+);
+export const removeMemberSuccess = createAction(
+  '[Splitwise] Remove Member Success',
+  props<{ groupId: string }>()
+);
+export const removeMemberFailure = createAction(
+  '[Splitwise] Remove Member Failure',
+  props<{ error: string }>()
+);
+
 // Clear Error
 export const clearError = createAction('[Splitwise] Clear Error'); 

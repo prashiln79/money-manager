@@ -28,6 +28,20 @@ export class SplitwiseEffects {
     ))
   ));
 
+  loadGroupById$ = createEffect(() => this.actions$.pipe(
+    ofType(SplitwiseActions.loadGroupById),
+    mergeMap((action) => from(this.splitwiseService.getGroupById(action.groupId)).pipe(
+      map(group => {
+        if (group) {
+          return SplitwiseActions.loadGroupByIdSuccess({ group });
+        } else {
+          return SplitwiseActions.loadGroupByIdFailure({ error: 'Group not found' });
+        }
+      }),
+      catchError(error => of(SplitwiseActions.loadGroupByIdFailure({ error: error.message })))
+    ))
+  ));
+
   loadInvitations$ = createEffect(() => this.actions$.pipe(
     ofType(SplitwiseActions.loadInvitations),
     mergeMap(() => from(this.userService.getCurrentUser()).pipe(
@@ -65,7 +79,7 @@ export class SplitwiseEffects {
         if (!user?.uid) {
           return of(SplitwiseActions.addMemberFailure({ error: 'User not authenticated' }));
         }
-        return this.splitwiseService.addMemberToGroup(action.groupId, action.request, user.uid).pipe(
+        return from(this.splitwiseService.addMemberToGroup(action.groupId, action.request, user.uid)).pipe(
           map(group => SplitwiseActions.addMemberSuccess({ group })),
           catchError(error => of(SplitwiseActions.addMemberFailure({ error: error.message })))
         );
@@ -80,7 +94,7 @@ export class SplitwiseEffects {
         if (!user?.uid) {
           return of(SplitwiseActions.acceptInvitationFailure({ error: 'User not authenticated' }));
         }
-        return this.splitwiseService.acceptInvitation(action.invitationId, user.uid).pipe(
+        return from(this.splitwiseService.acceptInvitation(action.invitationId, user.uid)).pipe(
           map(() => SplitwiseActions.acceptInvitationSuccess({ invitationId: action.invitationId })),
           catchError(error => of(SplitwiseActions.acceptInvitationFailure({ error: error.message })))
         );
@@ -95,7 +109,7 @@ export class SplitwiseEffects {
         if (!user?.uid) {
           return of(SplitwiseActions.declineInvitationFailure({ error: 'User not authenticated' }));
         }
-        return this.splitwiseService.declineInvitation(action.invitationId, user.uid).pipe(
+        return from(this.splitwiseService.declineInvitation(action.invitationId, user.uid)).pipe(
           map(() => SplitwiseActions.declineInvitationSuccess({ invitationId: action.invitationId })),
           catchError(error => of(SplitwiseActions.declineInvitationFailure({ error: error.message })))
         );
@@ -158,6 +172,21 @@ export class SplitwiseEffects {
         return this.splitwiseService.createSplitTransaction(action.request, user.uid).pipe(
           map(transaction => SplitwiseActions.createSplitTransactionSuccess({ transaction })),
           catchError(error => of(SplitwiseActions.createSplitTransactionFailure({ error: error.message })))
+        );
+      })
+    ))
+  ));
+
+  removeMember$ = createEffect(() => this.actions$.pipe(
+    ofType(SplitwiseActions.removeMember),
+    mergeMap((action) => from(this.userService.getCurrentUser()).pipe(
+      mergeMap(user => {
+        if (!user?.uid) {
+          return of(SplitwiseActions.removeMemberFailure({ error: 'User not authenticated' }));
+        }
+        return from(this.splitwiseService.removeMemberFromGroup(action.groupId, action.userId, user.uid)).pipe(
+          map(() => SplitwiseActions.removeMemberSuccess({ groupId: action.groupId })),
+          catchError(error => of(SplitwiseActions.removeMemberFailure({ error: error.message })))
         );
       })
     ))

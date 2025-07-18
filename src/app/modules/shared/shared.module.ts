@@ -10,13 +10,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule } from '@angular/material/dialog';
 
 // Utility Components
 import { ConfirmDialogComponent } from '../../util/components/confirm-dialog/confirm-dialog.component';
+import { InvitationPopupComponent } from '../../util/components/invitation-popup/invitation-popup.component';
 
 @NgModule({
   declarations: [
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    InvitationPopupComponent
   ],
   imports: [
     CommonModule,
@@ -30,7 +33,8 @@ import { ConfirmDialogComponent } from '../../util/components/confirm-dialog/con
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule,
   ],
   exports: [
     CommonModule,
@@ -45,9 +49,11 @@ import { ConfirmDialogComponent } from '../../util/components/confirm-dialog/con
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatDividerModule,
+    MatDialogModule,
     
     // Components
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    InvitationPopupComponent
   ]
 })
 export class SharedModule { } 

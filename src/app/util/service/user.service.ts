@@ -1009,6 +1009,31 @@ export class UserService {
   }
 
   /**
+   * Find user by email for Splitwise invitations
+   */
+  async findUserByEmail(email: string): Promise<User | null> {
+    try {
+      const usersRef = collection(this.firestore, 'users');
+      const q = query(usersRef, where('email', '==', email.toLowerCase()), limit(1));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        return {
+          uid: userDoc.id,
+          ...userDoc.data()
+        } as User;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      return null;
+    }
+  }
+
+
+  /**
    * Get all users for admin purposes
    */
   async getAllUsers(): Promise<any[]> {

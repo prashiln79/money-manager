@@ -110,10 +110,17 @@ export class MembersPageComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
+        if (result.action === 'delete') {
+          this.store.dispatch(SplitwiseActions.removeMember({
+            groupId: this.group!.id!,
+            userId: result.userId
+          }));
+        } else {
         this.store.dispatch(SplitwiseActions.addMember({ 
           groupId: this.group!.id!, 
           request: result 
         }));
+        }
       }
     });
   }

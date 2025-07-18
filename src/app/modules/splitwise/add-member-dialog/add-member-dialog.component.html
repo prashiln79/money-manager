@@ -71,6 +71,11 @@
           @if(memberForm.get('email')?.hasError('alreadyMember') && memberForm.get('email')?.touched) {
             <p class="error-message">This person is already a member of the group</p>
           }
+          @if(getUserStatusText()) {
+            <p class="status-message" [class.user-found]="userExists" [class.user-not-found]="!userExists && !checkingUser">
+              {{ getUserStatusText() }}
+            </p>
+          }
         </div>
       </div>
 
@@ -92,6 +97,10 @@
               <span class="member-name">{{ member.displayName }}</span>
               <span class="member-email">{{ member.email }}</span>
             </div>
+            <!-- delete member -->
+            <button mat-icon-button (click)="onDeleteMember(member.userId)">
+              <mat-icon>delete</mat-icon>
+            </button>
           </div>
         </div>
       </div>
