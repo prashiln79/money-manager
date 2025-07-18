@@ -144,6 +144,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
           fontSize: 14,
           fontWeight: 'bold'
         }
+        
       },
       tooltip: {
         trigger: 'item',
@@ -218,7 +219,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   // Handle chart click events
   onChartClick(event: any) {
-    if (this.chartViewMode === 'category' && event.data) {
+    if (this.chartViewMode === 'category' && event.data && !this.isMobile) {
       this.applyCategoryFilter(event.data.name);
     }
   }

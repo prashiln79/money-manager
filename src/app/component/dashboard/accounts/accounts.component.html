@@ -7,7 +7,7 @@
 		</button>
 	</div>
 
-	<button mat-fab color="primary" *ngIf="isMobile" (click)="addAccount()" class="add-account-btn z-[100]">
+	<button mat-fab color="primary" *ngIf="isMobile && !home" (click)="addAccount()" class="add-account-btn z-[100]">
 		<mat-icon>add</mat-icon>
 	</button>
 

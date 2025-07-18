@@ -4,6 +4,7 @@ import { UserService } from 'src/app/util/service/user.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { User } from 'src/app/util/models/user.model';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-user',
@@ -31,12 +32,17 @@ import { User } from 'src/app/util/models/user.model';
 export class UserComponent {
   isOpen = false;
   public user: User | null = null;
+  public isMobile = false;
 
   constructor(
     private userService: UserService,
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private breakpointObserver: BreakpointObserver,
   ) {
+    this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {
+      this.isMobile = result.matches;
+    });
   }
 
   ngOnInit() {

@@ -31,7 +31,7 @@
                 matTooltip="{{ showCalendar && !showPieChart ? 'Hide calendar' : 'Show calendar' }}">
           <mat-icon>calendar_month</mat-icon>
         </button>
-        <button mat-icon-button 
+        <button mat-icon-button *ngIf="!isMobile"
                 (click)="toggleControls()"
                 [class.rotated]="isControlsExpanded"
                 matTooltip="{{ isControlsExpanded ? 'Hide controls' : 'Show controls' }}">

@@ -120,6 +120,7 @@
 // =============================================================================
 .accounts-list {
   width: 100%;
+  padding: 0.2rem;
   
   // Section Header
   .section-header {
@@ -156,13 +157,14 @@
     border: 1px solid #e5e7eb;
     margin-bottom: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    @media (max-width: 640px) {
+      padding: 1rem;
+    }
     
     .balance-summary-header {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 1rem;
-      
       .balance-icon {
         color: #3b82f6;
         font-size: 1.5rem;
@@ -185,6 +187,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 5px;
         
         .balance-stat-label {
           font-size: 0.875rem;
@@ -211,6 +214,7 @@
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
+      justify-content: flex-end;
       
       .breakdown-item {
         display: flex;
@@ -219,6 +223,11 @@
         padding: 0.5rem 0.75rem;
         border-radius: 6px;
         font-size: 0.875rem;
+       
+
+        @media (max-width: 640px) {
+          justify-content: space-between;
+        }
         
         &.positive {
           background: #f0fdf4;
@@ -247,6 +256,7 @@
         }
       }
     }
+    border-left: 4px solid #3b82f6;
   }
   
   // Empty State
@@ -295,7 +305,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    max-height: 60vh;
+    max-height: 42vh;
     overflow-y: auto;
     
     @media (max-width: 640px) {
@@ -732,6 +742,7 @@
   
   .balance-summary-card {
     padding: 0.75rem;
+    margin: 0;
     
     .balance-summary-header {
       .balance-summary-title {
