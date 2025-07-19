@@ -324,7 +324,7 @@ export class FirebaseMessagingService {
 
   private getServiceWorkerOptions(): any {
     const baseOptions = {
-      scope: '/firebase-cloud-messaging-push-scope'
+      scope: '/wallet/'
     };
 
     // Platform-specific options
