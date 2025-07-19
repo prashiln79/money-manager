@@ -182,7 +182,6 @@ export class FirebaseMessagingService {
       });
 
       if (token) {
-        console.log('FCM Token:', token);
         this.tokenSubject.next(token);
         
         // Store token in localStorage for persistence
