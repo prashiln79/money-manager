@@ -224,18 +224,11 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     for (const transaction of this.transactions) {
       const paidBy = transaction.createdBy; // Who paid for the transaction
       
-      console.log(`Processing transaction ${transaction.id}:`);
-      console.log(`  Total amount: ${transaction.totalAmount}`);
-      console.log(`  Paid by: ${this.getMemberName(paidBy)}`);
-      
       for (const split of transaction.splits) {
         const { userId, amount: splitAmount } = split;
         
-        console.log(`  Split: ${this.getMemberName(userId)} should pay ${splitAmount}`);
-        
         if (userId === paidBy) {
           // The person who paid doesn't owe anyone, but others owe them
-          console.log(`    ${this.getMemberName(userId)} paid for this transaction, so they don't owe anyone`);
           continue;
         } else {
           // This person owes the person who paid
@@ -243,7 +236,6 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
           if (!balances[userId][paidBy]) balances[userId][paidBy] = 0;
           
           balances[userId][paidBy] += splitAmount;
-          console.log(`    ${this.getMemberName(userId)} owes ${this.getMemberName(paidBy)} ${splitAmount}`);
         }
       }
     }
@@ -263,7 +255,6 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
     // Step 3: Simplify balances to show only net one-way debts
     const simplifiedBalances = this.simplifyBalances(balances);
-    console.log('Final simplified balances:', simplifiedBalances);
     return simplifiedBalances;
   }
 
@@ -320,14 +311,19 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
         }
       });
       
-      // Calculate total owed to this member by others
+      // Calculate total amount this member has paid for others (transactions they created)
       let totalPaid = 0;
-      Object.keys(simplifiedBalances).forEach(otherUserId => {
-        if (otherUserId !== member.userId) {
-          const otherBalances = simplifiedBalances[otherUserId] || {};
-          const owedToMember = otherBalances[member.userId] || 0;
-          if (owedToMember > 0) {
-            totalPaid += owedToMember;
+      this.transactions.forEach(transaction => {
+        if (transaction.createdBy === member.userId) {
+          // This member paid for this transaction
+          // Calculate how much they paid for others (excluding their own share)
+          const memberSplit = transaction.splits.find(split => split.userId === member.userId);
+          if (memberSplit) {
+            // They paid the total amount, but their own share should be excluded
+            totalPaid += transaction.totalAmount - memberSplit.amount;
+          } else {
+            // If they're not in the splits, they paid the full amount for others
+            totalPaid += transaction.totalAmount;
           }
         }
       });
