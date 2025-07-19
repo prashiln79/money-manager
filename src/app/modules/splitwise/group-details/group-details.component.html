@@ -46,7 +46,7 @@
 					</div>
 					<div class="stat-item">
 						<div class="stat-content">
-							<div class="stat-value">{{ formatCurrency(getTotalBalance(), group.currency) }}</div>
+							<div class="stat-value">{{ formatCurrency(getTotalBalance()) }}</div>
 							<div class="stat-label">Total Balance</div>
 						</div>
 					</div>
@@ -68,9 +68,9 @@
 						</div>
 						
 					</mat-card-title>
-					<mat-card-subtitle>
+					<!-- <mat-card-subtitle>
 						Who owes what to whom
-					</mat-card-subtitle>
+					</mat-card-subtitle> -->
 				</mat-card-header>
 				<mat-card-content>
 					<div class="balances-list">
@@ -81,12 +81,12 @@
 									<span *ngIf="balance.userId === currentUser?.uid" class="current-user-badge">(You)</span>
 								</div>
 								<div class="balance-details">
-									<span class="paid">Paid: {{ formatCurrency(balance.totalPaid, group.currency) }}</span>
-									<span class="owed">Owed: {{ formatCurrency(balance.totalOwed, group.currency) }}</span>
+									<span class="paid">Paid: {{ formatCurrency(balance.totalPaid) }}</span>
+									<span class="owed">Owed: {{ formatCurrency(balance.totalOwed) }}</span>
 								</div>
 							</div>
 							<div class="net-balance" [class]="getBalanceColor(balance.netBalance)">
-								{{ formatCurrency(balance.netBalance, group.currency) }}
+								{{ formatCurrency(balance.netBalance) }}
 								<span *ngIf="balance.userId === currentUser?.uid" class="status-indicator">
 									{{ getCurrentUserStatus(balance.netBalance) }}
 								</span>
@@ -115,7 +115,7 @@
 										<span class="breakdown-message">{{ breakdown.message }}</span>
 									</div>
 									<div class="breakdown-amount" [class]="breakdown.type">
-										{{ formatCurrency(breakdown.amount, group.currency) }}
+										{{ formatCurrency(breakdown.amount) }}
 									</div>
 								</div>
 								
@@ -155,7 +155,7 @@
 									<span class="to-user">{{ suggestion.toUserName }}</span>
 								</div>
 								<div class="settlement-amount">
-									{{ formatCurrency(suggestion.amount, suggestion.currency) }}
+									{{ formatCurrency(suggestion.amount) }}
 								</div>
 							</div>
 							<button 
@@ -182,7 +182,7 @@
 						<span>Transactions ({{ getTransactionCount() }})</span>
 					</mat-card-title>
 					<mat-card-subtitle>
-						Total: {{ formatCurrency(getTotalTransactionAmount(), group.currency) }}
+						Total: {{ formatCurrency(getTotalTransactionAmount()) }}
 					</mat-card-subtitle>
 				</mat-card-header>
 				<mat-card-content>
@@ -200,7 +200,7 @@
 									</div>
 								</div>
 								<div class="transaction-amount">
-									{{ formatCurrency(transaction.totalAmount, transaction.currency) }}
+									{{ formatCurrency(transaction.totalAmount) }}
 								</div>
 							</div>
 							
@@ -239,7 +239,7 @@
 									<span class="to-user">{{ getMemberName(settlement.toUserId) }}</span>
 								</div>
 								<div class="settlement-amount">
-									{{ formatCurrency(settlement.amount, settlement.currency) }}
+									{{ formatCurrency(settlement.amount) }}
 								</div>
 								<div class="settlement-date" *ngIf="settlement.settledAt">
 									{{ formatDate(settlement.settledAt) }}

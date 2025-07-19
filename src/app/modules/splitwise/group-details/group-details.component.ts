@@ -17,6 +17,7 @@ import * as SplitwiseActions from '../store/splitwise.actions';
 import { selectSplitwiseState } from '../store/splitwise.selectors';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { SplitwiseService } from '../services/splitwise.service';
+import { CurrencyService } from 'src/app/util/service/currency.service';
 
 @Component({
   selector: 'app-group-details',
@@ -43,7 +44,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private notificationService: NotificationService,
     private breakpointObserver: BreakpointObserver,
-    private splitwiseService: SplitwiseService
+    private splitwiseService: SplitwiseService,
+    private currencyService: CurrencyService
   ) {
     // Observe breakpoints for mobile detection
     this.breakpointObserver.observe([Breakpoints.Handset])
@@ -202,11 +204,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     return dateObj.toLocaleDateString();
   }
 
-  formatCurrency(amount: number, currency: string = 'USD'): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency
-    }).format(amount);
+  formatCurrency(amount: number): string {
+    return this.currencyService.formatAmount(amount);
   }
 
   getTotalBalance(): number {
@@ -364,7 +363,7 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
           otherUserId: otherUserId,
           otherUserName: this.getMemberName(otherUserId),
           amount: amount,
-          message: `${this.getMemberName(userId)} owes ${this.getMemberName(otherUserId)} ${this.formatCurrency(amount, this.group?.currency || 'USD')}`
+          message: `${this.getMemberName(userId)} owes ${this.getMemberName(otherUserId)} ${this.formatCurrency(amount)}`
         });
       }
     });
@@ -381,7 +380,7 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
             otherUserId: otherUserId,
             otherUserName: this.getMemberName(otherUserId),
             amount: owedToUser,
-            message: `${this.getMemberName(otherUserId)} owes ${this.getMemberName(userId)} ${this.formatCurrency(owedToUser, this.group?.currency || 'USD')}`
+            message: `${this.getMemberName(otherUserId)} owes ${this.getMemberName(userId)} ${this.formatCurrency(owedToUser)}`
           });
         }
       }
@@ -543,7 +542,7 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
       width: '400px',
       data: {
         title: 'Settlement',
-        message: `Confirm settlement of ${this.formatCurrency(suggestion.amount, suggestion.currency)} from ${suggestion.fromUserName} to ${suggestion.toUserName}?`,
+        message: `Confirm settlement of ${this.formatCurrency(suggestion.amount)} from ${suggestion.fromUserName} to ${suggestion.toUserName}?`,
         confirmText: 'Confirm',
         cancelText: 'Cancel',
       },

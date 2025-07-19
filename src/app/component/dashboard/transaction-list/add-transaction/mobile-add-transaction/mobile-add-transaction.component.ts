@@ -68,7 +68,6 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   ];
   public editMode: boolean = false;
   public TransactionType = TransactionType;
-  public isSplitTransaction: boolean = false;
   public groups$: Observable<SplitwiseGroup[]>;
 
   constructor(
@@ -154,7 +153,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
         taxes: this.dialogData.taxes || [],
         paymentMethod: this.dialogData.paymentMethod || '',
       });
-      this.isSplitTransaction = this.dialogData.isSplitTransaction || false;
+      // this.isSplitTransaction = this.dialogData.isSplitTransaction || false;
       this.transactionForm.get('isSplitTransaction')?.setValue(this.dialogData.isSplitTransaction || false);
       this.transactionForm.get('splitGroupId')?.setValue(this.dialogData.splitGroupId || '');
       this.transactionForm.get('splitAmount')?.setValue(this.dialogData.splitAmount || 0);
@@ -269,6 +268,11 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           this.notificationService.success('Transaction added successfully');
           this.hapticFeedback.successVibration();
         }
+
+        if (formData.isSplitTransaction) {
+          this.router.navigate(['/dashboard/splitwise/group', formData.splitGroupId]);
+        }
+
         this.dialogRef.close(true);
       } catch (error) {
         console.error('Error saving transaction:', error);
@@ -404,14 +408,14 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
    * Toggle split transaction mode
    */
   toggleSplitTransaction(): void {
-    this.isSplitTransaction = !this.isSplitTransaction;
+   
     this.transactionForm.patchValue({
-      isSplitTransaction: this.isSplitTransaction
+      isSplitTransaction: !this.transactionForm.get('isSplitTransaction')?.value
     });
 
     // Update validation for splitGroupId
     const splitGroupIdControl = this.transactionForm.get('splitGroupId');
-    if (this.isSplitTransaction) {
+    if (this.transactionForm.get('isSplitTransaction')?.value) {
       splitGroupIdControl?.setValidators([Validators.required]);
     } else {
       splitGroupIdControl?.clearValidators();
