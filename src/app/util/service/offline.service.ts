@@ -293,7 +293,7 @@ export class OfflineService {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(`${APP_CONFIG.APP_NAME}`, {
         body: 'Network connection restored. Your data will sync automatically.',
-        icon: environment.baseUrl + '/assets/icons/icon-192x192.png'
+        icon: environment.baseUrl + '/assets/icon/app-icon/icon-192x192.png'
       });
     }
   }
@@ -303,7 +303,7 @@ export class OfflineService {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(`${APP_CONFIG.APP_NAME}`, {
         body: 'You\'re offline. Changes will be saved locally and synced when connection is restored.',
-        icon: environment.baseUrl + '/assets/icons/icon-192x192.png'
+        icon: environment.baseUrl + '/assets/icon/app-icon/icon-192x192.png'
       });
     }
   }

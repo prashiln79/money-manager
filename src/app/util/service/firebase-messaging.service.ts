@@ -365,11 +365,11 @@ export class FirebaseMessagingService {
 
     // Platform-specific default icons
     if (this.platformInfo.isIOS) {
-      return environment.baseUrl + '/assets/icons/icon-152x152.png'; // iOS prefers 152x152
+      return environment.baseUrl + '/assets/icon/app-icon/icon-152x152.png'; // iOS prefers 152x152
     } else if (this.platformInfo.isAndroid) {
-      return environment.baseUrl + '/icons/icon-192x192.png'; // Android prefers 192x192
+      return environment.baseUrl + '/assets/icon/app-icon/icon-192x192.png'; // Android prefers 192x192
     } else {
-      return environment.baseUrl + '/assets/icons/icon-192x192.png'; // Desktop default
+      return environment.baseUrl + '/assets/icon/app-icon/icon-192x192.png'; // Desktop default
     }
   }
 
