@@ -647,6 +647,7 @@
               padding: 12px 0;
               background-color: white;
               transition: background-color 0.2s ease;
+              cursor: pointer;
 
               &:hover {
                 background-color: #fafafa;
@@ -841,21 +842,19 @@
                   }
                 }
 
-                .settlement-amount {
-                  font-weight: 600;
-                  font-size: 14px;
-                  color: #333;
-                }
+                              .settlement-amount {
+                font-weight: 600;
+                font-size: 14px;
+                color: #333;
+                margin-bottom: 2px;
               }
 
-              .settlement-status {
-                mat-chip {
-                  font-size: 10px;
-                  font-weight: 500;
-                  border-radius: 4px;
-                  height: 24px;
-                }
+              .settlement-date {
+                font-size: 11px;
+                color: #999;
+                font-weight: 400;
               }
+            }
             }
           }
         }

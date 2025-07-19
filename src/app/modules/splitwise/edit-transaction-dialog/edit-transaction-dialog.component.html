@@ -1,0 +1,104 @@
+<div class="edit-transaction-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Edit Transaction</h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="editForm" (ngSubmit)="onSave()">
+    <mat-dialog-content>
+      <div class="transaction-info">
+        <div class="total-amount-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Total Amount</mat-label>
+            <input matInput type="number" formControlName="totalAmount" step="0.01" min="0.01">
+            <mat-icon matSuffix>{{ transaction.currency || 'USD' }}</mat-icon>
+            <mat-error *ngIf="editForm.get('totalAmount')?.hasError('required')">
+              Total amount is required
+            </mat-error>
+            <mat-error *ngIf="editForm.get('totalAmount')?.hasError('min')">
+              Amount must be greater than 0
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="split-mode-toggle">
+          <mat-button-toggle-group [(value)]="splitMode" (change)="updateSplitAmounts()">
+            <mat-button-toggle value="percentage">Percentage</mat-button-toggle>
+            <mat-button-toggle value="amount">Amount</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        <div class="splits-section">
+          <div class="splits-header">
+            <h3>Splits</h3>
+            <div class="totals">
+              <span class="total-percentage">Total: {{ getTotalPercentage() | number:'1.1-1' }}%</span>
+              <span class="total-amount">Total: {{ formatCurrency(getTotalSplitAmount()) }}</span>
+            </div>
+          </div>
+
+          <div formArrayName="splits" class="splits-list">
+            <div *ngFor="let split of splitsArray.controls; let i = index" [formGroupName]="i" class="split-item">
+              <div class="split-header">
+                <div class="member-info">
+                  <span class="member-name">{{ split.get('displayName')?.value }}</span>
+                  <span class="member-email">{{ split.get('email')?.value }}</span>
+                </div>
+                <button type="button" mat-icon-button (click)="removeSplit(i)" class="remove-btn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="split-controls">
+                <mat-form-field appearance="outline" class="amount-field">
+                  <mat-label>Amount</mat-label>
+                  <input matInput type="number" formControlName="amount" step="0.01" min="0">
+                  <mat-icon matSuffix>{{ transaction.currency || 'USD' }}</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="percentage-field">
+                  <mat-label>Percentage</mat-label>
+                  <input matInput type="number" formControlName="percentage" step="0.1" min="0" max="100">
+                  <mat-icon matSuffix>%</mat-icon>
+                </mat-form-field>
+
+                <mat-checkbox formControlName="isPaid" class="paid-checkbox">
+                  Paid
+                </mat-checkbox>
+              </div>
+            </div>
+          </div>
+
+          <div class="add-member-section" *ngIf="getAvailableMembers().length > 0">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Add Member</mat-label>
+              <mat-select (selectionChange)="addMemberSplit($event.value)">
+                <mat-option *ngFor="let member of getAvailableMembers()" [value]="member">
+                  {{ member.displayName }} ({{ member.email }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="validation-messages" *ngIf="!isFormValid()">
+          <div class="error-message" *ngIf="Math.abs(getTotalPercentage() - 100) > 0.01">
+            Total percentage must equal 100% (currently {{ getTotalPercentage() | number:'1.1-1' }}%)
+          </div>
+          <div class="error-message" *ngIf="Math.abs(getTotalSplitAmount() - totalAmount) > 0.01">
+            Total split amount must equal transaction amount (currently {{ formatCurrency(getTotalSplitAmount()) }})
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button type="button" mat-button (click)="onCancel()">Cancel</button>
+      <button type="submit" mat-raised-button color="primary" [disabled]="!isFormValid()">
+        Save Changes
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div> 

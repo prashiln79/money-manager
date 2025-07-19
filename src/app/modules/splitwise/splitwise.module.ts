@@ -22,6 +22,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // NgRx
 import { StoreModule } from '@ngrx/store';
@@ -34,6 +36,7 @@ import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.
 import { GroupComponent } from './group/group.component';
 import { GroupDetailsComponent } from './group-details/group-details.component';
 import { MembersPageComponent } from './members-page/members-page.component';
+import { EditTransactionDialogComponent } from './edit-transaction-dialog/edit-transaction-dialog.component';
 
 // Store
 import { splitwiseReducer } from './store/splitwise.reducer';
@@ -56,7 +59,8 @@ import { MembersComponent } from './members/members.component';
     GroupComponent,
     GroupDetailsComponent,
     MembersComponent,
-    MembersPageComponent
+    MembersPageComponent,
+    EditTransactionDialogComponent
   ],
   imports: [
     CommonModule,
@@ -81,6 +85,8 @@ import { MembersComponent } from './members/members.component';
     MatDividerModule,
     MatMenuModule,
     MatExpansionModule,
+    MatButtonToggleModule,
+    MatCheckboxModule,
     
     // NgRx
     StoreModule.forFeature('splitwise', splitwiseReducer),

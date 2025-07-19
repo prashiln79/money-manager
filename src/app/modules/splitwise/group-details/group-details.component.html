@@ -143,12 +143,6 @@
 							<div class="suggestion-info">
 								<div class="suggestion-message">
 									<span class="message-text">{{ getSettlementMessage(suggestion) }}</span>
-									<span *ngIf="isSettlementPending(suggestion.fromUserId, suggestion.toUserId)" class="settlement-status pending">
-										(Pending)
-									</span>
-									<span *ngIf="isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)" class="settlement-status completed">
-										(Completed)
-									</span>
 								</div>
 								<div class="settlement-parties">
 									<span class="from-user">{{ suggestion.fromUserName }}</span>
@@ -164,13 +158,9 @@
 								[color]="suggestion.type === 'you_owe' ? 'warn' : 'primary'" 
 								size="small" 
 								(click)="createSettlement(suggestion)"
-								[disabled]="suggestion.type === 'others' || isSettlementPending(suggestion.fromUserId, suggestion.toUserId) || isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)">
+								[disabled]="suggestion.type === 'others'">
 								<mat-icon>{{ suggestion.type === 'you_owe' ? 'payment' : 'check' }}</mat-icon>
-								<span *ngIf="isSettlementPending(suggestion.fromUserId, suggestion.toUserId)">Pending</span>
-								<span *ngIf="isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)">Completed</span>
-								<span *ngIf="!isSettlementPending(suggestion.fromUserId, suggestion.toUserId) && !isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)">
-									{{ suggestion.type === 'you_owe' ? 'Pay' : 'Settle' }}
-								</span>
+								<span>{{ suggestion.type === 'you_owe' ? 'Pay' : 'Settle' }}</span>
 							</button>
 						</div>
 					</div>
@@ -193,7 +183,7 @@
 				<mat-card-content>
 					<!-- Transactions List -->
 					<div *ngIf="transactions.length > 0" class="transactions-list">
-						<div *ngFor="let transaction of transactions" class="transaction-item simple">
+						<div *ngFor="let transaction of transactions" class="transaction-item simple" (click)="openEditTransactionDialog(transaction)">
 							<div class="transaction-main">
 								<div class="transaction-info">
 									<div class="transaction-title">
@@ -209,7 +199,6 @@
 								</div>
 							</div>
 							
-
 						</div>
 					</div>
 					
@@ -227,17 +216,17 @@
 		</div>
 
 		<!-- Settlements Section -->
-		<div class="settlements-section" *ngIf="settlements.length > 0">
+		<div class="settlements-section" *ngIf="getCompletedSettlementsCount() > 0">
 			<mat-card class="settlements-card">
 				<mat-card-header>
 					<mat-card-title>
-						<mat-icon>swap_horiz</mat-icon>
-						<span>Settlements ({{ getSettlementCount() }})</span>
+						<mat-icon>check_circle</mat-icon>
+						<span>Completed Settlements ({{ getCompletedSettlementsCount() }})</span>
 					</mat-card-title>
 				</mat-card-header>
 				<mat-card-content>
 					<div class="settlements-list">
-						<div *ngFor="let settlement of settlements" class="settlement-item">
+						<div *ngFor="let settlement of getCompletedSettlements()" class="settlement-item">
 							<div class="settlement-info">
 								<div class="settlement-parties">
 									<span class="from-user">{{ getMemberName(settlement.fromUserId) }}</span>
@@ -247,11 +236,9 @@
 								<div class="settlement-amount">
 									{{ formatCurrency(settlement.amount, settlement.currency) }}
 								</div>
-							</div>
-							<div class="settlement-status">
-								<mat-chip [color]="settlement.status === 'completed' ? 'success' : 'warning'" selected>
-									{{ settlement.status === 'completed' ? 'Completed' : 'Pending' }}
-								</mat-chip>
+								<div class="settlement-date" *ngIf="settlement.settledAt">
+									{{ formatDate(settlement.settledAt) }}
+								</div>
 							</div>
 						</div>
 					</div>

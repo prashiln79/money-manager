@@ -9,6 +9,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { SplitwiseGroup, SplitTransaction, SplitSettlement } from 'src/app/util/models/splitwise.model';
 import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog.component';
+import { EditTransactionDialogComponent } from '../edit-transaction-dialog/edit-transaction-dialog.component';
 
 // NgRx
 import { AppState } from '../../../store/app.state';
@@ -492,7 +493,15 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
       });
     }
 
-    return suggestions;
+    // Filter out suggestions that already have settlements
+    return suggestions.filter(suggestion => {
+      const existingSettlement = this.settlements.find(s => 
+        s.fromUserId === suggestion.fromUserId && 
+        s.toUserId === suggestion.toUserId &&
+        s.status !== 'cancelled'
+      );
+      return !existingSettlement;
+    });
   }
 
   // Create settlement between members
@@ -682,6 +691,11 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     return this.settlements.filter(s => s.status === 'completed').length;
   }
 
+  // Get completed settlements
+  getCompletedSettlements(): SplitSettlement[] {
+    return this.settlements.filter(s => s.status === 'completed');
+  }
+
 
 
   getTransactionCreatorName(transaction: SplitTransaction): string {
@@ -725,6 +739,38 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
       queryParams: { 
         splitGroupId: this.group?.id,
         returnUrl: this.router.url
+      }
+    });
+  }
+
+  openEditTransactionDialog(transaction: SplitTransaction): void {
+    if (!this.group) return;
+
+    const dialogRef = this.dialog.open(EditTransactionDialogComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: {
+        transaction: transaction,
+        groupMembers: this.group.members
+      },
+      disableClose: true,
+      panelClass: 'edit-transaction-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        // Update the transaction with new splits
+        this.splitwiseService.updateSplitTransaction(transaction.id!, {
+          amount: result.totalAmount,
+          splits: result.splits
+        }).then(() => {
+          this.notificationService.success('Transaction updated successfully');
+          this.reloadData();
+        }).catch((error) => {
+          console.error('Error updating transaction:', error);
+          this.notificationService.error('Failed to update transaction');
+        });
       }
     });
   }

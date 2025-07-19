@@ -1,0 +1,193 @@
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SplitTransaction, TransactionSplit } from '../../../util/models/splitwise.model';
+
+export interface EditTransactionDialogData {
+  transaction: SplitTransaction;
+  groupMembers: any[];
+}
+
+@Component({
+  selector: 'app-edit-transaction-dialog',
+  templateUrl: './edit-transaction-dialog.component.html',
+  styleUrls: ['./edit-transaction-dialog.component.scss']
+})
+export class EditTransactionDialogComponent implements OnInit {
+  editForm!: FormGroup;
+  transaction: SplitTransaction;
+  groupMembers: any[];
+  totalAmount: number = 0;
+  splitMode: 'percentage' | 'amount' = 'percentage';
+  Math = Math; // Make Math available in template
+
+  constructor(
+    private fb: FormBuilder,
+    private dialogRef: MatDialogRef<EditTransactionDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: EditTransactionDialogData
+  ) {
+    this.transaction = data.transaction;
+    this.groupMembers = data.groupMembers;
+    this.totalAmount = this.transaction.totalAmount;
+  }
+
+  ngOnInit(): void {
+    this.initForm();
+  }
+
+  initForm(): void {
+    this.editForm = this.fb.group({
+      totalAmount: [this.transaction.totalAmount, [Validators.required, Validators.min(0.01)]],
+      splits: this.fb.array([])
+    });
+
+    // Initialize splits form array
+    this.transaction.splits.forEach(split => {
+      this.addSplit(split);
+    });
+
+    // Watch for total amount changes
+    this.editForm.get('totalAmount')?.valueChanges.subscribe(newTotal => {
+      this.totalAmount = newTotal;
+      this.updateSplitPercentages();
+    });
+  }
+
+  get splitsArray(): FormArray {
+    return this.editForm.get('splits') as FormArray;
+  }
+
+  addSplit(existingSplit?: TransactionSplit): void {
+    const splitGroup = this.fb.group({
+      userId: [existingSplit?.userId || '', Validators.required],
+      displayName: [existingSplit?.displayName || '', Validators.required],
+      email: [existingSplit?.email || '', Validators.required],
+      amount: [existingSplit?.amount || 0, [Validators.required, Validators.min(0)]],
+      percentage: [existingSplit?.percentage || 0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      isPaid: [existingSplit?.isPaid || false]
+    });
+
+    this.splitsArray.push(splitGroup);
+
+    // Watch for amount changes to update percentage
+    splitGroup.get('amount')?.valueChanges.subscribe(amount => {
+      if (this.totalAmount > 0 && amount !== null && amount !== undefined) {
+        const percentage = (amount / this.totalAmount) * 100;
+        splitGroup.patchValue({ percentage: Math.round(percentage * 100) / 100 }, { emitEvent: false });
+      }
+    });
+
+    // Watch for percentage changes to update amount
+    splitGroup.get('percentage')?.valueChanges.subscribe(percentage => {
+      if (percentage !== null && percentage !== undefined) {
+        const amount = (percentage / 100) * this.totalAmount;
+        splitGroup.patchValue({ amount: Math.round(amount * 100) / 100 }, { emitEvent: false });
+      }
+    });
+  }
+
+  removeSplit(index: number): void {
+    this.splitsArray.removeAt(index);
+    this.updateSplitPercentages();
+  }
+
+  updateSplitPercentages(): void {
+    const splits = this.splitsArray.controls;
+    splits.forEach(split => {
+      const amount = split.get('amount')?.value || 0;
+      if (this.totalAmount > 0 && amount !== null && amount !== undefined) {
+        const percentage = (amount / this.totalAmount) * 100;
+        split.patchValue({ percentage: Math.round(percentage * 100) / 100 }, { emitEvent: false });
+      }
+    });
+  }
+
+  updateSplitAmounts(): void {
+    const splits = this.splitsArray.controls;
+    splits.forEach(split => {
+      const percentage = split.get('percentage')?.value || 0;
+      if (percentage !== null && percentage !== undefined) {
+        const amount = (percentage / 100) * this.totalAmount;
+        split.patchValue({ amount: Math.round(amount * 100) / 100 }, { emitEvent: false });
+      }
+    });
+  }
+
+  addMemberSplit(member: any): void {
+    // Check if member is already added
+    const existingMember = this.splitsArray.controls.find(control => 
+      control.get('userId')?.value === member.userId
+    );
+
+    if (!existingMember) {
+      const splitGroup = this.fb.group({
+        userId: [member.userId, Validators.required],
+        displayName: [member.displayName, Validators.required],
+        email: [member.email, Validators.required],
+        amount: [0, [Validators.required, Validators.min(0)]],
+        percentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+        isPaid: [false]
+      });
+
+      this.splitsArray.push(splitGroup);
+      this.updateSplitPercentages();
+    }
+  }
+
+  getAvailableMembers(): any[] {
+    const selectedUserIds = this.splitsArray.controls.map(control => control.get('userId')?.value);
+    return this.groupMembers.filter(member => !selectedUserIds.includes(member.userId));
+  }
+
+  getTotalPercentage(): number {
+    return this.splitsArray.controls.reduce((total, control) => {
+      return total + (control.get('percentage')?.value || 0);
+    }, 0);
+  }
+
+  getTotalSplitAmount(): number {
+    return this.splitsArray.controls.reduce((total, control) => {
+      return total + (control.get('amount')?.value || 0);
+    }, 0);
+  }
+
+  isFormValid(): boolean {
+    const totalPercentage = this.getTotalPercentage();
+    const totalSplitAmount = this.getTotalSplitAmount();
+    const formValid = this.editForm.valid;
+    
+    return formValid && 
+           Math.abs(totalPercentage - 100) < 0.01 && 
+           Math.abs(totalSplitAmount - this.totalAmount) < 0.01;
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+
+  onSave(): void {
+    if (this.isFormValid()) {
+      const formValue = this.editForm.value;
+      const updatedTransaction: Partial<SplitTransaction> = {
+        totalAmount: formValue.totalAmount,
+        splits: formValue.splits.map((split: any) => ({
+          userId: split.userId,
+          displayName: split.displayName,
+          email: split.email,
+          amount: split.amount,
+          percentage: split.percentage,
+          isPaid: split.isPaid
+        }))
+      };
+
+      this.dialogRef.close(updatedTransaction);
+    }
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: this.transaction.currency || 'USD'
+    }).format(amount);
+  }
+} 
