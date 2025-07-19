@@ -1,9 +1,10 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, Inject, PLATFORM_ID } from '@angular/core';
 import { getMessaging, getToken, onMessage, Messaging } from '@angular/fire/messaging';
 import { BehaviorSubject, Observable, from } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { environment } from '@env/environment';
 import { APP_CONFIG } from '../config/config';
+import { isPlatformServer } from '@angular/common';
 
 export interface NotificationPayload {
   title: string;
@@ -24,6 +25,22 @@ export interface NotificationAction {
   title: string;
 }
 
+export interface PlatformInfo {
+  isAndroid: boolean;
+  isIOS: boolean;
+  isChrome: boolean;
+  isSafari: boolean;
+  isFirefox: boolean;
+  isEdge: boolean;
+  isMobile: boolean;
+  isDesktop: boolean;
+  isPWA: boolean;
+  isStandalone: boolean;
+  supportsNotifications: boolean;
+  supportsServiceWorker: boolean;
+  supportsPushManager: boolean;
+}
+
 // Use the built-in NotificationPermission type instead of custom interface
 
 @Injectable({
@@ -35,28 +52,96 @@ export class FirebaseMessagingService {
   private permissionSubject = new BehaviorSubject<NotificationPermission>('default');
   private notificationSubject = new BehaviorSubject<NotificationPayload | null>(null);
   private swRegistration: ServiceWorkerRegistration | null = null;
+  private platformInfo: PlatformInfo;
 
   public token$: Observable<string | null> = this.tokenSubject.asObservable();
   public permission$: Observable<NotificationPermission> = this.permissionSubject.asObservable();
   public notifications$: Observable<NotificationPayload | null> = this.notificationSubject.asObservable();
 
-  constructor(private ngZone: NgZone) {
+  constructor(
+    private ngZone: NgZone,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.platformInfo = this.detectPlatform();
     this.initializeMessaging();
+  }
+
+  private detectPlatform(): PlatformInfo {
+    if (isPlatformServer(this.platformId)) {
+      return {
+        isAndroid: false,
+        isIOS: false,
+        isChrome: false,
+        isSafari: false,
+        isFirefox: false,
+        isEdge: false,
+        isMobile: false,
+        isDesktop: false,
+        isPWA: false,
+        isStandalone: false,
+        supportsNotifications: false,
+        supportsServiceWorker: false,
+        supportsPushManager: false
+      };
+    }
+
+    const userAgent = navigator.userAgent;
+    const isAndroid = /Android/i.test(userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isChrome = /Chrome/.test(userAgent) && !/Edge/.test(userAgent);
+    const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+    const isFirefox = /Firefox/.test(userAgent);
+    const isEdge = /Edge/.test(userAgent);
+    const isMobile = isAndroid || isIOS || /webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isDesktop = !isMobile;
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+    const isStandalone = isPWA || (window.navigator as any).standalone === true;
+    const supportsNotifications = 'Notification' in window;
+    const supportsServiceWorker = 'serviceWorker' in navigator;
+    const supportsPushManager = 'PushManager' in window;
+
+    return {
+      isAndroid,
+      isIOS,
+      isChrome,
+      isSafari,
+      isFirefox,
+      isEdge,
+      isMobile,
+      isDesktop,
+      isPWA,
+      isStandalone,
+      supportsNotifications,
+      supportsServiceWorker,
+      supportsPushManager
+    };
+  }
+
+  public getPlatformInfo(): PlatformInfo {
+    return this.platformInfo;
   }
 
   private async initializeMessaging(): Promise<void> {
     try {
-      // Check if messaging is supported
-      if (!('Notification' in window)) {
+      // Skip initialization on server-side
+      if (isPlatformServer(this.platformId)) {
+        console.log('Skipping Firebase messaging initialization on server-side');
+        return;
+      }
+
+      // Check platform support
+      if (!this.platformInfo.supportsNotifications) {
         console.warn('This browser does not support notifications');
         return;
       }
 
-      // Check if service worker is supported
-      if (!('serviceWorker' in navigator)) {
+      if (!this.platformInfo.supportsServiceWorker) {
         console.warn('Service Worker not supported');
         return;
       }
+
+      // Platform-specific initialization
+      await this.initializePlatformSpecific();
 
       // Register Firebase messaging service worker first
       await this.registerFirebaseMessagingSW();
@@ -94,6 +179,116 @@ export class FirebaseMessagingService {
     }
   }
 
+  private async initializePlatformSpecific(): Promise<void> {
+    console.log('Platform info:', this.platformInfo);
+
+    // iOS-specific handling
+    if (this.platformInfo.isIOS) {
+      console.log('Initializing for iOS platform');
+      await this.initializeIOS();
+    }
+
+    // Android-specific handling
+    if (this.platformInfo.isAndroid) {
+      console.log('Initializing for Android platform');
+      await this.initializeAndroid();
+    }
+
+    // Chrome desktop-specific handling
+    if (this.platformInfo.isChrome && this.platformInfo.isDesktop) {
+      console.log('Initializing for Chrome desktop platform');
+      await this.initializeChromeDesktop();
+    }
+
+    // Safari-specific handling
+    if (this.platformInfo.isSafari) {
+      console.log('Initializing for Safari platform');
+      await this.initializeSafari();
+    }
+  }
+
+  private async initializeIOS(): Promise<void> {
+    // iOS has specific requirements for notifications
+    // 1. Must be served over HTTPS (except localhost)
+    // 2. Must have proper manifest.json
+    // 3. Must be added to home screen for best results
+    
+    if (!this.platformInfo.isStandalone) {
+      console.warn('iOS notifications work best when app is added to home screen');
+    }
+
+    // Check for iOS version compatibility
+    const iosVersion = this.getIOSVersion();
+    if (iosVersion && iosVersion < 14) {
+      console.warn('iOS version may have limited notification support');
+    }
+  }
+
+  private async initializeAndroid(): Promise<void> {
+    // Android Chrome has good support for FCM
+    // Check for Chrome version
+    const chromeVersion = this.getChromeVersion();
+    if (chromeVersion && chromeVersion < 79) {
+      console.warn('Chrome version may have limited notification support');
+    }
+
+    // Check for Android version
+    const androidVersion = this.getAndroidVersion();
+    if (androidVersion && androidVersion < 6) {
+      console.warn('Android version may have limited notification support');
+    }
+  }
+
+  private async initializeChromeDesktop(): Promise<void> {
+    // Chrome desktop has excellent FCM support
+    // Check for Chrome version
+    const chromeVersion = this.getChromeVersion();
+    if (chromeVersion && chromeVersion < 79) {
+      console.warn('Chrome version may have limited notification support');
+    }
+  }
+
+  private async initializeSafari(): Promise<void> {
+    // Safari has limited FCM support
+    // Safari 16.4+ has better support for web push notifications
+    const safariVersion = this.getSafariVersion();
+    if (safariVersion && safariVersion < 16.4) {
+      console.warn('Safari version may have limited notification support');
+    }
+  }
+
+  private getIOSVersion(): number | null {
+    const match = navigator.userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return null;
+  }
+
+  private getAndroidVersion(): number | null {
+    const match = navigator.userAgent.match(/Android (\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return null;
+  }
+
+  private getChromeVersion(): number | null {
+    const match = navigator.userAgent.match(/Chrome\/(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return null;
+  }
+
+  private getSafariVersion(): number | null {
+    const match = navigator.userAgent.match(/Version\/(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return null;
+  }
+
   private async registerFirebaseMessagingSW(): Promise<void> {
     try {
       // Check if Firebase messaging service worker is already registered
@@ -109,11 +304,12 @@ export class FirebaseMessagingService {
         return;
       }
 
+      // Platform-specific service worker registration
+      const swOptions = this.getServiceWorkerOptions();
+
       // Register Firebase messaging service worker
       console.log('Registering Firebase messaging service worker...');
-      this.swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-        scope: '/firebase-cloud-messaging-push-scope'
-      });
+      this.swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', swOptions);
 
       console.log('Firebase messaging service worker registered successfully:', this.swRegistration);
       
@@ -126,12 +322,32 @@ export class FirebaseMessagingService {
     }
   }
 
+  private getServiceWorkerOptions(): any {
+    const baseOptions = {
+      scope: '/firebase-cloud-messaging-push-scope'
+    };
+
+    // Platform-specific options
+    if (this.platformInfo.isIOS) {
+      // iOS may need specific handling
+      return baseOptions;
+    } else if (this.platformInfo.isAndroid) {
+      // Android Chrome has good SW support
+      return baseOptions;
+    } else if (this.platformInfo.isChrome && this.platformInfo.isDesktop) {
+      // Chrome desktop has excellent SW support
+      return baseOptions;
+    }
+
+    return baseOptions;
+  }
+
   private handleForegroundMessage(payload: any): void {
     const notification: NotificationPayload = {
       title: payload.notification?.title || 'New Notification',
       body: payload.notification?.body || '',
-      icon: payload.notification?.icon || '/icons/icon-192x192.png',
-      badge: payload.notification?.badge || '/icons/icon-72x72.png',
+      icon: this.getPlatformSpecificIcon(payload.notification?.icon),
+      badge: this.getPlatformSpecificBadge(payload.notification?.badge),
       image: payload.notification?.image,
       data: payload.data || {},
       tag: payload.notification?.tag,
@@ -144,13 +360,40 @@ export class FirebaseMessagingService {
     this.showNotification(notification);
   }
 
+  private getPlatformSpecificIcon(defaultIcon?: string): string {
+    if (defaultIcon) return defaultIcon;
+
+    // Platform-specific default icons
+    if (this.platformInfo.isIOS) {
+      return '/icons/icon-152x152.png'; // iOS prefers 152x152
+    } else if (this.platformInfo.isAndroid) {
+      return '/icons/icon-192x192.png'; // Android prefers 192x192
+    } else {
+      return '/icons/icon-192x192.png'; // Desktop default
+    }
+  }
+
+  private getPlatformSpecificBadge(defaultBadge?: string): string {
+    if (defaultBadge) return defaultBadge;
+
+    // Platform-specific default badges
+    if (this.platformInfo.isIOS) {
+      return '/icons/icon-72x72.png'; // iOS badge
+    } else if (this.platformInfo.isAndroid) {
+      return '/icons/icon-72x72.png'; // Android badge
+    } else {
+      return '/icons/icon-72x72.png'; // Desktop default
+    }
+  }
+
   public async requestPermission(): Promise<NotificationPermission> {
     try {
-      if (!('Notification' in window)) {
+      if (!this.platformInfo.supportsNotifications) {
         throw new Error('Notifications not supported');
       }
 
-      const permission = await Notification.requestPermission();
+      // Platform-specific permission request
+      const permission = await this.requestPlatformSpecificPermission();
       this.permissionSubject.next(permission);
 
       if (permission === 'granted') {
@@ -162,6 +405,30 @@ export class FirebaseMessagingService {
       console.error('Error requesting notification permission:', error);
       return 'denied';
     }
+  }
+
+  private async requestPlatformSpecificPermission(): Promise<NotificationPermission> {
+    // iOS Safari has specific requirements
+    if (this.platformInfo.isSafari) {
+      console.log('Requesting permission for Safari');
+      // Safari may need user interaction
+      return Notification.requestPermission();
+    }
+
+    // Android Chrome
+    if (this.platformInfo.isAndroid) {
+      console.log('Requesting permission for Android Chrome');
+      return Notification.requestPermission();
+    }
+
+    // Chrome desktop
+    if (this.platformInfo.isChrome && this.platformInfo.isDesktop) {
+      console.log('Requesting permission for Chrome desktop');
+      return Notification.requestPermission();
+    }
+
+    // Default
+    return Notification.requestPermission();
   }
 
   public async getToken(): Promise<string | null> {
@@ -176,10 +443,9 @@ export class FirebaseMessagingService {
         await this.swRegistration.update();
       }
 
-      const token = await getToken(this.messaging, {
-        vapidKey: environment.vapidKey,
-        serviceWorkerRegistration: this.swRegistration || undefined
-      });
+      const tokenOptions = this.getPlatformSpecificTokenOptions();
+
+      const token = await getToken(this.messaging, tokenOptions);
 
       if (token) {
         this.tokenSubject.next(token);
@@ -196,6 +462,27 @@ export class FirebaseMessagingService {
       console.error('Error getting FCM token:', error);
       return null;
     }
+  }
+
+  private getPlatformSpecificTokenOptions(): any {
+    const baseOptions = {
+      vapidKey: environment.vapidKey,
+      serviceWorkerRegistration: this.swRegistration || undefined
+    };
+
+    // Platform-specific token options
+    if (this.platformInfo.isIOS) {
+      // iOS may need specific options
+      return baseOptions;
+    } else if (this.platformInfo.isAndroid) {
+      // Android Chrome options
+      return baseOptions;
+    } else if (this.platformInfo.isChrome && this.platformInfo.isDesktop) {
+      // Chrome desktop options
+      return baseOptions;
+    }
+
+    return baseOptions;
   }
 
   public async refreshToken(): Promise<string | null> {
@@ -314,7 +601,62 @@ export class FirebaseMessagingService {
   }
 
   public isSupported(): boolean {
-    return 'Notification' in window && 'serviceWorker' in navigator;
+    return this.platformInfo.supportsNotifications && this.platformInfo.supportsServiceWorker;
+  }
+
+  public isPlatformSupported(): boolean {
+    // Check if current platform has good FCM support
+    if (this.platformInfo.isAndroid) {
+      return true; // Android Chrome has excellent support
+    }
+    
+    if (this.platformInfo.isChrome && this.platformInfo.isDesktop) {
+      return true; // Chrome desktop has excellent support
+    }
+    
+    if (this.platformInfo.isIOS) {
+      // iOS has limited support, but it's improving
+      const iosVersion = this.getIOSVersion();
+      return iosVersion ? iosVersion >= 14 : false;
+    }
+    
+    if (this.platformInfo.isSafari) {
+      // Safari 16.4+ has better support
+      const safariVersion = this.getSafariVersion();
+      return safariVersion ? safariVersion >= 16.4 : false;
+    }
+    
+    return false;
+  }
+
+  public getPlatformSupportInfo(): string {
+    if (this.platformInfo.isAndroid) {
+      return 'Excellent support on Android Chrome';
+    }
+    
+    if (this.platformInfo.isChrome && this.platformInfo.isDesktop) {
+      return 'Excellent support on Chrome desktop';
+    }
+    
+    if (this.platformInfo.isIOS) {
+      const iosVersion = this.getIOSVersion();
+      if (iosVersion && iosVersion >= 14) {
+        return 'Good support on iOS (requires home screen installation for best results)';
+      } else {
+        return 'Limited support on iOS (requires iOS 14+ and home screen installation)';
+      }
+    }
+    
+    if (this.platformInfo.isSafari) {
+      const safariVersion = this.getSafariVersion();
+      if (safariVersion && safariVersion >= 16.4) {
+        return 'Good support on Safari 16.4+';
+      } else {
+        return 'Limited support on Safari (requires Safari 16.4+)';
+      }
+    }
+    
+    return 'Limited or no support on this platform';
   }
 
   public getServiceWorkerRegistration(): ServiceWorkerRegistration | null {
