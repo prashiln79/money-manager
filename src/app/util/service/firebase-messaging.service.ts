@@ -309,7 +309,7 @@ export class FirebaseMessagingService {
 
       // Register Firebase messaging service worker
       console.log('Registering Firebase messaging service worker...');
-      this.swRegistration = await navigator.serviceWorker.register('https://prashiln79.github.io/wallet/firebase-messaging-sw.js', swOptions);
+      this.swRegistration = await navigator.serviceWorker.register(`${environment.baseUrl}/firebase-messaging-sw.js`, swOptions);
 
       console.log('Firebase messaging service worker registered successfully:', this.swRegistration);
       

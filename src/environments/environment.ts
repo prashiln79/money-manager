@@ -1,4 +1,5 @@
 export const environment = {
+  baseUrl: 'https://prashiln79.github.io/wallet',
   production: false,
   defaultAppTheme: 'light-theme',
   firebaseConfig: {

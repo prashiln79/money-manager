@@ -29,6 +29,7 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 import { DateService } from 'src/app/util/service/date.service';
 import { UserService } from 'src/app/util/service/user.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
+import { environment } from '@env/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -922,7 +923,7 @@ export class SplitwiseService {
     const shareData = {
       title: 'Money Manager',
       text: 'Check out this amazing money management app!',
-      url: 'https://prashiln79.github.io/wallet/#/sign-in'
+      url: `${environment.baseUrl}/#sign-in`
     };
 
     // Try to use Web Share API first
