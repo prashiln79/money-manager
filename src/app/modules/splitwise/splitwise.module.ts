@@ -21,6 +21,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 // NgRx
 import { StoreModule } from '@ngrx/store';
@@ -79,6 +80,7 @@ import { MembersComponent } from './members/members.component';
     MatBadgeModule,
     MatDividerModule,
     MatMenuModule,
+    MatExpansionModule,
     
     // NgRx
     StoreModule.forFeature('splitwise', splitwiseReducer),

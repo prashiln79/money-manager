@@ -56,6 +56,11 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     this.currentUser = this.auth.currentUser;
     this.subscribeToStore();
     this.loadGroupDetails();
+    
+    // Test balance calculation with sample data
+    setTimeout(() => {
+      this.testBalanceCalculation();
+    }, 2000); // Wait 2 seconds for data to load
   }
 
   ngOnDestroy(): void {
@@ -92,7 +97,24 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
           this.notificationService.error(this.error);
           this.store.dispatch(SplitwiseActions.clearError());
         }
+
+        // Log state changes for debugging
+        console.log('Store state updated:', {
+          loading: state.loading,
+          transactionsCount: state.transactions.length,
+          settlementsCount: state.settlements.length,
+          error: state.error
+        });
       });
+  }
+
+  // Reload data after successful operations
+  private reloadData(): void {
+    const groupId = this.route.snapshot.paramMap.get('id');
+    if (groupId) {
+      this.store.dispatch(SplitwiseActions.loadTransactions({ groupId }));
+      this.store.dispatch(SplitwiseActions.loadSettlements({ groupId }));
+    }
   }
 
   private loadGroupDetails(): void {
@@ -192,44 +214,176 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
-  // Calculate member balances
+  // Improved algorithm to calculate net balances considering settlements
+  calculateNetBalances(): Record<string, Record<string, number>> {
+    const balances: Record<string, Record<string, number>> = {};
+
+    // Step 1: Process Transactions (Expenses)
+    for (const transaction of this.transactions) {
+      const paidBy = transaction.createdBy; // Who paid for the transaction
+      const amount = transaction.totalAmount;
+
+      for (const split of transaction.splits) {
+        const { userId, amount: owedAmount } = split;
+
+        if (userId === paidBy) continue; // Skip self
+
+        // userId owes paidBy
+        if (!balances[userId]) balances[userId] = {};
+        if (!balances[userId][paidBy]) balances[userId][paidBy] = 0;
+
+        balances[userId][paidBy] += owedAmount;
+      }
+    }
+
+    // Step 2: Process Settlements
+    for (const settlement of this.settlements) {
+      if (settlement.status === 'cancelled') continue; // Skip cancelled settlements
+      
+      const { fromUserId, toUserId, amount } = settlement;
+
+      // fromUserId paid toUserId, so reduce debt
+      if (!balances[fromUserId]) balances[fromUserId] = {};
+      if (!balances[fromUserId][toUserId]) balances[fromUserId][toUserId] = 0;
+
+      balances[fromUserId][toUserId] -= amount;
+    }
+
+    // Step 3: Simplify balances to show only net one-way debts
+    return this.simplifyBalances(balances);
+  }
+
+  // Simplify balances to show only net one-way debts
+  simplifyBalances(balances: Record<string, Record<string, number>>): Record<string, Record<string, number>> {
+    const result: Record<string, Record<string, number>> = {};
+    const visited = new Set<string>();
+
+    for (const userA in balances) {
+      for (const userB in balances[userA]) {
+        const key = `${userA}_${userB}`;
+        const reverseKey = `${userB}_${userA}`;
+        
+        if (visited.has(key) || visited.has(reverseKey)) continue;
+
+        const amountAB = balances[userA]?.[userB] || 0;
+        const amountBA = balances[userB]?.[userA] || 0;
+
+        const net = amountAB - amountBA;
+
+        if (net > 0) {
+          if (!result[userA]) result[userA] = {};
+          result[userA][userB] = Math.round(net * 100) / 100;
+        } else if (net < 0) {
+          if (!result[userB]) result[userB] = {};
+          result[userB][userA] = Math.round(-net * 100) / 100;
+        }
+
+        visited.add(key);
+        visited.add(reverseKey);
+      }
+    }
+
+    return result;
+  }
+
   getMemberBalances(): any[] {
     if (!this.group) return [];
 
-    const balances = new Map<string, any>();
-
-    // Initialize balances for all members
+    // Step 1: Calculate simplified net balances
+    const simplifiedBalances = this.calculateNetBalances();
+    
+    // Step 2: Convert to the expected format for display
+    const balances: any[] = [];
+    
     this.group.members.forEach(member => {
-      balances.set(member.userId, {
-        userId: member.userId,
-        displayName: member.displayName,
-        email: member.email,
-        totalPaid: 0,
-        totalOwed: 0,
-        netBalance: 0
+      const memberBalances = simplifiedBalances[member.userId] || {};
+      
+      // Calculate total owed by this member to others (only positive amounts)
+      let totalOwed = 0;
+      Object.values(memberBalances).forEach((amount: any) => {
+        if (amount > 0) {
+          totalOwed += amount;
+        }
       });
-    });
-
-    // Calculate balances from transactions
-    this.transactions.forEach(transaction => {
-      transaction.splits.forEach(split => {
-        const memberBalance = balances.get(split.userId);
-        if (memberBalance) {
-          if (split.isPaid) {
-            memberBalance.totalPaid += split.amount;
-          } else {
-            memberBalance.totalOwed += split.amount;
+      
+      // Calculate total owed to this member by others
+      let totalPaid = 0;
+      Object.keys(simplifiedBalances).forEach(otherUserId => {
+        if (otherUserId !== member.userId) {
+          const otherBalances = simplifiedBalances[otherUserId] || {};
+          const owedToMember = otherBalances[member.userId] || 0;
+          if (owedToMember > 0) {
+            totalPaid += owedToMember;
           }
         }
       });
+      
+      // Calculate net balance (positive = they owe you, negative = you owe them)
+      const netBalance = totalPaid - totalOwed;
+      
+      balances.push({
+        userId: member.userId,
+        displayName: member.displayName,
+        email: member.email,
+        totalPaid: totalPaid,
+        totalOwed: totalOwed,
+        netBalance: netBalance,
+        simplifiedBalances: memberBalances // Keep simplified balances for reference
+      });
     });
 
-    // Calculate net balance
-    balances.forEach(balance => {
-      balance.netBalance = balance.totalPaid - balance.totalOwed;
+    return balances.sort((a, b) => b.netBalance - a.netBalance);
+  }
+
+  // Get detailed balance breakdown for a user (simplified)
+  getDetailedBalanceBreakdown(userId: string): any[] {
+    const simplifiedBalances = this.calculateNetBalances();
+    const userBalances = simplifiedBalances[userId] || {};
+    const breakdown: any[] = [];
+
+    // Check what this user owes to others (only positive amounts)
+    Object.entries(userBalances).forEach(([otherUserId, amount]) => {
+      if (amount > 0) {
+        breakdown.push({
+          type: 'owes',
+          otherUserId: otherUserId,
+          otherUserName: this.getMemberName(otherUserId),
+          amount: amount,
+          message: `${this.getMemberName(userId)} owes ${this.getMemberName(otherUserId)} ${this.formatCurrency(amount, this.group?.currency || 'USD')}`
+        });
+      }
     });
 
-    return Array.from(balances.values()).sort((a, b) => b.netBalance - a.netBalance);
+    // Check what others owe to this user
+    Object.keys(simplifiedBalances).forEach(otherUserId => {
+      if (otherUserId !== userId) {
+        const otherBalances = simplifiedBalances[otherUserId] || {};
+        const owedToUser = otherBalances[userId] || 0;
+        
+        if (owedToUser > 0) {
+          breakdown.push({
+            type: 'owed',
+            otherUserId: otherUserId,
+            otherUserName: this.getMemberName(otherUserId),
+            amount: owedToUser,
+            message: `${this.getMemberName(otherUserId)} owes ${this.getMemberName(userId)} ${this.formatCurrency(owedToUser, this.group?.currency || 'USD')}`
+          });
+        }
+      }
+    });
+
+    return breakdown.sort((a, b) => b.amount - a.amount);
+  }
+
+  // Get balance between two specific users (simplified)
+  getBalanceBetweenUsers(userId1: string, userId2: string): number {
+    const simplifiedBalances = this.calculateNetBalances();
+    
+    const balance1to2 = simplifiedBalances[userId1]?.[userId2] || 0;
+    const balance2to1 = simplifiedBalances[userId2]?.[userId1] || 0;
+    
+    // Return net balance (positive = userId1 owes userId2, negative = userId2 owes userId1)
+    return balance1to2 - balance2to1;
   }
 
   // Get simplified balance summary
@@ -260,18 +414,24 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
       
       creditors.forEach(creditor => {
         const availableCredit = creditor.netBalance;
-        const settlementAmount = Math.min(debtAmount, availableCredit);
         
-        if (settlementAmount > 0) {
-          suggestions.push({
-            fromUserId: this.currentUser.uid,
-            fromUserName: currentUserBalance.displayName,
-            toUserId: creditor.userId,
-            toUserName: creditor.displayName,
-            amount: settlementAmount,
-            currency: this.group?.currency || 'USD',
-            type: 'you_owe'
-          });
+        // Use the new balance calculation to get exact amount owed
+        const exactAmountOwed = this.getBalanceBetweenUsers(this.currentUser.uid, creditor.userId);
+        
+        if (exactAmountOwed > 0) {
+          const settlementAmount = Math.min(exactAmountOwed, availableCredit);
+          
+          if (settlementAmount > 0) {
+            suggestions.push({
+              fromUserId: this.currentUser.uid,
+              fromUserName: currentUserBalance.displayName,
+              toUserId: creditor.userId,
+              toUserName: creditor.displayName,
+              amount: settlementAmount,
+              currency: this.group?.currency || 'USD',
+              type: 'you_owe'
+            });
+          }
         }
       });
     } else if (currentUserNetBalance > 0) {
@@ -280,19 +440,23 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
       const debtors = balances.filter(b => b.netBalance < 0 && b.userId !== this.currentUser.uid);
       
       debtors.forEach(debtor => {
-        const debtAmount = Math.abs(debtor.netBalance);
-        const settlementAmount = Math.min(creditAmount, debtAmount);
+        // Use the new balance calculation to get exact amount owed
+        const exactAmountOwed = this.getBalanceBetweenUsers(debtor.userId, this.currentUser.uid);
         
-        if (settlementAmount > 0) {
-          suggestions.push({
-            fromUserId: debtor.userId,
-            fromUserName: debtor.displayName,
-            toUserId: this.currentUser.uid,
-            toUserName: currentUserBalance.displayName,
-            amount: settlementAmount,
-            currency: this.group?.currency || 'USD',
-            type: 'owed_to_you'
-          });
+        if (exactAmountOwed > 0) {
+          const settlementAmount = Math.min(exactAmountOwed, creditAmount);
+          
+          if (settlementAmount > 0) {
+            suggestions.push({
+              fromUserId: debtor.userId,
+              fromUserName: debtor.displayName,
+              toUserId: this.currentUser.uid,
+              toUserName: currentUserBalance.displayName,
+              amount: settlementAmount,
+              currency: this.group?.currency || 'USD',
+              type: 'owed_to_you'
+            });
+          }
         }
       });
     } else {
@@ -308,20 +472,26 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
           if (remainingDebt <= 0) return;
           
           const availableCredit = creditor.netBalance;
-          const settlementAmount = Math.min(remainingDebt, availableCredit);
           
-          if (settlementAmount > 0) {
-            suggestions.push({
-              fromUserId: debtor.userId,
-              fromUserName: debtor.displayName,
-              toUserId: creditor.userId,
-              toUserName: creditor.displayName,
-              amount: settlementAmount,
-              currency: this.group?.currency || 'USD',
-              type: 'others'
-            });
+          // Use the new balance calculation to get exact amount owed
+          const exactAmountOwed = this.getBalanceBetweenUsers(debtor.userId, creditor.userId);
+          
+          if (exactAmountOwed > 0) {
+            const settlementAmount = Math.min(remainingDebt, availableCredit, exactAmountOwed);
             
-            remainingDebt -= settlementAmount;
+            if (settlementAmount > 0) {
+              suggestions.push({
+                fromUserId: debtor.userId,
+                fromUserName: debtor.displayName,
+                toUserId: creditor.userId,
+                toUserName: creditor.displayName,
+                amount: settlementAmount,
+                currency: this.group?.currency || 'USD',
+                type: 'others'
+              });
+              
+              remainingDebt -= settlementAmount;
+            }
           }
         });
       });
@@ -332,13 +502,29 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
   // Settle a transaction
   settleTransaction(transaction: SplitTransaction): void {
-    if (!this.group) return;
+    if (!this.group) {
+      this.notificationService.error('Group not found');
+      return;
+    }
+
+    if (!this.currentUser?.uid) {
+      this.notificationService.error('User not authenticated');
+      return;
+    }
+
+    // Check for existing settlements related to this transaction
+    const existingSettlements = this.getExistingSettlementsForTransaction(transaction);
+    
+    let message = `Mark all splits in this transaction as paid?`;
+    if (existingSettlements.length > 0) {
+      message += `\n\nNote: There are ${existingSettlements.length} existing settlement(s) that may be affected.`;
+    }
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
         title: 'Settle Transaction',
-        message: `Mark all splits in this transaction as paid?`,
+        message: message,
         confirmText: 'Settle',
         cancelText: 'Cancel',
       },
@@ -346,30 +532,135 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        // Update all splits to paid
-        const updatedSplits = transaction.splits.map(split => ({
-          ...split,
-          isPaid: true,
-          paidBy: this.currentUser?.uid,
-          paidAt: new Date()
-        }));
+        try {
+          // Create updated splits without email and displayName (as expected by the service)
+          const updatedSplits = transaction.splits.map(split => ({
+            userId: split.userId,
+            amount: split.amount,
+            percentage: split.percentage,
+            isPaid: true,
+            paidBy: this.currentUser?.uid,
+            paidAt: new Date()
+          }));
 
-        // Dispatch action to update transaction
-        this.store.dispatch(SplitwiseActions.updateSplitTransaction({
-          groupId: this.group!.id!,
-          transactionId: transaction.id!,
-          updates: {
-            splits: updatedSplits,
-            status: 'completed'
-          }
-        }));
+          console.log('Settling transaction:', transaction.id, 'with splits:', updatedSplits);
+
+          // Dispatch action to update transaction
+          this.store.dispatch(SplitwiseActions.updateSplitTransaction({
+            groupId: this.group!.id!,
+            transactionId: transaction.id!,
+            updates: {
+              splits: updatedSplits,
+              status: 'completed'
+            }
+          }));
+
+          // Show success notification
+          this.notificationService.success('Transaction settled successfully');
+          
+          // Reload data after a short delay to ensure the update is processed
+          setTimeout(() => {
+            this.reloadData();
+          }, 1000);
+        } catch (error) {
+          console.error('Error settling transaction:', error);
+          this.notificationService.error('Failed to settle transaction');
+        }
       }
     });
   }
 
+  // Get existing settlements that might be affected by settling this transaction
+  getExistingSettlementsForTransaction(transaction: SplitTransaction): any[] {
+    const affectedSettlements: any[] = [];
+    
+    // Get all unique user pairs from the transaction splits
+    const userPairs = new Set<string>();
+    transaction.splits.forEach(split => {
+      if (split.userId !== this.currentUser?.uid) {
+        userPairs.add(`${this.currentUser?.uid}-${split.userId}`);
+        userPairs.add(`${split.userId}-${this.currentUser?.uid}`);
+      }
+    });
+
+    // Check for existing settlements between these user pairs
+    userPairs.forEach(pair => {
+      const [fromUserId, toUserId] = pair.split('-');
+      const settlement = this.settlements.find(s => 
+        s.fromUserId === fromUserId && 
+        s.toUserId === toUserId && 
+        s.status !== 'cancelled'
+      );
+      
+      if (settlement) {
+        affectedSettlements.push({
+          fromUserName: this.getMemberName(settlement.fromUserId),
+          toUserName: this.getMemberName(settlement.toUserId),
+          amount: settlement.amount,
+          status: settlement.status
+        });
+      }
+    });
+
+    return affectedSettlements;
+  }
+
+  // Check if a transaction can be settled (no conflicts with existing settlements)
+  canSettleTransaction(transaction: SplitTransaction): { canSettle: boolean; reason?: string } {
+    if (transaction.status === 'completed') {
+      return { canSettle: false, reason: 'Transaction is already completed' };
+    }
+
+    const existingSettlements = this.getExistingSettlementsForTransaction(transaction);
+    
+    if (existingSettlements.length > 0) {
+      const pendingSettlements = existingSettlements.filter(s => s.status === 'pending');
+      if (pendingSettlements.length > 0) {
+        return { 
+          canSettle: false, 
+          reason: `There are ${pendingSettlements.length} pending settlement(s) that need to be resolved first` 
+        };
+      }
+    }
+
+    return { canSettle: true };
+  }
+
+  // Get settlement conflicts for a transaction
+  getSettlementConflicts(transaction: SplitTransaction): any[] {
+    const conflicts: any[] = [];
+    
+    // Check if there are pending settlements that might conflict
+    const existingSettlements = this.getExistingSettlementsForTransaction(transaction);
+    const pendingSettlements = existingSettlements.filter(s => s.status === 'pending');
+    
+    pendingSettlements.forEach(settlement => {
+      conflicts.push({
+        type: 'pending_settlement',
+        message: `Pending settlement: ${settlement.fromUserName} → ${settlement.toUserName} (${this.formatCurrency(settlement.amount, this.group?.currency || 'USD')})`,
+        settlement: settlement
+      });
+    });
+
+    return conflicts;
+  }
+
+  // Check if transaction has settlement conflicts
+  hasSettlementConflicts(transaction: SplitTransaction): boolean {
+    return this.getSettlementConflicts(transaction).length > 0;
+  }
+
   // Create settlement between members
   createSettlement(suggestion: any): void {
-    if (!this.group) return;
+    if (!this.group) {
+      this.notificationService.error('Group not found');
+      return;
+    }
+
+    if (!this.currentUser?.uid) {
+      this.notificationService.error('User not authenticated');
+      return;
+    }
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
@@ -383,13 +674,28 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.store.dispatch(SplitwiseActions.createSettlement({
-          groupId: this.group!.id!,
-          fromUserId: suggestion.fromUserId,
-          toUserId: suggestion.toUserId,
-          amount: suggestion.amount,
-          notes: `Settlement created from balance summary`
-        }));
+        try {
+          console.log('Creating settlement:', suggestion);
+
+          this.store.dispatch(SplitwiseActions.createSettlement({
+            groupId: this.group!.id!,
+            fromUserId: suggestion.fromUserId,
+            toUserId: suggestion.toUserId,
+            amount: suggestion.amount,
+            notes: `Settlement created from balance summary`
+          }));
+
+          // Show success notification
+          this.notificationService.success('Settlement created successfully');
+          
+          // Reload data after a short delay to ensure the update is processed
+          setTimeout(() => {
+            this.reloadData();
+          }, 1000);
+        } catch (error) {
+          console.error('Error creating settlement:', error);
+          this.notificationService.error('Failed to create settlement');
+        }
       }
     });
   }
@@ -464,6 +770,88 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Get settlement status for a specific user pair
+  getSettlementStatus(fromUserId: string, toUserId: string): { exists: boolean; status: string; amount: number } {
+    const settlement = this.settlements.find(s => 
+      s.fromUserId === fromUserId && 
+      s.toUserId === toUserId
+    );
+    
+    if (!settlement) {
+      return { exists: false, status: '', amount: 0 };
+    }
+    
+    return { 
+      exists: true, 
+      status: settlement.status, 
+      amount: settlement.amount 
+    };
+  }
+
+  // Check if a settlement suggestion is already pending
+  isSettlementPending(fromUserId: string, toUserId: string): boolean {
+    const settlement = this.settlements.find(s => 
+      s.fromUserId === fromUserId && 
+      s.toUserId === toUserId && 
+      s.status === 'pending'
+    );
+    return !!settlement;
+  }
+
+  // Check if a settlement suggestion is already completed
+  isSettlementCompleted(fromUserId: string, toUserId: string): boolean {
+    const settlement = this.settlements.find(s => 
+      s.fromUserId === fromUserId && 
+      s.toUserId === toUserId && 
+      s.status === 'completed'
+    );
+    return !!settlement;
+  }
+
+  // Get existing settlements summary
+  getExistingSettlementsSummary(): any[] {
+    if (!this.currentUser?.uid) return [];
+
+    const summary: any[] = [];
+    
+    // Get settlements involving current user
+    const userSettlements = this.settlements.filter(s => 
+      (s.fromUserId === this.currentUser.uid || s.toUserId === this.currentUser.uid) &&
+      s.status !== 'cancelled'
+    );
+
+    userSettlements.forEach(settlement => {
+      const isFromUser = settlement.fromUserId === this.currentUser.uid;
+      const otherUserId = isFromUser ? settlement.toUserId : settlement.fromUserId;
+      const otherUserName = this.getMemberName(otherUserId);
+      
+      summary.push({
+        fromUserId: settlement.fromUserId,
+        fromUserName: this.getMemberName(settlement.fromUserId),
+        toUserId: settlement.toUserId,
+        toUserName: this.getMemberName(settlement.toUserId),
+        amount: settlement.amount,
+        currency: settlement.currency,
+        status: settlement.status,
+        isInvolvingCurrentUser: true,
+        isFromCurrentUser: isFromUser,
+        otherUserName: otherUserName
+      });
+    });
+
+    return summary;
+  }
+
+  // Get pending settlements count
+  getPendingSettlementsCount(): number {
+    return this.settlements.filter(s => s.status === 'pending').length;
+  }
+
+  // Get completed settlements count
+  getCompletedSettlementsCount(): number {
+    return this.settlements.filter(s => s.status === 'completed').length;
+  }
+
   getTransactionStatusColor(status: string): string {
     switch (status) {
       case 'completed':
@@ -495,9 +883,21 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
   }
 
   getTransactionCreatorName(transaction: SplitTransaction): string {
-    if (!this.group) return '';
-    const member = this.group.members.find(m => m.userId === transaction.createdBy);
-    return member?.displayName || 'Unknown';
+    return this.getMemberName(transaction.createdBy);
+  }
+
+  // Get transaction title
+  getTransactionTitle(transaction: SplitTransaction): string {
+    const memberCount = transaction.splits.length;
+    const paidCount = transaction.splits.filter(split => split.isPaid).length;
+    
+    if (paidCount === memberCount) {
+      return `Transaction (${memberCount} members, all paid)`;
+    } else if (paidCount === 0) {
+      return `Transaction (${memberCount} members, pending)`;
+    } else {
+      return `Transaction (${memberCount} members, ${paidCount} paid)`;
+    }
   }
 
   getTransactionSplitsSummary(transaction: SplitTransaction): string {
@@ -519,10 +919,224 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
   }
 
 
+  // Get member name by user ID
   getMemberName(userId: string): string {
     if (!this.group) return 'Unknown';
     const member = this.group.members.find(m => m.userId === userId);
     return member?.displayName || 'Unknown';
+  }
+
+  // Debug method to log balance calculations
+  debugBalanceCalculations(): void {
+    console.log('=== BALANCE CALCULATION DEBUG ===');
+    
+    if (!this.group) {
+      console.log('No group found');
+      return;
+    }
+
+    console.log('Group:', this.group.name);
+    console.log('Members:', this.group.members.map(m => ({ id: m.userId, name: m.displayName })));
+    
+    console.log('Transactions:', this.transactions.length);
+    this.transactions.forEach((t, i) => {
+      console.log(`Transaction ${i + 1}:`, {
+        id: t.id,
+        amount: t.totalAmount,
+        paidBy: this.getMemberName(t.createdBy),
+        splits: t.splits.map(s => ({
+          user: this.getMemberName(s.userId),
+          amount: s.amount,
+          isPaid: s.isPaid
+        }))
+      });
+    });
+
+    console.log('Settlements:', this.settlements.length);
+    this.settlements.forEach((s, i) => {
+      console.log(`Settlement ${i + 1}:`, {
+        id: s.id,
+        from: this.getMemberName(s.fromUserId),
+        to: this.getMemberName(s.toUserId),
+        amount: s.amount,
+        status: s.status
+      });
+    });
+
+    // Raw balances before simplification
+    const rawBalances = this.calculateRawBalances();
+    console.log('Raw Balances (before simplification):', rawBalances);
+
+    // Simplified balances
+    const simplifiedBalances = this.calculateNetBalances();
+    console.log('Simplified Balances (after simplification):', simplifiedBalances);
+
+    // Member balances for display
+    const memberBalances = this.getMemberBalances();
+    console.log('Member Balances (for display):', memberBalances);
+
+    // Current user breakdown
+    if (this.currentUser?.uid) {
+      const breakdown = this.getDetailedBalanceBreakdown(this.currentUser.uid);
+      console.log('Current User Breakdown:', breakdown);
+    }
+
+    console.log('=== END DEBUG ===');
+  }
+
+  // Calculate raw balances without simplification (for debugging)
+  calculateRawBalances(): Record<string, Record<string, number>> {
+    const balances: Record<string, Record<string, number>> = {};
+
+    // Step 1: Process Transactions (Expenses)
+    for (const transaction of this.transactions) {
+      const paidBy = transaction.createdBy;
+      for (const split of transaction.splits) {
+        if (split.userId === paidBy) continue;
+        if (!balances[split.userId]) balances[split.userId] = {};
+        if (!balances[split.userId][paidBy]) balances[split.userId][paidBy] = 0;
+        balances[split.userId][paidBy] += split.amount;
+      }
+    }
+
+    console.log('After transactions:', balances);
+
+    // Process settlements
+    for (const settlement of this.settlements) {
+      if (!balances[settlement.fromUserId]) balances[settlement.fromUserId] = {};
+      if (!balances[settlement.fromUserId][settlement.toUserId]) balances[settlement.fromUserId][settlement.toUserId] = 0;
+      balances[settlement.fromUserId][settlement.toUserId] -= settlement.amount;
+    }
+
+    console.log('After settlements:', balances);
+
+    // Simplify
+    const result: Record<string, Record<string, number>> = {};
+    const visited = new Set<string>();
+
+    for (const userA in balances) {
+      for (const userB in balances[userA]) {
+        const key = `${userA}_${userB}`;
+        const reverseKey = `${userB}_${userA}`;
+        
+        if (visited.has(key) || visited.has(reverseKey)) continue;
+
+        const amountAB = balances[userA]?.[userB] || 0;
+        const amountBA = balances[userB]?.[userA] || 0;
+        const net = amountAB - amountBA;
+
+        if (net > 0) {
+          if (!result[userA]) result[userA] = {};
+          result[userA][userB] = Math.round(net * 100) / 100;
+        } else if (net < 0) {
+          if (!result[userB]) result[userB] = {};
+          result[userB][userA] = Math.round(-net * 100) / 100;
+        }
+
+        visited.add(key);
+        visited.add(reverseKey);
+      }
+    }
+
+    console.log('Final simplified result:', result);
+    console.log('=== END TEST ===');
+    return result;
+  }
+
+  // Test balance calculation with sample data
+  testBalanceCalculation(): void {
+    console.log('=== TESTING BALANCE CALCULATION ===');
+    
+    // Sample test data
+    const testTransactions = [
+      {
+        id: '1',
+        createdBy: 'user1',
+        totalAmount: 100,
+        splits: [
+          { userId: 'user1', amount: 50, isPaid: true },
+          { userId: 'user2', amount: 50, isPaid: false }
+        ]
+      },
+      {
+        id: '2',
+        createdBy: 'user2',
+        totalAmount: 60,
+        splits: [
+          { userId: 'user1', amount: 30, isPaid: false },
+          { userId: 'user2', amount: 30, isPaid: true }
+        ]
+      }
+    ];
+
+    const testSettlements = [
+      {
+        id: '1',
+        fromUserId: 'user1',
+        toUserId: 'user2',
+        amount: 20,
+        status: 'completed'
+      }
+    ];
+
+    console.log('Test Transactions:', testTransactions);
+    console.log('Test Settlements:', testSettlements);
+
+    // Simulate the calculation
+    const balances: Record<string, Record<string, number>> = {};
+
+    // Process transactions
+    for (const transaction of testTransactions) {
+      const paidBy = transaction.createdBy;
+      for (const split of transaction.splits) {
+        if (split.userId === paidBy) continue;
+        if (!balances[split.userId]) balances[split.userId] = {};
+        if (!balances[split.userId][paidBy]) balances[split.userId][paidBy] = 0;
+        balances[split.userId][paidBy] += split.amount;
+      }
+    }
+
+    console.log('After transactions:', balances);
+
+    // Process settlements
+    for (const settlement of testSettlements) {
+      if (!balances[settlement.fromUserId]) balances[settlement.fromUserId] = {};
+      if (!balances[settlement.fromUserId][settlement.toUserId]) balances[settlement.fromUserId][settlement.toUserId] = 0;
+      balances[settlement.fromUserId][settlement.toUserId] -= settlement.amount;
+    }
+
+    console.log('After settlements:', balances);
+
+    // Simplify
+    const result: Record<string, Record<string, number>> = {};
+    const visited = new Set<string>();
+
+    for (const userA in balances) {
+      for (const userB in balances[userA]) {
+        const key = `${userA}_${userB}`;
+        const reverseKey = `${userB}_${userA}`;
+        
+        if (visited.has(key) || visited.has(reverseKey)) continue;
+
+        const amountAB = balances[userA]?.[userB] || 0;
+        const amountBA = balances[userB]?.[userA] || 0;
+        const net = amountAB - amountBA;
+
+        if (net > 0) {
+          if (!result[userA]) result[userA] = {};
+          result[userA][userB] = Math.round(net * 100) / 100;
+        } else if (net < 0) {
+          if (!result[userB]) result[userB] = {};
+          result[userB][userA] = Math.round(-net * 100) / 100;
+        }
+
+        visited.add(key);
+        visited.add(reverseKey);
+      }
+    }
+
+    console.log('Final simplified result:', result);
+    console.log('=== END TEST ===');
   }
 
   toggleMembers(): void {

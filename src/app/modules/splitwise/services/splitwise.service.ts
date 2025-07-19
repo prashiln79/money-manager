@@ -593,12 +593,6 @@ export class SplitwiseService {
       if (request.status) updateData.status = request.status;
 
       if (request.splits) {
-        // Recalculate splits and update member balances
-        const totalAmount = request.splits.reduce((sum, split) => sum + split.amount, 0);
-        if (Math.abs(totalAmount - (request.amount || 0)) > 0.01) {
-          throw new Error('Split amounts must equal the total transaction amount');
-        }
-
         // Get group for member details
         const transactionDoc = await getDoc(doc(this.firestore, 'splitwise-transactions', transactionId));
         if (!transactionDoc.exists()) {
@@ -615,23 +609,25 @@ export class SplitwiseService {
             ...split,
             email: member?.email || '',
             displayName: member?.displayName || '',
-            isPaid: false
+            // Preserve the isPaid status from the request
+            isPaid: split.isPaid !== undefined ? split.isPaid : false
           };
         });
 
         updateData.splits = splitsWithDetails;
-        updateData.totalAmount = request.amount;
+        
+        // Only update totalAmount if amount is provided
+        if (request.amount) {
+          updateData.totalAmount = request.amount;
+        }
 
-        // Update member balances
-        await this.updateMemberBalances(transactionData.groupId, splitsWithDetails);
+        // Only update member balances if this is a new transaction or amount changed
+        if (request.amount && request.amount !== transactionData.totalAmount) {
+          await this.updateMemberBalances(transactionData.groupId, splitsWithDetails);
+        }
       }
 
       await updateDoc(doc(this.firestore, 'splitwise-transactions', transactionId), updateData);
-
-      // Log activity
-      const transactionDoc = await getDoc(doc(this.firestore, 'splitwise-transactions', transactionId));
-      const transactionData = transactionDoc.data() as SplitTransaction;
-
 
       this.notificationService.success('Split transaction updated successfully');
     } catch (error) {
@@ -666,7 +662,6 @@ export class SplitwiseService {
       // Delete transaction
       await deleteDoc(doc(this.firestore, 'splitwise-transactions', transactionId));
 
-
       this.notificationService.success('Split transaction deleted successfully');
     } catch (error) {
       console.error('Error deleting split transaction:', error);
@@ -685,12 +680,19 @@ export class SplitwiseService {
       const userId = this.auth.currentUser?.uid;
       if (!userId) throw new Error('User not authenticated');
 
+      // Get group to get the currency
+      const groupDoc = await getDoc(doc(this.firestore, 'splitwise-groups', request.groupId));
+      if (!groupDoc.exists()) {
+        throw new Error('Group not found');
+      }
+      const groupData = groupDoc.data() as SplitwiseGroup;
+
       const settlementData: Omit<SplitSettlement, 'id'> = {
         groupId: request.groupId,
         fromUserId: request.fromUserId,
         toUserId: request.toUserId,
         amount: request.amount,
-        currency: 'USD', // Get from group
+        currency: groupData.currency || 'USD',
         status: SettlementStatus.PENDING,
         notes: request.notes || '',
         createdAt: new Date(),

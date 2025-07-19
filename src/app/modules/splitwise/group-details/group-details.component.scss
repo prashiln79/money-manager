@@ -261,46 +261,54 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
         mat-card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
           padding: 20px 20px 0 20px;
 
           @media (max-width: 768px) {
             padding: 16px 16px 0 16px;
-          }
-
-          @media (max-width: 480px) {
-            padding: 12px 12px 0 12px;
+            flex-wrap: wrap;
           }
 
           mat-card-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 1.25rem;
-
-            @media (max-width: 768px) {
-              font-size: 1.1rem;
-            }
+            margin: 0;
+            flex: 1;
 
             mat-icon {
               color: #1976d2;
-              font-size: 24px;
-              width: 24px;
-              height: 24px;
+            }
 
-              @media (max-width: 768px) {
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-              }
+            span {
+              font-size: 1.25rem;
+              font-weight: 600;
+              color: #333;
             }
           }
 
           mat-card-subtitle {
+            margin: 0;
             color: #666;
-            font-size: 0.875rem;
-            margin-top: 4px;
+            font-size: 0.9rem;
+          }
+
+          .debug-btn {
+            color: #666;
+            transition: color 0.2s ease;
+
+            &:hover {
+              color: #ff9800;
+              background-color: rgba(255, 152, 0, 0.04);
+            }
+
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+            }
           }
         }
 
@@ -641,6 +649,24 @@
                     font-size: 0.875rem;
                     font-weight: 500;
                   }
+
+                  .settlement-status {
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                    margin-left: 8px;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+
+                    &.pending {
+                      background-color: rgba(255, 152, 0, 0.1);
+                      color: #ff9800;
+                    }
+
+                    &.completed {
+                      background-color: rgba(76, 175, 80, 0.1);
+                      color: #4caf50;
+                    }
+                  }
                 }
 
                 .settlement-parties {
@@ -780,71 +806,56 @@
 
           .transactions-list {
             .transaction-item {
-              border-bottom: 1px solid #f0f0f0;
-              transition: background-color 0.2s ease;
-
-              &:last-child {
-                border-bottom: none;
-              }
+              border: 1px solid #e0e0e0;
+              border-radius: 8px;
+              padding: 12px;
+              margin-bottom: 8px;
+              background-color: #fff;
+              transition: all 0.2s ease;
 
               &:hover {
-                background-color: #f8f9fa;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
               }
 
-              &.compact {
-                padding: 16px;
-
-                @media (max-width: 768px) {
-                  padding: 12px;
-                }
-
+              &.simple {
                 .transaction-main {
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
-                  margin-bottom: 12px;
+                  gap: 12px;
 
-                  @media (max-width: 768px) {
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 8px;
-                    margin-bottom: 8px;
+                  .transaction-info {
+                    flex: 1;
+                    min-width: 0;
+
+                    .transaction-title {
+                      font-weight: 600;
+                      color: #333;
+                      margin-bottom: 4px;
+                      font-size: 0.95rem;
+                    }
+
+                    .transaction-meta {
+                      display: flex;
+                      gap: 12px;
+                      font-size: 0.8rem;
+                      color: #666;
+
+                      .paid-by {
+                        font-weight: 500;
+                      }
+
+                      .transaction-date {
+                        color: #999;
+                      }
+                    }
                   }
 
                   .transaction-amount {
-                    font-size: 1.125rem;
-                    font-weight: 600;
+                    font-weight: 700;
+                    font-size: 1.1rem;
                     color: #333;
-                    min-width: 100px;
-
-                    @media (max-width: 768px) {
-                      font-size: 1rem;
-                      min-width: auto;
-                    }
-                  }
-
-                  .transaction-summary {
-                    flex: 1;
-                    margin: 0 16px;
-                    font-size: 0.875rem;
-                    color: #666;
-
-                    @media (max-width: 768px) {
-                      margin: 0;
-                      font-size: 0.8rem;
-                    }
-                  }
-
-                  .transaction-date {
-                    font-size: 0.75rem;
-                    color: #999;
-                    min-width: 80px;
-                    text-align: right;
-
-                    @media (max-width: 768px) {
-                      text-align: left;
-                      min-width: auto;
-                    }
+                    white-space: nowrap;
                   }
                 }
 
@@ -852,100 +863,54 @@
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
-                  margin-bottom: 12px;
-
-                  @media (max-width: 768px) {
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 8px;
-                    margin-bottom: 8px;
-                  }
+                  margin-top: 8px;
+                  padding-top: 8px;
+                  border-top: 1px solid #f0f0f0;
 
                   mat-chip {
                     font-size: 0.75rem;
                   }
+                }
+              }
 
-                  button {
-                    margin-left: auto;
+              &.compact {
+                .transaction-main {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 12px;
 
-                    @media (max-width: 768px) {
-                      margin-left: 0;
-                    }
+                  .transaction-amount {
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    color: #333;
+                    white-space: nowrap;
+                  }
+
+                  .transaction-summary {
+                    flex: 1;
+                    font-size: 0.9rem;
+                    color: #666;
+                    margin: 0 12px;
+                  }
+
+                  .transaction-date {
+                    font-size: 0.8rem;
+                    color: #999;
+                    white-space: nowrap;
                   }
                 }
 
-                .transaction-details {
-                  background-color: #f8f9fa;
-                  border-radius: 8px;
-                  padding: 12px;
+                .transaction-actions {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
                   margin-top: 8px;
+                  padding-top: 8px;
+                  border-top: 1px solid #f0f0f0;
 
-                  @media (max-width: 768px) {
-                    padding: 8px;
-                  }
-
-                  .splits-summary {
-                    margin-bottom: 8px;
-
-                    .splits-count {
-                      font-size: 0.75rem;
-                      color: #666;
-                      font-weight: 500;
-                    }
-                  }
-
-                  .splits-details {
-                    .split-item {
-                      display: flex;
-                      justify-content: space-between;
-                      align-items: center;
-                      padding: 4px 0;
-
-                      @media (max-width: 480px) {
-                        flex-direction: column;
-                        align-items: flex-start;
-                        gap: 4px;
-                      }
-
-                      .split-member {
-                        display: flex;
-                        justify-content: space-between;
-                        flex: 1;
-                        margin-right: 16px;
-
-                        @media (max-width: 480px) {
-                          margin-right: 0;
-                          width: 100%;
-                        }
-
-                        .member-name {
-                          font-size: 0.875rem;
-                          color: #333;
-                        }
-
-                        .split-amount {
-                          font-size: 0.875rem;
-                          color: #666;
-                          font-weight: 500;
-                        }
-                      }
-
-                      .split-status {
-                        mat-icon {
-                          font-size: 16px;
-                          width: 16px;
-                          height: 16px;
-
-                          &.paid {
-                            color: #4caf50;
-                          }
-
-                          &.unpaid {
-                            color: #ff9800;
-                          }
-                        }
-                      }
-                    }
+                  mat-chip {
+                    font-size: 0.75rem;
                   }
                 }
               }
@@ -1182,6 +1147,111 @@
       
       &:hover {
         background-color: rgba(244, 67, 54, 0.04);
+      }
+    }
+  }
+}
+
+// Detailed Balance Breakdown
+.detailed-balances {
+  margin-top: 16px;
+
+  mat-expansion-panel {
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+
+    ::ng-deep .mat-expansion-panel-header {
+      padding: 12px 16px;
+      background-color: #f8f9fa;
+      border-radius: 8px 8px 0 0;
+
+      .mat-expansion-panel-header-title {
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mat-expansion-panel-header-description {
+        color: #666;
+        font-size: 0.85rem;
+      }
+    }
+
+    ::ng-deep .mat-expansion-panel-body {
+      padding: 16px;
+    }
+  }
+
+  .breakdown-list {
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &.owes {
+        .breakdown-info mat-icon {
+          color: #f44336;
+        }
+        .breakdown-amount {
+          color: #f44336;
+          font-weight: 600;
+        }
+      }
+
+      &.owed {
+        .breakdown-info mat-icon {
+          color: #4caf50;
+        }
+        .breakdown-amount {
+          color: #4caf50;
+          font-weight: 600;
+        }
+      }
+
+      .breakdown-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        .breakdown-message {
+          font-size: 0.9rem;
+          color: #333;
+        }
+      }
+
+      .breakdown-amount {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+    }
+
+    .no-breakdown {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      color: #4caf50;
+      font-weight: 500;
+
+      mat-icon {
+        color: #4caf50;
       }
     }
   }

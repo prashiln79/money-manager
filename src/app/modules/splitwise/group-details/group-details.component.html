@@ -65,6 +65,14 @@
 					<mat-card-subtitle>
 						Who owes what to whom
 					</mat-card-subtitle>
+					<!-- Debug Button -->
+					<button 
+						mat-icon-button 
+						(click)="debugBalanceCalculations()" 
+						matTooltip="Debug balance calculations"
+						class="debug-btn">
+						<mat-icon>bug_report</mat-icon>
+					</button>
 				</mat-card-header>
 				<mat-card-content>
 					<div class="balances-list">
@@ -86,6 +94,40 @@
 								</span>
 							</div>
 						</div>
+					</div>
+					
+					<!-- Detailed Balance Breakdown -->
+					<div class="detailed-balances" *ngIf="currentUser?.uid">
+						<mat-expansion-panel>
+							<mat-expansion-panel-header>
+								<mat-panel-title>
+									<mat-icon>account_tree</mat-icon>
+									<span>Detailed Balance Breakdown</span>
+								</mat-panel-title>
+								<mat-panel-description>
+									See who owes what to whom
+								</mat-panel-description>
+							</mat-expansion-panel-header>
+							
+							<div class="breakdown-list">
+								<div *ngFor="let breakdown of getDetailedBalanceBreakdown(currentUser.uid)" class="breakdown-item" [class]="breakdown.type">
+									<div class="breakdown-info">
+										<mat-icon [class]="breakdown.type === 'owes' ? 'arrow_upward' : 'arrow_downward'">
+											{{ breakdown.type === 'owes' ? 'arrow_upward' : 'arrow_downward' }}
+										</mat-icon>
+										<span class="breakdown-message">{{ breakdown.message }}</span>
+									</div>
+									<div class="breakdown-amount" [class]="breakdown.type">
+										{{ formatCurrency(breakdown.amount, group.currency) }}
+									</div>
+								</div>
+								
+								<div *ngIf="getDetailedBalanceBreakdown(currentUser.uid).length === 0" class="no-breakdown">
+									<mat-icon>check_circle</mat-icon>
+									<span>All balances are settled!</span>
+								</div>
+							</div>
+						</mat-expansion-panel>
 					</div>
 				</mat-card-content>
 			</mat-card>
@@ -109,6 +151,12 @@
 							<div class="suggestion-info">
 								<div class="suggestion-message">
 									<span class="message-text">{{ getSettlementMessage(suggestion) }}</span>
+									<span *ngIf="isSettlementPending(suggestion.fromUserId, suggestion.toUserId)" class="settlement-status pending">
+										(Pending)
+									</span>
+									<span *ngIf="isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)" class="settlement-status completed">
+										(Completed)
+									</span>
 								</div>
 								<div class="settlement-parties">
 									<span class="from-user">{{ suggestion.fromUserName }}</span>
@@ -124,9 +172,13 @@
 								[color]="suggestion.type === 'you_owe' ? 'warn' : 'primary'" 
 								size="small" 
 								(click)="createSettlement(suggestion)"
-								[disabled]="suggestion.type === 'others'">
+								[disabled]="suggestion.type === 'others' || isSettlementPending(suggestion.fromUserId, suggestion.toUserId) || isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)">
 								<mat-icon>{{ suggestion.type === 'you_owe' ? 'payment' : 'check' }}</mat-icon>
-								{{ suggestion.type === 'you_owe' ? 'Pay' : 'Settle' }}
+								<span *ngIf="isSettlementPending(suggestion.fromUserId, suggestion.toUserId)">Pending</span>
+								<span *ngIf="isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)">Completed</span>
+								<span *ngIf="!isSettlementPending(suggestion.fromUserId, suggestion.toUserId) && !isSettlementCompleted(suggestion.fromUserId, suggestion.toUserId)">
+									{{ suggestion.type === 'you_owe' ? 'Pay' : 'Settle' }}
+								</span>
 							</button>
 						</div>
 					</div>
@@ -149,16 +201,19 @@
 				<mat-card-content>
 					<!-- Transactions List -->
 					<div *ngIf="transactions.length > 0" class="transactions-list">
-						<div *ngFor="let transaction of transactions" class="transaction-item compact">
+						<div *ngFor="let transaction of transactions" class="transaction-item simple">
 							<div class="transaction-main">
+								<div class="transaction-info">
+									<div class="transaction-title">
+										{{ getTransactionTitle(transaction) }}
+									</div>
+									<div class="transaction-meta">
+										<span class="paid-by">Paid by {{ getTransactionCreatorName(transaction) }}</span>
+										<span class="transaction-date">{{ formatDate(transaction.createdAt) }}</span>
+									</div>
+								</div>
 								<div class="transaction-amount">
 									{{ formatCurrency(transaction.totalAmount, transaction.currency) }}
-								</div>
-								<div class="transaction-summary">
-									{{ getCompactTransactionSummary(transaction) }}
-								</div>
-								<div class="transaction-date">
-									{{ formatDate(transaction.createdAt) }}
 								</div>
 							</div>
 							
@@ -171,29 +226,10 @@
 									mat-icon-button 
 									color="primary" 
 									(click)="settleTransaction(transaction)"
-									matTooltip="Settle transaction">
+									[disabled]="!canSettleTransaction(transaction).canSettle"
+									[matTooltip]="canSettleTransaction(transaction).reason || 'Settle transaction'">
 									<mat-icon>check_circle</mat-icon>
 								</button>
-							</div>
-
-							<!-- Expandable Details -->
-							<div class="transaction-details" *ngIf="transaction.splits.length > 0">
-								<div class="splits-summary">
-									<span class="splits-count">{{ getTransactionSplitsSummary(transaction) }}</span>
-								</div>
-								<div class="splits-details">
-									<div *ngFor="let split of transaction.splits" class="split-item">
-										<div class="split-member">
-											<span class="member-name">{{ split.displayName }}</span>
-											<span class="split-amount">{{ formatCurrency(split.amount, transaction.currency) }}</span>
-										</div>
-										<div class="split-status">
-											<mat-icon [class.paid]="split.isPaid" [class.unpaid]="!split.isPaid" [attr.aria-label]="split.isPaid ? 'Paid' : 'Pending'">
-												{{ split.isPaid ? 'check_circle' : 'pending' }}
-											</mat-icon>
-										</div>
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>
