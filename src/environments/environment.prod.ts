@@ -1,5 +1,6 @@
 export const environment = {
   baseUrl: 'https://prashiln79.github.io/wallet',
+  serviceWorkerScope: '/wallet/',
   production: true,
   defaultAppTheme: 'light-theme',
   firebaseConfig: {

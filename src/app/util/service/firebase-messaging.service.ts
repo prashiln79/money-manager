@@ -294,8 +294,8 @@ export class FirebaseMessagingService {
       // Check if Firebase messaging service worker is already registered
       const registrations = await navigator.serviceWorker.getRegistrations();
       const firebaseSW = registrations.find(reg => 
-        reg.scope.includes('/wallet/') ||
-        reg.active?.scriptURL.includes('/wallet/firebase-messaging-sw.js')
+        reg.scope.includes(environment.serviceWorkerScope) ||
+        reg.active?.scriptURL.includes(environment.serviceWorkerScope + 'firebase-messaging-sw.js')
       );
 
       if (firebaseSW) {
@@ -309,7 +309,7 @@ export class FirebaseMessagingService {
 
       // Register Firebase messaging service worker
       console.log('Registering Firebase messaging service worker...');
-      this.swRegistration = await navigator.serviceWorker.register('/wallet/firebase-messaging-sw.js', swOptions);
+      this.swRegistration = await navigator.serviceWorker.register(environment.serviceWorkerScope + 'firebase-messaging-sw.js', swOptions);
 
       console.log('Firebase messaging service worker registered successfully:', this.swRegistration);
       
@@ -324,7 +324,7 @@ export class FirebaseMessagingService {
 
   private getServiceWorkerOptions(): any {
     const baseOptions = {
-      scope: '/wallet/'
+      scope: environment.serviceWorkerScope
     };
 
     // Platform-specific options

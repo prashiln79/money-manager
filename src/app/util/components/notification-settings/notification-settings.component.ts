@@ -4,6 +4,7 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { FirebaseMessagingService, NotificationPayload } from '../../service/firebase-messaging.service';
 import { APP_CONFIG } from '../../config/config';
 import { NotificationService } from '../../service/notification.service';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-notification-settings',
@@ -295,8 +296,8 @@ To enable notifications:
       console.log('All service worker registrations:', registrations);
       
       const firebaseSW = registrations.find(reg => 
-        reg.scope.includes('/wallet/') ||
-        reg.active?.scriptURL.includes('/wallet/firebase-messaging-sw.js')
+        reg.scope.includes(environment.serviceWorkerScope) ||
+        reg.active?.scriptURL.includes(environment.serviceWorkerScope + 'firebase-messaging-sw.js')
       );
       
       if (firebaseSW) {
@@ -319,7 +320,7 @@ To enable notifications:
       // Force re-registration of Firebase messaging service worker
       const registrations = await navigator.serviceWorker.getRegistrations();
       const firebaseSW = registrations.find(reg => 
-        reg.scope.includes('/wallet/')
+        reg.scope.includes(environment.serviceWorkerScope)
       );
       
       if (firebaseSW) {
