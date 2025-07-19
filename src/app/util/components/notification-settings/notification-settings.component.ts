@@ -295,8 +295,8 @@ To enable notifications:
       console.log('All service worker registrations:', registrations);
       
       const firebaseSW = registrations.find(reg => 
-        reg.scope.includes('firebase-cloud-messaging-push-scope') ||
-        reg.active?.scriptURL.includes('firebase-messaging-sw.js')
+        reg.scope.includes('https://prashiln79.github.io/wallet/firebase-cloud-messaging-push-scope') ||
+        reg.active?.scriptURL.includes('https://prashiln79.github.io/wallet/firebase-messaging-sw.js')
       );
       
       if (firebaseSW) {
