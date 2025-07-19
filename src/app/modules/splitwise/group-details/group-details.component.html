@@ -93,7 +93,9 @@
 						<mat-expansion-panel>
 							<mat-expansion-panel-header>
 								<mat-panel-title>
-									<mat-icon>account_tree</mat-icon> See who owes what to whom
+									<mat-icon>account_tree</mat-icon>
+									<span *ngIf="getDetailedBalanceBreakdown(currentUser.uid).length === 0"> All balances are settled!</span>
+									<span *ngIf="getDetailedBalanceBreakdown(currentUser.uid).length > 0">See who owes what to whom</span>
 								</mat-panel-title>
 								
 							</mat-expansion-panel-header>
@@ -113,7 +115,7 @@
 								
 								<div *ngIf="getDetailedBalanceBreakdown(currentUser.uid).length === 0" class="no-breakdown">
 									<mat-icon>check_circle</mat-icon>
-									<span>All balances are settled!</span>
+									<span>All are settled!</span>
 								</div>
 							</div>
 						</mat-expansion-panel>
