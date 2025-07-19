@@ -585,35 +585,4 @@
 	}
 }
 
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-	.setting-section {
-		background: rgba(15, 23, 42, 0.95);
-		border-color: #334155;
-	}
 
-	.permission-card {
-		background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-		border-color: #3b82f6;
-	}
-
-	.token-card {
-		background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
-		border-color: #f59e0b;
-	}
-
-	.notification-type,
-	.setting-item {
-		background: #1e293b;
-		border-color: #334155;
-	}
-
-	.token-display {
-		background: #1e293b;
-		border-color: #334155;
-	}
-
-	.disabled-icon {
-		background: #1e293b;
-	}
-}
