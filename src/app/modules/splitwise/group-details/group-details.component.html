@@ -77,7 +77,7 @@
 						<div *ngFor="let balance of getMemberBalances()" class="balance-item" [class.current-user]="balance.userId === currentUser?.uid">
 							<div class="balance-info">
 								<div class="member-name">
-									{{ balance.displayName }}
+									{{ balance.displayName | titlecase }}
 									<span *ngIf="balance.userId === currentUser?.uid" class="current-user-badge">(You)</span>
 								</div>
 								<div class="balance-details">
