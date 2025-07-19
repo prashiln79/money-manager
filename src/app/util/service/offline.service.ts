@@ -5,6 +5,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { UserService } from './user.service';
 import { APP_CONFIG } from '../config/config';
 import { isPlatformServer } from '@angular/common';
+import { environment } from '@env/environment';
 
 export interface NetworkStatus {
   online: boolean;
@@ -292,7 +293,7 @@ export class OfflineService {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(`${APP_CONFIG.APP_NAME}`, {
         body: 'Network connection restored. Your data will sync automatically.',
-        icon: '/icons/icon-192x192.png'
+        icon: environment.baseUrl + '/assets/icons/icon-192x192.png'
       });
     }
   }
@@ -302,7 +303,7 @@ export class OfflineService {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(`${APP_CONFIG.APP_NAME}`, {
         body: 'You\'re offline. Changes will be saved locally and synced when connection is restored.',
-        icon: '/icons/icon-192x192.png'
+        icon: environment.baseUrl + '/assets/icons/icon-192x192.png'
       });
     }
   }

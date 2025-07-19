@@ -365,11 +365,11 @@ export class FirebaseMessagingService {
 
     // Platform-specific default icons
     if (this.platformInfo.isIOS) {
-      return '/icons/icon-152x152.png'; // iOS prefers 152x152
+      return environment.baseUrl + '/assets/icons/icon-152x152.png'; // iOS prefers 152x152
     } else if (this.platformInfo.isAndroid) {
-      return '/icons/icon-192x192.png'; // Android prefers 192x192
+      return environment.baseUrl + '/icons/icon-192x192.png'; // Android prefers 192x192
     } else {
-      return '/icons/icon-192x192.png'; // Desktop default
+      return environment.baseUrl + '/assets/icons/icon-192x192.png'; // Desktop default
     }
   }
 
@@ -668,8 +668,8 @@ export class FirebaseMessagingService {
     const testNotification: NotificationPayload = {
       title: 'Test Notification',
       body: 'This is a test notification from Money Manager',
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'test',
         timestamp: Date.now().toString()

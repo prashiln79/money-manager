@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FirebaseMessagingService, NotificationPayload } from './firebase-messaging.service';
 import { APP_CONFIG } from '../config/config';
+import { environment } from '@env/environment';
 
 export interface NotificationType {
   key: string;
@@ -57,8 +58,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: 'New Transaction',
       body: `${transaction.description} - ${this.formatCurrency(transaction.amount)}`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'transaction',
         transactionId: transaction.id,
@@ -95,8 +96,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: 'Budget Alert',
       body: `${budget.name}: ${percentage.toFixed(1)}% used (${this.formatCurrency(remaining)} remaining)`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'budget',
         budgetId: budget.id,
@@ -132,8 +133,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: 'Goal Progress',
       body: `${goal.name}: ${percentage.toFixed(1)}% complete (${this.formatCurrency(progress)} / ${this.formatCurrency(goal.targetAmount)})`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'goal',
         goalId: goal.id,
@@ -167,8 +168,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: 'Bill Reminder',
       body: `${bill.name} due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''} - ${this.formatCurrency(bill.amount)}`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'bill',
         billId: bill.id,
@@ -202,8 +203,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: 'Security Alert',
       body: alert.message,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'security',
         alertId: alert.id,
@@ -237,8 +238,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: type.title,
       body: type.body,
-      icon: type.icon || '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: type.icon || environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: type.data || {},
       actions: type.actions || [
         {
@@ -264,8 +265,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: `Welcome to ${APP_CONFIG.APP_NAME}!`,
       body: `Hi ${userName}, we're excited to help you manage your finances. Get started by adding your first transaction!`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'welcome',
         route: '/dashboard/transactions'
@@ -294,8 +295,8 @@ export class NotificationManagerService {
     const notification: NotificationPayload = {
       title: 'Weekly Summary',
       body: `You spent ${this.formatCurrency(summary.totalSpent)} this week. ${summary.budgetStatus}`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
+      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
       data: {
         type: 'summary',
         route: '/dashboard/reports'
