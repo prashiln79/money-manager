@@ -8,6 +8,7 @@ import { Auth } from '@angular/fire/auth';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { FeedbackService } from 'src/app/util/service/feedback.service';
+import { APP_CONFIG } from 'src/app/util/config/config';
 
 export interface FeedbackForm {
   name: string;
@@ -30,6 +31,7 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   isSubmitting: boolean = false;
   currentUser: any = null;
   private destroy$ = new Subject<void>();
+  appName = APP_CONFIG.APP_NAME;
 
   // Feedback categories
   feedbackCategories = [
