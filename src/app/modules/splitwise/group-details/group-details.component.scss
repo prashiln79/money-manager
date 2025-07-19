@@ -1,9 +1,9 @@
 .group-details-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px;
   min-height: 100vh;
-  background: #f9fafb;
+  background: #fafafa;
 
   @media (max-width: 768px) {
     padding: 16px;
@@ -23,8 +23,9 @@
 
     p {
       color: #666;
-      font-size: 16px;
+      font-size: 14px;
       margin: 0;
+      font-weight: 400;
     }
   }
 
@@ -39,23 +40,23 @@
     padding: 40px 20px;
 
     .error-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      color: #f44336;
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #e0e0e0;
     }
 
     h3 {
       margin: 0 0 8px 0;
       color: #333;
-      font-size: 1.5rem;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 500;
     }
 
     p {
       color: #666;
       margin: 0 0 24px 0;
-      font-size: 1rem;
+      font-size: 14px;
       line-height: 1.5;
     }
 
@@ -63,22 +64,29 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 24px;
-      font-weight: 600;
+      padding: 12px 20px;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 6px;
     }
   }
 
   .main-content {
     .header {
-      border-radius: 12px;
+      background: white;
+      border-radius: 8px;
       margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 20px;
 
       @media (max-width: 768px) {
         margin-bottom: 20px;
+        padding: 16px;
       }
 
       @media (max-width: 480px) {
         margin-bottom: 16px;
+        padding: 12px;
       }
 
       .header-content {
@@ -107,32 +115,33 @@
           .back-btn {
             color: #666;
             transition: color 0.2s ease;
+            border-radius: 50%;
 
             &:hover {
-              color: #1976d2;
-              background-color: rgba(25, 118, 210, 0.04);
+              color: #333;
+              background-color: #f5f5f5;
             }
 
             mat-icon {
-              font-size: 24px;
-              width: 24px;
-              height: 24px;
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
             }
           }
 
           .group-title {
             margin: 0;
-            font-size: 1.75rem;
+            font-size: 20px;
             font-weight: 600;
             color: #333;
             line-height: 1.2;
 
             @media (max-width: 768px) {
-              font-size: 1.5rem;
+              font-size: 18px;
             }
 
             @media (max-width: 480px) {
-              font-size: 1.25rem;
+              font-size: 16px;
             }
           }
         }
@@ -150,16 +159,17 @@
           .more-actions-btn {
             color: #666;
             transition: color 0.2s ease;
+            border-radius: 50%;
 
             &:hover {
-              color: #1976d2;
-              background-color: rgba(25, 118, 210, 0.04);
+              color: #333;
+              background-color: #f5f5f5;
             }
 
             mat-icon {
-              font-size: 24px;
-              width: 24px;
-              height: 24px;
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
             }
           }
         }
@@ -175,24 +185,16 @@
 
       .stats-card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
         .stats-grid {
           display: flex;
-          gap: 16px;
-          padding: 20px;
-          justify-content: space-between;
+          gap: 1px;
+          background: #f0f0f0;
 
           @media (max-width: 768px) {
             flex-direction: column;
-            gap: 16px;
-            padding: 16px;
-          }
-
-          @media (max-width: 480px) {
-            gap: 12px;
-            padding: 12px;
           }
 
           .stat-item {
@@ -200,46 +202,32 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-radius: 8px;
-            background: #f8f9fa;
-
-            @media (max-width: 768px) {
-              padding: 16px;
-            }
-
-            @media (max-width: 480px) {
-              padding: 12px;
-            }
-
-            &:hover {
-              background-color: rgba(25, 118, 210, 0.04);
-              transform: translateY(-1px);
-            }
+            background: white;
 
             .stat-content {
-              .stat-value {
-                font-size: 1.5rem;
-                font-weight: 600;
-                color: #1976d2;
-                margin-bottom: 4px;
+              text-align: center;
+              cursor: pointer;
+              padding: 24px 16px;
+              transition: background-color 0.2s ease;
+              width: 100%;
 
-                @media (max-width: 480px) {
-                  font-size: 1.25rem;
-                }
+              &:hover {
+                background-color: #fafafa;
+              }
+
+              .stat-value {
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 4px;
+                color: #333;
               }
 
               .stat-label {
-                font-size: 0.875rem;
+                font-size: 12px;
                 color: #666;
-                font-weight: 500;
-
-                @media (max-width: 480px) {
-                  font-size: 0.8rem;
-                }
+                font-weight: 400;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
               }
             }
           }
@@ -247,7 +235,6 @@
       }
     }
 
-    // Member Balances Section
     .balances-section {
       margin-bottom: 24px;
 
@@ -257,8 +244,8 @@
 
       .balances-card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
         mat-card-header {
           display: flex;
@@ -268,7 +255,6 @@
 
           @media (max-width: 768px) {
             padding: 16px 16px 0 16px;
-            flex-wrap: wrap;
           }
 
           mat-card-title {
@@ -276,14 +262,16 @@
             align-items: center;
             gap: 8px;
             margin: 0;
-            flex: 1;
 
             mat-icon {
-              color: #1976d2;
+              color: #666;
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
             }
 
             span {
-              font-size: 1.25rem;
+              font-size: 16px;
               font-weight: 600;
               color: #333;
             }
@@ -292,35 +280,16 @@
           mat-card-subtitle {
             margin: 0;
             color: #666;
-            font-size: 0.9rem;
-          }
-
-          .debug-btn {
-            color: #666;
-            transition: color 0.2s ease;
-
-            &:hover {
-              color: #ff9800;
-              background-color: rgba(255, 152, 0, 0.04);
-            }
-
-            mat-icon {
-              font-size: 20px;
-              width: 20px;
-              height: 20px;
-            }
+            font-size: 12px;
+            font-weight: 400;
           }
         }
 
         mat-card-content {
-          padding: 20px;
+          padding: 16px 20px 20px 20px;
 
           @media (max-width: 768px) {
-            padding: 16px;
-          }
-
-          @media (max-width: 480px) {
-            padding: 12px;
+            padding: 12px 16px 16px 16px;
           }
 
           .balances-list {
@@ -328,120 +297,95 @@
               display: flex;
               justify-content: space-between;
               align-items: center;
-              padding: 16px;
+              padding: 12px 0;
               border-bottom: 1px solid #f0f0f0;
               transition: background-color 0.2s ease;
 
-              @media (max-width: 768px) {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-                padding: 12px;
+              &:hover {
+                background-color: #fafafa;
+                margin: 0 -16px;
+                padding-left: 16px;
+                padding-right: 16px;
               }
 
               &:last-child {
                 border-bottom: none;
               }
 
-              &:hover {
-                background-color: #f8f9fa;
-              }
-
-              // Current user highlighting
               &.current-user {
-                background-color: rgba(25, 118, 210, 0.05);
-                border-left: 4px solid #1976d2;
-                border-radius: 0 8px 8px 0;
+                background-color: #f8f9fa;
+                border-left: 3px solid #333;
+                padding-left: 16px;
+                margin: 0 -16px 0 0;
+                padding-right: 16px;
 
-                @media (max-width: 768px) {
-                  border-left: none;
-                  border-top: 4px solid #1976d2;
-                  border-radius: 8px 8px 0 0;
-                }
-
-                .member-name {
-                  .current-user-badge {
-                    background-color: #1976d2;
-                    color: white;
-                    padding: 2px 8px;
-                    border-radius: 12px;
-                    font-size: 0.75rem;
-                    margin-left: 8px;
-                    font-weight: 500;
-                  }
-                }
-
-                .net-balance {
-                  .status-indicator {
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                    margin-left: 8px;
-                    opacity: 0.8;
-                  }
+                .current-user-badge {
+                  background: #333;
+                  color: white;
                 }
               }
 
               .balance-info {
                 flex: 1;
-                width: 100%;
-
-                @media (max-width: 768px) {
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                }
 
                 .member-name {
-                  font-weight: 600;
+                  font-weight: 500;
+                  font-size: 14px;
                   color: #333;
-                  margin-bottom: 4px;
+                  margin-bottom: 2px;
                   display: flex;
                   align-items: center;
+                  gap: 8px;
 
-                  @media (max-width: 768px) {
-                    margin-bottom: 0;
+                  .current-user-badge {
+                    background: #666;
+                    color: white;
+                    padding: 1px 6px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    font-weight: 500;
                   }
                 }
 
                 .balance-details {
                   display: flex;
                   gap: 16px;
-                  font-size: 0.875rem;
-
-                  @media (max-width: 480px) {
-                    flex-direction: column;
-                    gap: 4px;
-                  }
+                  font-size: 12px;
 
                   .paid {
-                    color: #4caf50;
+                    color: #666;
+                    font-weight: 400;
                   }
 
                   .owed {
-                    color: #f44336;
+                    color: #666;
+                    font-weight: 400;
                   }
                 }
               }
 
               .net-balance {
                 font-weight: 600;
-                font-size: 1.125rem;
+                font-size: 14px;
                 text-align: right;
 
-                @media (max-width: 768px) {
-                  align-self: flex-end;
-                  font-size: 1rem;
-                }
-
                 &.positive {
-                  color: #4caf50;
+                  color: #333;
                 }
 
                 &.negative {
-                  color: #f44336;
+                  color: #333;
                 }
 
                 &.neutral {
+                  color: #666;
+                }
+
+                .status-indicator {
+                  display: block;
+                  font-size: 10px;
+                  font-weight: 400;
+                  margin-top: 2px;
                   color: #666;
                 }
               }
@@ -451,7 +395,7 @@
       }
     }
 
-    // Settlement Suggestions Section
+    // Settlement Suggestions
     .settlement-suggestions {
       margin-bottom: 24px;
 
@@ -461,62 +405,52 @@
 
       .suggestions-card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
         mat-card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
           padding: 20px 20px 0 20px;
 
           @media (max-width: 768px) {
             padding: 16px 16px 0 16px;
           }
 
-          @media (max-width: 480px) {
-            padding: 12px 12px 0 12px;
-          }
-
           mat-card-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 1.25rem;
-
-            @media (max-width: 768px) {
-              font-size: 1.1rem;
-            }
+            margin: 0;
 
             mat-icon {
-              color: #1976d2;
-              font-size: 24px;
-              width: 24px;
-              height: 24px;
+              color: #666;
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
 
-              @media (max-width: 768px) {
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-              }
+            span {
+              font-size: 16px;
+              font-weight: 600;
+              color: #333;
             }
           }
 
           mat-card-subtitle {
+            margin: 0;
             color: #666;
-            font-size: 0.875rem;
-            margin-top: 4px;
+            font-size: 12px;
+            font-weight: 400;
           }
         }
 
         mat-card-content {
-          padding: 20px;
+          padding: 16px 20px 20px 20px;
 
           @media (max-width: 768px) {
-            padding: 16px;
-          }
-
-          @media (max-width: 480px) {
-            padding: 12px;
+            padding: 12px 16px 16px 16px;
           }
 
           .suggestions-list {
@@ -524,147 +458,63 @@
               display: flex;
               justify-content: space-between;
               align-items: center;
-              padding: 16px;
+              padding: 12px 0;
               border-bottom: 1px solid #f0f0f0;
               transition: background-color 0.2s ease;
-              border-left: 4px solid transparent;
 
-              @media (max-width: 768px) {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-                padding: 12px;
+              &:hover {
+                background-color: #fafafa;
+                margin: 0 -16px;
+                padding-left: 16px;
+                padding-right: 16px;
               }
 
               &:last-child {
                 border-bottom: none;
               }
 
-              &:hover {
-                background-color: #f8f9fa;
-              }
-
-              // You owe money
               &.you_owe {
-                border-left-color: #f44336;
-                background-color: rgba(244, 67, 54, 0.02);
-
-                @media (max-width: 768px) {
-                  border-left: none;
-                  border-top: 4px solid #f44336;
-                }
-
-                .suggestion-message {
-                  .message-text {
-                    color: #f44336;
-                    font-weight: 600;
-                  }
-                }
-
-                .settlement-parties {
-                  .from-user {
-                    color: #f44336;
-                    font-weight: 600;
-                  }
-                }
-
-                button {
-                  background-color: #f44336;
-                  color: white;
-                }
+                border-left: 3px solid #ff6b6b;
               }
 
-              // Others owe you money
               &.owed_to_you {
-                border-left-color: #4caf50;
-                background-color: rgba(76, 175, 80, 0.02);
-
-                @media (max-width: 768px) {
-                  border-left: none;
-                  border-top: 4px solid #4caf50;
-                }
-
-                .suggestion-message {
-                  .message-text {
-                    color: #4caf50;
-                    font-weight: 600;
-                  }
-                }
-
-                .settlement-parties {
-                  .to-user {
-                    color: #4caf50;
-                    font-weight: 600;
-                  }
-                }
-
-                button {
-                  background-color: #4caf50;
-                  color: white;
-                }
+                border-left: 3px solid #51cf66;
               }
 
-              // Other settlements (not involving current user)
               &.others {
-                border-left-color: #ff9800;
-                background-color: rgba(255, 152, 0, 0.02);
-
-                @media (max-width: 768px) {
-                  border-left: none;
-                  border-top: 4px solid #ff9800;
-                }
-
-                .suggestion-message {
-                  .message-text {
-                    color: #666;
-                    font-style: italic;
-                  }
-                }
-
-                button {
-                  background-color: #ccc;
-                  color: #666;
-                  cursor: not-allowed;
-                }
+                border-left: 3px solid #ffd43b;
               }
 
               .suggestion-info {
                 flex: 1;
-                width: 100%;
-
-                @media (max-width: 768px) {
-                  display: flex;
-                  flex-direction: column;
-                  gap: 8px;
-                }
 
                 .suggestion-message {
-                  margin-bottom: 8px;
-
-                  @media (max-width: 768px) {
-                    margin-bottom: 4px;
-                  }
+                  font-weight: 500;
+                  font-size: 14px;
+                  color: #333;
+                  margin-bottom: 2px;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
 
                   .message-text {
-                    font-size: 0.875rem;
-                    font-weight: 500;
+                    flex: 1;
                   }
 
                   .settlement-status {
-                    font-size: 0.75rem;
+                    font-size: 10px;
                     font-weight: 500;
-                    margin-left: 8px;
-                    padding: 2px 6px;
+                    padding: 1px 6px;
                     border-radius: 4px;
 
                     &.pending {
-                      background-color: rgba(255, 152, 0, 0.1);
-                      color: #ff9800;
+                      background: #fff3cd;
+                      color: #856404;
                     }
 
                     &.completed {
-                      background-color: rgba(76, 175, 80, 0.1);
-                      color: #4caf50;
+                      background: #d1edff;
+                      color: #0c5460;
                     }
                   }
                 }
@@ -673,61 +523,58 @@
                   display: flex;
                   align-items: center;
                   gap: 8px;
-                  margin-bottom: 4px;
-
-                  @media (max-width: 480px) {
-                    flex-wrap: wrap;
-                    gap: 4px;
-                  }
+                  font-size: 12px;
+                  color: #666;
+                  margin-bottom: 2px;
 
                   .from-user {
-                    font-weight: 600;
-                    color: #f44336;
+                    font-weight: 500;
+                    color: #333;
                   }
 
                   .to-user {
-                    font-weight: 600;
-                    color: #4caf50;
+                    font-weight: 500;
+                    color: #333;
                   }
 
                   mat-icon {
-                    font-size: 16px;
-                    width: 16px;
-                    height: 16px;
-                    color: #666;
+                    font-size: 12px;
+                    width: 12px;
+                    height: 12px;
+                    color: #999;
                   }
                 }
 
                 .settlement-amount {
-                  font-size: 0.875rem;
-                  color: #666;
-                  font-weight: 500;
+                  font-weight: 600;
+                  font-size: 14px;
+                  color: #333;
                 }
               }
 
               button {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                padding: 8px 16px;
-                font-size: 0.875rem;
-                border-radius: 6px;
+                border-radius: 4px;
+                font-weight: 500;
+                font-size: 12px;
                 transition: all 0.2s ease;
-                white-space: nowrap;
-
-                @media (max-width: 768px) {
-                  align-self: flex-end;
-                  padding: 6px 12px;
-                  font-size: 0.8rem;
-                }
+                min-width: 80px;
+                height: 32px;
 
                 &:hover:not(:disabled) {
-                  transform: translateY(-1px);
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                  transform: none;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                 }
 
                 &:disabled {
-                  opacity: 0.6;
+                  opacity: 0.5;
+                  cursor: not-allowed;
+                }
+
+                mat-icon {
+                  margin-right: 4px;
+                  font-size: 14px;
+                  width: 14px;
+                  height: 14px;
                 }
               }
             }
@@ -746,75 +593,70 @@
 
       .transactions-card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
         mat-card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
           padding: 20px 20px 0 20px;
 
           @media (max-width: 768px) {
             padding: 16px 16px 0 16px;
           }
 
-          @media (max-width: 480px) {
-            padding: 12px 12px 0 12px;
-          }
-
           mat-card-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 1.25rem;
-
-            @media (max-width: 768px) {
-              font-size: 1.1rem;
-            }
+            margin: 0;
 
             mat-icon {
-              color: #1976d2;
-              font-size: 24px;
-              width: 24px;
-              height: 24px;
+              color: #666;
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
 
-              @media (max-width: 768px) {
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-              }
+            span {
+              font-size: 16px;
+              font-weight: 600;
+              color: #333;
             }
           }
 
           mat-card-subtitle {
+            margin: 0;
             color: #666;
-            font-size: 0.875rem;
-            margin-top: 4px;
+            font-size: 12px;
+            font-weight: 400;
           }
         }
 
         mat-card-content {
-          padding: 20px;
+          padding: 16px 20px 20px 20px;
 
           @media (max-width: 768px) {
-            padding: 16px;
-          }
-
-          @media (max-width: 480px) {
-            padding: 12px;
+            padding: 12px 16px 16px 16px;
           }
 
           .transactions-list {
             .transaction-item {
-              border: 1px solid #e0e0e0;
-              border-radius: 8px;
-              padding: 12px;
-              margin-bottom: 8px;
-              background-color: #fff;
-              transition: all 0.2s ease;
+              border-bottom: 1px solid #f0f0f0;
+              padding: 12px 0;
+              background-color: white;
+              transition: background-color 0.2s ease;
 
               &:hover {
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                background-color: #fafafa;
+                margin: 0 -16px;
+                padding-left: 16px;
+                padding-right: 16px;
+              }
+
+              &:last-child {
+                border-bottom: none;
               }
 
               &.simple {
@@ -822,27 +664,28 @@
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
-                  gap: 12px;
+                  gap: 16px;
 
                   .transaction-info {
                     flex: 1;
                     min-width: 0;
 
                     .transaction-title {
-                      font-weight: 600;
+                      font-weight: 500;
                       color: #333;
-                      margin-bottom: 4px;
-                      font-size: 0.95rem;
+                      margin-bottom: 2px;
+                      font-size: 14px;
                     }
 
                     .transaction-meta {
                       display: flex;
-                      gap: 12px;
-                      font-size: 0.8rem;
+                      gap: 16px;
+                      font-size: 12px;
                       color: #666;
 
                       .paid-by {
-                        font-weight: 500;
+                        font-weight: 400;
+                        color: #666;
                       }
 
                       .transaction-date {
@@ -852,65 +695,10 @@
                   }
 
                   .transaction-amount {
-                    font-weight: 700;
-                    font-size: 1.1rem;
+                    font-weight: 600;
+                    font-size: 14px;
                     color: #333;
                     white-space: nowrap;
-                  }
-                }
-
-                .transaction-actions {
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  margin-top: 8px;
-                  padding-top: 8px;
-                  border-top: 1px solid #f0f0f0;
-
-                  mat-chip {
-                    font-size: 0.75rem;
-                  }
-                }
-              }
-
-              &.compact {
-                .transaction-main {
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  gap: 12px;
-
-                  .transaction-amount {
-                    font-weight: 700;
-                    font-size: 1.1rem;
-                    color: #333;
-                    white-space: nowrap;
-                  }
-
-                  .transaction-summary {
-                    flex: 1;
-                    font-size: 0.9rem;
-                    color: #666;
-                    margin: 0 12px;
-                  }
-
-                  .transaction-date {
-                    font-size: 0.8rem;
-                    color: #999;
-                    white-space: nowrap;
-                  }
-                }
-
-                .transaction-actions {
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  margin-top: 8px;
-                  padding-top: 8px;
-                  border-top: 1px solid #f0f0f0;
-
-                  mat-chip {
-                    font-size: 0.75rem;
                   }
                 }
               }
@@ -918,53 +706,34 @@
           }
 
           .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
             text-align: center;
-
-            @media (max-width: 480px) {
-              padding: 30px 16px;
-            }
+            padding: 40px 20px;
+            color: #666;
 
             .empty-icon {
               font-size: 48px;
               width: 48px;
               height: 48px;
-              color: #ccc;
+              color: #e0e0e0;
               margin-bottom: 16px;
-
-              @media (max-width: 480px) {
-                font-size: 40px;
-                width: 40px;
-                height: 40px;
-                margin-bottom: 12px;
-              }
             }
 
             p {
+              font-size: 14px;
+              margin-bottom: 20px;
               color: #666;
-              margin: 0 0 24px 0;
-              font-size: 1rem;
-
-              @media (max-width: 480px) {
-                font-size: 0.9rem;
-                margin-bottom: 20px;
-              }
             }
 
             button {
-              display: flex;
-              align-items: center;
-              gap: 8px;
-              padding: 12px 24px;
-              font-weight: 600;
+              border-radius: 4px;
+              font-weight: 500;
+              padding: 10px 20px;
+              font-size: 14px;
+              transition: all 0.2s ease;
 
-              @media (max-width: 480px) {
-                padding: 10px 20px;
-                font-size: 0.9rem;
+              &:hover {
+                transform: none;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
               }
             }
           }
@@ -972,6 +741,7 @@
       }
     }
 
+    // Settlements Section
     .settlements-section {
       margin-bottom: 24px;
 
@@ -981,56 +751,45 @@
 
       .settlements-card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
         mat-card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
           padding: 20px 20px 0 20px;
 
           @media (max-width: 768px) {
             padding: 16px 16px 0 16px;
           }
 
-          @media (max-width: 480px) {
-            padding: 12px 12px 0 12px;
-          }
-
           mat-card-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 1.25rem;
-
-            @media (max-width: 768px) {
-              font-size: 1.1rem;
-            }
+            margin: 0;
 
             mat-icon {
-              color: #1976d2;
-              font-size: 24px;
-              width: 24px;
-              height: 24px;
+              color: #666;
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
 
-              @media (max-width: 768px) {
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-              }
+            span {
+              font-size: 16px;
+              font-weight: 600;
+              color: #333;
             }
           }
         }
 
         mat-card-content {
-          padding: 20px;
+          padding: 16px 20px 20px 20px;
 
           @media (max-width: 768px) {
-            padding: 16px;
-          }
-
-          @media (max-width: 480px) {
-            padding: 12px;
+            padding: 12px 16px 16px 16px;
           }
 
           .settlements-list {
@@ -1040,16 +799,13 @@
               align-items: center;
               padding: 12px 0;
               border-bottom: 1px solid #f0f0f0;
+              transition: background-color 0.2s ease;
 
-              @media (max-width: 768px) {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-                padding: 16px 0;
-              }
-
-              @media (max-width: 480px) {
-                padding: 12px 0;
+              &:hover {
+                background-color: #fafafa;
+                margin: 0 -16px;
+                padding-left: 16px;
+                padding-right: 16px;
               }
 
               &:last-child {
@@ -1058,61 +814,182 @@
 
               .settlement-info {
                 flex: 1;
-                min-width: 0;
 
                 .settlement-parties {
                   display: flex;
                   align-items: center;
                   gap: 8px;
-                  margin-bottom: 4px;
-                  flex-wrap: wrap;
-
-                  @media (max-width: 480px) {
-                    gap: 4px;
-                  }
+                  font-size: 12px;
+                  color: #666;
+                  margin-bottom: 2px;
 
                   .from-user {
                     font-weight: 500;
                     color: #333;
-                    font-size: 0.875rem;
-                  }
-
-                  mat-icon {
-                    font-size: 16px;
-                    width: 16px;
-                    height: 16px;
-                    color: #666;
-                    flex-shrink: 0;
                   }
 
                   .to-user {
                     font-weight: 500;
                     color: #333;
-                    font-size: 0.875rem;
+                  }
+
+                  mat-icon {
+                    font-size: 12px;
+                    width: 12px;
+                    height: 12px;
+                    color: #999;
                   }
                 }
 
                 .settlement-amount {
-                  font-size: 0.875rem;
                   font-weight: 600;
-                  color: #1976d2;
+                  font-size: 14px;
+                  color: #333;
                 }
               }
 
               .settlement-status {
-                flex-shrink: 0;
-
-                @media (max-width: 768px) {
-                  align-self: flex-end;
-                }
-
                 mat-chip {
-                  font-size: 0.75rem;
-                  height: 24px;
+                  font-size: 10px;
                   font-weight: 500;
+                  border-radius: 4px;
+                  height: 24px;
                 }
               }
             }
+          }
+        }
+      }
+    }
+
+    // Detailed Balance Breakdown
+    .detailed-balances {
+      margin-top: 16px;
+
+      mat-expansion-panel {
+        box-shadow: none;
+        border: 1px solid #f0f0f0;
+        border-radius: 6px;
+        background: white;
+
+        ::ng-deep .mat-expansion-panel-header {
+          padding: 12px 16px;
+          background: #fafafa;
+          border-radius: 6px 6px 0 0;
+          color: #333;
+
+          .mat-expansion-panel-header-title {
+            font-weight: 500;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+          }
+
+          .mat-expansion-panel-header-description {
+            color: #666;
+            font-size: 12px;
+          }
+
+          mat-icon {
+            color: #666;
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+
+        ::ng-deep .mat-expansion-panel-body {
+          padding: 16px;
+          background: white;
+          border-radius: 0 0 6px 6px;
+        }
+      }
+
+      .breakdown-list {
+        .breakdown-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+          border-bottom: 1px solid #f8f8f8;
+          transition: background-color 0.2s ease;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          &:hover {
+            background-color: #fafafa;
+            border-radius: 4px;
+            padding-left: 8px;
+            padding-right: 8px;
+            margin: 0 -8px;
+          }
+
+          &.owes {
+            .breakdown-info mat-icon {
+              color: #ff6b6b;
+            }
+            .breakdown-amount {
+              color: #ff6b6b;
+              font-weight: 500;
+            }
+          }
+
+          &.owed {
+            .breakdown-info mat-icon {
+              color: #51cf66;
+            }
+            .breakdown-amount {
+              color: #51cf66;
+              font-weight: 500;
+            }
+          }
+
+          .breakdown-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+
+            .breakdown-message {
+              font-size: 13px;
+              color: #333;
+              font-weight: 400;
+            }
+          }
+
+          .breakdown-amount {
+            font-size: 13px;
+            font-weight: 500;
+          }
+        }
+
+        .no-breakdown {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 16px;
+          color: #51cf66;
+          font-weight: 500;
+          background: #f8f9fa;
+          border-radius: 4px;
+          border: 1px solid #e9ecef;
+
+          mat-icon {
+            color: #51cf66;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
           }
         }
       }
@@ -1129,129 +1006,24 @@
     padding: 8px 16px;
     
     mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
     
     span {
-      font-size: 0.9rem;
+      font-size: 14px;
     }
     
     &.delete-action {
-      color: #f44336;
+      color: #ff6b6b;
       
       mat-icon {
-        color: #f44336;
+        color: #ff6b6b;
       }
       
       &:hover {
-        background-color: rgba(244, 67, 54, 0.04);
-      }
-    }
-  }
-}
-
-// Detailed Balance Breakdown
-.detailed-balances {
-  margin-top: 16px;
-
-  mat-expansion-panel {
-    box-shadow: none;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-
-    ::ng-deep .mat-expansion-panel-header {
-      padding: 12px 16px;
-      background-color: #f8f9fa;
-      border-radius: 8px 8px 0 0;
-
-      .mat-expansion-panel-header-title {
-        font-weight: 600;
-        color: #333;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .mat-expansion-panel-header-description {
-        color: #666;
-        font-size: 0.85rem;
-      }
-    }
-
-    ::ng-deep .mat-expansion-panel-body {
-      padding: 16px;
-    }
-  }
-
-  .breakdown-list {
-    .breakdown-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      &.owes {
-        .breakdown-info mat-icon {
-          color: #f44336;
-        }
-        .breakdown-amount {
-          color: #f44336;
-          font-weight: 600;
-        }
-      }
-
-      &.owed {
-        .breakdown-info mat-icon {
-          color: #4caf50;
-        }
-        .breakdown-amount {
-          color: #4caf50;
-          font-weight: 600;
-        }
-      }
-
-      .breakdown-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 1;
-
-        mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-        }
-
-        .breakdown-message {
-          font-size: 0.9rem;
-          color: #333;
-        }
-      }
-
-      .breakdown-amount {
-        font-size: 0.9rem;
-        font-weight: 500;
-      }
-    }
-
-    .no-breakdown {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 16px;
-      color: #4caf50;
-      font-weight: 500;
-
-      mat-icon {
-        color: #4caf50;
+        background-color: #fff5f5;
       }
     }
   }

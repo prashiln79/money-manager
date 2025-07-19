@@ -16,7 +16,6 @@ import {
   CreateSplitTransactionRequest,
   GroupMember,
   GroupMemberRole,
-  SplitTransactionStatus,
   MemberBalance,
   SettlementStatus,
   CreateSettlementRequest,
@@ -467,7 +466,6 @@ export class SplitwiseService {
       })),
       totalAmount: request.amount,
       currency: 'USD', // Default currency
-      status: SplitTransactionStatus.PENDING,
       createdAt: new Date(),
       updatedAt: new Date(),
       syncStatus: SyncStatus.SYNCED
@@ -590,7 +588,6 @@ export class SplitwiseService {
       if (request.notes !== undefined) updateData.notes = request.notes;
       if (request.categoryId) updateData.categoryId = request.categoryId;
       if (request.category) updateData.category = request.category;
-      if (request.status) updateData.status = request.status;
 
       if (request.splits) {
         // Get group for member details

@@ -50,7 +50,6 @@ export interface SplitTransaction {
   splits: TransactionSplit[];
   totalAmount: number;
   currency: string;
-  status: SplitTransactionStatus;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
   syncStatus: SyncStatus;
@@ -68,16 +67,6 @@ export interface TransactionSplit {
   isPaid: boolean;
   paidBy?: string; // Who actually paid this amount
   paidAt?: Date | Timestamp;
-}
-
-/**
- * Split transaction status
- */
-export enum SplitTransactionStatus {
-  PENDING = 'pending',
-  PARTIAL = 'partial',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
 }
 
 /**
@@ -239,7 +228,6 @@ export interface UpdateSplitTransactionRequest {
   categoryId?: string;
   category?: string;
   splits?: Omit<TransactionSplit, 'email' | 'displayName'>[];
-  status?: SplitTransactionStatus;
 }
 
 /**
