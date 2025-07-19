@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 import { Subscription, SubscriptionService } from 'src/app/util/service/subscription.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { DateService } from 'src/app/util/service/date.service';

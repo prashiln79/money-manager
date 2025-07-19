@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { map, catchError, mergeMap } from 'rxjs/operators';
 import { Firestore, collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, setDoc, query, where, orderBy, limit, writeBatch } from '@angular/fire/firestore';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 import { Auth, User } from '@angular/fire/auth';
 import { SyncStatus } from '../../../util/config/enums';
 

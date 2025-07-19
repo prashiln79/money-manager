@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'

@@ -173,12 +173,12 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
         taxes: [],
         paymentMethod: '',
       });
-      this.getLatestTransaction();
+      this.getRecentTransaction();
     }
   }
 
-  private getLatestTransaction(): void {
-    this.store.select(selectLatestTransaction).pipe(take(1)).subscribe((transaction: Transaction) => {
+  private getRecentTransaction(): void {
+    this.store.select(selectLatestTransaction).pipe(take(1)).subscribe((transaction: Transaction | null) => {
       if (transaction) {
         this.transactionForm.patchValue({
           categoryName: transaction.category,
@@ -186,6 +186,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           categoryId: transaction.categoryId,
           payee: transaction.payee,
           accountId: transaction.accountId,
+          isSplitTransaction: transaction.isSplitTransaction,
+          splitGroupId: transaction.splitGroupId,
         });
       }
     });

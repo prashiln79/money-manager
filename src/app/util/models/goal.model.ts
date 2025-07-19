@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 import { GoalType, GoalStatus, SyncStatus } from '../config/enums';
 
 /**

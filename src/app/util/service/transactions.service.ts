@@ -4,7 +4,7 @@ import { Auth } from '@angular/fire/auth';
 import { Observable, BehaviorSubject, from } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { OfflineService } from './offline.service';
-import { orderBy, Timestamp } from 'firebase/firestore';
+import { orderBy, query, Timestamp } from '@angular/fire/firestore';
 import { DateService } from './date.service';
 import { Transaction } from '../models/transaction.model';
 import { RecurringInterval, SyncStatus } from '../config/enums';
@@ -37,7 +37,7 @@ export class TransactionsService {
     private isOnline = true;
 
     constructor(
-        private firestore: Firestore, 
+        private firestore: Firestore,
         private auth: Auth,
         private offlineService: OfflineService,
         private dateService: DateService,
@@ -113,7 +113,7 @@ export class TransactionsService {
                         const transactionsRef = collection(this.firestore, `users/${userId}/transactions`);
                         const docRef = doc(transactionsRef);
                         batch.set(docRef, operation.data);
-                        
+
                         // Track balance update for create operation
                         if (operation.data.accountId) {
                             balanceUpdates.push({
@@ -128,7 +128,7 @@ export class TransactionsService {
                     case 'update':
                         const updateRef = doc(this.firestore, `users/${userId}/transactions/${operation.data.id}`);
                         batch.update(updateRef, operation.data);
-                        
+
                         // For update operations, we need to get the original transaction to calculate balance difference
                         // This will be handled after the batch commit
                         break;
@@ -136,7 +136,7 @@ export class TransactionsService {
                     case 'delete':
                         const deleteRef = doc(this.firestore, `users/${userId}/transactions/${operation.data.id}`);
                         batch.delete(deleteRef);
-                        
+
                         // Track balance update for delete operation
                         if (operation.data.accountId) {
                             balanceUpdates.push({
@@ -153,7 +153,7 @@ export class TransactionsService {
             } catch (error) {
                 console.error(`Failed to process offline operation ${operation.id}:`, error);
                 operation.retryCount++;
-                
+
                 // Remove operation if it has been retried too many times
                 if (operation.retryCount >= 3) {
                     processedOperations.push(operation.id);
@@ -165,12 +165,12 @@ export class TransactionsService {
         if (processedOperations.length > 0) {
             try {
                 await batch.commit();
-                
+
                 // Process balance updates after successful batch commit
                 for (const balanceUpdate of balanceUpdates) {
                     this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction(balanceUpdate));
                 }
-                
+
                 // Handle update operations that need original transaction data
                 for (const operation of this.offlineQueue) {
                     if (operation.type === 'update' && processedOperations.includes(operation.id)) {
@@ -182,11 +182,11 @@ export class TransactionsService {
                         }
                     }
                 }
-                
+
                 // Remove processed operations from queue
                 this.offlineQueue = this.offlineQueue.filter(op => !processedOperations.includes(op.id));
                 await this.saveOfflineQueue();
-                
+
                 console.log(`✅ Processed ${processedOperations.length} offline operations`);
             } catch (error) {
                 console.error('Failed to commit offline operations:', error);
@@ -229,7 +229,7 @@ export class TransactionsService {
                                 transactionType: 'create',
                                 newTransaction: transactionData as Transaction
                             }));
-                            
+
                             observer.next();
                             observer.complete();
                         } catch (error) {
@@ -239,12 +239,12 @@ export class TransactionsService {
                                 type: 'create',
                                 data: { ...transactionData, syncStatus: 'pending' }
                             });
-                            
+
                             // Update local cache
                             const currentTransactions = this.transactionsSubject.value;
-                            const newTransaction: Transaction = { 
-                                ...transactionData, 
-                                id: this.generateId(), 
+                            const newTransaction: Transaction = {
+                                ...transactionData,
+                                id: this.generateId(),
                                 isPending: true,
                                 syncStatus: SyncStatus.PENDING,
                                 createdAt: new Date(),
@@ -259,7 +259,7 @@ export class TransactionsService {
                                 date: transactionData.date || new Date(),
                             };
                             this.transactionsSubject.next([...currentTransactions, newTransaction]);
-                            
+
                             observer.next();
                             observer.complete();
                         }
@@ -269,12 +269,12 @@ export class TransactionsService {
                             type: 'create',
                             data: { ...transactionData, syncStatus: 'pending' }
                         });
-                        
+
                         // Update local cache
                         const currentTransactions = this.transactionsSubject.value;
-                        const newTransaction: Transaction = { 
-                            ...transactionData, 
-                            id: this.generateId(), 
+                        const newTransaction: Transaction = {
+                            ...transactionData,
+                            id: this.generateId(),
                             isPending: true,
                             syncStatus: SyncStatus.PENDING,
                             createdAt: new Date(),
@@ -289,7 +289,7 @@ export class TransactionsService {
                             date: transactionData.date || new Date(),
                         };
                         this.transactionsSubject.next([...currentTransactions, newTransaction]);
-                        
+
                         observer.next();
                         observer.complete();
                     }
@@ -305,31 +305,43 @@ export class TransactionsService {
 
     // 🔹 Get all transactions for a user
     getTransactions(userId: string): Observable<Transaction[]> {
-        const transactionsRef = collection(this.firestore, `users/${userId}/transactions`);
-        
+        const transactionsRef = query(
+            collection(this.firestore, `users/${userId}/transactions`),
+            orderBy('date', 'desc')
+        );
+
         return new Observable<Transaction[]>(observer => {
-            const unsubscribe = onSnapshot(transactionsRef, (querySnapshot) => {
-                const transactions: Transaction[] = [];
-                querySnapshot.forEach(doc => {
-                    const transaction = { id: doc.id, ...doc.data() } as unknown as Transaction;
-                    transactions.push(transaction);
-                });
-                
-                // Add pending offline transactions
-                const pendingTransactions = this.transactionsSubject.value.filter(t => t.isPending);
-                const allTransactions = [...transactions, ...pendingTransactions];
-                
-                this.transactionsSubject.next(allTransactions);
-                observer.next(allTransactions);
-            }, error => {
-                console.error('Failed to fetch transactions:', error);
-                // Return cached data if available
-                observer.next(this.transactionsSubject.value);
-            });
-    
+            const unsubscribe = onSnapshot(
+                transactionsRef,
+                (querySnapshot) => {
+                    const transactions: Transaction[] = [];
+
+                    querySnapshot.forEach(doc => {
+                        const transaction = { id: doc.id, ...doc.data() } as Transaction;
+                        transactions.push(transaction);
+                    });
+
+                    // Avoid duplicates by checking existing IDs
+                    const pendingTransactions = this.transactionsSubject.value.filter(
+                        t => t.isPending && !transactions.some(tr => tr.id === t.id)
+                    );
+
+                    const allTransactions = [...transactions, ...pendingTransactions];
+
+                    this.transactionsSubject.next(allTransactions);
+                    observer.next(allTransactions);
+                },
+                (error) => {
+                    console.error('Failed to fetch transactions:', error);
+                    observer.next(this.transactionsSubject.value); // Fallback
+                    observer.complete(); // Optional
+                }
+            );
+
             return () => unsubscribe();
         });
     }
+
 
     // 🔹 Get a single transaction by its ID
     getTransaction(userId: string, transactionId: string): Observable<Transaction | undefined> {
@@ -381,7 +393,7 @@ export class TransactionsService {
                             // Handle account balance updates
                             if (originalTransaction) {
                                 const newTransaction = { ...originalTransaction, ...updateData } as Transaction;
-                                
+
                                 // Check if account was changed
                                 if (updatedTransaction.accountId && updatedTransaction.accountId !== originalTransaction.accountId) {
                                     // Handle account transfer
@@ -414,20 +426,20 @@ export class TransactionsService {
                             type: 'update',
                             data: { id: transactionId, ...updateData, syncStatus: 'pending' }
                         });
-                        
+
                         // Update local cache
                         const currentTransactions = this.transactionsSubject.value;
-                        const updatedTransactions = currentTransactions.map(t => 
-                            t.id === transactionId ? { 
+                        const updatedTransactions = currentTransactions.map(t =>
+                            t.id === transactionId ? {
                                 ...t,
-                                 ...updateData,
-                                  isPending: true,
-                                  syncStatus: SyncStatus.PENDING,
-                                  lastSyncedAt: new Date(),
-                                  nextOccurrence: new Date(),
-                                  recurringInterval: RecurringInterval.DAILY,
-                                  recurringEndDate: new Date(),
-                                } : t
+                                ...updateData,
+                                isPending: true,
+                                syncStatus: SyncStatus.PENDING,
+                                lastSyncedAt: new Date(),
+                                nextOccurrence: new Date(),
+                                recurringInterval: RecurringInterval.DAILY,
+                                recurringEndDate: new Date(),
+                            } : t
                         );
                         this.transactionsSubject.next(updatedTransactions);
                     }
@@ -473,7 +485,7 @@ export class TransactionsService {
                                     oldTransaction: transactionToDelete
                                 }));
 
-                                if(transactionToDelete.isSplitTransaction) {
+                                if (transactionToDelete.isSplitTransaction) {
                                     await this.splitwiseService.deleteSplitTransaction(transactionToDelete.id!, userId);
                                 }
                             }
@@ -489,7 +501,7 @@ export class TransactionsService {
                             type: 'delete',
                             data: { id: transactionId }
                         });
-                        
+
                         // Update local cache
                         const currentTransactions = this.transactionsSubject.value;
                         const filteredTransactions = currentTransactions.filter(t => t.id !== transactionId);
@@ -521,36 +533,36 @@ export class TransactionsService {
         }
     }
 
-      /**
-   * Create split transaction
-   */
-  private async createSplitTransaction(selectedGroupId: string, formData: any, originalTransactionId: string, userId: string): Promise<void> {
-   
+    /**
+ * Create split transaction
+ */
+    private async createSplitTransaction(selectedGroupId: string, formData: any, originalTransactionId: string, userId: string): Promise<void> {
 
-    const selectedGroup = await this.splitwiseService.getGroupById(selectedGroupId);
 
-    if (!selectedGroup) {
-      throw new Error('No group selected for split transaction');
+        const selectedGroup = await this.splitwiseService.getGroupById(selectedGroupId);
+
+        if (!selectedGroup) {
+            throw new Error('No group selected for split transaction');
+        }
+
+        // Create equal splits for all group members
+        const splits: TransactionSplit[] = selectedGroup.members.map((member: any) => ({
+            userId: member.userId,
+            amount: parseFloat(formData.amount) / selectedGroup.members.length,
+            percentage: 100 / selectedGroup.members.length,
+            isPaid: member.userId === userId, // Current user is marked as paid
+            email: member.email,
+            displayName: member.displayName
+        }));
+
+        const request: CreateSplitTransactionRequest = {
+            groupId: selectedGroup.id!,
+            amount: parseFloat(formData.amount),
+            splits: splits,
+            originalTransactionId: originalTransactionId
+        };
+
+        // Dispatch action to create split transaction
+        this.store.dispatch(SplitwiseActions.createSplitTransaction({ request }));
     }
-
-    // Create equal splits for all group members
-    const splits: TransactionSplit[] = selectedGroup.members.map((member: any) => ({
-      userId: member.userId,
-      amount: parseFloat(formData.amount) / selectedGroup.members.length,
-      percentage: 100 / selectedGroup.members.length,
-      isPaid: member.userId === userId, // Current user is marked as paid
-      email: member.email,
-      displayName: member.displayName
-    }));
-
-    const request: CreateSplitTransactionRequest = {
-      groupId: selectedGroup.id!,
-      amount: parseFloat(formData.amount),
-      splits: splits,
-      originalTransactionId: originalTransactionId
-    };
-
-    // Dispatch action to create split transaction
-    this.store.dispatch(SplitwiseActions.createSplitTransaction({ request }));
-  }
 }

@@ -43,7 +43,7 @@ import {
   FirebaseAuthError,
   defaultCategoriesForNewUser,
 } from '../models';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { createAccount } from 'src/app/store/accounts/accounts.actions';

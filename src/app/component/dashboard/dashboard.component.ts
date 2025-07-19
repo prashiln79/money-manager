@@ -33,6 +33,7 @@ export class DashboardComponent {
   }
 
   ngOnInit() {
+    // Load App Data **********
     this.store.dispatch(
       loadProfile({ userId: this.userService.getUser()?.uid })
     );
@@ -46,6 +47,7 @@ export class DashboardComponent {
       loadBudgets({ userId: this.userService.getUser()?.uid })
     );
     this.store.dispatch(loadGoals({ userId: this.userService.getUser()?.uid }));
+
     this.store.dispatch(
       loadTransactions({ userId: this.userService.getUser()?.uid })
     );

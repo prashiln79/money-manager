@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 import { Budget } from 'src/app/util/service/budgets.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { Store } from '@ngrx/store';
