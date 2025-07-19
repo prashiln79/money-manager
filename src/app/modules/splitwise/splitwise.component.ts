@@ -111,7 +111,7 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
       width: '300px',
       data: {
         title: 'Delete Group',
-        message: 'Are you sure you want to delete the group "${group.name}"?',
+        message: `Are you sure you want to delete the group "${group.name}"?`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
       },
