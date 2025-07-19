@@ -56,7 +56,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     private notificationService: NotificationService,
     private loaderService: LoaderService
   ) {
-    this.initializeSecurityHeaders();
     this.startSessionMonitoring();
   }
 
@@ -254,23 +253,4 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     return false; // Replace with actual logic
   }
 
-  private initializeSecurityHeaders(): void {
-    if (!SECURITY_CONFIG.SECURE_HEADERS) return;
-    const headers = new Map<string, string>([
-      ['X-Content-Type-Options', 'nosniff'],
-      ['X-Frame-Options', 'DENY'],
-      ['X-XSS-Protection', '1; mode=block'],
-      ['Referrer-Policy', 'strict-origin-when-cross-origin'],
-      ['Permissions-Policy', 'geolocation=(), microphone=(), camera=()']
-    ]);
-
-    headers.forEach((value, key) => {
-      if (typeof document !== 'undefined') {
-        const meta = document.createElement('meta');
-        meta.httpEquiv = key;
-        meta.content = value;
-        document.head.appendChild(meta);
-      }
-    });
-  }
 }
