@@ -60,7 +60,13 @@
 				<mat-card-header>
 					<mat-card-title>
 						<mat-icon>account_balance_wallet</mat-icon>
-						<span>Member Balances</span>
+						<div class="flex justify-between items-center w-full">
+							<span>Member Balances</span>
+							<button  mat-icon-button (click)="openAddMemberDialog()" class="add-transaction-btn" aria-label="Add Member">
+								<mat-icon>add</mat-icon>
+							</button>
+						</div>
+						
 					</mat-card-title>
 					<mat-card-subtitle>
 						Who owes what to whom
