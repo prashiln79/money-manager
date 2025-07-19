@@ -81,6 +81,14 @@
 
 			<button
 				class="flex items-center w-full px-4 py-2 text-sm text-gray-600 capitalize transition-colors duration-200 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700"
+				(click)="shareApp()"
+			>
+				<mat-icon class="text-sm mr-1">share</mat-icon>
+				<span>Share App</span>
+			</button>
+
+			<button
+				class="flex items-center w-full px-4 py-2 text-sm text-gray-600 capitalize transition-colors duration-200 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700"
 				(click)="openHelp()"
 			>
 				<svg class="w-4 h-4 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

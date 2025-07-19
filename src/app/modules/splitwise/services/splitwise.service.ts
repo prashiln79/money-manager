@@ -28,6 +28,7 @@ import {
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { DateService } from 'src/app/util/service/date.service';
 import { UserService } from 'src/app/util/service/user.service';
+import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +40,8 @@ export class SplitwiseService {
     private auth: Auth,
     private notificationService: NotificationService,
     private dateService: DateService,
-    private userService: UserService
+    private userService: UserService,
+    private hapticFeedback: HapticFeedbackService
   ) {}
 
   // Groups - Now using common/shared groups
@@ -913,4 +915,50 @@ export class SplitwiseService {
     return Array.from(memberBalances.values());
   }
 
+
+  sharePWA() {
+    this.hapticFeedback.buttonClick();
+    
+    const shareData = {
+      title: 'Money Manager',
+      text: 'Check out this amazing money management app!',
+      url: 'https://prashiln79.github.io/wallet/#/sign-in'
+    };
+
+    // Try to use Web Share API first
+    if (navigator.share && navigator.canShare(shareData)) {
+      navigator.share(shareData)
+        .then(() => {
+          console.log('Shared successfully');
+        })
+        .catch((error) => {
+          console.log('Error sharing:', error);
+          this.fallbackShare(shareData.url);
+        });
+    } else {
+      // Fallback to clipboard copy
+      this.fallbackShare(shareData.url);
+    }
+  }
+
+  private fallbackShare(url: string) {
+    // Copy to clipboard
+    navigator.clipboard.writeText(url).then(() => {
+      // Show success message (you might want to use a toast service here)
+      alert('PWA link copied to clipboard!');
+    }).catch(() => {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        alert('PWA link copied to clipboard!');
+      } catch (err) {
+        alert('Failed to copy link. Please copy manually: ' + url);
+      }
+      document.body.removeChild(textArea);
+    });
+  }
 } 
