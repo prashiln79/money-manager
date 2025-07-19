@@ -75,6 +75,7 @@ export interface TransactionSplit {
 export interface SplitSettlement {
   id?: string;
   groupId: string;
+  originalTransactionId: string; // Reference to the original transaction for cleanup
   fromUserId: string;
   toUserId: string;
   amount: number;
@@ -213,7 +214,7 @@ export interface CreateSplitTransactionRequest {
   groupId: string;
   originalTransactionId?: string; // Optional link to original transaction
   amount: number;
-  splits: Omit<TransactionSplit, 'email' | 'displayName'>[];
+  splits: TransactionSplit [];
 }
 
 /**
@@ -235,6 +236,7 @@ export interface UpdateSplitTransactionRequest {
  */
 export interface CreateSettlementRequest {
   groupId: string;
+  originalTransactionId: string; // Reference to the original transaction
   fromUserId: string;
   toUserId: string;
   amount: number;

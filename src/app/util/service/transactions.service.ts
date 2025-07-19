@@ -474,7 +474,7 @@ export class TransactionsService {
                                 }));
 
                                 if(transactionToDelete.isSplitTransaction) {
-                                    await this.splitwiseService.deleteSplitTransactionRollback(transactionToDelete.id!, userId);
+                                    await this.splitwiseService.deleteSplitTransaction(transactionToDelete.id!, userId);
                                 }
                             }
                         } catch (error) {
@@ -534,11 +534,13 @@ export class TransactionsService {
     }
 
     // Create equal splits for all group members
-    const splits: Omit<TransactionSplit, 'email' | 'displayName'>[] = selectedGroup.members.map((member: any) => ({
+    const splits: TransactionSplit[] = selectedGroup.members.map((member: any) => ({
       userId: member.userId,
       amount: parseFloat(formData.amount) / selectedGroup.members.length,
       percentage: 100 / selectedGroup.members.length,
-      isPaid: member.userId === userId // Current user is marked as paid
+      isPaid: member.userId === userId, // Current user is marked as paid
+      email: member.email,
+      displayName: member.displayName
     }));
 
     const request: CreateSplitTransactionRequest = {

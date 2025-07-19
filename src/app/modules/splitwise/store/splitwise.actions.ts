@@ -172,7 +172,7 @@ export const updateSplitTransactionFailure = createAction(
 // Create Settlement
 export const createSettlement = createAction(
   '[Splitwise] Create Settlement',
-  props<{ groupId: string; fromUserId: string; toUserId: string; amount: number; notes?: string }>()
+  props<{ groupId: string; fromUserId: string; toUserId: string; amount: number; notes?: string; originalTransactionId: string }>()
 );
 export const createSettlementSuccess = createAction(
   '[Splitwise] Create Settlement Success',

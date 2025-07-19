@@ -19,6 +19,7 @@ export class EditTransactionDialogComponent implements OnInit {
   groupMembers: any[];
   totalAmount: number = 0;
   splitMode: 'percentage' | 'amount' = 'percentage';
+  isSubmitting: boolean = false;
   Math = Math; // Make Math available in template
 
   constructor(
@@ -122,7 +123,7 @@ export class EditTransactionDialogComponent implements OnInit {
     if (!existingMember) {
       const splitGroup = this.fb.group({
         userId: [member.userId, Validators.required],
-        displayName: [member.displayName, Validators.required],
+        displayName: [member.displayName],
         email: [member.email, Validators.required],
         amount: [0, [Validators.required, Validators.min(0)]],
         percentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
@@ -153,12 +154,10 @@ export class EditTransactionDialogComponent implements OnInit {
 
   isFormValid(): boolean {
     const totalPercentage = this.getTotalPercentage();
-    const totalSplitAmount = this.getTotalSplitAmount();
     const formValid = this.editForm.valid;
     
-    return formValid && 
-           Math.abs(totalPercentage - 100) < 0.01 && 
-           Math.abs(totalSplitAmount - this.totalAmount) < 0.01;
+    // Only require percentage to equal 100%, allow unequal amounts
+    return formValid && Math.abs(totalPercentage - 100) < 0.01;
   }
 
   onCancel(): void {
@@ -189,5 +188,31 @@ export class EditTransactionDialogComponent implements OnInit {
       style: 'currency',
       currency: this.transaction.currency || 'USD'
     }).format(amount);
+  }
+
+  setSplitMode(mode: 'percentage' | 'amount'): void {
+    this.splitMode = mode;
+    if (mode === 'percentage') {
+      this.updateSplitPercentages();
+    } else {
+      this.updateSplitAmounts();
+    }
+  }
+
+
+
+  getMemberPhotoURL(userId: string): string | null {
+    const member = this.groupMembers.find(m => m.userId === userId);
+    return member?.photoURL || null;
+  }
+
+  getMemberInitials(displayName: string): string {
+    if (!displayName) return '?';
+    return displayName
+      .split(' ')
+      .map(name => name.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   }
 } 

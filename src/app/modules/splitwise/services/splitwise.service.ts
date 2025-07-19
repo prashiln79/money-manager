@@ -447,6 +447,29 @@ export class SplitwiseService {
     );
   }
 
+  /**
+   * Get settlements by transaction ID
+   */
+  getSettlementsByTransaction(transactionId: string): Observable<SplitSettlement[]> {
+    const settlementsRef = collection(this.firestore, 'splitwise-settlements');
+    const q = query(
+      settlementsRef,
+      where('originalTransactionId', '==', transactionId),
+      orderBy('createdAt', 'desc')
+    );
+
+    return from(getDocs(q)).pipe(
+      map(snapshot => snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as SplitSettlement))),
+      catchError(error => {
+        console.error('Error fetching settlements by transaction:', error);
+        return of([]);
+      })
+    );
+  }
+
   // Split Transactions
   createSplitTransaction(request: CreateSplitTransactionRequest, userId: string): Observable<SplitTransaction> {
     const currentUser = this.auth.currentUser;
@@ -461,8 +484,8 @@ export class SplitwiseService {
       createdBy: userId,
       splits: request.splits.map(split => ({
         ...split,
-        email: '', // Will be populated from user data
-        displayName: '' // Will be populated from user data
+        email: split.email || '',
+        displayName: split.displayName || '' // Will be populated from user data
       })),
       totalAmount: request.amount,
       currency: 'USD', // Default currency
@@ -618,10 +641,6 @@ export class SplitwiseService {
           updateData.totalAmount = request.amount;
         }
 
-        // Only update member balances if this is a new transaction or amount changed
-        if (request.amount && request.amount !== transactionData.totalAmount) {
-          await this.updateMemberBalances(transactionData.groupId, splitsWithDetails);
-        }
       }
 
       await updateDoc(doc(this.firestore, 'splitwise-transactions', transactionId), updateData);
@@ -637,33 +656,67 @@ export class SplitwiseService {
   /**
    * Delete split transaction
    */
-  async deleteSplitTransaction(transactionId: string): Promise<void> {
+  async deleteSplitTransaction(transactionId: string, userId: string): Promise<void> {
     try {
-      const userId = this.auth.currentUser?.uid;
       if (!userId) throw new Error('User not authenticated');
 
-      const transactionDoc = await getDoc(doc(this.firestore, 'splitwise-transactions', transactionId));
-      if (!transactionDoc.exists()) {
+      const transactionDoc = query(
+        collection(this.firestore, 'splitwise-transactions'),
+        where('originalTransactionId', '==', transactionId)
+      );
+
+ 
+
+      const querySnapshot = await getDocs(transactionDoc);
+
+      if (querySnapshot.empty) {
         throw new Error('Transaction not found');
       }
 
-      const transactionData = transactionDoc.data() as SplitTransaction;
+      const transactionData = querySnapshot.docs[0].data() as SplitTransaction;
 
       // Reverse member balances
       const reversedSplits = transactionData.splits.map(split => ({
         ...split,
         amount: -split.amount
       }));
-      await this.updateMemberBalances(transactionData.groupId, reversedSplits);
-
+    
       // Delete transaction
-      await deleteDoc(doc(this.firestore, 'splitwise-transactions', transactionId));
+      await deleteDoc(querySnapshot.docs[0].ref);
+
+      // Clean up related settlements
+      await this.cleanupSettlementsForTransaction(transactionId);
 
       this.notificationService.success('Split transaction deleted successfully');
     } catch (error) {
       console.error('Error deleting split transaction:', error);
       this.notificationService.error('Failed to delete split transaction');
       throw error;
+    }
+  }
+
+  /**
+   * Clean up settlements related to a deleted transaction
+   */
+  private async cleanupSettlementsForTransaction(originalTransactionId: string): Promise<void> {
+    try {
+      const settlementsRef = collection(this.firestore, 'splitwise-settlements');
+      const settlementsQuery = query(
+        settlementsRef,
+        where('originalTransactionId', '==', originalTransactionId)
+      );
+
+      const settlementsSnapshot = await getDocs(settlementsQuery);
+      
+      if (!settlementsSnapshot.empty) {
+        const deletePromises = settlementsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+        
+        console.log(`Cleaned up ${settlementsSnapshot.docs.length} settlements for transaction ${originalTransactionId}`);
+      }
+    } catch (error) {
+      console.error('Error cleaning up settlements for transaction:', error);
+      // Don't throw error here as the main transaction deletion should still succeed
     }
   }
 
@@ -686,6 +739,7 @@ export class SplitwiseService {
 
       const settlementData: Omit<SplitSettlement, 'id'> = {
         groupId: request.groupId,
+        originalTransactionId: request.originalTransactionId,
         fromUserId: request.fromUserId,
         toUserId: request.toUserId,
         amount: request.amount,
@@ -768,16 +822,6 @@ export class SplitwiseService {
 
 
   // ==================== UTILITY METHODS ====================
-
-  /**
-   * Update member balances - This method is deprecated since balance is no longer stored on GroupMember
-   * Balances are now calculated dynamically from transactions using getMemberBalances()
-   */
-  private async updateMemberBalances(groupId: string, splits: TransactionSplit[]): Promise<void> {
-    // This method is no longer needed since balances are calculated dynamically
-    // from transactions rather than stored on GroupMember
-    console.warn('updateMemberBalances is deprecated. Use getMemberBalances() instead.');
-  }
 
 
   /**
@@ -869,28 +913,4 @@ export class SplitwiseService {
     return Array.from(memberBalances.values());
   }
 
-
-  async deleteSplitTransactionRollback(originalTransactionId: string, userId: string): Promise<void> {
-    try {
-      const transactionsRef = collection(this.firestore, 'splitwise-transactions');
-      const q = query(transactionsRef, where('originalTransactionId', '==', originalTransactionId));
-      const querySnapshot = await getDocs(q);
-  
-      if (querySnapshot.empty) {
-        throw new Error('Transaction not found');
-      }
-  
-      const transactionDoc = querySnapshot.docs[0]; // if only one exists
-      const transactionIdToDelete = transactionDoc.id;
-  
-      // Delete the document
-      await deleteDoc(doc(this.firestore, `splitwise-transactions/${transactionIdToDelete}`));
-  
-      console.log(`Transaction with ID ${transactionIdToDelete} deleted successfully`);
-  
-    } catch (error) {
-      console.error('Error deleting split transaction rollback:', error);
-      throw error;
-    }
-  }
 } 

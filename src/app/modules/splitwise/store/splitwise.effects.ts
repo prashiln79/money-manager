@@ -209,7 +209,8 @@ export class SplitwiseEffects {
           fromUserId: action.fromUserId,
           toUserId: action.toUserId,
           amount: action.amount,
-          notes: action.notes
+          notes: action.notes,
+          originalTransactionId: action.originalTransactionId
         };
         return from(this.splitwiseService.createSettlement(request)).pipe(
           map(settlementId => {

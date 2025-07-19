@@ -88,6 +88,13 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
         this.transactions = state.transactions.filter(t => t.groupId === groupId);
         this.settlements = state.settlements.filter(s => s.groupId === groupId);
 
+        // Debug balance calculations
+        if (this.transactions.length > 0) {
+          console.log('=== DEBUG: Balance Calculations ===');
+          this.calculateNetBalances();
+          console.log('=== END DEBUG ===');
+        }
+
         // Show error notification if there's an error
         if (this.error) {
           this.notificationService.error(this.error);
@@ -217,18 +224,28 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     // Step 1: Process Transactions (Expenses)
     for (const transaction of this.transactions) {
       const paidBy = transaction.createdBy; // Who paid for the transaction
-      const amount = transaction.totalAmount;
-
+      
+      console.log(`Processing transaction ${transaction.id}:`);
+      console.log(`  Total amount: ${transaction.totalAmount}`);
+      console.log(`  Paid by: ${this.getMemberName(paidBy)}`);
+      
       for (const split of transaction.splits) {
-        const { userId, amount: owedAmount } = split;
-
-        if (userId === paidBy) continue; // Skip self
-
-        // userId owes paidBy
-        if (!balances[userId]) balances[userId] = {};
-        if (!balances[userId][paidBy]) balances[userId][paidBy] = 0;
-
-        balances[userId][paidBy] += owedAmount;
+        const { userId, amount: splitAmount } = split;
+        
+        console.log(`  Split: ${this.getMemberName(userId)} should pay ${splitAmount}`);
+        
+        if (userId === paidBy) {
+          // The person who paid doesn't owe anyone, but others owe them
+          console.log(`    ${this.getMemberName(userId)} paid for this transaction, so they don't owe anyone`);
+          continue;
+        } else {
+          // This person owes the person who paid
+          if (!balances[userId]) balances[userId] = {};
+          if (!balances[userId][paidBy]) balances[userId][paidBy] = 0;
+          
+          balances[userId][paidBy] += splitAmount;
+          console.log(`    ${this.getMemberName(userId)} owes ${this.getMemberName(paidBy)} ${splitAmount}`);
+        }
       }
     }
 
@@ -246,7 +263,9 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     }
 
     // Step 3: Simplify balances to show only net one-way debts
-    return this.simplifyBalances(balances);
+    const simplifiedBalances = this.simplifyBalances(balances);
+    console.log('Final simplified balances:', simplifiedBalances);
+    return simplifiedBalances;
   }
 
   // Simplify balances to show only net one-way debts
@@ -394,6 +413,7 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
   getSettlementSuggestions(): any[] {
     const balances = this.getMemberBalances();
     const suggestions: any[] = [];
+    const transactions = this.transactions;
     
     if (!this.currentUser?.uid) return suggestions;
 
@@ -425,7 +445,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
               toUserName: creditor.displayName,
               amount: settlementAmount,
               currency: this.group?.currency || 'USD',
-              type: 'you_owe'
+              type: 'you_owe',
+              originalTransactionId: transactions.find(t => t.splits.some(s => s.userId === creditor.userId))?.originalTransactionId || ''
             });
           }
         }
@@ -450,7 +471,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
               toUserName: currentUserBalance.displayName,
               amount: settlementAmount,
               currency: this.group?.currency || 'USD',
-              type: 'owed_to_you'
+              type: 'owed_to_you',
+              originalTransactionId: transactions.find(t => t.splits.some(s => s.userId === debtor.userId))?.originalTransactionId || ''
             });
           }
         }
@@ -483,7 +505,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
                 toUserName: creditor.displayName,
                 amount: settlementAmount,
                 currency: this.group?.currency || 'USD',
-                type: 'others'
+                type: 'others',
+                originalTransactionId: transactions.find(t => t.splits.some(s => s.userId === debtor.userId))?.originalTransactionId || ''
               });
               
               remainingDebt -= settlementAmount;
@@ -519,9 +542,9 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        title: 'Create Settlement',
-        message: `Create settlement of ${this.formatCurrency(suggestion.amount, suggestion.currency)} from ${suggestion.fromUserName} to ${suggestion.toUserName}?`,
-        confirmText: 'Create',
+        title: 'Settlement',
+        message: `Confirm settlement of ${this.formatCurrency(suggestion.amount, suggestion.currency)} from ${suggestion.fromUserName} to ${suggestion.toUserName}?`,
+        confirmText: 'Confirm',
         cancelText: 'Cancel',
       },
     });
@@ -536,7 +559,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
             fromUserId: suggestion.fromUserId,
             toUserId: suggestion.toUserId,
             amount: suggestion.amount,
-            notes: `Settlement created from balance summary`
+            notes: `Settlement created from balance summary`,
+            originalTransactionId: suggestion.originalTransactionId
           }));
 
           // Show success notification
@@ -727,6 +751,31 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     const member = this.group.members.find(m => m.userId === userId);
     return member?.displayName || 'Unknown';
   }
+
+  // Debug method to show transaction details
+  getTransactionDetails(): any[] {
+    return this.transactions.map(transaction => {
+      const totalSplitAmount = transaction.splits.reduce((sum, split) => sum + split.amount, 0);
+      const splitRatio = transaction.totalAmount / totalSplitAmount;
+      
+      return {
+        id: transaction.id,
+        totalAmount: transaction.totalAmount,
+        paidBy: this.getMemberName(transaction.createdBy),
+        totalSplitAmount: totalSplitAmount,
+        splitRatio: splitRatio,
+        splits: transaction.splits.map(split => ({
+          userId: split.userId,
+          userName: this.getMemberName(split.userId),
+          splitAmount: split.amount,
+          actualAmount: split.amount * splitRatio,
+          isPaidBy: split.userId === transaction.createdBy
+        }))
+      };
+    });
+  }
+
+
 
   toggleMembers(): void {
     // Navigate to the members page instead of toggling
