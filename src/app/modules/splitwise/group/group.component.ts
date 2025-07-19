@@ -69,7 +69,7 @@ export class GroupComponent {
 
   canManageGroup(): boolean {
     const role = this.getCurrentUserRole();
-    return role === 'admin';
+    return role === 'admin' || role === 'owner';
   }
 
   formatDate(date: Date | any): string {

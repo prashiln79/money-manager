@@ -32,10 +32,9 @@
       </button>
       <mat-divider></mat-divider>
       <button 
-        mat-menu-item 
+        mat-menu-item  
         (click)="onDeleteGroup($event)"
-        *ngIf="canManageGroup()"
-        class="delete-action">
+        class="menu-item delete-action">
         <mat-icon>delete</mat-icon>
         <span>Delete Group</span>
       </button>
