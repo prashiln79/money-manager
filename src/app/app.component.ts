@@ -7,6 +7,7 @@ import { OfflineService } from './util/service/offline.service';
 import { Subject, takeUntil } from 'rxjs';
 import { APP_CONFIG } from './util/config/config';
 import { SsrService } from './util/service/ssr.service';
+import { FirebaseMessagingService } from './util/service/firebase-messaging.service';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private loaderService: LoaderService,
     private pwaNavigationService: PwaNavigationService,
     private offlineService: OfflineService,
-    private ssrService: SsrService
+    private ssrService: SsrService,
+    private firebaseMessagingService: FirebaseMessagingService
   ) {
     this.navigationState = {
       canGoBack: false,
@@ -42,6 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
     this.initializePwaFeatures();
     this.setupEventListeners();
+    this.firebaseMessagingService.listenForMessages();
   }
 
   ngOnDestroy() {

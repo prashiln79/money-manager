@@ -346,4 +346,14 @@ export class FirebaseMessagingService {
 
     this.showNotification(testNotification);
   }
+
+  listenForMessages() {
+    const messaging = getMessaging();
+
+    onMessage(messaging, (payload) => {
+      console.log('Message received: ', payload);
+      // Show toast or notification manually if needed
+      alert('Message received: ' + payload);
+    });
+  }
 } 
