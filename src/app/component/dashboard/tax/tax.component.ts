@@ -1,17 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { Transaction } from '../../../util/models/transaction.model';
-import { TaxService, TaxCalculation, TaxDeduction, GSTCalculation } from '../../../util/service/tax.service';
+import { TaxService, TaxCalculation } from '../../../util/service/tax.service';
 import { NotificationService } from '../../../util/service/notification.service';
-import { ValidationService } from '../../../util/service/validation.service';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
-import { APP_CONFIG } from '../../../util/config/config';
-import { SsrService } from 'src/app/util/service/ssr.service';
 
 @Component({
   selector: 'app-tax',
@@ -20,25 +16,20 @@ import { SsrService } from 'src/app/util/service/ssr.service';
 })
 export class TaxComponent implements OnInit, OnDestroy {
 
-  selectedRegime: 'old' | 'new' = 'old';
-
   // Tax calculation data
-  oldRegimeCalculation: TaxCalculation | null = null;
-  newRegimeCalculation: TaxCalculation | null = null;
-  gstCalculation: GSTCalculation | null = null;
-
-  // Form data
-  taxForm: FormGroup;
-  deductions: TaxDeduction[] = [];
+  taxCalculation: TaxCalculation | null = null;
 
   // Transaction data
   transactions: Transaction[] = [];
   totalIncome: number = 0;
+  currentYear: number = new Date().getFullYear();
+
+  // Form data
+  taxForm: FormGroup;
+  useManualIncome: boolean = false;
 
   // UI states
   isLoading: boolean = false;
-  showInputForm: boolean = false;
-  showComparison: boolean = false;
 
   private subscriptions: Subscription[] = [];
 
@@ -46,27 +37,16 @@ export class TaxComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private taxService: TaxService,
     private notificationService: NotificationService,
-    private validationService: ValidationService,
-    private dialog: MatDialog,
-    private fb: FormBuilder,
     private store: Store<AppState>,
-    private ssrService: SsrService
+    private fb: FormBuilder
   ) {
     this.taxForm = this.fb.group({
-      totalIncome: [0, this.validationService.getTaxIncomeValidators()],
-      gstBaseAmount: [0, [Validators.min(0)]],
-      section80C: [0, this.validationService.getTaxDeductionValidators()],
-      section80D: [0, this.validationService.getTaxDeductionValidators()],
-      section80G: [0, this.validationService.getTaxDeductionValidators()],
-      section80TTA: [0, this.validationService.getTaxDeductionValidators()],
-      hraExemption: [0, [Validators.min(0)]],
-      ltaExemption: [0, [Validators.min(0)]]
+      manualIncome: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
   ngOnInit(): void {
     this.loadTransactions();
-    this.initializeDeductions();
   }
 
   ngOnDestroy(): void {
@@ -82,8 +62,7 @@ export class TaxComponent implements OnInit, OnDestroy {
       const sub = this.store.select(TransactionsSelectors.selectAllTransactions).subscribe({
         next: (transactions) => {
           this.transactions = transactions;
-          this.totalIncome = this.taxService.calculateTotalIncome(transactions);
-          this.taxForm.patchValue({ totalIncome: this.totalIncome });
+          this.calculateTaxFromTransactions();
         },
         error: (error) => {
           console.error('Error loading transactions:', error);
@@ -95,132 +74,92 @@ export class TaxComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initialize deductions with default values
+   * Calculate tax based on transactions
    */
-  private initializeDeductions(): void {
-    this.deductions = this.taxService.getDefaultDeductions();
-  }
-
-  /**
-   * Update deductions from form values
-   */
-  private updateDeductions(): void {
-    const formValue = this.taxForm.value;
-
-    this.deductions = [
-      { section: '80C', description: 'ELSS, PPF, EPF, Life Insurance, etc.', maxAmount: 150000, currentAmount: formValue.section80C || 0 },
-      { section: '80D', description: 'Health Insurance Premium', maxAmount: 25000, currentAmount: formValue.section80D || 0 },
-      { section: '80G', description: 'Donations to Charitable Institutions', maxAmount: 100000, currentAmount: formValue.section80G || 0 },
-      { section: '80TTA', description: 'Interest on Savings Account', maxAmount: 10000, currentAmount: formValue.section80TTA || 0 },
-      { section: 'HRA', description: 'House Rent Allowance Exemption', maxAmount: 0, currentAmount: formValue.hraExemption || 0 },
-      { section: 'LTA', description: 'Leave Travel Allowance', maxAmount: 0, currentAmount: formValue.ltaExemption || 0 }
-    ];
-  }
-
-  /**
-   * Calculate tax based on selected regime
-   */
-  calculateTax(): void {
-    if (!this.taxForm.valid) {
-      this.notificationService.error('Please fill in all required fields');
-      return;
-    }
-
+  private calculateTaxFromTransactions(): void {
     this.isLoading = true;
 
     try {
-      const formValue = this.taxForm.value;
-      const totalIncome = formValue.totalIncome || 0;
+      // Calculate total income from current year transactions
+      this.totalIncome = this.taxService.calculateTotalIncome(this.transactions, this.currentYear);
+      
+      // Calculate new regime tax
+      this.calculateTax();
 
-      // Update deductions
-      this.updateDeductions();
-
-      // Calculate tax for both regimes
-      this.oldRegimeCalculation = this.taxService.calculateOldRegimeTax(totalIncome, this.deductions);
-      this.newRegimeCalculation = this.taxService.calculateNewRegimeTax(totalIncome);
-
-      // Calculate GST if base amount is provided
-      if (formValue.gstBaseAmount && formValue.gstBaseAmount > 0) {
-        this.gstCalculation = this.taxService.calculateGST(formValue.gstBaseAmount);
-      } else {
-        this.gstCalculation = null;
+      if (this.totalIncome > 0) {
+        this.notificationService.success('Tax calculation completed successfully!');
       }
-
-      this.showComparison = true;
-      this.notificationService.success('Tax calculation completed successfully!');
 
     } catch (error) {
       console.error('Error calculating tax:', error);
-      this.notificationService.error('Failed to calculate tax. Please check your inputs.');
+      this.notificationService.error('Failed to calculate tax.');
     } finally {
       this.isLoading = false;
     }
   }
 
   /**
-   * Download tax report
+   * Calculate tax based on current income source
    */
-  downloadTaxReport(): void {
-    if (!this.oldRegimeCalculation && !this.newRegimeCalculation) {
-      this.notificationService.error('Please calculate tax first');
-      return;
-    }
+  private calculateTax(): void {
+    const incomeToUse = this.getCurrentIncome();
+    this.taxCalculation = this.taxService.calculateNewRegimeTax(incomeToUse);
+  }
 
-    try {
-      const calculation = this.selectedRegime === 'old' ? this.oldRegimeCalculation! : this.newRegimeCalculation!;
-      const report = this.taxService.generateTaxReport(calculation, this.gstCalculation || undefined);
-      if (this.ssrService.isClientSide()) {
-        // Create and download file
-        const blob = new Blob([report], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `tax-report-${this.selectedRegime}-regime-${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+  /**
+   * Toggle between manual and automatic income
+   */
+  toggleIncomeSource(): void {
+    this.useManualIncome = !this.useManualIncome;
+    
+    if (this.useManualIncome) {
+      // Set manual income to current total income if available, otherwise 0
+      const initialValue = this.totalIncome > 0 ? this.totalIncome : 0;
+      this.taxForm.patchValue({ manualIncome: initialValue });
+      // Trigger calculation with the new value
+      setTimeout(() => this.calculateTax(), 0);
+    } else {
+      // Switch back to auto mode
+      this.calculateTax();
+    }
+  }
+
+  /**
+   * Handle manual income input change
+   */
+  onManualIncomeChange(): void {
+    if (this.useManualIncome) {
+      const manualIncome = this.taxForm.value.manualIncome;
+      // Calculate tax if we have a valid number (not null, undefined, or negative)
+      if (manualIncome !== null && manualIncome !== undefined && manualIncome >= 0) {
+        this.calculateTax();
       }
-
-      this.notificationService.success('Tax report downloaded successfully!');
-    } catch (error) {
-      console.error('Error downloading report:', error);
-      this.notificationService.error('Failed to download tax report');
     }
   }
 
   /**
-   * Select tax regime
+   * Handle input event for real-time calculation
    */
-  selectRegime(regime: 'old' | 'new'): void {
-    this.selectedRegime = regime;
-    this.showInputForm = regime === 'old'; // Show input form only for old regime
-  }
-
-  /**
-   * Toggle input form visibility
-   */
-  toggleInputForm(): void {
-    this.showInputForm = !this.showInputForm;
-  }
-
-  /**
-   * Get comparison data
-   */
-  getComparisonData(): { recommendation: string; savings: number } | null {
-    if (!this.oldRegimeCalculation || !this.newRegimeCalculation) {
-      return null;
+  onInputChange(event: any): void {
+    const value = event.target.value;
+    if (this.useManualIncome && value !== '') {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue >= 0) {
+        this.taxForm.patchValue({ manualIncome: numValue });
+        this.calculateTax();
+      }
     }
+  }
 
-    const comparison = this.taxService.compareRegimes(
-      this.oldRegimeCalculation.totalIncome,
-      this.deductions
-    );
-
-    return {
-      recommendation: comparison.recommendation,
-      savings: comparison.savings
-    };
+  /**
+   * Get current income being used for calculation
+   */
+  getCurrentIncome(): number {
+    if (this.useManualIncome) {
+      const manualIncome = this.taxForm.value.manualIncome;
+      return manualIncome !== null && manualIncome !== undefined && manualIncome >= 0 ? manualIncome : 0;
+    }
+    return this.totalIncome;
   }
 
   /**
@@ -231,49 +170,27 @@ export class TaxComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get current calculation based on selected regime
+   * Get tax slab for current income
    */
-  getCurrentCalculation(): TaxCalculation | null {
-    return this.selectedRegime === 'old' ? this.oldRegimeCalculation : this.newRegimeCalculation;
+  getCurrentTaxSlab(): string {
+    if (!this.taxCalculation) return 'N/A';
+    
+    const slabs = this.taxService.getTaxSlabs('new');
+    const taxableIncome = this.taxCalculation.taxableIncome;
+    
+    for (const slab of slabs) {
+      if (taxableIncome <= slab.maxIncome) {
+        return `${slab.description} (${slab.rate}%)`;
+      }
+    }
+    
+    return 'Above ₹15,00,000 (30%)';
   }
 
   /**
-   * Get deduction by section
+   * Check if manual income form is valid
    */
-  getDeductionBySection(section: string): TaxDeduction | undefined {
-    return this.deductions.find(d => d.section === section);
-  }
-
-  /**
-   * Get total deductions amount
-   */
-  getTotalDeductions(): number {
-    return this.deductions.reduce((sum, d) => sum + d.currentAmount, 0);
-  }
-
-  // Error handling methods
-  getIncomeError(): string {
-    const control = this.taxForm.get('totalIncome');
-    return control ? this.validationService.getTaxIncomeError(control) : '';
-  }
-
-  getSection80CError(): string {
-    const control = this.taxForm.get('section80C');
-    return control ? this.validationService.getTaxDeductionError(control) : '';
-  }
-
-  getSection80DError(): string {
-    const control = this.taxForm.get('section80D');
-    return control ? this.validationService.getTaxDeductionError(control) : '';
-  }
-
-  getSection80GError(): string {
-    const control = this.taxForm.get('section80G');
-    return control ? this.validationService.getTaxDeductionError(control) : '';
-  }
-
-  getSection80TTAError(): string {
-    const control = this.taxForm.get('section80TTA');
-    return control ? this.validationService.getTaxDeductionError(control) : '';
+  isManualIncomeValid(): boolean {
+    return this.taxForm.get('manualIncome')?.valid || false;
   }
 } 

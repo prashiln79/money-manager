@@ -4,483 +4,255 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div class="flex-1">
-          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Indian Tax Analysis</h2>
-          <p class="text-gray-600 text-sm sm:text-base">Calculate and analyze your tax liability for FY 2024-25</p>
+          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Tax Analysis</h2>
+          <p class="text-gray-600 text-sm sm:text-base">New Tax Regime calculation for FY {{ currentYear }}-{{ currentYear + 1 }}</p>
         </div>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <button 
-            mat-stroked-button 
-            (click)="calculateTax()"
-            [disabled]="isLoading"
-            class="w-full sm:w-auto px-6 py-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transition-colors duration-200 rounded-lg disabled:opacity-50"
-          >
-            <mat-icon class="mr-2">{{ isLoading ? 'hourglass_empty' : 'calculate' }}</mat-icon>
-            {{ isLoading ? 'Calculating...' : 'Calculate Tax' }}
-          </button>
-          <button 
-            mat-raised-button 
-            color="primary" 
-            (click)="downloadTaxReport()"
-            [disabled]="!oldRegimeCalculation && !newRegimeCalculation"
-            class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-colors duration-200 rounded-lg disabled:opacity-50"
-          >
-            <mat-icon class="mr-2">download</mat-icon>
-            <span class="hidden sm:inline">Tax Report</span>
-            <span class="sm:hidden">Report</span>
-          </button>
+        <div class="flex items-center">
+          <mat-icon class="text-blue-600 mr-2">new_releases</mat-icon>
+          <span class="text-blue-600 font-medium">New Regime</span>
         </div>
       </div>
     </div>
 
-    <!-- Tax Regime Selection -->
+    <!-- Income Source Selection -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
       <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-        <mat-icon class="text-blue-600 mr-3">policy</mat-icon>
-        Select Tax Regime
-      </h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <button 
-          mat-raised-button 
-          [color]="selectedRegime === 'old' ? 'primary' : 'basic'"
-          (click)="selectRegime('old')"
-          class="flex items-center justify-center space-x-3 p-4 h-auto min-h-[60px] transition-all duration-200 hover:shadow-md"
-          [class.bg-blue-600]="selectedRegime === 'old'"
-          [class.text-white]="selectedRegime === 'old'"
-          [class.bg-gray-100]="selectedRegime !== 'old'"
-          [class.text-gray-700]="selectedRegime !== 'old'"
-        >
-          <mat-icon class="text-xl">history</mat-icon>
-          <div class="text-left">
-            <div class="font-semibold">Old Regime</div>
-            <div class="text-xs opacity-80">With Deductions</div>
-          </div>
-        </button>
-        <button 
-          mat-raised-button 
-          [color]="selectedRegime === 'new' ? 'primary' : 'basic'"
-          (click)="selectRegime('new')"
-          class="flex items-center justify-center space-x-3 p-4 h-auto min-h-[60px] transition-all duration-200 hover:shadow-md"
-          [class.bg-blue-600]="selectedRegime === 'new'"
-          [class.text-white]="selectedRegime === 'new'"
-          [class.bg-gray-100]="selectedRegime !== 'new'"
-          [class.text-gray-700]="selectedRegime !== 'new'"
-        >
-          <mat-icon class="text-xl">new_releases</mat-icon>
-          <div class="text-left">
-            <div class="font-semibold">New Regime</div>
-            <div class="text-xs opacity-80">Simplified</div>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Input Form Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" *ngIf="showInputForm">
-      <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-        <mat-icon class="text-green-600 mr-3">edit</mat-icon>
-        Enter Tax Details
+        <mat-icon class="text-green-600 mr-3">account_balance_wallet</mat-icon>
+        Income Source
       </h3>
       
-      <form [formGroup]="taxForm" class="space-y-6">
-        <!-- Income Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Total Income (₹)</label>
-            <input 
-              type="number" 
-              formControlName="totalIncome"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter total income"
-            >
-            <div class="text-xs text-gray-500 mt-1">Auto-filled from your transactions</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <button 
+          mat-raised-button 
+          [color]="!useManualIncome ? 'primary' : 'basic'"
+          (click)="toggleIncomeSource()"
+          class="flex items-center justify-center space-x-3 p-4 h-auto min-h-[60px] transition-all duration-200 hover:shadow-md"
+          [class.bg-blue-600]="!useManualIncome"
+          [class.text-white]="!useManualIncome"
+          [class.bg-gray-100]="useManualIncome"
+          [class.text-gray-700]="useManualIncome"
+        >
+          <mat-icon class="text-xl">sync</mat-icon>
+          <div class="text-left">
+            <div class="font-semibold">Auto from Transactions</div>
+            <div class="text-xs opacity-80">Use your transaction data</div>
           </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">GST Base Amount (₹)</label>
-            <input 
-              type="number" 
-              formControlName="gstBaseAmount"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter GST base amount"
-            >
-            <div class="text-xs text-gray-500 mt-1">Optional: For GST calculation</div>
+        </button>
+        <button 
+          mat-raised-button 
+          [color]="useManualIncome ? 'primary' : 'basic'"
+          (click)="toggleIncomeSource()"
+          class="flex items-center justify-center space-x-3 p-4 h-auto min-h-[60px] transition-all duration-200 hover:shadow-md"
+          [class.bg-blue-600]="useManualIncome"
+          [class.text-white]="useManualIncome"
+          [class.bg-gray-100]="!useManualIncome"
+          [class.text-gray-700]="!useManualIncome"
+        >
+          <mat-icon class="text-xl">edit</mat-icon>
+          <div class="text-left">
+            <div class="font-semibold">Manual Entry</div>
+            <div class="text-xs opacity-80">Enter income manually</div>
           </div>
-        </div>
+        </button>
+      </div>
 
-        <!-- Deductions Section -->
-        <div>
-          <h4 class="text-lg font-semibold text-gray-800 mb-4">Tax Deductions (Old Regime)</h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Section 80C (₹)</label>
-              <input 
-                type="number" 
-                formControlName="section80C"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Max: 1,50,000"
-              >
-              <div class="text-xs text-gray-500 mt-1">ELSS, PPF, EPF, Life Insurance</div>
+      <!-- Manual Income Input -->
+      <div *ngIf="useManualIncome" class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <form [formGroup]="taxForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Annual Income (₹)</label>
+            <input 
+              type="number" 
+              formControlName="manualIncome"
+              (input)="onInputChange($event)"
+              (blur)="onManualIncomeChange()"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter your annual income"
+            >
+            <div class="text-xs text-gray-500 mt-1">
+              Enter your total annual income for FY {{ currentYear }}-{{ currentYear + 1 }}
             </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Section 80D (₹)</label>
-              <input 
-                type="number" 
-                formControlName="section80D"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Max: 25,000"
-              >
-              <div class="text-xs text-gray-500 mt-1">Health Insurance Premium</div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Section 80G (₹)</label>
-              <input 
-                type="number" 
-                formControlName="section80G"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Max: 1,00,000"
-              >
-              <div class="text-xs text-gray-500 mt-1">Donations to Charitable Institutions</div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Section 80TTA (₹)</label>
-              <input 
-                type="number" 
-                formControlName="section80TTA"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Max: 10,000"
-              >
-              <div class="text-xs text-gray-500 mt-1">Interest on Savings Account</div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">HRA Exemption (₹)</label>
-              <input 
-                type="number" 
-                formControlName="hraExemption"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter HRA exemption"
-              >
-              <div class="text-xs text-gray-500 mt-1">House Rent Allowance</div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">LTA Exemption (₹)</label>
-              <input 
-                type="number" 
-                formControlName="ltaExemption"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter LTA exemption"
-              >
-              <div class="text-xs text-gray-500 mt-1">Leave Travel Allowance</div>
+            <div *ngIf="taxForm.get('manualIncome')?.invalid && taxForm.get('manualIncome')?.touched" class="text-red-500 text-xs mt-1">
+              Please enter a valid income amount
             </div>
           </div>
+        </form>
+      </div>
+
+      <!-- Auto Income Display -->
+      <div *ngIf="!useManualIncome" class="bg-green-50 p-4 rounded-lg border border-green-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm font-medium text-green-800">Income from Transactions</div>
+            <div class="text-2xl font-bold text-green-700">{{ formatCurrency(totalIncome) }}</div>
+            <div class="text-xs text-green-600 mt-1">
+              Calculated from your income transactions for FY {{ currentYear }}-{{ currentYear + 1 }}
+            </div>
+          </div>
+          <mat-icon class="text-green-600 text-3xl">check_circle</mat-icon>
         </div>
-      </form>
+      </div>
     </div>
-    
-    <!-- Old Regime Content -->
-    <div *ngIf="selectedRegime === 'old' && oldRegimeCalculation" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-6">
+      <div class="flex items-center justify-center">
+        <mat-spinner diameter="40" class="mr-4"></mat-spinner>
+        <span class="text-gray-600">Calculating tax from your transactions...</span>
+      </div>
+    </div>
+
+    <!-- Tax Calculation Results -->
+    <div *ngIf="!isLoading && taxCalculation && (useManualIncome ? isManualIncomeValid() : true)" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Income Tax Calculation -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <mat-icon class="text-blue-600 mr-3">account_balance</mat-icon>
-          Income Tax Calculation - Old Regime
+          Tax Calculation Summary
         </h4>
         <div class="space-y-4">
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Total Income</span>
-            <span class="font-semibold text-gray-900 text-lg">{{ formatCurrency(oldRegimeCalculation.totalIncome) }}</span>
-          </div>
-          <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Deductions (80C, etc.)</span>
-            <span class="font-semibold text-green-600 text-lg">{{ formatCurrency(oldRegimeCalculation.totalDeductions) }}</span>
-          </div>
-          <div class="flex justify-between items-center py-3 border-b-2 border-blue-200 bg-blue-50 px-4 rounded-lg">
-            <span class="text-gray-700 font-medium">Taxable Income</span>
-            <span class="font-bold text-blue-700 text-lg">{{ formatCurrency(oldRegimeCalculation.taxableIncome) }}</span>
-          </div>
-          <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Income Tax</span>
-            <span class="font-semibold text-red-600 text-lg">{{ formatCurrency(oldRegimeCalculation.incomeTax) }}</span>
-          </div>
-          <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Cess (4%)</span>
-            <span class="font-semibold text-red-600 text-lg">{{ formatCurrency(oldRegimeCalculation.cess) }}</span>
-          </div>
-          <div class="flex justify-between items-center py-4 bg-red-50 px-4 rounded-lg border-2 border-red-200">
-            <span class="text-gray-700 font-semibold">Total Tax Liability</span>
-            <span class="font-bold text-red-700 text-xl">{{ formatCurrency(oldRegimeCalculation.totalTaxLiability) }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tax Deductions -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <mat-icon class="text-green-600 mr-3">savings</mat-icon>
-          Tax Deductions & Exemptions
-        </h4>
-        <div class="space-y-4">
-          @for (deduction of oldRegimeCalculation.deductions; track deduction.section) {
-          <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">{{ deduction.section }} ({{ deduction.description }})</span>
-            <span class="font-semibold text-green-600">{{ formatCurrency(deduction.currentAmount) }}</span>
-          </div>
-          }
-          <div class="flex justify-between items-center py-4 bg-green-50 px-4 rounded-lg border-2 border-green-200">
-            <span class="text-gray-700 font-semibold">Total Deductions</span>
-            <span class="font-bold text-green-700 text-xl">{{ formatCurrency(oldRegimeCalculation.totalDeductions) }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- New Regime Content -->
-    <div *ngIf="selectedRegime === 'new' && newRegimeCalculation" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      <!-- Income Tax Calculation -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <mat-icon class="text-blue-600 mr-3">account_balance</mat-icon>
-          Income Tax Calculation - New Regime
-        </h4>
-        <div class="space-y-4">
-          <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Total Income</span>
-            <span class="font-semibold text-gray-900 text-lg">{{ formatCurrency(newRegimeCalculation.totalIncome) }}</span>
+            <span class="text-gray-600">Total Income (FY {{ currentYear }}-{{ currentYear + 1 }})</span>
+            <span class="font-semibold text-gray-900 text-lg">{{ formatCurrency(taxCalculation.totalIncome) }}</span>
           </div>
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
             <span class="text-gray-600">Standard Deduction</span>
-            <span class="font-semibold text-green-600 text-lg">{{ formatCurrency(newRegimeCalculation.totalDeductions) }}</span>
+            <span class="font-semibold text-green-600 text-lg">{{ formatCurrency(taxCalculation.totalDeductions) }}</span>
           </div>
           <div class="flex justify-between items-center py-3 border-b-2 border-blue-200 bg-blue-50 px-4 rounded-lg">
             <span class="text-gray-700 font-medium">Taxable Income</span>
-            <span class="font-bold text-blue-700 text-lg">{{ formatCurrency(newRegimeCalculation.taxableIncome) }}</span>
+            <span class="font-bold text-blue-700 text-lg">{{ formatCurrency(taxCalculation.taxableIncome) }}</span>
           </div>
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
             <span class="text-gray-600">Income Tax</span>
-            <span class="font-semibold text-red-600 text-lg">{{ formatCurrency(newRegimeCalculation.incomeTax) }}</span>
+            <span class="font-semibold text-red-600 text-lg">{{ formatCurrency(taxCalculation.incomeTax) }}</span>
           </div>
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
             <span class="text-gray-600">Cess (4%)</span>
-            <span class="font-semibold text-red-600 text-lg">{{ formatCurrency(newRegimeCalculation.cess) }}</span>
+            <span class="font-semibold text-red-600 text-lg">{{ formatCurrency(taxCalculation.cess) }}</span>
           </div>
           <div class="flex justify-between items-center py-4 bg-red-50 px-4 rounded-lg border-2 border-red-200">
             <span class="text-gray-700 font-semibold">Total Tax Liability</span>
-            <span class="font-bold text-red-700 text-xl">{{ formatCurrency(newRegimeCalculation.totalTaxLiability) }}</span>
+            <span class="font-bold text-red-700 text-xl">{{ formatCurrency(taxCalculation.totalTaxLiability) }}</span>
           </div>
         </div>
       </div>
 
-      <!-- New Regime Benefits -->
+      <!-- Tax Details -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <mat-icon class="text-green-600 mr-3">new_releases</mat-icon>
-          New Regime Benefits
+          <mat-icon class="text-green-600 mr-3">info</mat-icon>
+          Tax Details
         </h4>
         <div class="space-y-4">
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Standard Deduction</span>
-            <span class="font-semibold text-green-600">₹50,000</span>
+            <span class="text-gray-600">Current Tax Slab</span>
+            <span class="font-semibold text-blue-600">{{ getCurrentTaxSlab() }}</span>
           </div>
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Lower Tax Rates</span>
-            <span class="font-semibold text-green-600">Yes</span>
+            <span class="text-gray-600">Effective Tax Rate</span>
+            <span class="font-semibold text-blue-600">{{ taxCalculation.totalIncome > 0 ? ((taxCalculation.totalTaxLiability / taxCalculation.totalIncome) * 100).toFixed(2) : '0' }}%</span>
           </div>
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">No Investment Proof</span>
-            <span class="font-semibold text-green-600">Required</span>
+            <span class="text-gray-600">Monthly Tax</span>
+            <span class="font-semibold text-red-600">{{ formatCurrency(taxCalculation.totalTaxLiability / 12) }}</span>
           </div>
           <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">Simplified Filing</span>
-            <span class="font-semibold text-green-600">Yes</span>
+            <span class="text-gray-600">Net Income After Tax</span>
+            <span class="font-semibold text-green-600">{{ formatCurrency(taxCalculation.totalIncome - taxCalculation.totalTaxLiability) }}</span>
           </div>
-          <div class="flex justify-between items-center py-3 border-b border-gray-100">
-            <span class="text-gray-600">No Deductions</span>
-            <span class="font-semibold text-red-600">Except Standard</span>
-          </div>
-          <div class="flex justify-between items-center py-4 bg-blue-50 px-4 rounded-lg border-2 border-blue-200">
-            <span class="text-gray-700 font-semibold">Net Benefit</span>
-            <span class="font-bold text-blue-700 text-xl">Calculate</span>
+          <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <div class="text-sm text-blue-800">
+              <strong>Note:</strong> This calculation uses the new tax regime with simplified rates and standard deduction of ₹50,000.
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Regime Comparison -->
-    <div *ngIf="showComparison && getComparisonData()" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-      <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-        <mat-icon class="text-purple-600 mr-3">compare_arrows</mat-icon>
-        Regime Comparison & Recommendation
-      </h4>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <div class="text-center">
-            <div class="text-sm text-blue-600 font-medium">Old Regime Tax</div>
-            <div class="text-2xl font-bold text-blue-800">{{ formatCurrency(oldRegimeCalculation?.totalTaxLiability || 0) }}</div>
-          </div>
-        </div>
-        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-          <div class="text-center">
-            <div class="text-sm text-green-600 font-medium">New Regime Tax</div>
-            <div class="text-2xl font-bold text-green-800">{{ formatCurrency(newRegimeCalculation?.totalTaxLiability || 0) }}</div>
-          </div>
-        </div>
-        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
-          <div class="text-center">
-            <div class="text-sm text-purple-600 font-medium">Recommended</div>
-            <div class="text-xl font-bold text-purple-800 capitalize">{{ getComparisonData()?.recommendation }} Regime</div>
-            <div class="text-sm text-purple-600">Save: {{ formatCurrency(getComparisonData()?.savings || 0) }}</div>
-          </div>
-        </div>
+    <!-- No Income Message -->
+    <div *ngIf="!isLoading && getCurrentIncome() === 0" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-6">
+      <div class="text-center">
+        <mat-icon class="text-gray-400 text-6xl mb-4">account_balance_wallet</mat-icon>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">
+          {{ useManualIncome ? 'No Income Entered' : 'No Income Transactions Found' }}
+        </h3>
+        <p class="text-gray-500 mb-4">
+          {{ useManualIncome ? 'Please enter your annual income to see the tax calculation.' : 'We couldn\'t find any income transactions for FY ' + currentYear + '-' + (currentYear + 1) + '.' }}
+        </p>
+        <p class="text-sm text-gray-400">
+          {{ useManualIncome ? 'Enter your income in the manual input field above.' : 'Add income transactions to see your tax calculation.' }}
+        </p>
       </div>
     </div>
 
-    <!-- Tax Slabs Information -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
+    <!-- New Regime Tax Slabs -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
         <mat-icon class="text-purple-600 mr-3">table_chart</mat-icon>
-        Income Tax Slabs Comparison (FY 2024-25)
+        New Tax Regime Slabs (FY {{ currentYear }}-{{ currentYear + 1 }})
       </h4>
       
-      <!-- Old Regime Slabs -->
-      <div *ngIf="selectedRegime === 'old'" class="mb-6">
-        <h5 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
-          <mat-icon class="text-blue-600 mr-2 text-sm">history</mat-icon>
-          Old Tax Regime (With Deductions)
-        </h5>
-        <div class="overflow-x-auto rounded-lg border border-gray-200">
-          <table class="w-full">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Income Range</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Tax Rate</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Cess</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Effective Rate</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">Up to ₹2,50,000</td>
-                <td class="px-4 py-3 text-green-600 font-medium text-sm">Nil</td>
-                <td class="px-4 py-3 text-sm">-</td>
-                <td class="px-4 py-3 text-green-600 font-medium text-sm">0%</td>
-              </tr>
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">₹2,50,001 - ₹5,00,000</td>
-                <td class="px-4 py-3 text-sm">5%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 text-sm">5.2%</td>
-              </tr>
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">₹5,00,001 - ₹10,00,000</td>
-                <td class="px-4 py-3 text-sm">20%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 text-sm">20.8%</td>
-              </tr>
-              <tr class="hover:bg-red-50 transition-colors bg-red-50">
-                <td class="px-4 py-3 font-medium text-sm">Above ₹10,00,000</td>
-                <td class="px-4 py-3 font-medium text-sm">30%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 font-medium text-sm">31.2%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Income Range</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Tax Rate</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Cess</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Effective Rate</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 text-sm">Up to ₹3,00,000</td>
+              <td class="px-4 py-3 text-green-600 font-medium text-sm">Nil</td>
+              <td class="px-4 py-3 text-sm">-</td>
+              <td class="px-4 py-3 text-green-600 font-medium text-sm">0%</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 text-sm">₹3,00,001 - ₹6,00,000</td>
+              <td class="px-4 py-3 text-sm">5%</td>
+              <td class="px-4 py-3 text-sm">4%</td>
+              <td class="px-4 py-3 text-sm">5.2%</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 text-sm">₹6,00,001 - ₹9,00,000</td>
+              <td class="px-4 py-3 text-sm">10%</td>
+              <td class="px-4 py-3 text-sm">4%</td>
+              <td class="px-4 py-3 text-sm">10.4%</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 text-sm">₹9,00,001 - ₹12,00,000</td>
+              <td class="px-4 py-3 text-sm">15%</td>
+              <td class="px-4 py-3 text-sm">4%</td>
+              <td class="px-4 py-3 text-sm">15.6%</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 text-sm">₹12,00,001 - ₹15,00,000</td>
+              <td class="px-4 py-3 text-sm">20%</td>
+              <td class="px-4 py-3 text-sm">4%</td>
+              <td class="px-4 py-3 text-sm">20.8%</td>
+            </tr>
+            <tr class="hover:bg-red-50 transition-colors bg-red-50">
+              <td class="px-4 py-3 font-medium text-sm">Above ₹15,00,000</td>
+              <td class="px-4 py-3 font-medium text-sm">30%</td>
+              <td class="px-4 py-3 text-sm">4%</td>
+              <td class="px-4 py-3 font-medium text-sm">31.2%</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      <!-- New Regime Slabs -->
-      <div *ngIf="selectedRegime === 'new'" class="mb-6">
-        <h5 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
-          <mat-icon class="text-green-600 mr-2 text-sm">new_releases</mat-icon>
-          New Tax Regime (No Deductions)
-        </h5>
-        <div class="overflow-x-auto rounded-lg border border-gray-200">
-          <table class="w-full">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Income Range</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Tax Rate</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Cess</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700 text-sm">Effective Rate</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">Up to ₹3,00,000</td>
-                <td class="px-4 py-3 text-green-600 font-medium text-sm">Nil</td>
-                <td class="px-4 py-3 text-sm">-</td>
-                <td class="px-4 py-3 text-green-600 font-medium text-sm">0%</td>
-              </tr>
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">₹3,00,001 - ₹6,00,000</td>
-                <td class="px-4 py-3 text-sm">5%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 text-sm">5.2%</td>
-              </tr>
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">₹6,00,001 - ₹9,00,000</td>
-                <td class="px-4 py-3 text-sm">10%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 text-sm">10.4%</td>
-              </tr>
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">₹9,00,001 - ₹12,00,000</td>
-                <td class="px-4 py-3 text-sm">15%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 text-sm">15.6%</td>
-              </tr>
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm">₹12,00,001 - ₹15,00,000</td>
-                <td class="px-4 py-3 text-sm">20%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 text-sm">20.8%</td>
-              </tr>
-              <tr class="hover:bg-red-50 transition-colors bg-red-50">
-                <td class="px-4 py-3 font-medium text-sm">Above ₹15,00,000</td>
-                <td class="px-4 py-3 font-medium text-sm">30%</td>
-                <td class="px-4 py-3 text-sm">4%</td>
-                <td class="px-4 py-3 font-medium text-sm">31.2%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- GST Analysis -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6" *ngIf="gstCalculation">
-      <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-        <mat-icon class="text-orange-600 mr-3">receipt</mat-icon>
-        GST Analysis
-      </h4>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-orange-800 font-semibold text-lg">CGST (9%)</span>
-            <mat-icon class="text-orange-600 text-2xl">account_balance</mat-icon>
-          </div>
-          <div class="text-3xl font-bold text-orange-800 mb-2">{{ formatCurrency(gstCalculation.cgst) }}</div>
-          <div class="text-sm text-orange-600">Central Government</div>
-        </div>
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-blue-800 font-semibold text-lg">SGST (9%)</span>
-            <mat-icon class="text-blue-600 text-2xl">location_city</mat-icon>
-          </div>
-          <div class="text-3xl font-bold text-blue-800 mb-2">{{ formatCurrency(gstCalculation.sgst) }}</div>
-          <div class="text-sm text-blue-600">State Government</div>
-        </div>
-        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-green-800 font-semibold text-lg">Total GST (18%)</span>
-            <mat-icon class="text-green-600 text-2xl">calculate</mat-icon>
-          </div>
-          <div class="text-3xl font-bold text-green-800 mb-2">{{ formatCurrency(gstCalculation.totalGST) }}</div>
-          <div class="text-sm text-green-600">Combined Tax</div>
-        </div>
+      
+      <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <h5 class="font-semibold text-blue-800 mb-2">New Regime Benefits:</h5>
+        <ul class="text-sm text-blue-700 space-y-1">
+          <li>• Standard deduction of ₹50,000 automatically applied</li>
+          <li>• Lower tax rates compared to old regime</li>
+          <li>• No need to maintain investment proofs</li>
+          <li>• Simplified tax filing process</li>
+          <li>• No deductions except standard deduction</li>
+        </ul>
       </div>
     </div>
   </div>
