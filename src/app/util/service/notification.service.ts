@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from "@angular/core";
 import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 import { APP_CONFIG } from "../config/config";
 import { isPlatformServer } from "@angular/common";
+import { environment } from "@env/environment";
 
 @Injectable({
   providedIn: "root",
@@ -66,4 +67,10 @@ export class NotificationService {
     this.snackBar.open(message, action, config);
   }
 
+  pushNotification(message: string, action: string = "Close"): void {
+    new Notification(message, {
+      body: message,
+      icon: environment.baseUrl + '/assets/icon/app-icon/icon-192x192.png',
+    });
+  }
 }

@@ -265,6 +265,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
             })
           );
 
+          this.notificationService.pushNotification('Transaction added successfully');  
+
           this.notificationService.success('Transaction added successfully');
           this.hapticFeedback.successVibration();
         }
