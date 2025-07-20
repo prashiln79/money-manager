@@ -165,9 +165,9 @@ export class FirebaseMessagingService {
 
       // Set up foreground message handler
       onMessage(this.messaging, (payload) => {
-        this.ngZone.run(() => {
+        this.ngZone.run(async () => {
           console.log('Foreground message received:', payload);
-          this.handleForegroundMessage(payload);
+          await this.handleForegroundMessage(payload);
         });
       });
 
@@ -342,7 +342,7 @@ export class FirebaseMessagingService {
     return baseOptions;
   }
 
-  private handleForegroundMessage(payload: any): void {
+  private async handleForegroundMessage(payload: any): Promise<void> {
     const notification: NotificationPayload = {
       title: payload.notification?.title || 'New Notification',
       body: payload.notification?.body || '',
@@ -357,7 +357,7 @@ export class FirebaseMessagingService {
     };
 
     this.notificationSubject.next(notification);
-    this.showNotification(notification);
+    await this.showNotification(notification);
   }
 
   private getPlatformSpecificIcon(defaultIcon?: string): string {
@@ -510,36 +510,103 @@ export class FirebaseMessagingService {
     }
   }
 
-  public showNotification(notification: NotificationPayload): void {
+  public async showNotification(notification: NotificationPayload): Promise<void> {
     if (Notification.permission !== 'granted') {
       console.warn('Notification permission not granted');
       return;
     }
 
-    const options: NotificationOptions = {
-      body: notification.body,
-      icon: notification.icon,
-      badge: notification.badge,
-      data: notification.data,
-      tag: notification.tag,
-      requireInteraction: notification.requireInteraction,
-      silent: notification.silent
-    };
+    // For Android and mobile devices, use Service Worker to show notifications
+    if (this.platformInfo.isMobile || this.platformInfo.isAndroid) {
+      await this.showNotificationViaServiceWorker(notification);
+    } else {
+      // For desktop browsers, we can use direct Notification API
+      this.showNotificationDirect(notification);
+    }
+  }
 
-    const nativeNotification = new Notification(notification.title, options);
+  private async showNotificationViaServiceWorker(notification: NotificationPayload): Promise<void> {
+    try {
+      if (!this.swRegistration) {
+        console.warn('Service Worker not registered, falling back to direct notification');
+        this.showNotificationDirect(notification);
+        return;
+      }
 
-    // Handle notification click
-    nativeNotification.onclick = (event) => {
-      event.preventDefault();
-      this.handleNotificationClick(notification, event);
-      nativeNotification.close();
-    };
+      // Ensure service worker is active
+      if (!this.swRegistration.active) {
+        console.warn('Service Worker not active, waiting for activation...');
+        await this.swRegistration.update();
+        
+        if (!this.swRegistration.active) {
+          console.warn('Service Worker still not active, falling back to direct notification');
+          this.showNotificationDirect(notification);
+          return;
+        }
+      }
 
-    // Auto-close notification after 5 seconds (unless requireInteraction is true)
-    if (!notification.requireInteraction) {
-      setTimeout(() => {
+      // Send message to service worker to show notification
+      const message = {
+        type: 'SHOW_NOTIFICATION',
+        notification: {
+          title: notification.title,
+          body: notification.body,
+          icon: notification.icon,
+          badge: notification.badge,
+          image: notification.image,
+          data: notification.data,
+          tag: notification.tag,
+          requireInteraction: notification.requireInteraction,
+          silent: notification.silent,
+          timestamp: notification.timestamp,
+          actions: notification.actions
+        }
+      };
+
+      // Send message to service worker
+      this.swRegistration.active.postMessage(message);
+      
+      console.log('Notification request sent to Service Worker');
+      
+    } catch (error) {
+      console.error('Error showing notification via Service Worker:', error);
+      // Fallback to direct notification
+      this.showNotificationDirect(notification);
+    }
+  }
+
+  private showNotificationDirect(notification: NotificationPayload): void {
+    try {
+      const options: NotificationOptions = {
+        body: notification.body,
+        icon: notification.icon,
+        badge: notification.badge,
+        data: notification.data,
+        tag: notification.tag,
+        requireInteraction: notification.requireInteraction,
+        silent: notification.silent
+      };
+
+      const nativeNotification = new Notification(notification.title, options);
+
+      // Handle notification click
+      nativeNotification.onclick = (event) => {
+        event.preventDefault();
+        this.handleNotificationClick(notification, event);
         nativeNotification.close();
-      }, 5000);
+      };
+
+      // Auto-close notification after 5 seconds (unless requireInteraction is true)
+      if (!notification.requireInteraction) {
+        setTimeout(() => {
+          nativeNotification.close();
+        }, 5000);
+      }
+
+      console.log('Notification shown directly');
+      
+    } catch (error) {
+      console.error('Error showing direct notification:', error);
     }
   }
 
@@ -664,7 +731,7 @@ export class FirebaseMessagingService {
   }
 
   // Method to send test notification
-  public sendTestNotification(): void {
+  public async sendTestNotification(): Promise<void> {
     const testNotification: NotificationPayload = {
       title: 'Test Notification',
       body: 'This is a test notification from Money Manager',
@@ -686,7 +753,7 @@ export class FirebaseMessagingService {
       ]
     };
 
-    this.showNotification(testNotification);
+    await this.showNotification(testNotification);
   }
 
   listenForMessages() {
