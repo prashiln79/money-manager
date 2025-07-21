@@ -300,23 +300,25 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
       this.showInstallPrompt = false;
       return;
     }
-
-    // Check if user has previously dismissed the prompt
+  
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
-    
+  
     if (dismissed && dismissedTime) {
       const now = Date.now();
-      const dismissedAt = parseInt(dismissedTime);
+      const dismissedAt = parseInt(dismissedTime, 10);
       const daysSinceDismissed = (now - dismissedAt) / (1000 * 60 * 60 * 24);
-      
-      // Show prompt again after configurable days (default 7)
-      const daysToWait = APP_CONFIG.SECURITY.LOCKOUT_DURATION / (1000 * 60 * 60 * 24);
-      if (daysSinceDismissed < daysToWait) {
+  
+      if (daysSinceDismissed < APP_CONFIG.install_prompt_dismissed_days) {
         this.showInstallPrompt = false;
+        return;
       }
     }
+  
+    // Show prompt if not dismissed recently
+    this.showInstallPrompt = true;
   }
+
 
   async installApp(): Promise<void> {
     if (this.deferredPrompt) {
