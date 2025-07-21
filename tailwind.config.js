@@ -11,17 +11,19 @@ module.exports = {
         'display': ['Poppins', 'system-ui', 'sans-serif'],
       },
       colors:{
-        primary: '#46777f', // primary teal color
-        primary50: '#f0f9ff', // very light teal
-        primary100: '#e6f7ff', // light teal
-        primary200: '#d2f3fb', // lighter teal
-        primary300: '#beeff7', // light teal
-        primary400: '#aadbe3', // medium light teal
-        primary500: '#96c7cf', // medium teal
-        primary600: '#82b3bb', // medium dark teal
-        primary700: '#6e9fa7', // dark teal
-        primary800: '#5a8b93', // darker teal
-        primary900: '#46777f', // darkest teal (same as primary)
+        primary: {
+          50: '#f0f4f5',
+          100: '#e1e9eb',
+          200: '#c3d3d7',
+          300: '#a5bdc3',
+          400: '#87a7af',
+          500: '#46777f',
+          600: '#3a636a',
+          700: '#2e4f55',
+          800: '#223b40',
+          900: '#16272b',
+          DEFAULT: '#46777f',
+        },
       },
       fontSize: {
         // Mobile-optimized font sizes

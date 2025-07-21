@@ -488,3 +488,9 @@ app-footer {
 	z-index: 999 !important;
   bottom: 2rem !important;
 }
+
+app-landing{
+  overflow: scroll;
+  height: 100vh;
+  display: block;
+}

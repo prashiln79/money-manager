@@ -1,5 +1,20 @@
 /* Landing Page Styles */
 
+/* Primary Color Variables */
+:root {
+  --primary: #46777f;
+  --primary-50: #f0f4f5;
+  --primary-100: #e1e9eb;
+  --primary-200: #c3d3d7;
+  --primary-300: #a5bdc3;
+  --primary-400: #87a7af;
+  --primary-500: #46777f;
+  --primary-600: #3a636a;
+  --primary-700: #2e4f55;
+  --primary-800: #223b40;
+  --primary-900: #16272b;
+}
+
 /* Animated background blobs */
 @keyframes blob {
   0% {
@@ -28,10 +43,13 @@
   animation-delay: 4s;
 }
 
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
 /* Hero section enhancements */
 .hero-section {
   position: relative;
-  background-attachment: fixed;
   
   &::before {
     content: '';
@@ -40,9 +58,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+    background: radial-gradient(circle at 20% 80%, rgba(70, 119, 127, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(70, 119, 127, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(70, 119, 127, 0.2) 0%, transparent 50%);
     pointer-events: none;
   }
 }
@@ -64,13 +82,13 @@ html {
 
 /* Button hover effects */
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #46777f 0%, #3a636a 100%);
   transition: all 0.3s ease;
   
   &:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    background: linear-gradient(135deg, #3a636a 0%, #2e4f55 100%);
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 10px 20px rgba(70, 119, 127, 0.4);
   }
 }
 
@@ -84,74 +102,42 @@ html {
   }
 }
 
-/* Enhanced responsive typography */
-@media (max-width: 640px) {
-  .hero-section h1 {
-    font-size: 2.5rem;
-    line-height: 1.2;
-    word-spacing: -0.02em;
-  }
-  
-  .hero-section p {
-    font-size: 1rem;
-    line-height: 1.6;
-  }
+/* Phone mockup animations */
+.phone-mockup {
+  animation: float 6s ease-in-out infinite;
+}
 
-  /* Better mobile spacing */
-  section {
-    padding-left: 1rem;
-    padding-right: 1rem;
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
   }
-
-  /* Mobile button improvements */
-  button {
-    min-height: 48px; /* Better touch targets */
-    font-weight: 600;
-  }
-
-  /* Mobile grid improvements */
-  .grid {
-    gap: 1.5rem;
+  50% {
+    transform: translateY(-20px);
   }
 }
 
-@media (min-width: 641px) and (max-width: 1024px) {
-  .hero-section h1 {
-    font-size: 3.5rem;
-    line-height: 1.1;
-  }
+/* Floating elements animation */
+.floating-element {
+  animation: float-slow 8s ease-in-out infinite;
+}
 
-  /* Tablet-specific improvements */
-  .container-responsive {
-    padding-left: 2rem;
-    padding-right: 2rem;
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(5deg);
   }
 }
 
-/* Large screen optimizations */
-@media (min-width: 1025px) {
-  .hero-section h1 {
-    font-size: 4rem;
-    line-height: 1.1;
-  }
-
-  /* Better spacing on large screens */
-  section {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
-/* Extra large screen optimizations */
-@media (min-width: 1280px) {
-  .hero-section h1 {
-    font-size: 4.5rem;
-  }
+/* Screenshot carousel animations */
+.screenshot-carousel {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Gradient text animation */
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #46777f 0%, #3a636a 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -216,90 +202,108 @@ section {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #46777f 0%, #3a636a 100%);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  background: linear-gradient(135deg, #3a636a 0%, #2e4f55 100%);
 }
 
 /* Focus states for accessibility */
 button:focus,
 a:focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid #46777f;
   outline-offset: 2px;
 }
 
-/* Mobile-specific improvements */
-@media (max-width: 768px) {
-  /* Better mobile navigation */
-  .hero-section {
-    min-height: 100vh;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
-
-  /* Mobile button stack improvements */
-  .flex-col {
-    gap: 1rem;
-  }
-
-  /* Mobile text improvements */
-  h1, h2, h3 {
-    word-wrap: break-word;
-    hyphens: auto;
-  }
-
-  /* Mobile spacing improvements */
-  .mb-8 {
-    margin-bottom: 2rem;
-  }
-
-  .py-16 {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-  }
-
-  /* Mobile grid improvements */
-  .grid-cols-1 {
-    gap: 1.5rem;
+/* Trust badges animation */
+.trust-badge {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
   }
 }
 
-/* Tablet-specific improvements */
-@media (min-width: 769px) and (max-width: 1024px) {
-  /* Better tablet layout */
-  .grid-cols-2 {
-    gap: 2rem;
-  }
-
-  /* Tablet spacing */
-  .py-20 {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+/* Download button animations */
+.download-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   }
 }
 
-/* High DPI display optimizations */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  /* Sharper text rendering */
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+/* How it works connection lines */
+.connection-line {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #46777f 0%, #3a636a 100%);
+    transform: translateY(-50%);
+    z-index: -1;
   }
 }
 
-/* Print styles */
-@media print {
-  .hero-section,
-  .cta-section,
-  footer {
-    display: none;
+/* Testimonial rating stars animation */
+.rating-stars {
+  animation: star-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes star-glow {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.2);
+  }
+}
+
+/* Screenshot carousel dots */
+.carousel-dot {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.2);
   }
   
-  section {
-    page-break-inside: avoid;
+  &.active {
+    background: linear-gradient(135deg, #46777f 0%, #3a636a 100%);
+  }
+}
+
+/* Simple responsive container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Basic responsive utilities */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Mobile button improvements */
+  button {
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 641px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
 
@@ -309,27 +313,5 @@ a:focus {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* Dark mode support (if needed) */
-@media (prefers-color-scheme: dark) {
-  /* Add dark mode styles here if needed */
-}
-
-/* Landscape mobile improvements */
-@media (max-width: 768px) and (orientation: landscape) {
-  .hero-section {
-    min-height: 100vh;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  .hero-section h1 {
-    font-size: 2rem;
-  }
-
-  .hero-section p {
-    font-size: 0.9rem;
   }
 } 

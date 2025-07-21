@@ -1,5 +1,5 @@
 <!-- Hero Section -->
-<section class="hero-section min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-white to-teal-100 relative overflow-hidden">
+<section class="hero-section min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 relative overflow-hidden">
   <!-- Background decoration -->
   <div class="absolute inset-0 overflow-hidden">
     <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -7,78 +7,167 @@
     <div class="absolute top-40 left-40 w-80 h-80 bg-primary/25 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
   </div>
 
-  <div class="container-responsive relative z-10 text-center px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
-      <!-- Logo/Brand -->
-      <div class="mb-8 sm:mb-12">
-        <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-primary to-teal-600 rounded-2xl mb-4 sm:mb-6 shadow-lg">
-          <span class="text-2xl sm:text-3xl">💰</span>
+  <div class="container mx-auto px-4 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+      <!-- Left Content -->
+      <div class="text-center lg:text-left">
+        <div class="mb-6">
+          <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-primary to-primary-600 rounded-2xl mb-6 shadow-lg">
+            <span class="text-2xl sm:text-3xl">💰</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+            Master Your
+            <span class="bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent block">Money</span>
+          </h1>
+          <p class="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 max-w-lg mx-auto lg:mx-0">
+            Track expenses, set savings goals, and manage budgets with real-time insights.
+          </p>
         </div>
-        <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2">
-          Take Control of Your
-          <span class="bg-gradient-to-r from-primary to-teal-600 bg-clip-text text-transparent block sm:inline">Finances</span>
-        </h2>
-        <p class="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 mx-auto leading-relaxed px-4">
-          The smart way to budget, track expenses, and achieve your financial goals. 
-          Works offline, syncs everywhere, and keeps your data secure.
-        </p>
+
+        <!-- Trust Elements -->
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-6">
+          <div class="flex items-center gap-2">
+            <div class="flex text-yellow-400">★★★★★</div>
+            <span class="text-sm text-gray-600">4.9/5 (2,500+ reviews)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+              <span class="text-white text-xs">🔒</span>
+            </div>
+            <span class="text-sm text-gray-600">Bank-level security</span>
+          </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
+          <button 
+            (click)="downloadAppStore()"
+            class="flex items-center justify-center gap-3 px-6 py-3 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <span class="text-xl">🍎</span>
+            <div class="text-left">
+              <div class="text-xs">Download on the</div>
+              <div class="text-sm font-bold">App Store</div>
+            </div>
+          </button>
+          <button 
+            (click)="downloadPlayStore()"
+            class="flex items-center justify-center gap-3 px-6 py-3 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <span class="text-xl">🤖</span>
+            <div class="text-left">
+              <div class="text-xs">Get it on</div>
+              <div class="text-sm font-bold">Google Play</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-3 gap-4 max-w-xs mx-auto lg:mx-0">
+          <div class="text-center">
+            <div class="text-xl font-bold text-primary">50K+</div>
+            <div class="text-xs text-gray-600">Active Users</div>
+          </div>
+          <div class="text-center">
+            <div class="text-xl font-bold text-primary-600">$10M+</div>
+            <div class="text-xs text-gray-600">Tracked</div>
+          </div>
+          <div class="text-center">
+            <div class="text-xl font-bold text-primary">4.9★</div>
+            <div class="text-xs text-gray-600">Rating</div>
+          </div>
+        </div>
       </div>
 
-      <!-- CTA Buttons -->
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4">
-        <button 
-          (click)="navigateToSignUp()"
-          class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-primary to-teal-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-base sm:text-lg hover:from-teal-600 hover:to-primary">
-          Get Started Free
-        </button>
-        <button 
-          (click)="scrollToFeatures()"
-          class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-primary text-primary font-semibold rounded-xl hover:bg-primary hover:text-white transition-all duration-300 text-base sm:text-lg">
-          Learn More
-        </button>
+      <!-- Right Content - Phone Mockup -->
+      <div class="flex justify-center lg:justify-end">
+        <div class="relative">
+          <!-- Phone Frame -->
+          <div class="w-56 h-[450px] sm:w-64 sm:h-[500px] lg:w-72 lg:h-[560px] bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
+            <div class="w-full h-full bg-white rounded-[2rem] overflow-hidden">
+              <!-- Status Bar -->
+              <div class="h-5 bg-gradient-to-r from-primary to-primary-600 flex items-center justify-between px-3 text-white text-xs">
+                <span>9:41</span>
+                <div class="flex items-center gap-1">
+                  <div class="w-3 h-1.5 bg-white/30 rounded-full"></div>
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+              
+              <!-- App Content -->
+              <div class="p-3 h-full bg-gradient-to-br from-primary-50 to-primary-100">
+                <div class="text-center mb-3">
+                  <div class="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span class="text-white text-lg">💰</span>
+                  </div>
+                  <h3 class="text-xs font-semibold text-gray-800">Money Manager</h3>
+                </div>
+                
+                <!-- Dashboard Preview -->
+                <div class="space-y-2">
+                  <div class="bg-white rounded-lg p-2 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-xs text-gray-600">Total Balance</span>
+                      <span class="text-xs text-green-600">+2.5%</span>
+                    </div>
+                    <div class="text-sm font-bold text-gray-800">$12,450.00</div>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-white rounded-lg p-2 shadow-sm">
+                      <div class="text-xs text-gray-600">Income</div>
+                      <div class="text-xs font-semibold text-green-600">$3,200</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-2 shadow-sm">
+                      <div class="text-xs text-gray-600">Expenses</div>
+                      <div class="text-xs font-semibold text-red-600">$1,850</div>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-white rounded-lg p-2 shadow-sm">
+                    <div class="text-xs text-gray-600 mb-1">Savings Goal</div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-gradient-to-r from-primary to-primary-600 h-1.5 rounded-full" style="width: 75%"></div>
+                    </div>
+                    <div class="text-xs text-gray-600 mt-1">75% complete</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Floating Elements -->
+          <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-xs animate-bounce">
+            📈
+          </div>
+          <div class="absolute -bottom-3 -left-3 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center text-white text-xs animate-bounce animation-delay-1000">
+            💰
+          </div>
+        </div>
       </div>
-
-      <!-- Stats -->
-      <!-- <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto px-4">
-        <div class="text-center">
-          <div class="text-2xl sm:text-3xl font-bold text-primary mb-2">10K+</div>
-          <div class="text-sm sm:text-base text-gray-600">Active Users</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl sm:text-3xl font-bold text-primary mb-2">$2M+</div>
-          <div class="text-sm sm:text-base text-gray-600">Tracked</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl sm:text-3xl font-bold text-green-600 mb-2">4.9★</div>
-          <div class="text-sm sm:text-base text-gray-600">Rating</div>
-        </div>
-      </div> -->
     </div>
   </div>
 </section>
 
 <!-- Features Section -->
-<section id="features" class="py-16 sm:py-20 bg-white">
-  <div class="container-responsive px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 sm:mb-16">
-      <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-        Everything You Need to Manage Your Money
+<section id="features" class="py-16 lg:py-20 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12 lg:mb-16">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+        Powerful Features for Smart Money Management
       </h2>
-      <p class="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4 leading-relaxed">
-        Powerful features designed to help you take control of your finances and achieve your goals.
+      <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+        Everything you need to take control of your finances and achieve your financial goals.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4">
-      @for (feature of features; track feature.title; let i = $index) {
-      <div 
-        class="group p-6 sm:p-8 rounded-2xl border border-gray-200 hover:border-primary hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-teal-50/30 hover:from-teal-50/50 hover:to-white"
-        [style.--animation-order]="i">
-        <div class="text-3xl sm:text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+      @for (feature of features; track feature.title) {
+      <div class="group p-6 lg:p-8 rounded-2xl border border-gray-200 hover:border-primary hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-primary-50/30 hover:from-primary-50/50 hover:to-white">
+        <div class="text-3xl lg:text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
           {{ feature.icon }}
         </div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">{{ feature.title }}</h3>
-        <p class="text-sm sm:text-base text-gray-600 leading-relaxed">{{ feature.description }}</p>
+        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">{{ feature.title }}</h3>
+        <p class="text-sm lg:text-base text-gray-600 leading-relaxed">{{ feature.description }}</p>
       </div>
       }
     </div>
@@ -86,126 +175,244 @@
 </section>
 
 <!-- How It Works Section -->
-<section class="py-16 sm:py-20 bg-gradient-to-br from-teal-50 to-white">
+<section class="py-20 bg-gradient-to-br from-primary-50 to-white">
   <div class="container-responsive px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 sm:mb-16">
-      <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
         How It Works
       </h2>
-      <p class="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4 leading-relaxed">
-        Get started in minutes with our simple 3-step process
+      <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        Get started in minutes with our simple 4-step process
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 px-4">
-      <div class="text-center group">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-primary to-teal-600 text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">1</div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">Sign Up</h3>
-        <p class="text-sm sm:text-base text-gray-600 leading-relaxed">Create your account in seconds with just your email</p>
-      </div>
-      <div class="text-center group">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-primary to-teal-600 text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">2</div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">Add Your Accounts</h3>
-        <p class="text-sm sm:text-base text-gray-600 leading-relaxed">Connect your bank accounts or add them manually</p>
-      </div>
-      <div class="text-center group">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold mx-auto mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">3</div>
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300">Start Managing</h3>
-        <p class="text-sm sm:text-base text-gray-600 leading-relaxed">Track expenses, set budgets, and watch your savings grow</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Testimonials Section -->
-<section class="py-16 sm:py-20 bg-white">
-  <div class="container-responsive px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 sm:mb-16">
-      <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-        What Our Users Say
-      </h2>
-      <p class="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4 leading-relaxed">
-        Join thousands of satisfied users who have transformed their financial lives
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4">
-      @for (testimonial of testimonials; track testimonial.name) {
-      <div 
-        class="bg-gradient-to-br from-gray-50 to-teal-50/30 p-6 sm:p-8 rounded-2xl hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-primary/20">
-        <div class="flex items-center mb-4 sm:mb-6">
-          <div class="text-2xl sm:text-3xl mr-3 sm:mr-4">{{ testimonial.avatar }}</div>
-          <div>
-            <div class="font-semibold text-gray-900 text-sm sm:text-base">{{ testimonial.name }}</div>
-            <div class="text-xs sm:text-sm text-gray-600">{{ testimonial.role }}</div>
-          </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      @for (step of howItWorks; track step.step) {
+      <div class="text-center group relative">
+        <div class="w-16 h-16 bg-gradient-to-r from-primary to-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+          {{ step.step }}
         </div>
-        <p class="text-sm sm:text-base text-gray-700 leading-relaxed italic">"{{ testimonial.content }}"</p>
+        <div class="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
+          {{ step.icon }}
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-4 group-hover:text-primary transition-colors duration-300">{{ step.title }}</h3>
+        <p class="text-gray-600 leading-relaxed">{{ step.description }}</p>
+        
+        <!-- Connection Line -->
+        @if (step.step !== '4') {
+        <div class="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-primary to-primary-600 transform translate-x-4"></div>
+        }
       </div>
       }
     </div>
   </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-16 sm:py-20 bg-gradient-to-r from-primary via-teal-600 to-primary">
+<!-- Screenshot Carousel Section -->
+<section class="py-20 bg-white">
+  <div class="container-responsive px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        See Money Manager in Action
+      </h2>
+      <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        Explore the beautiful interface and powerful features that make managing money simple and enjoyable.
+      </p>
+    </div>
+
+    <div class="max-w-4xl mx-auto">
+      <!-- Carousel Container -->
+      <div class="relative">
+        <!-- Screenshot Display -->
+        <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-3xl p-8 mb-8">
+          <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ screenshots[currentScreenshotIndex].title }}</h3>
+            <p class="text-gray-600">{{ screenshots[currentScreenshotIndex].description }}</p>
+          </div>
+          
+          <!-- Phone Mockup with Screenshot -->
+          <div class="flex justify-center">
+            <div class="w-64 h-[500px] sm:w-72 sm:h-[560px] bg-gray-900 rounded-[3rem] p-2 shadow-2xl">
+              <div class="w-full h-full bg-white rounded-[2.5rem] overflow-hidden">
+                <!-- Status Bar -->
+                <div class="h-6 bg-gradient-to-r from-primary to-primary-600 flex items-center justify-between px-4 text-white text-xs">
+                  <span>9:41</span>
+                  <div class="flex items-center gap-1">
+                    <div class="w-4 h-2 bg-white/30 rounded-full"></div>
+                    <span>📶</span>
+                    <span>🔋</span>
+                  </div>
+                </div>
+                
+                <!-- Screenshot Placeholder -->
+                <div class="h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                  <div class="text-center">
+                    <div class="text-6xl mb-4">📱</div>
+                    <div class="text-gray-600 font-semibold">{{ screenshots[currentScreenshotIndex].title }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button 
+          (click)="prevScreenshot()"
+          class="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow duration-300">
+          <span class="text-2xl">←</span>
+        </button>
+        <button 
+          (click)="nextScreenshot()"
+          class="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow duration-300">
+          <span class="text-2xl">→</span>
+        </button>
+
+        <!-- Dots Indicator -->
+        <div class="flex justify-center gap-3">
+          @for (screenshot of screenshots; track screenshot.title; let i = $index) {
+          <button 
+            (click)="setScreenshotIndex(i)"
+            class="w-3 h-3 rounded-full transition-all duration-300"
+            [class]="i === currentScreenshotIndex ? 'bg-primary' : 'bg-gray-300 hover:bg-gray-400'">
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-20 bg-gradient-to-br from-primary-50 to-white">
+  <div class="container-responsive px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        What Our Users Say
+      </h2>
+      <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        Join thousands of satisfied users who have transformed their financial lives
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (testimonial of testimonials; track testimonial.name) {
+      <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+        <!-- Rating -->
+        <div class="flex text-yellow-400 mb-4">
+          @for (star of [1,2,3,4,5]; track star) {
+          <span>★</span>
+          }
+        </div>
+        
+        <!-- Content -->
+        <p class="text-gray-700 leading-relaxed mb-6 italic">"{{ testimonial.content }}"</p>
+        
+        <!-- User Info -->
+        <div class="flex items-center">
+          <div class="text-3xl mr-4">{{ testimonial.avatar }}</div>
+          <div>
+            <div class="font-semibold text-gray-900">{{ testimonial.name }}</div>
+            <div class="text-sm text-gray-600">{{ testimonial.role }}</div>
+            <div class="text-xs text-gray-500">{{ testimonial.location }}</div>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA Section -->
+<section class="py-20 bg-gradient-to-r from-primary via-primary-600 to-primary">
   <div class="container-responsive text-center px-4 sm:px-6 lg:px-8">
-    <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 px-4">
-      Ready to Take Control?
+    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+      Ready to Transform Your Finances?
     </h2>
-    <p class="text-lg sm:text-xl text-teal-100 mb-6 sm:mb-8 max-w-2xl mx-auto px-4 leading-relaxed">
-      Join thousands of users who are already managing their finances smarter with our app.
+    <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+      Join 50,000+ users who are already managing their money smarter with Money Manager.
     </p>
-    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+    
+    <!-- Trust Elements -->
+    <div class="flex flex-wrap items-center justify-center gap-6 mb-8">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+          <span class="text-white text-xs">🔒</span>
+        </div>
+        <span class="text-primary-100 text-sm">256-bit encryption</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+          <span class="text-white text-xs">✓</span>
+        </div>
+        <span class="text-primary-100 text-sm">Free forever</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+          <span class="text-white text-xs">📱</span>
+        </div>
+        <span class="text-primary-100 text-sm">Works offline</span>
+      </div>
+    </div>
+
+    <!-- Download Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <button 
-        (click)="navigateToSignUp()"
-        class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-base sm:text-lg hover:bg-gray-50">
-        Start Free Trial
+        (click)="downloadAppStore()"
+        class="flex items-center justify-center gap-3 px-8 py-4 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <span class="text-2xl">🍎</span>
+        <div class="text-left">
+          <div class="text-xs">Download on the</div>
+          <div class="text-sm font-bold">App Store</div>
+        </div>
       </button>
       <button 
-        (click)="navigateToSignIn()"
-        class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-primary transition-all duration-300 text-base sm:text-lg">
-        Sign In
+        (click)="downloadPlayStore()"
+        class="flex items-center justify-center gap-3 px-8 py-4 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <span class="text-2xl">🤖</span>
+        <div class="text-left">
+          <div class="text-xs">Get it on</div>
+          <div class="text-sm font-bold">Google Play</div>
+        </div>
       </button>
     </div>
   </div>
 </section>
 
 <!-- Footer -->
-<footer class="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+<footer class="py-12 bg-gray-900 text-white">
   <div class="container-responsive px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
       <div class="col-span-1 sm:col-span-2">
         <div class="flex items-center mb-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-primary to-teal-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
-            <span class="text-sm sm:text-lg">💰</span>
+          <div class="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
+            <span class="text-lg">💰</span>
           </div>
-          <span class="text-lg sm:text-xl font-bold">Money Manager</span>
+          <span class="text-xl font-bold">Money Manager</span>
         </div>
-        <p class="text-sm sm:text-base text-gray-400 mb-4 max-w-md leading-relaxed">
-          The smart way to budget, track expenses, and achieve your financial goals. 
-          Secure, private, and works offline.
+        <p class="text-gray-400 mb-4 max-w-md leading-relaxed">
+          The complete money management solution. Track expenses, set goals, and achieve financial freedom with real-time insights.
         </p>
       </div>
       <div>
-        <h3 class="font-semibold mb-4 text-sm sm:text-base text-primary">Product</h3>
+        <h3 class="font-semibold mb-4 text-primary-400">Product</h3>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Features</a></li>
-          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Pricing</a></li>
-          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Security</a></li>
+          <li><a href="#features" class="hover:text-primary-400 transition-colors">Features</a></li>
+          <li><a href="#" class="hover:text-primary-400 transition-colors">Security</a></li>
+          <li><a href="#" class="hover:text-primary-400 transition-colors">Privacy</a></li>
         </ul>
       </div>
       <div>
-        <h3 class="font-semibold mb-4 text-sm sm:text-base text-primary">Support</h3>
+        <h3 class="font-semibold mb-4 text-primary-400">Support</h3>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Help Center</a></li>
-          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Contact Us</a></li>
-          <li><a href="#" class="hover:text-primary transition-colors text-sm sm:text-base">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-primary-400 transition-colors">Help Center</a></li>
+          <li><a href="#" class="hover:text-primary-400 transition-colors">Contact Us</a></li>
+          <li><a href="#" class="hover:text-primary-400 transition-colors">Privacy Policy</a></li>
         </ul>
       </div>
     </div>
     <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-      <p class="text-sm sm:text-base">&copy; 2024 Money Manager. All rights reserved.</p>
+      <p>&copy; 2024 Money Manager. All rights reserved.</p>
     </div>
   </div>
 </footer> 

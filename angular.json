@@ -63,7 +63,7 @@
               ],
               "optimization": true,
               "extractLicenses": true,
-              "sourceMap": true,
+              "sourceMap": false,
               "outputHashing": "all",
               "baseHref": "https://prashiln79.github.io/wallet/",
               "fileReplacements": [
