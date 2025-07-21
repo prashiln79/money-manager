@@ -61,6 +61,9 @@
                   "maximumError": "5MB"
                 }
               ],
+              "optimization": true,
+              "extractLicenses": true,
+              "sourceMap": true,
               "outputHashing": "all",
               "baseHref": "https://prashiln79.github.io/wallet/",
               "fileReplacements": [
