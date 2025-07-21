@@ -315,8 +315,6 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
       }
     }
   
-    // Show prompt if not dismissed recently
-    this.showInstallPrompt = true;
   }
 
 
