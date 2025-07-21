@@ -155,4 +155,20 @@ export class LandingComponent implements OnInit {
     // Add Play Store link when available
     this.notificationService.info('Play Store link coming soon!');
   }
+
+  async installPwa(): Promise<void> {
+    // This method is called from the install buttons
+    // The actual PWA install logic is handled by the PWA install prompt component
+    this.notificationService.info('PWA installation will be triggered automatically when available.');
+  }
+
+  onPwaInstallClicked(): void {
+    console.log('PWA install clicked from prompt component');
+    this.notificationService.success('Installing Money Manager...');
+  }
+
+  onPwaInstallDismissed(): void {
+    console.log('PWA install dismissed from prompt component');
+    this.notificationService.info('Installation cancelled');
+  }
 } 

@@ -1,3 +1,4 @@
+
 <!-- Hero Section -->
 <section class="hero-section min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 relative overflow-hidden">
   <!-- Background decoration -->
@@ -41,21 +42,12 @@
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
           <button 
-            (click)="downloadAppStore()"
-            class="flex items-center justify-center gap-3 px-6 py-3 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <span class="text-xl">🍎</span>
+            (click)="installPwa()"
+            class="flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-primary to-primary-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <span class="text-xl">📱</span>
             <div class="text-left">
-              <div class="text-xs">Download on the</div>
-              <div class="text-sm font-bold">App Store</div>
-            </div>
-          </button>
-          <button 
-            (click)="downloadPlayStore()"
-            class="flex items-center justify-center gap-3 px-6 py-3 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <span class="text-xl">🤖</span>
-            <div class="text-left">
-              <div class="text-xs">Get it on</div>
-              <div class="text-sm font-bold">Google Play</div>
+              <div class="text-xs">Install</div>
+              <div class="text-sm font-bold">Money Manager</div>
             </div>
           </button>
         </div>
@@ -355,24 +347,15 @@
       </div>
     </div>
 
-    <!-- Download Buttons -->
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <!-- Install Button -->
+    <div class="flex justify-center">
       <button 
-        (click)="downloadAppStore()"
-        class="flex items-center justify-center gap-3 px-8 py-4 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-        <span class="text-2xl">🍎</span>
+        (click)="installPwa()"
+        class="flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <span class="text-2xl">📱</span>
         <div class="text-left">
-          <div class="text-xs">Download on the</div>
-          <div class="text-sm font-bold">App Store</div>
-        </div>
-      </button>
-      <button 
-        (click)="downloadPlayStore()"
-        class="flex items-center justify-center gap-3 px-8 py-4 bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-        <span class="text-2xl">🤖</span>
-        <div class="text-left">
-          <div class="text-xs">Get it on</div>
-          <div class="text-sm font-bold">Google Play</div>
+          <div class="text-xs">Install</div>
+          <div class="text-sm font-bold">Money Manager</div>
         </div>
       </button>
     </div>

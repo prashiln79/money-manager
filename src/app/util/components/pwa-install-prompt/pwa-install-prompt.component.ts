@@ -263,6 +263,10 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
 
   private setupInstallPrompt(): void {
     if (this.ssrService.isClientSide()) {
+      // Listen for the beforeinstallprompt event
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        this.deferredPrompt = e;
         
         const dismissed = localStorage.getItem('pwa-install-dismissed');
         const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
@@ -275,12 +279,13 @@ export class PwaInstallPromptComponent implements OnInit, OnDestroy {
           showPrompt = daysSinceDismissed >= APP_CONFIG.install_prompt_dismissed_days;
         }
 
-        if (showPrompt) {
+        if (showPrompt && !this.pwaSwService.isAppInstalled()) {
           this.showInstallPrompt = true;
-          console.log('Install prompt ready and showing on mobile');
+          console.log('Install prompt ready and showing');
         } else {
-          console.log('Install prompt ready but not showing (either desktop or dismissed)');
+          console.log('Install prompt ready but not showing (either dismissed or already installed)');
         }
+      });
 
       window.addEventListener('appinstalled', () => {
         this.showInstallPrompt = false;
