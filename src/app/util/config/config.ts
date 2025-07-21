@@ -8,6 +8,7 @@ export const APP_CONFIG = {
   APP_NAME: 'Money Manager',
   APP_VERSION: '1.0.0',
   APP_DESCRIPTION: 'Personal finance management application',
+  install_prompt_dismissed_days: 7,
   
   // Firebase configuration
   FIREBASE: {
