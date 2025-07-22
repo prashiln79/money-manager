@@ -150,14 +150,6 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   }
 
   filterTransactions() {
-    console.log('Filtering transactions with:', {
-      searchTerm: this.searchTerm,
-      selectedCategory: this.selectedCategory,
-      selectedType: this.selectedType,
-      selectedDate: this.selectedDate,
-      selectedDateRange: this.selectedDateRange
-    });
-
     // Use the common filtering service with custom filters
     const filtered = this.filterService.filterTransactionsWithCustomFilters(
       this.transactions,
@@ -173,8 +165,6 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
       }
     );
 
-    console.log('After FilterService filtering:', filtered.length, 'transactions');
-
     // Only apply year filter if no specific date range is selected
     // This allows month filtering to work properly
     let finalFiltered = filtered;
@@ -185,12 +175,10 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
         const txYear = moment(this.dateService.toDate(tx.date)).year();
         return txYear === currentYear;
       });
-      console.log('After year filtering:', finalFiltered.length, 'transactions');
     }
 
     // update only if the data is different
     this.dataSource.data = finalFiltered;
-    console.log('Final data source:', this.dataSource.data.length, 'transactions');
   }
 
   onEditTransaction(transaction: Transaction) {

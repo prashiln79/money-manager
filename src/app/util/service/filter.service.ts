@@ -521,7 +521,7 @@ export class FilterService {
     // Apply category filter - handle multi-select
     if (state.selectedCategory && !state.selectedCategory.includes('all')) {
       filtered = filtered.filter(transaction => 
-        state.selectedCategory.includes(transaction.category)
+        state.selectedCategory.includes(transaction.categoryId)
       );
     }
 

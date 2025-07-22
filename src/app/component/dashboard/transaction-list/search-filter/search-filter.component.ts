@@ -1,6 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { Transaction } from '../../../../util/models/transaction.model';
 import { NotificationService } from '../../../../util/service/notification.service';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../store/app.state';
+import * as CategoriesSelectors from '../../../../store/categories/categories.selectors';
+import { Category } from '../../../../util/models';
+import { Subscription } from 'rxjs';
 import moment from 'moment';
 
 @Component({
@@ -8,7 +13,7 @@ import moment from 'moment';
   templateUrl: './search-filter.component.html',
   styleUrls: ['./search-filter.component.scss']
 })
-export class SearchFilterComponent implements OnInit, OnChanges {
+export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   @Input() transactions: Transaction[] = [];
   @Input() searchTerm: string = '';
   @Input() selectedCategory: string = 'all';
@@ -36,32 +41,54 @@ export class SearchFilterComponent implements OnInit, OnChanges {
     end: Date;
   } | null>();
 
-  categories: string[] = [];
+  categories: { id: string; name: string }[] = [];
   availableYears: number[] = [];
   months: { value: number; label: string }[] = [];
   currentYear: number;
+  private subscription = new Subscription();
 
-  constructor(private notificationService: NotificationService) {
+  constructor(
+    private notificationService: NotificationService,
+    private store: Store<AppState>
+  ) {
     this.currentYear = moment().year();
   }
 
   ngOnInit() {
-    this.updateCategories();
+    this.loadCategoriesFromStore();
     this.updateAvailableYears();
     this.updateMonths();
   }
 
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
   ngOnChanges(changes: SimpleChanges) {
+    // Categories are now loaded from store, so no need to update based on transactions
+    // Only update available years if needed
     if (changes['transactions']) {
-      this.updateCategories();
       this.updateAvailableYears();
     }
   }
 
+  private loadCategoriesFromStore() {
+    this.subscription.add(
+      this.store.select(CategoriesSelectors.selectAllCategories).subscribe((categories: Category[]) => {
+        this.categories = categories.map(category => ({
+          id: category.id || '',
+          name: category.name
+        })).sort((a, b) => a.name.localeCompare(b.name));
+      })
+    );
+  }
+
   private updateCategories() {
+    // This method is now deprecated in favor of loadCategoriesFromStore
+    // Keeping it for backward compatibility
     if (this.transactions && this.transactions.length > 0) {
-      const categoriesSet = new Set(this.transactions.map(tx => tx.category));
-      this.categories = Array.from(categoriesSet).sort();
+      const categoriesSet = new Set(this.transactions.map(tx => ({ id: tx.categoryId, name: tx.category })));
+      this.categories = Array.from(categoriesSet).sort((a, b) => a.name.localeCompare(b.name));
     } else {
       this.categories = [];
     }

@@ -139,9 +139,9 @@
         class="w-full pl-10 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer"
       >
         <option value="all">All Categories</option>
-        @for (category of categories; track category) {
-        <option [value]="category">
-          {{ category }}
+        @for (category of categories; track category.id) {
+        <option [value]="category.id">
+          {{ category.name }}
         </option>
         }
       </select>

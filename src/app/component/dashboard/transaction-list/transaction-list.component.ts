@@ -17,6 +17,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import * as CategoriesActions from '../../../store/categories/categories.actions';
 import { DateService } from 'src/app/util/service/date.service';
 import { RecurringInterval, SyncStatus, TransactionStatus, TransactionType } from 'src/app/util/config/enums';
 import { APP_CONFIG } from 'src/app/util/config/config';
@@ -110,10 +111,11 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   loadTransactions() {
     this.loaderService.show();
     
-    // Load transactions from store
+    // Load transactions and categories from store
     const userId = this.auth.currentUser?.uid;
     if (userId) {
       this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
+      this.store.dispatch(CategoriesActions.loadCategories({ userId }));
     }
   }
 
