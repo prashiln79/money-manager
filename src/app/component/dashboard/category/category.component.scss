@@ -252,23 +252,125 @@
 // SUBCATEGORY WRAPPER
 // =============================================================================
 .sub-category-wrapper {
-  margin-left: 2rem;
   position: relative;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 640px) {
+    padding: 0.75rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  // Group Header Label
+  .group-header {
+    position: absolute;
+    top: -0.75rem;
+    left: 1rem;
+    background: #f8fafc;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    z-index: 1;
+
+    @media (max-width: 640px) {
+      font-size: 0.7rem;
+      padding: 0 0.375rem;
+      top: -0.625rem;
+      left: 0.75rem;
+    }
+  }
+
+  // Main connecting path from parent to group
+  &::before {
+    content: '';
+    position: absolute;
+    left: 2rem;
+    top: -1.5rem;
+    width: 2px;
+    height: 1rem;
+    background: linear-gradient(to bottom, #3b82f6, #d1d5db);
+    z-index: 0;
+
+    @media (max-width: 640px) {
+      left: 1.5rem;
+      top: -1.25rem;
+      width: 1.5px;
+      height: 0.75rem;
+    }
+  }
+
+  // Horizontal connection line
+  &::after {
+    content: '';
+    position: absolute;
+    left: 2rem;
+    top: -0.5rem;
+    width: 1rem;
+    height: 2px;
+    background: #3b82f6;
+    z-index: 0;
+
+    @media (max-width: 640px) {
+      left: 1.5rem;
+      width: 0.75rem;
+      height: 1.5px;
+    }
+  }
+
+  // Sub-categories container
+  .sub-categories-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    position: relative;
+
+    @media (max-width: 640px) {
+      gap: 0.5rem;
+    }
+
+    // Vertical line connecting all sub-categories
+    &::before {
+      content: '';
+      position: absolute;
+      left: 1.5rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, #d1d5db, #e5e7eb);
+      z-index: 0;
+
+      @media (max-width: 640px) {
+        left: 1rem;
+        width: 1.5px;
+      }
+    }
+  }
 
   app-category-card {
     width: 100%;
-    transform: scale(0.95);
-    opacity: 0.9;
+    transform: scale(0.98);
+    opacity: 0.95;
     transition: all 0.3s ease;
+    border-left: 3px solid #d1d5db;
+    position: relative;
     
     &:hover {
       transform: scale(1);
       opacity: 1;
       z-index: 10;
+      border-left-color: #3b82f6;
     }
     
     &:nth-child(1) {
@@ -278,39 +380,70 @@
     }
     
     &:nth-child(2) {
-      transform: scale(0.98);
-      opacity: 0.95;
+      transform: scale(0.99);
+      opacity: 0.98;
       z-index: 2;
     }
     
     &:nth-child(3) {
-      transform: scale(0.96);
-      opacity: 0.9;
+      transform: scale(0.98);
+      opacity: 0.95;
       z-index: 1;
     }
     
     &:nth-child(n+4) {
-      transform: scale(0.94);
-      opacity: 0.85;
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+
+    // Individual connection dots for each sub-category
+    &::before {
+      content: '';
+      position: absolute;
+      left: -0.75rem;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      background: #3b82f6;
+      border: 2px solid #f8fafc;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+      @media (max-width: 640px) {
+        left: -0.5rem;
+        width: 6px;
+        height: 6px;
+        border-width: 1.5px;
+      }
+    }
+
+    // Horizontal connection line to each sub-category
+    &::after {
+      content: '';
+      position: absolute;
+      left: -0.5rem;
+      top: 50%;
+      width: 0.5rem;
+      height: 2px;
+      background: #3b82f6;
+      transform: translateY(-50%);
+      z-index: 0;
+
+      @media (max-width: 640px) {
+        left: -0.375rem;
+        width: 0.375rem;
+        height: 1.5px;
+      }
     }
   }
   
-  &::before {
-    content: '';
-    position: absolute;
-    left: -1rem;
-    top: 50%;
-    width: 1rem;
-    height: 1px;
-    background-color: #d1d5db;
-  }
-  
   @media (max-width: 640px) {
-    margin-left: 1rem;
     gap: 0.25rem;
     
     app-category-card {
-      transform: scale(0.98);
+      transform: scale(0.99);
       
       &:hover {
         transform: scale(1);
@@ -321,21 +454,16 @@
       }
       
       &:nth-child(2) {
-        transform: scale(0.99);
+        transform: scale(0.995);
       }
       
       &:nth-child(3) {
-        transform: scale(0.98);
+        transform: scale(0.99);
       }
       
       &:nth-child(n+4) {
-        transform: scale(0.97);
+        transform: scale(0.985);
       }
-    }
-    
-    &::before {
-      left: -0.5rem;
-      width: 0.5rem;
     }
   }
 }

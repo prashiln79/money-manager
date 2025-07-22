@@ -213,25 +213,28 @@
 				<!-- Display sub-categories under their parent -->
 				@if(getSubCategoriesForCategory(category.id!).length > 0) {
 				<div class="sub-category-wrapper">
-					@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
-					<app-category-card
-						[category]="subCategory"
-						[isExpanded]="expandedCategory?.id === subCategory.id"
-						[isMobile]="isMobile"
-						[home]="home"
-						[recentTransactions]="getRecentTransactions(subCategory)"
-						[categoryStats]="getCategoryStats(subCategory)"
-						[subCategoryCount]="0"
-						[Math]="Math"
-						(editCategory)="editCategory($event)"
-						(deleteCategory)="deleteCategory($event)"
-						(openBudgetDialog)="openBudgetDialog($event)"
-						(selectParentCategory)="selectParentCategory($event)"
-						(removeFromParentCategory)="removeFromParentCategory($event)"
-						(toggleExpansion)="toggleCategoryExpansion($event)"
-					>
-					</app-category-card>
-					}
+					<div class="group-header">Sub-categories</div>
+					<div class="sub-categories-container">
+						@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
+						<app-category-card
+							[category]="subCategory"
+							[isExpanded]="expandedCategory?.id === subCategory.id"
+							[isMobile]="isMobile"
+							[home]="home"
+							[recentTransactions]="getRecentTransactions(subCategory)"
+							[categoryStats]="getCategoryStats(subCategory)"
+							[subCategoryCount]="0"
+							[Math]="Math"
+							(editCategory)="editCategory($event)"
+							(deleteCategory)="deleteCategory($event)"
+							(openBudgetDialog)="openBudgetDialog($event)"
+							(selectParentCategory)="selectParentCategory($event)"
+							(removeFromParentCategory)="removeFromParentCategory($event)"
+							(toggleExpansion)="toggleCategoryExpansion($event)"
+						>
+						</app-category-card>
+						}
+					</div>
 				</div>
 				} } }
 			</div>
