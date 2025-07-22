@@ -51,6 +51,8 @@ export const updateCategory = createAction(
     icon: string; 
     color: string;
     budgetData?: Budget;
+    parentCategoryId?: string | null;
+    isSubCategory?: boolean;
   }>()
 );
 
@@ -95,7 +97,21 @@ export const updateBudgetSpentFailure = createAction(
   props<{ error: any }>()
 );
 
+// Remove from Parent Category
+export const removeFromParentCategory = createAction(
+  '[Categories] Remove From Parent Category',
+  props<{ userId: string; categoryId: string }>()
+);
 
+export const removeFromParentCategorySuccess = createAction(
+  '[Categories] Remove From Parent Category Success',
+  props<{ categoryId: string }>()
+);
+
+export const removeFromParentCategoryFailure = createAction(
+  '[Categories] Remove From Parent Category Failure',
+  props<{ error: any }>()
+);
 
 // Clear State
 export const clearCategories = createAction('[Categories] Clear Categories'); 

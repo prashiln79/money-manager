@@ -18,7 +18,6 @@ import { Store } from '@ngrx/store';
 import { createCategory, updateCategory } from 'src/app/store/categories/categories.actions';
 
 import { SsrService } from 'src/app/util/service/ssr.service';
-import { CATEGORY_ICONS, CATEGORY_COLORS } from 'src/app/util/config/config';
 import { Category } from 'src/app/util/models';
 
 @Component({
@@ -28,10 +27,10 @@ import { Category } from 'src/app/util/models';
 })
 export class MobileCategoryAddEditPopupComponent implements OnInit {
   categoryForm: FormGroup;
-  public availableIcons: string[] = CATEGORY_ICONS;
-  public availableColors: string[] = CATEGORY_COLORS;
   public isSubmitting: boolean = false;
   public userId: string = '';
+
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: Category | null,
@@ -153,7 +152,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
         maxHeight: '600px',
         data: {
           currentIcon: this.categoryForm.get('icon')?.value,
-          availableIcons: this.availableIcons,
         },
         disableClose: false,
         autoFocus: false,
@@ -175,7 +173,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       maxHeight: '600px',
       data: {
         currentColor: this.categoryForm.get('color')?.value,
-        availableColors: this.availableColors,
       },
       disableClose: false,
       autoFocus: false,
@@ -188,4 +185,6 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       }
     });
   }
+
+
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, doc, updateDoc, deleteDoc, collectionData, getDocs, getDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, doc, updateDoc, deleteDoc, collectionData, getDocs, getDoc, deleteField } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Category } from 'src/app/util/models';
@@ -46,6 +46,9 @@ export class CategoryService {
                         color: data?.color || '#46777f', // Default blue color
                         createdAt: data?.createdAt,
                         budget: data?.budget || null,
+                        parentCategoryId: data?.parentCategoryId || null,
+                        isSubCategory: data?.isSubCategory || false,
+                        subCategories: data?.subCategories || [],
                     };
                     categories.push(category);
                 });
@@ -75,20 +78,77 @@ export class CategoryService {
     }
 
     /** Update a category */
-    updateCategory(userId: string, categoryId: string, name: string, type: TransactionType, icon: string, color: string, budgetData?: any): Observable<void> {
+    updateCategory(userId: string, categoryId: string, name: string, type: TransactionType, icon: string, color: string, budgetData?: any, parentCategoryId?: string | null, isSubCategory?: boolean): Observable<void> {
         return new Observable<void>(observer => {
             const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
             
-            const updateData: Omit<Category, 'createdAt'> = { name, type, icon, color };
-            
-            // Add budget data if provided
-            if (budgetData) {
-                updateData.budget = budgetData;
-            }
-            
-            updateDoc(categoryRef, updateData).then(() => {
-                observer.next();
-                observer.complete();
+            // First, get the current category data to handle subCategories array updates
+            getDoc(categoryRef).then((categoryDoc) => {
+                if (categoryDoc.exists()) {
+                    const currentCategory = categoryDoc.data() as Category;
+                    const updateData: Omit<Category, 'createdAt'> = { name, type, icon, color };
+                    
+                    // Add budget data if provided
+                    if (budgetData) {
+                        updateData.budget = budgetData;
+                    }
+                    
+                    // Handle parent category changes
+                    if (parentCategoryId !== undefined) {
+                        if (parentCategoryId === null || parentCategoryId === undefined) {
+                            // Removing from parent category
+                            if (currentCategory.parentCategoryId) {
+                                // Remove from old parent's subCategories array
+                                const oldParentCategory = this.categories[currentCategory.parentCategoryId];
+                                if (oldParentCategory && oldParentCategory.subCategories) {
+                                    const updatedSubCategories = oldParentCategory.subCategories.filter(id => id !== categoryId);
+                                    updateDoc(doc(this.firestore, `users/${userId}/categories/${currentCategory.parentCategoryId}`), {
+                                        subCategories: updatedSubCategories
+                                    });
+                                }
+                            }
+                            // Remove the field from Firestore
+                            (updateData as any).parentCategoryId = deleteField();
+                        } else {
+                            // Adding to a new parent category
+                            if (currentCategory.parentCategoryId && currentCategory.parentCategoryId !== parentCategoryId) {
+                                // Remove from old parent's subCategories array
+                                const oldParentCategory = this.categories[currentCategory.parentCategoryId];
+                                if (oldParentCategory && oldParentCategory.subCategories) {
+                                    const updatedSubCategories = oldParentCategory.subCategories.filter(id => id !== categoryId);
+                                    updateDoc(doc(this.firestore, `users/${userId}/categories/${currentCategory.parentCategoryId}`), {
+                                        subCategories: updatedSubCategories
+                                    });
+                                }
+                            }
+                            
+                            // Add to new parent's subCategories array
+                            const newParentCategory = this.categories[parentCategoryId];
+                            if (newParentCategory) {
+                                const updatedSubCategories = [...(newParentCategory.subCategories || []), categoryId];
+                                updateDoc(doc(this.firestore, `users/${userId}/categories/${parentCategoryId}`), {
+                                    subCategories: updatedSubCategories
+                                });
+                            }
+                            
+                            updateData.parentCategoryId = parentCategoryId;
+                        }
+                    }
+                    
+                    if (isSubCategory !== undefined) {
+                        updateData.isSubCategory = isSubCategory;
+                    }
+                    
+                    // Update the category
+                    updateDoc(categoryRef, updateData).then(() => {
+                        observer.next();
+                        observer.complete();
+                    }).catch(error => {
+                        observer.error(error);
+                    });
+                } else {
+                    observer.error(new Error('Category not found'));
+                }
             }).catch(error => {
                 observer.error(error);
             });
@@ -99,9 +159,73 @@ export class CategoryService {
     deleteCategory(userId: string, categoryId: string): Observable<void> {
         return new Observable<void>(observer => {
             const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
-            deleteDoc(categoryRef).then(() => {
-                observer.next();
-                observer.complete();
+            
+            // First, get the category to check if it's a sub-category
+            getDoc(categoryRef).then((categoryDoc) => {
+                if (categoryDoc.exists()) {
+                    const categoryData = categoryDoc.data() as Category;
+                    
+                    // If it's a sub-category, remove its ID from parent's subCategories array
+                    if (categoryData.isSubCategory && categoryData.parentCategoryId) {
+                        const parentCategory = this.categories[categoryData.parentCategoryId];
+                        if (parentCategory && parentCategory.subCategories) {
+                            const updatedSubCategories = parentCategory.subCategories.filter(id => id !== categoryId);
+                            updateDoc(doc(this.firestore, `users/${userId}/categories/${categoryData.parentCategoryId}`), {
+                                subCategories: updatedSubCategories
+                            }).then(() => {
+                                // Now delete the sub-category
+                                deleteDoc(categoryRef).then(() => {
+                                    observer.next();
+                                    observer.complete();
+                                }).catch(error => {
+                                    observer.error(error);
+                                });
+                            }).catch(error => {
+                                observer.error(error);
+                            });
+                        } else {
+                            // Parent category not found or no subCategories array, just delete the category
+                            deleteDoc(categoryRef).then(() => {
+                                observer.next();
+                                observer.complete();
+                            }).catch(error => {
+                                observer.error(error);
+                            });
+                        }
+                    } else {
+                        // It's a main category, check if it has sub-categories and delete them first
+                        if (categoryData.subCategories && categoryData.subCategories.length > 0) {
+                            // Delete all sub-categories first
+                            const deletePromises = categoryData.subCategories.map(subCategoryId => 
+                                deleteDoc(doc(this.firestore, `users/${userId}/categories/${subCategoryId}`))
+                            );
+                            
+                            Promise.all(deletePromises).then(() => {
+                                // Now delete the main category
+                                deleteDoc(categoryRef).then(() => {
+                                    observer.next();
+                                    observer.complete();
+                                }).catch(error => {
+                                    observer.error(error);
+                                });
+                            }).catch(error => {
+                                observer.error(error);
+                            });
+                        } else {
+                            // No sub-categories, just delete the category
+                            deleteDoc(categoryRef).then(() => {
+                                observer.next();
+                                observer.complete();
+                            }).catch(error => {
+                                observer.error(error);
+                            });
+                        }
+                    }
+                } else {
+                    // Category doesn't exist, just complete
+                    observer.next();
+                    observer.complete();
+                }
             }).catch(error => {
                 observer.error(error);
             });
@@ -149,5 +273,83 @@ export class CategoryService {
 
     getCategoryNameById(categoryId: string):string {
         return this.categories[categoryId]?.name || '';
+    }
+
+    /** Remove a category from its parent (convert to main category) */
+    removeFromParentCategory(userId: string, categoryId: string): Observable<void> {
+        return new Observable<void>(observer => {
+            const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
+            
+            getDoc(categoryRef).then((categoryDoc) => {
+                if (categoryDoc.exists()) {
+                    const currentCategory = categoryDoc.data() as Category;
+                    
+                    if (currentCategory.parentCategoryId) {
+                        // Remove from parent's subCategories array
+                        const parentCategory = this.categories[currentCategory.parentCategoryId];
+                        if (parentCategory && parentCategory.subCategories) {
+                            const updatedSubCategories = parentCategory.subCategories.filter(id => id !== categoryId);
+                            updateDoc(doc(this.firestore, `users/${userId}/categories/${currentCategory.parentCategoryId}`), {
+                                subCategories: updatedSubCategories
+                            }).then(() => {
+                                // Update the category to remove parent reference
+                                updateDoc(categoryRef, {
+                                    parentCategoryId: deleteField(),
+                                    isSubCategory: false
+                                }).then(() => {
+                                    observer.next();
+                                    observer.complete();
+                                }).catch(error => {
+                                    observer.error(error);
+                                });
+                            }).catch(error => {
+                                observer.error(error);
+                            });
+                        } else {
+                            // Parent category not found, just update the category
+                            updateDoc(categoryRef, {
+                                parentCategoryId: deleteField(),
+                                isSubCategory: false
+                            }).then(() => {
+                                observer.next();
+                                observer.complete();
+                            }).catch(error => {
+                                observer.error(error);
+                            });
+                        }
+                    } else {
+                        // Category is already a main category
+                        observer.next();
+                        observer.complete();
+                    }
+                } else {
+                    observer.error(new Error('Category not found'));
+                }
+            }).catch(error => {
+                observer.error(error);
+            });
+        });
+    }
+
+    getCategoryWithSubCategories(userId: string, categoryId: string): Observable<Category | null> {
+        return new Observable<Category | null>(observer => {
+            this.getCategories(userId).subscribe(categories => {
+                observer.next(categories.find(cat => cat.id === categoryId) || null);
+                observer.complete();
+            }, error => {
+                observer.error(error);
+            });
+        });
+    }
+
+    hasSubCategories(categoryId: string): boolean {
+        const category = this.categories[categoryId];
+        return (category?.subCategories && category.subCategories.length > 0) || false;
+    }
+
+    /** Get sub-categories count for a category */
+    getSubCategoriesCount(categoryId: string): number {
+        const category = this.categories[categoryId];
+        return category?.subCategories?.length || 0;
     }
 }

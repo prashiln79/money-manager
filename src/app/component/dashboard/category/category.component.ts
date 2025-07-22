@@ -11,8 +11,9 @@ import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-
 import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
 import { CategoryBudgetDialogComponent } from './category-budget-dialog/category-budget-dialog.component';
-import { Category, defaultCategoriesForNewUser, Budget } from 'src/app/util/models';
-import { CATEGORY_ICONS, CATEGORY_COLORS } from 'src/app/util/config/config';
+import { ParentCategorySelectorDialogComponent } from './parent-category-selector-dialog/parent-category-selector-dialog.component';
+
+import { Category, Budget } from 'src/app/util/models';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
@@ -46,17 +47,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public expandedCategory: Category | null = null;
   public isBudgetSummaryExpanded: boolean = false;
 
-  public newCategory: Category = this.getEmptyCategory();
-  public availableIcons: string[] = CATEGORY_ICONS;
-  public availableColors: string[] = CATEGORY_COLORS;
 
-  public categorySuggestions: string[] = [];
-  public filteredSuggestions: Observable<string[]> = of([]);
-  public categoryNameInput: string = '';
 
   public userId: string = '';
   private destroy$ = new Subject<void>();
-  private isSubmitting: boolean = false;
 
   constructor(
     private auth: Auth,
@@ -115,7 +109,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
         if (!a.budget?.hasBudget && b.budget?.hasBudget) return 1;
         return a.name.localeCompare(b.name);
       });
-      this.initializeCategorySuggestions();
     });
 
     this.transactions$.pipe(takeUntil(this.destroy$)).subscribe(transactions => {
@@ -135,55 +128,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initializeCategorySuggestions(): void {
-    const existingCategoryNames = this.categories.map(cat => cat.name);
-    const defaultCategoryNames = defaultCategoriesForNewUser.map(cat => cat.name);
-    this.categorySuggestions = [...new Set([...existingCategoryNames, ...defaultCategoryNames])];
-    this.filteredSuggestions = of([]);
-  }
 
-  public filterSuggestions(value: string): void {
-    const filterValue = value.toLowerCase();
-    this.filteredSuggestions = of(
-      this.categorySuggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(filterValue)
-      )
-    );
-  }
-
-  public selectSuggestion(suggestion: string): void {
-    this.newCategory.name = suggestion;
-    this.categoryNameInput = suggestion;
-  }
-
-  public onCategoryNameInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target) {
-      this.filterSuggestions(target.value);
-    }
-  }
-
-  public createCategory(): void {
-    if (!this.isValidCategoryData()) {
-      this.notificationService.warning('Please enter a category name');
-      return;
-    }
-
-    if (this.isSubmitting) return;
-    this.isSubmitting = true;
-
-    this.store.dispatch(CategoriesActions.createCategory({
-      userId: this.userId,
-      name: this.newCategory.name.trim(),
-      categoryType: this.newCategory.type,
-      icon: this.newCategory.icon,
-      color: this.newCategory.color
-    }));
-
-    this.notificationService.success('Category created successfully');
-    this.resetForm();
-    this.isSubmitting = false;
-  }
 
   public editCategory(category: Category): void {
     if (this.isMobile) {
@@ -193,33 +138,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    
   }
 
-  public updateCategory(): void {
-    if (!this.isValidCategoryData()) {
-      this.notificationService.warning('Please enter a category name');
-      return;
-    }
 
-    if (!this.newCategory.id) {
-      this.notificationService.error('Invalid category');
-      return;
-    }
-
-    if (this.isSubmitting) return;
-    this.isSubmitting = true;
-
-    this.store.dispatch(CategoriesActions.updateCategory({
-      userId: this.userId,
-      categoryId: this.newCategory.id,
-      name: this.newCategory.name.trim(),
-      categoryType: this.newCategory.type,
-      icon: this.newCategory.icon,
-      color: this.newCategory.color
-    }));
-
-    this.notificationService.success('Category updated successfully');
-    this.resetForm();
-    this.isSubmitting = false;
-  }
 
   public deleteCategory(category: Category): void {
     if (this.isMobile) {
@@ -250,20 +169,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.notificationService.success('Category deleted successfully');
   }
 
-  public cancelEdit(): void {
-    this.resetForm();
-  }
 
-  private resetForm(): void {
-    this.newCategory = this.getEmptyCategory();
-    this.categoryNameInput = '';
-    this.isSubmitting = false;
-  }
-
-  private isValidCategoryData(): boolean {
-    return this.newCategory.name.trim().length > 0 &&
-      this.newCategory.name.trim().length <= 50;
-  }
 
   public trackByCategoryId(index: number, category: Category): string | number {
     return category.id || index;
@@ -273,65 +179,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
   }
 
-  public selectIcon(icon: string): void {
-    if (this.isMobile) {
-      this.openIconSelectorDialog();
-    } else {
-      this.newCategory.icon = icon;
-    }
-  }
 
-  public openIconSelectorDialog(): void {
-    const dialogRef = this.dialog.open(IconSelectorDialogComponent, {
-      width: '90vw',
-      maxWidth: '500px',
-      height: '80vh',
-      maxHeight: '600px',
-      data: {
-        currentIcon: this.newCategory.icon,
-        availableIcons: this.availableIcons
-      },
-      disableClose: false,
-      autoFocus: false
-    });
-
-    dialogRef.afterClosed().subscribe((selectedIcon: string) => {
-      if (selectedIcon) {
-        this.newCategory.icon = selectedIcon;
-        this.hapticFeedback.lightVibration();
-      }
-    });
-  }
-
-  public selectColor(color: string): void {
-    if (this.isMobile) {
-      this.openColorSelectorDialog();
-    } else {
-      this.newCategory.color = color;
-    }
-  }
-
-  public openColorSelectorDialog(): void {
-    const dialogRef = this.dialog.open(ColorSelectorDialogComponent, {
-      width: '90vw',
-      maxWidth: '500px',
-      height: '80vh',
-      maxHeight: '600px',
-      data: {
-        currentColor: this.newCategory.color,
-        availableColors: this.availableColors
-      },
-      disableClose: false,
-      autoFocus: false
-    });
-
-    dialogRef.afterClosed().subscribe((selectedColor: string) => {
-      if (selectedColor) {
-        this.newCategory.color = selectedColor;
-        this.hapticFeedback.lightVibration();
-      }
-    });
-  }
 
   private openMobileDialog(category?: Category): void {
     
@@ -356,6 +204,69 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }
     this.openMobileDialog();
   }
+
+  public selectParentCategory(category: Category): void {
+    // Open a dialog to select parent category
+    const dialogRef = this.dialog.open(ParentCategorySelectorDialogComponent, {
+      width: this.isMobile ? '90vw' : '500px',
+      data: {
+        title: 'Select Parent Category',
+        message: `Select a parent category for "${category.name}"`,
+        categories: this.categories.filter(cat => 
+          cat.id !== category.id && 
+          !cat.isSubCategory && 
+          !cat.parentCategoryId
+        )
+      },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe((result: Category | null) => {
+      if (result) {
+        this.convertToSubCategory(category, result);
+      }
+    });
+  }
+
+  private convertToSubCategory(category: Category, parentCategory: Category): void {
+    // Update the category to be a sub-category
+    this.store.dispatch(CategoriesActions.updateCategory({
+      userId: this.userId,
+      categoryId: category.id!,
+      name: category.name,
+      categoryType: category.type,
+      icon: category.icon,
+      color: category.color,
+      parentCategoryId: parentCategory.id,
+      isSubCategory: true
+    }));
+
+    this.notificationService.success(
+      `"${category.name}" is now a sub-category of "${parentCategory.name}"`
+    );
+  }
+
+  public removeFromParentCategory(category: Category): void {
+    // Remove the category from its parent (convert back to main category)
+    this.store.dispatch(CategoriesActions.removeFromParentCategory({
+      userId: this.userId,
+      categoryId: category.id!
+    }));
+
+    this.notificationService.success(
+      `"${category.name}" is now a main category`
+    );
+  }
+
+  public getSubCategoriesForCategory(categoryId: string): Category[] {
+    return this.categories.filter(cat => 
+      cat.isSubCategory && cat.parentCategoryId === categoryId
+    );
+  }
+
+
+
+
 
   public openBudgetDialog(category: Category): void {
     const dialogRef = this.dialog.open(CategoryBudgetDialogComponent, {
@@ -403,15 +314,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     return this.budgetService.formatBudgetPeriod(period);
   }
 
-  private getEmptyCategory(): Category {
-    return {
-      name: '',
-      type: TransactionType.EXPENSE,
-      icon: 'shopping_cart',
-      color: '#46777f',
-      createdAt: Date.now()
-    };
-  }
+
 
   /**
    * Toggle category expansion to show/hide details

@@ -9,6 +9,9 @@ export interface Category {
   color: string;
   createdAt: number;
   budget?: Budget;
+  parentCategoryId?: string;
+  isSubCategory?: boolean;
+  subCategories?: Array<string>;
 }
 
 export interface Budget {

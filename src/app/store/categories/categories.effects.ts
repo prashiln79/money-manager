@@ -46,7 +46,7 @@ export class CategoriesEffects {
     this.actions$.pipe(
       ofType(CategoriesActions.updateCategory),
       mergeMap(
-        ({ userId, categoryId, name, categoryType, icon, color, budgetData }) =>
+        ({ userId, categoryId, name, categoryType, icon, color, budgetData, parentCategoryId, isSubCategory }) =>
           this.categoryService
             .updateCategory(
               userId,
@@ -55,7 +55,9 @@ export class CategoriesEffects {
               categoryType,
               icon,
               color,
-              budgetData
+              budgetData,
+              parentCategoryId,
+              isSubCategory
             )
             .pipe(
               map(() => {
@@ -99,6 +101,25 @@ export class CategoriesEffects {
             ),
             catchError((error) =>
               of(CategoriesActions.updateBudgetSpentFailure({ error }))
+            )
+          )
+      )
+    )
+  );
+
+  removeFromParentCategory$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CategoriesActions.removeFromParentCategory),
+      mergeMap(({ userId, categoryId }) =>
+        this.categoryService
+          .removeFromParentCategory(userId, categoryId)
+          .pipe(
+            map(() => {
+              // Reload categories to get the updated data
+              return CategoriesActions.loadCategories({ userId });
+            }),
+            catchError((error) =>
+              of(CategoriesActions.removeFromParentCategoryFailure({ error }))
             )
           )
       )
