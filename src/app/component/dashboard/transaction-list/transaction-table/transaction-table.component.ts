@@ -13,6 +13,8 @@ import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { SsrService } from 'src/app/util/service/ssr.service';
+import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'transaction-table',
@@ -51,7 +53,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     private dateService: DateService,
     private filterService: FilterService,
     private store: Store<AppState>,
-    private ssrService: SsrService
+    private ssrService: SsrService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -186,7 +189,22 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   }
 
   onDeleteTransaction(transaction: Transaction) {
-    this.deleteTransaction.emit(transaction);
+    this.dialog
+    .open(ConfirmDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Delete Transaction',
+        message: 'Are you sure you want to delete this transaction?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    })
+    .afterClosed()
+    .subscribe((result) => {
+      if (result) {
+        this.deleteTransaction.emit(transaction);
+      }
+    });
   }
 
   onStartRowEdit(transaction: Transaction) {
