@@ -109,18 +109,33 @@ export class SearchFilterComponent implements OnInit, OnChanges {
 
   onSelectedYearChange(event: any) {
     const year = event.target.value;
+    this.selectedYear = year;
     this.selectedYearChange.emit(year);
+    
+    // If a specific month is selected, update the date range for the new year
+    if (this.selectedMonthOption !== 'all') {
+      const month = parseInt(this.selectedMonthOption);
+      this.selectedDateRange = {
+        start: moment().year(year).month(month).startOf('month').toDate(),
+        end: moment().year(year).month(month).endOf('month').toDate()
+      };
+      this.selectedDateRangeChange.emit(this.selectedDateRange);
+    }
   }
 
   onSelectedMonthChange(monthValue: string) {
     this.selectedMonthOption = monthValue;
     if (monthValue !== 'all') {
-      const month = monthValue === 'all' ? moment().month() : parseInt(monthValue);
+      const month = parseInt(monthValue);
       this.selectedDateRange = {
         start: moment().year(this.selectedYear).month(month).startOf('month').toDate(),
         end: moment().year(this.selectedYear).month(month).endOf('month').toDate()
       };
       this.selectedDateRangeChange.emit(this.selectedDateRange);
+    } else {
+      // Clear date range when "all" is selected
+      this.selectedDateRange = null;
+      this.selectedDateRangeChange.emit(null);
     }
   }
 

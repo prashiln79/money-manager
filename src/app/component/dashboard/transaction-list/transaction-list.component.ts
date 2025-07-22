@@ -53,6 +53,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   selectedCategory: string[] = ['all'];
   selectedType: string = 'all';
+  selectedYear: number = moment().year();
+  selectedMonth: number = moment().month();
+  selectedMonthOption: string = 'all';
 
   // Table properties
   showFullTable: boolean = false;
@@ -250,6 +253,14 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.applyDateFilter();
   }
 
+  onYearChange(): void {
+    this.applyDateFilter();
+  }
+
+  onDateRangeChange(): void {
+    this.applyDateFilter();
+  }
+
   private formatDate(date: Date): string {
     // Use Moment.js for consistent date formatting
     return moment(date).format('YYYY-MM-DD');
@@ -268,6 +279,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.selectedCategory = ['all'];
     this.selectedType = 'all';
+    this.selectedYear = moment().year();
+    this.selectedMonth = moment().month();
+    this.selectedMonthOption = 'all';
     this.filterService.clearSelectedDate();
     this.applyDateFilter();
     this.notificationService.success('All filters cleared');

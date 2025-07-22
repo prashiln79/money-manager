@@ -24,7 +24,7 @@ export class AddAccountDialogComponent {
   public userId: any;
   public isSubmitting = false;
   public accountTypes:{value:AccountType,label:string}[] = [
-    {value:AccountType.BANK,label:'Bank Account'},
+    {value:AccountType.BANK,label:'Bank Account (Checking/Savings)'},
     {value:AccountType.CASH,label:'Cash'},
     {value:AccountType.CREDIT,label:'Credit Card'},
     {value:AccountType.LOAN,label:'Loan'},

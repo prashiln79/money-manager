@@ -660,17 +660,25 @@ table {
         gap: 4px;
       }
       
-      mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-        
-        @media (max-width: 768px) {
-          font-size: 14px;
-          width: 14px;
-          height: 14px;
-        }
-      }
+             mat-icon {
+         font-size: 16px;
+         width: 16px;
+         height: 16px;
+         
+         @media (max-width: 768px) {
+           font-size: 14px;
+           width: 14px;
+           height: 14px;
+         }
+         
+         &.income {
+           color: #059669;
+         }
+         
+         &.expense {
+           color: #dc2626;
+         }
+       }
       
       .total-content {
         text-align: right;
