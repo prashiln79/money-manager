@@ -172,6 +172,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
       return txYear === currentYear;
     });
 
+    // update only if the data is different
     this.dataSource.data = yearFiltered;
   }
 
@@ -229,8 +230,6 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
       });
     }
   }
-
-  // Removed duplicate sort methods - now using FilterService.sortTransactions()
 
   private loadCategories(): void {
     const userId = this.auth.currentUser?.uid;
