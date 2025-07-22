@@ -35,6 +35,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
 
 // ngx-papaparse
 import { Papa } from 'ngx-papaparse';
@@ -209,6 +210,7 @@ import { RouterModule } from '@angular/router';
     MatAutocompleteModule,
     MatExpansionModule,
     MatDividerModule,
+    MatChipsModule,
 
     // Utility
     IconModule,

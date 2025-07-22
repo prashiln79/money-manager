@@ -197,6 +197,79 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     this.clearAllFilters.emit();
   }
 
+  onClearSearchFilter() {
+    this.searchTerm = '';
+    this.searchTermChange.emit('');
+  }
+
+  onClearYearFilter() {
+    this.selectedYear = this.currentYear;
+    this.selectedYearChange.emit(this.currentYear);
+  }
+
+  onClearMonthFilter() {
+    this.selectedMonthOption = 'all';
+    this.onSelectedMonthChange('all');
+  }
+
+  onClearCategoryFilter() {
+    this.selectedCategory = 'all';
+    this.selectedCategoryChange.emit('all');
+  }
+
+  onClearTypeFilter() {
+    this.selectedType = 'all';
+    this.selectedTypeChange.emit('all');
+  }
+
+  getActiveFilters() {
+    const filters = [];
+    
+    if (this.searchTerm) {
+      filters.push({
+        type: 'search',
+        label: `Search: "${this.searchTerm}"`,
+        onRemove: () => this.onClearSearchFilter()
+      });
+    }
+    
+    if (this.selectedYear !== this.currentYear) {
+      filters.push({
+        type: 'year',
+        label: `Year: ${this.selectedYear}`,
+        onRemove: () => this.onClearYearFilter()
+      });
+    }
+    
+    if (this.selectedMonthOption !== 'all') {
+      const monthLabel = this.months.find(m => m.value === parseInt(this.selectedMonthOption))?.label;
+      filters.push({
+        type: 'month',
+        label: `Month: ${monthLabel}`,
+        onRemove: () => this.onClearMonthFilter()
+      });
+    }
+    
+    if (this.selectedCategory !== 'all') {
+      const categoryName = this.categories.find(c => c.id === this.selectedCategory)?.name;
+      filters.push({
+        type: 'category',
+        label: `Category: ${categoryName}`,
+        onRemove: () => this.onClearCategoryFilter()
+      });
+    }
+    
+    if (this.selectedType !== 'all') {
+      filters.push({
+        type: 'type',
+        label: `Type: ${this.selectedType}`,
+        onRemove: () => this.onClearTypeFilter()
+      });
+    }
+    
+    return filters;
+  }
+
   hasActiveFilters(): boolean {
     return !!(
       this.selectedDate || 
