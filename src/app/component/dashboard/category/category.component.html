@@ -211,8 +211,9 @@
 				}
 
 				<!-- Display sub-categories under their parent -->
-				@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
+				@if(getSubCategoriesForCategory(category.id!).length > 0) {
 				<div class="sub-category-wrapper">
+					@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
 					<app-category-card
 						[category]="subCategory"
 						[isExpanded]="expandedCategory?.id === subCategory.id"
@@ -230,6 +231,7 @@
 						(toggleExpansion)="toggleCategoryExpansion($event)"
 					>
 					</app-category-card>
+					}
 				</div>
 				} } }
 			</div>
