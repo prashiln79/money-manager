@@ -265,5 +265,26 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     return '';
   }
 
+  // Calculate totals for the footer
+  getTotalIncome(): number {
+    return this.dataSource.data
+      .filter(transaction => transaction.type === 'income')
+      .reduce((sum, transaction) => sum + transaction.amount, 0);
+  }
+
+  getTotalExpense(): number {
+    return this.dataSource.data
+      .filter(transaction => transaction.type === 'expense')
+      .reduce((sum, transaction) => sum + transaction.amount, 0);
+  }
+
+  getNetAmount(): number {
+    return this.getTotalIncome() - this.getTotalExpense();
+  }
+
+  getTransactionCount(): number {
+    return this.dataSource.data.length;
+  }
+
   // Removed duplicate sort methods - now using FilterService.sortTransactions()
 } 

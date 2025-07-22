@@ -1,7 +1,7 @@
 <!-- Table Container -->
-<div class="bg-white rounded-lg border border-gray-200 overflow-auto flex flex-col max-h-[calc(80vh-205px)]">
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col max-h-[calc(80vh-205px)]">
   <!-- Desktop/Tablet Table View -->
-  <div class="hidden sm:flex flex-1 overflow-auto table-container max-h-full">
+  <div class="hidden sm:flex flex-1 overflow-auto table-container">
     <table mat-table [dataSource]="dataSource" matSort class="w-full min-w-[800px]">
       <!-- Date Column -->
       <ng-container matColumnDef="Date">
@@ -150,6 +150,49 @@
     </table>
   </div>
 
+  <!-- Fixed Footer with Totals -->
+  <div class="hidden sm:flex fixed-footer">
+    <div class="footer-content">
+      <!-- Transaction Count -->
+      <div class="transaction-count">
+        <mat-icon>receipt</mat-icon>
+        <span>{{ getTransactionCount() }} transactions</span>
+      </div>
+
+      <!-- Totals Section -->
+      <div class="totals-section">
+        <!-- Income Total -->
+        <div class="total-item">
+          <mat-icon class="income">trending_up</mat-icon>
+          <div class="total-content">
+            <div class="total-label">Income</div>
+            <div class="total-value income">₹{{ getTotalIncome().toLocaleString() }}</div>
+          </div>
+        </div>
+
+        <!-- Expense Total -->
+        <div class="total-item">
+          <mat-icon class="expense">trending_down</mat-icon>
+          <div class="total-content">
+            <div class="total-label">Expense</div>
+            <div class="total-value expense">₹{{ getTotalExpense().toLocaleString() }}</div>
+          </div>
+        </div>
+
+        <!-- Net Amount -->
+        <div class="total-item net-separator">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <div class="total-content">
+            <div class="total-label">Net</div>
+            <div class="total-value" [class]="getNetAmount() >= 0 ? 'net-positive' : 'net-negative'">
+              {{ getNetAmount() >= 0 ? '+' : '' }}₹{{ getNetAmount().toLocaleString() }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile Card View -->
   <div class="sm:hidden flex-1 overflow-auto max-h-full mobile-card-view">
     <div class="p-4 space-y-3">
@@ -193,6 +236,49 @@
         </div>
       </div>
       }
+    </div>
+  </div>
+
+  <!-- Mobile Footer with Totals -->
+  <div class="sm:hidden bg-gray-50 border-t border-gray-200 px-4 py-3 sticky bottom-0 z-10">
+    <div class="flex justify-between items-center">
+      <!-- Transaction Count -->
+      <div class="flex items-center space-x-2">
+        <mat-icon class="text-gray-500 text-xs">receipt</mat-icon>
+        <span class="text-xs font-medium text-gray-700">{{ getTransactionCount() }} transactions</span>
+      </div>
+
+      <!-- Totals Section -->
+      <div class="flex items-center space-x-3">
+        <!-- Income Total -->
+        <div class="flex items-center space-x-1">
+          <mat-icon class="text-green-600 text-xs">trending_up</mat-icon>
+          <div class="text-right">
+            <div class="text-xs text-gray-500">Income</div>
+            <div class="text-xs font-semibold text-green-700">₹{{ getTotalIncome().toLocaleString() }}</div>
+          </div>
+        </div>
+
+        <!-- Expense Total -->
+        <div class="flex items-center space-x-1">
+          <mat-icon class="text-red-600 text-xs">trending_down</mat-icon>
+          <div class="text-right">
+            <div class="text-xs text-gray-500">Expense</div>
+            <div class="text-xs font-semibold text-red-700">₹{{ getTotalExpense().toLocaleString() }}</div>
+          </div>
+        </div>
+
+        <!-- Net Amount -->
+        <div class="flex items-center space-x-1 border-l border-gray-300 pl-3">
+          <mat-icon class="text-blue-600 text-xs">account_balance_wallet</mat-icon>
+          <div class="text-right">
+            <div class="text-xs text-gray-500">Net</div>
+            <div class="text-xs font-bold" [class]="getNetAmount() >= 0 ? 'text-green-700' : 'text-red-700'">
+              {{ getNetAmount() >= 0 ? '+' : '' }}₹{{ getNetAmount().toLocaleString() }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
