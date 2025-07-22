@@ -20,8 +20,6 @@ export class TotalBalanceComponent implements OnInit, OnDestroy {
   totalIncome$: Observable<number>;
   totalExpenses$: Observable<number>;
   netBalance$: Observable<number>;
-  transactionsLoading$: Observable<boolean>;
-  transactionsError$: Observable<any>;
   totalExpensesByMonth$: Observable<number>;
   totalIncomeByMonth$: Observable<number>;
 
@@ -44,8 +42,6 @@ export class TotalBalanceComponent implements OnInit, OnDestroy {
     this.totalExpenses$ = this.store.select(TransactionsSelectors.selectTotalExpenses);
     this.totalExpensesByMonth$ = this.store.select(TransactionsSelectors.selectTotalExpensesByMonth(moment().month(), moment().year()));
     this.netBalance$ = this.store.select(TransactionsSelectors.selectNetBalance);
-    this.transactionsLoading$ = this.store.select(TransactionsSelectors.selectTransactionsLoading);
-    this.transactionsError$ = this.store.select(TransactionsSelectors.selectTransactionsError);
   }
 
   ngOnInit() {
@@ -75,15 +71,6 @@ export class TotalBalanceComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Handle errors
-    this.subscriptions.add(
-      this.transactionsError$.subscribe(error => {
-        if (error) {
-          console.error('Error loading balance data:', error);
-          this.notificationService.error('Failed to load balance data');
-        }
-      })
-    );
   }
 
   ngOnDestroy() {

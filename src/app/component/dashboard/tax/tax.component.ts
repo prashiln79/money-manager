@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { Transaction } from '../../../util/models/transaction.model';
 import { TaxService, TaxCalculation } from '../../../util/service/tax.service';
 import { NotificationService } from '../../../util/service/notification.service';
@@ -59,7 +59,7 @@ export class TaxComponent implements OnInit, OnDestroy {
   private loadTransactions(): void {
     const userId = this.auth.currentUser?.uid;
     if (userId) {
-      const sub = this.store.select(TransactionsSelectors.selectAllTransactions).subscribe({
+      const sub = this.store.select(TransactionsSelectors.selectAllTransactions).pipe(take(1)).subscribe({
         next: (transactions) => {
           this.transactions = transactions;
           this.calculateTaxFromTransactions();
