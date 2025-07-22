@@ -15,6 +15,7 @@ export class CategoryCardComponent {
   @Input() home: boolean = false;
   @Input() recentTransactions: Transaction[] = [];
   @Input() categoryStats: any;
+  @Input() subCategoryCount: number = 0;
   @Input() Math: any;
 
   @Output() editCategory = new EventEmitter<Category>();

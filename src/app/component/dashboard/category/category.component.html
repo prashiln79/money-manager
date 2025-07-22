@@ -212,39 +212,24 @@
 
 				<!-- Display sub-categories under their parent -->
 				@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
-				<div class="sub-category-item" [style.border-left-color]="subCategory.color" [class.expanded]="expandedCategory?.id === subCategory.id">
-					<div class="category-content">
-						<div class="category-info">
-							<div class="category-icon-name">
-								<div class="category-icon-container">
-									<mat-icon class="category-icon" [style.color]="subCategory.color">{{ subCategory.icon || 'category' }}</mat-icon>
-								</div>
-								<div class="category-header">
-									<h3 class="category-name">{{ subCategory.name }} <span class="text-[0.6rem] text-gray-400 italic"> {{subCategory.type | titlecase}} (Sub-category)</span></h3>
-								</div>
-							</div>
-							<div class="category-details">
-								<div class="category-spent">
-									<span class="category-spent-label">{{ subCategory.type === 'expense' ? 'Spent:' : 'Income:' }}</span>
-									<span class="category-spent-value"
-										>{{ subCategory.type === 'expense' ? (calculateTotalSpentPerMonth(subCategory) | currency) : (calculateTotalIncomePerMonth(subCategory) | currency) }}</span
-									>
-								</div>
-							</div>
-						</div>
-						<div class="category-actions">
-							<mat-menu #subMenu="matMenu">
-								<button mat-menu-item (click)="editCategory(subCategory)" class="action-button edit-button" matTooltip="Edit sub-category"><mat-icon>edit</mat-icon> Edit</button>
-								<button mat-menu-item (click)="removeFromParentCategory(subCategory)" class="action-button remove-parent-button" matTooltip="Remove from parent category">
-									<mat-icon>account_tree_off</mat-icon> Remove from Parent
-								</button>
-								<button mat-menu-item (click)="deleteCategory(subCategory)" class="action-button delete-button" matTooltip="Delete sub-category"><mat-icon>delete</mat-icon> Delete</button>
-							</mat-menu>
-							<button matIconButton [matMenuTriggerFor]="subMenu">
-								<mat-icon>more_vert</mat-icon>
-							</button>
-						</div>
-					</div>
+				<div class="sub-category-wrapper">
+					<app-category-card
+						[category]="subCategory"
+						[isExpanded]="expandedCategory?.id === subCategory.id"
+						[isMobile]="isMobile"
+						[home]="home"
+						[recentTransactions]="getRecentTransactions(subCategory)"
+						[categoryStats]="getCategoryStats(subCategory)"
+						[subCategoryCount]="0"
+						[Math]="Math"
+						(editCategory)="editCategory($event)"
+						(deleteCategory)="deleteCategory($event)"
+						(openBudgetDialog)="openBudgetDialog($event)"
+						(selectParentCategory)="selectParentCategory($event)"
+						(removeFromParentCategory)="removeFromParentCategory($event)"
+						(toggleExpansion)="toggleCategoryExpansion($event)"
+					>
+					</app-category-card>
 				</div>
 				} } }
 			</div>

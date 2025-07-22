@@ -98,6 +98,38 @@
 
 // =============================================================================
 // MAIN GRID LAYOUT
+
+// =============================================================================
+// SUBCATEGORY WRAPPER
+// =============================================================================
+.sub-category-wrapper {
+  margin-left: 2rem;
+  position: relative;
+  width: 100%;
+
+  app-category-card{
+    width: 100%;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 50%;
+    width: 1rem;
+    height: 1px;
+    background-color: #d1d5db;
+  }
+  
+  @media (max-width: 640px) {
+    margin-left: 1rem;
+    
+    &::before {
+      left: -0.5rem;
+      width: 0.5rem;
+    }
+  }
+}
 // =============================================================================
 .categories-grid {
   display: flex;
