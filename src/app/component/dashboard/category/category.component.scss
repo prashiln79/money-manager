@@ -257,7 +257,7 @@
   }
   
   // Category Item
-  .category-item {
+  .category-card {
     width: 100%;
     max-width: 48%;
     background: white;
@@ -608,6 +608,10 @@
 
       }
     }
+  }
+
+  app-category-card{
+    width: 100%;
   }
 }
 

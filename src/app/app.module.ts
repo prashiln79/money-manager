@@ -78,6 +78,7 @@ import { BudgetsComponent } from './component/dashboard/budgets/budgets.componen
 import { GoalsComponent } from './component/dashboard/goals/goals.component';
 import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
 import { CategoryComponent } from './component/dashboard/category/category.component';
+import { CategoryCardComponent } from './component/dashboard/category/category-card/category-card.component';
 import { LoaderComponent } from './util/components/loader/loader.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
 import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm-dialog.component';
@@ -146,6 +147,7 @@ import { RouterModule } from '@angular/router';
     GoalsComponent,
     SubscriptionComponent,
     CategoryComponent,
+    CategoryCardComponent,
     HomeComponent,
     ConfirmDialogComponent,
     ImportTransactionsComponent,

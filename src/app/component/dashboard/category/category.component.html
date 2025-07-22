@@ -49,41 +49,36 @@
 						<mat-icon class="budget-icon">account_balance_wallet</mat-icon>
 						<h3 class="budget-summary-title">Overall Monthly Budget</h3>
 					</div>
-					
+
 					<div class="budget-summary-stats">
 						<div class="budget-stat-item">
 							<span class="budget-stat-label">Total Budget:</span>
 							<span class="budget-stat-value">{{ getOverallBudgetStats().totalBudget | currency }}</span>
 						</div>
-						
+
 						<!-- <div class="budget-stat-item">
 							<span class="budget-stat-label">Spent:</span>
 							<span class="budget-stat-value spent">{{ getOverallBudgetStats().totalSpent | currency }}</span>
 						</div> -->
-						
+
 						<!-- <div class="budget-stat-item">
 							<span class="budget-stat-label">Remaining:</span>
 							<span class="budget-stat-value" [class]="getOverallBudgetStatusClass()">
 								{{ getOverallBudgetStats().totalRemaining | currency }}
 							</span>
 						</div> -->
-						
-						
 					</div>
-					
+
 					<!-- Overall Budget Progress Bar -->
 					<div class="overall-budget-progress">
 						<div class="progress-bar">
-							<div class="progress-fill" 
-								 [style.width.%]="Math.min(getOverallBudgetStats().overallProgress, 100)" 
-								 [style.background-color]="getOverallBudgetProgressColor()">
-							</div>
+							<div class="progress-fill" [style.width.%]="Math.min(getOverallBudgetStats().overallProgress, 100)" [style.background-color]="getOverallBudgetProgressColor()"></div>
 						</div>
 						<div class="progress-text">
 							{{ getOverallBudgetStats().totalSpent | currency }} / {{ getOverallBudgetStats().totalBudget | currency }} ({{ getOverallBudgetStats().overallProgress.toFixed(1) }}%)
 						</div>
 					</div>
-<!-- 					
+					<!-- 					
 					<div class="budget-summary-footer">
 						<span class="budget-categories-count">
 							{{ getOverallBudgetStats().categoriesWithBudget }} categor{{ getOverallBudgetStats().categoriesWithBudget !== 1 ? 'ies' : 'y' }} with budget
@@ -167,10 +162,11 @@
 											</div>
 											<div class="category-breakdown-progress">
 												<div class="progress-bar">
-													<div class="progress-fill" 
-														 [style.width.%]="Math.min(cat.progress, 100)" 
-														 [style.background-color]="cat.progress >= 100 ? '#ef4444' : cat.progress >= 80 ? '#f59e0b' : cat.progress >= 60 ? '#3b82f6' : '#10b981'">
-													</div>
+													<div
+														class="progress-fill"
+														[style.width.%]="Math.min(cat.progress, 100)"
+														[style.background-color]="cat.progress >= 100 ? '#ef4444' : cat.progress >= 80 ? '#f59e0b' : cat.progress >= 60 ? '#3b82f6' : '#10b981'"
+													></div>
 												</div>
 											</div>
 										</div>
@@ -193,278 +189,65 @@
 					</div>
 				</div>
 
-				@if(!home){
-					@for (category of categories; track category.id) {
-					<!-- Only show main categories (not sub-categories) in the main list -->
-					@if(!category.isSubCategory && !category.parentCategoryId) {
-					<div class="category-item" [style.border-left-color]="category.color" [class.expanded]="expandedCategory?.id === category.id">
-						<div class="category-content">
-							<div class="category-info">
-								<div class="category-icon-name">
-									<div class="category-icon-container">
-										<mat-icon class="category-icon" [style.color]="category.color">{{ category.icon || 'category' }}</mat-icon>
-									</div>
-									<div class="category-header">
-										<h3 class="category-name">{{ category.name }} <span class="text-[0.6rem] text-gray-400 italic"> {{category.type | titlecase}}</span></h3>
-									</div>
-									
+				@if(!home){ @for (category of categories; track category.id) {
+				<!-- Only show main categories (not sub-categories) in the main list -->
+				@if(!category.isSubCategory && !category.parentCategoryId) {
+				<app-category-card
+					[category]="category"
+					[isExpanded]="expandedCategory?.id === category.id"
+					[isMobile]="isMobile"
+					[home]="home"
+					[recentTransactions]="getRecentTransactions(category)"
+					[categoryStats]="getCategoryStats(category)"
+					[Math]="Math"
+					(editCategory)="editCategory($event)"
+					(deleteCategory)="deleteCategory($event)"
+					(openBudgetDialog)="openBudgetDialog($event)"
+					(selectParentCategory)="selectParentCategory($event)"
+					(removeFromParentCategory)="removeFromParentCategory($event)"
+					(toggleExpansion)="toggleCategoryExpansion($event)"
+				>
+				</app-category-card>
+				}
+
+				<!-- Display sub-categories under their parent -->
+				@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
+				<div class="sub-category-item" [style.border-left-color]="subCategory.color" [class.expanded]="expandedCategory?.id === subCategory.id">
+					<div class="category-content">
+						<div class="category-info">
+							<div class="category-icon-name">
+								<div class="category-icon-container">
+									<mat-icon class="category-icon" [style.color]="subCategory.color">{{ subCategory.icon || 'category' }}</mat-icon>
 								</div>
-								<div class="category-details">
-									
-
-									<!-- Budget Information -->
-									<div *ngIf="category?.budget?.hasBudget" class="budget-info">
-										<div class="budget-amount">
-											<span class="budget-label">Budget:</span>
-											<span class="budget-value">{{ category.budget?.budgetAmount | currency }}</span>
-											<span class="budget-period">/ {{ formatBudgetPeriod(category.budget?.budgetPeriod) }}</span>
-										</div>
-
-										<div class="budget-progress" *ngIf="category.budget?.budgetProgressPercentage !== undefined">
-											<div class="progress-bar">
-												<div class="progress-fill" [style.width.%]="Math.min(category.budget?.budgetProgressPercentage || 0, 100)" [style.background-color]="getBudgetProgressColor(category)"></div>
-											</div>
-											<span class="progress-text">
-												{{ category.budget?.budgetSpent | currency }} ({{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%)
-											</span>
-										</div>
-									</div>
-									<div class="category-spent" *ngIf="!category?.budget?.hasBudget">
-										<span class="category-spent-label">{{ category.type === 'expense' ? 'Spent:' : 'Income:' }}</span>
-										<span class="category-spent-value">{{ category.type === 'expense' ? (calculateTotalSpentPerMonth(category) | currency) : (calculateTotalIncomePerMonth(category) | currency) }}</span>
-									</div>
-									<!-- <div class="category-spent mt-[-10px]" >
-										<span class="category-spent-label">Type:</span>
-										<span class="category-spent-label font-semibold" >{{ category.type | titlecase }}</span>
-									</div> -->
+								<div class="category-header">
+									<h3 class="category-name">{{ subCategory.name }} <span class="text-[0.6rem] text-gray-400 italic"> {{subCategory.type | titlecase}} (Sub-category)</span></h3>
 								</div>
 							</div>
-							<div class="category-actions">
-								<mat-menu #menu="matMenu">
-									<button
-										mat-menu-item
-										(click)="openBudgetDialog(category)"
-										class="action-button budget-button"
-										matTooltip="Set budget"
-									
-										*ngIf="!home && category.type === 'expense'"
+							<div class="category-details">
+								<div class="category-spent">
+									<span class="category-spent-label">{{ subCategory.type === 'expense' ? 'Spent:' : 'Income:' }}</span>
+									<span class="category-spent-value"
+										>{{ subCategory.type === 'expense' ? (calculateTotalSpentPerMonth(subCategory) | currency) : (calculateTotalIncomePerMonth(subCategory) | currency) }}</span
 									>
-										<mat-icon>account_balance_wallet</mat-icon> Set Budget
-									</button>
-									<button mat-menu-item (click)="editCategory(category)" class="action-button edit-button" matTooltip="Edit category">
-										<mat-icon>edit</mat-icon> Edit
-									</button>
-									<button mat-menu-item (click)="selectParentCategory(category)" class="action-button parent-button" matTooltip="Select parent category" *ngIf="!category.isSubCategory && !category.parentCategoryId">
-										<mat-icon>account_tree</mat-icon> Select Parent Category
-									</button>
-									<button mat-menu-item (click)="removeFromParentCategory(category)" class="action-button remove-parent-button" matTooltip="Remove from parent category" *ngIf="category.isSubCategory || category.parentCategoryId">
-										<mat-icon>account_tree_off</mat-icon> Remove from Parent
-									</button>
-									<button mat-menu-item (click)="deleteCategory(category)" class="action-button delete-button" matTooltip="Delete category">
-										<mat-icon>delete</mat-icon> Delete
-									</button>
-								</mat-menu>
-								<!-- <span class="category-type" *ngIf="!category?.budget?.hasBudget">{{ category.type }}</span> -->
-								<button matIconButton [matMenuTriggerFor]="menu">
-									<mat-icon>more_vert</mat-icon>
-								</button>
+								</div>
 							</div>
 						</div>
-
-						<!-- Expand/Collapse Button -->
-						<div class="expand-section" *ngIf="!isMobile">
-							<button mat-button (click)="toggleCategoryExpansion(category)" class="expand-btn">
-								<mat-icon>{{ expandedCategory?.id === category.id ? 'expand_less' : 'expand_more' }}</mat-icon>
-								<span>{{ expandedCategory?.id === category.id ? 'Show Less' : 'Show More' }}</span>
+						<div class="category-actions">
+							<mat-menu #subMenu="matMenu">
+								<button mat-menu-item (click)="editCategory(subCategory)" class="action-button edit-button" matTooltip="Edit sub-category"><mat-icon>edit</mat-icon> Edit</button>
+								<button mat-menu-item (click)="removeFromParentCategory(subCategory)" class="action-button remove-parent-button" matTooltip="Remove from parent category">
+									<mat-icon>account_tree_off</mat-icon> Remove from Parent
+								</button>
+								<button mat-menu-item (click)="deleteCategory(subCategory)" class="action-button delete-button" matTooltip="Delete sub-category"><mat-icon>delete</mat-icon> Delete</button>
+							</mat-menu>
+							<button matIconButton [matMenuTriggerFor]="subMenu">
+								<mat-icon>more_vert</mat-icon>
 							</button>
 						</div>
-
-						<!-- Expanded Details -->
-						<div *ngIf="expandedCategory?.id === category.id" class="category-details-expanded">
-							<mat-tab-group class="details-tabs">
-								<!-- Basic Details Tab -->
-								<mat-tab label="Basic Details">
-									<div class="tab-content">
-										<div class="detail-row">
-											<span class="detail-label">Category Name:</span>
-											<span class="detail-value">{{ category.name }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Category Type:</span>
-											<span class="detail-value">{{ category.type | titlecase }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Icon:</span>
-											<span class="detail-value">
-												<mat-icon [style.color]="category.color">{{ category.icon || 'category' }}</mat-icon>
-												{{ category.icon || 'category' }}
-											</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Color:</span>
-											<span class="detail-value">
-												<div class="color-preview" [style.background-color]="category.color"></div>
-												{{ category.color }}
-											</span>
-										</div>
-									</div>
-								</mat-tab>
-
-								<!-- Budget Details Tab -->
-								<mat-tab label="Budget Details" *ngIf="category?.budget?.hasBudget">
-									<div class="tab-content">
-										<div class="detail-row">
-											<span class="detail-label">Budget Amount:</span>
-											<span class="detail-value">{{ category.budget?.budgetAmount | currency }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Budget Period:</span>
-											<span class="detail-value">{{ formatBudgetPeriod(category.budget?.budgetPeriod) }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Amount Spent:</span>
-											<span class="detail-value" [class]="getBudgetStatusClass(category)">
-												{{ category.budget?.budgetSpent | currency }}
-											</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Remaining Budget:</span>
-											<span class="detail-value" [class]="getRemainingBudgetClass(category)">
-												{{ (category.budget?.budgetAmount || 0) - (category.budget?.budgetSpent || 0) | currency }}
-											</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Progress Percentage:</span>
-											<span class="detail-value" [class]="getBudgetStatusClass(category)">
-												{{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%
-											</span>
-										</div>
-										<div class="detail-row" *ngIf="category.budget?.budgetStartDate">
-											<span class="detail-label">Budget Start Date:</span>
-											<span class="detail-value">{{ dateService.toDate(category.budget?.budgetStartDate) | date:'shortDate' }}</span>
-										</div>
-										<div class="detail-row" *ngIf="category.budget?.budgetEndDate">
-											<span class="detail-label">Budget End Date:</span>
-											<span class="detail-value">{{ category.budget?.budgetEndDate }}</span>
-										</div>
-									</div>
-								</mat-tab>
-
-								<!-- No Budget Tab -->
-								<mat-tab label="Budget Details" *ngIf="!category?.budget?.hasBudget">
-									<div class="tab-content">
-										<div class="no-budget-details">
-											<mat-icon>account_balance_wallet</mat-icon>
-											<h4>No Budget Set</h4>
-											<p>This category doesn't have a budget configured yet.</p>
-											<button mat-raised-button color="primary" (click)="openBudgetDialog(category)" *ngIf="category.type === 'expense'">
-												<mat-icon>add</mat-icon>
-												Set Budget
-											</button>
-										</div>
-									</div>
-								</mat-tab>
-
-								<!-- Transaction History Tab -->
-								<mat-tab label="Recent Transactions">
-									<div class="tab-content">
-										<div class="no-transactions" *ngIf="!getRecentTransactions(category)?.length">
-											<mat-icon>receipt_long</mat-icon>
-											<p>No recent transactions</p>
-										</div>
-										<div class="transaction-list" *ngIf="getRecentTransactions(category)?.length">
-											@for (transaction of getRecentTransactions(category); track transaction.id) {
-											<div class="transaction-item">
-												<div class="transaction-info">
-													<span class="transaction-description">{{ transaction.payee }}</span>
-													<span class="transaction-date">{{ dateService.toDate(transaction.date) | date:'shortDate' }}</span>
-												</div>
-												<span class="transaction-amount" [class]="transaction.amount >= 0 ? 'positive' : 'negative'">
-													{{ transaction.amount | currency }}
-												</span>
-											</div>
-											}
-										</div>
-									</div>
-								</mat-tab>
-
-								<!-- Statistics Tab -->
-								<mat-tab label="Statistics">
-									<div class="tab-content">
-										<div class="detail-row">
-											<span class="detail-label">Total Transactions:</span>
-											<span class="detail-value">{{ getCategoryStats(category)?.totalTransactions || 0 }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Total Spent:</span>
-											<span class="detail-value negative">{{ getCategoryStats(category)?.totalSpent | currency }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Average Transaction:</span>
-											<span class="detail-value">{{ getCategoryStats(category)?.averageTransaction | currency }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Largest Transaction:</span>
-											<span class="detail-value negative">{{ getCategoryStats(category)?.largestTransaction | currency }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">This Month:</span>
-											<span class="detail-value negative">{{ getCategoryStats(category)?.thisMonth | currency }}</span>
-										</div>
-										<div class="detail-row">
-											<span class="detail-label">Last Month:</span>
-											<span class="detail-value negative">{{ getCategoryStats(category)?.lastMonth | currency }}</span>
-										</div>
-									</div>
-								</mat-tab>
-							</mat-tab-group>
-						</div>
 					</div>
-					}
-
-					<!-- Display sub-categories under their parent -->
-					@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
-					<div class="sub-category-item" [style.border-left-color]="subCategory.color" [class.expanded]="expandedCategory?.id === subCategory.id">
-						<div class="category-content">
-							<div class="category-info">
-								<div class="category-icon-name">
-									<div class="category-icon-container">
-										<mat-icon class="category-icon" [style.color]="subCategory.color">{{ subCategory.icon || 'category' }}</mat-icon>
-									</div>
-									<div class="category-header">
-										<h3 class="category-name">{{ subCategory.name }} <span class="text-[0.6rem] text-gray-400 italic"> {{subCategory.type | titlecase}} (Sub-category)</span></h3>
-									</div>
-								</div>
-								<div class="category-details">
-									<div class="category-spent">
-										<span class="category-spent-label">{{ subCategory.type === 'expense' ? 'Spent:' : 'Income:' }}</span>
-										<span class="category-spent-value">{{ subCategory.type === 'expense' ? (calculateTotalSpentPerMonth(subCategory) | currency) : (calculateTotalIncomePerMonth(subCategory) | currency) }}</span>
-									</div>
-								</div>
-							</div>
-							<div class="category-actions">
-								<mat-menu #subMenu="matMenu">
-									<button mat-menu-item (click)="editCategory(subCategory)" class="action-button edit-button" matTooltip="Edit sub-category">
-										<mat-icon>edit</mat-icon> Edit
-									</button>
-									<button mat-menu-item (click)="removeFromParentCategory(subCategory)" class="action-button remove-parent-button" matTooltip="Remove from parent category">
-										<mat-icon>account_tree_off</mat-icon> Remove from Parent
-									</button>
-									<button mat-menu-item (click)="deleteCategory(subCategory)" class="action-button delete-button" matTooltip="Delete sub-category">
-										<mat-icon>delete</mat-icon> Delete
-									</button>
-								</mat-menu>
-								<button matIconButton [matMenuTriggerFor]="subMenu">
-									<mat-icon>more_vert</mat-icon>
-								</button>
-							</div>
-						</div>
-					</div>
-					}
-					}
-				}
+				</div>
+				} } }
 			</div>
 		</section>
 	</div>
 </div>
-
