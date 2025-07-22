@@ -35,6 +35,7 @@ export class SignInComponent implements OnInit, OnDestroy {
   public showConfirmPassword = false;
   public passwordStrength = 0;
   public securityLevel = 'moderate';
+  public showSecurityNotice = false;
   
   signInForm!: FormGroup;
   private destroy$ = new Subject<void>();
@@ -62,6 +63,11 @@ export class SignInComponent implements OnInit, OnDestroy {
     this.setupFormValidation();
     this.checkSecurityStatus();
     this.startSecurityMonitoring();
+    
+    // Show security notice after main form is loaded for better LCP
+    setTimeout(() => {
+      this.showSecurityNotice = true;
+    }, 100);
   }
 
   ngOnDestroy(): void {
