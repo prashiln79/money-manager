@@ -44,7 +44,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   private readonly TABLET_BREAKPOINT = 768; // md
 
   private subscription = new Subscription();
-  categories: any[] = [];
+  categories: { [key: string]: Category } = {};
 
   constructor(
     private auth: Auth,
@@ -236,17 +236,23 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     const userId = this.auth.currentUser?.uid;
     if (userId) {
       this.store.select(selectAllCategories).subscribe((categories: Category[]) => {
-        this.categories = categories;
+        for (const category of categories) {
+          (this.categories as { [key: string]: Category })[category.id as string] = category;
+        }
       });
     }
   }
 
   getCategoryIcon(category: string): string {
-    return this.categories.find((c) => c.name === category)?.icon || "category";
+    return this.categories[category]?.icon || "category";
+  }
+
+  getCategoryName(categoryId: string): string {
+    return this.categories[categoryId]?.name || categoryId;
   }
 
   getCategoryColor(category: string): string {
-    return this.categories.find((c) => c.name === category)?.color || "#46777f";
+    return this.categories[category]?.color || "#46777f";
   }
 
   getDateDisplay(date: Date | any): string {
