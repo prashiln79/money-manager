@@ -204,6 +204,12 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
           name: 'Categories',
           type: 'pie',
           radius: '50%',
+          label: {
+            show: true,
+            position: 'outside',
+            formatter: '{b} ({d}%)',
+            
+          },
           data: categoryData,
           emphasis: {
             itemStyle: {
