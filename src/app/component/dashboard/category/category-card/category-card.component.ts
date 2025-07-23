@@ -32,18 +32,7 @@ export class CategoryCardComponent {
       return 0;
     }
 
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-
     return this.recentTransactions
-      .filter(transaction => {
-        const transactionDate = this.dateService.toDate(transaction.date);
-        if (!transactionDate) return false;
-        return transaction.categoryId === category.id &&
-          transaction.amount < 0 &&
-          transactionDate.getMonth() === currentMonth &&
-          transactionDate.getFullYear() === currentYear;
-      })
       .reduce((total, transaction) => total + Math.abs(transaction.amount), 0);
   }
 

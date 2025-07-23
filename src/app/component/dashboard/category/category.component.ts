@@ -24,6 +24,7 @@ import * as TransactionsSelectors from '../../../store/transactions/transactions
 import { TransactionType } from 'src/app/util/config/enums';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
+import moment from 'moment';
 
 @Component({
   selector: 'user-category',
@@ -339,16 +340,12 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public getRecentTransactions(category: Category): Transaction[] {
     if (!category || !category.name) return [];
-    
-    // Filter transactions by category name and sort by date (most recent first)
+  
     return this.transactions
-      .filter(transaction => transaction.category === category.name)
-      .sort((a, b) => {
-        const dateA = this.dateService.toDate(a.date) || new Date();
-        const dateB = this.dateService.toDate(b.date) || new Date();
-        return dateB.getTime() - dateA.getTime();
-      })
-      .slice(0, 10); // Return only the 10 most recent transactions
+      .filter(transaction =>
+        transaction.categoryId === category.id &&
+        moment( this.dateService.toDate(transaction.date) ).isSame(moment(), 'month')
+      )
   }
 
   /**

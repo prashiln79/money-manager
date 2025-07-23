@@ -28,7 +28,7 @@
   animation: slideIn 0.3s ease;
   
   @media (max-width: 640px) {
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 10px;
   }
   
@@ -225,6 +225,8 @@
           font-size: 0.775rem;
           font-weight: 600;
           color: #6b7280;
+          position: relative;
+          left: 1.4rem;
         }
       }
     }
