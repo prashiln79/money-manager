@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button 
+            (click)="navigateBack()"
+            class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-r from-primary to-primary-600">
+              <img src="assets/icon/app-icon/icon-192x192.png" alt="Money Manager" class="w-6 h-6">
+            </div>
+            <h1 class="text-xl font-bold text-gray-900">Privacy Policy</h1>
+          </div>
+        </div>
+        <div class="text-sm text-gray-500">
+          Last updated: {{ lastUpdated }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="container mx-auto px-4 py-8 overflow-y-auto h-screen">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-8">
+      
+      <!-- Introduction -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Introduction</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          Money Manager ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our money management application.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+          By using our application, you agree to the collection and use of information in accordance with this policy.
+        </p>
+      </section>
+
+      <!-- Information We Collect -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Information We Collect</h2>
+        
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Personal Information</h3>
+        <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+          <li>Name and email address when you create an account</li>
+          <li>Profile information you choose to provide</li>
+          <li>Financial data you input (transactions, budgets, goals)</li>
+          <li>Account preferences and settings</li>
+        </ul>
+
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Usage Information</h3>
+        <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+          <li>App usage patterns and features accessed</li>
+          <li>Device information and browser type</li>
+          <li>IP address and general location data</li>
+          <li>Error logs and performance data</li>
+        </ul>
+      </section>
+
+      <!-- How We Use Your Information -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">How We Use Your Information</h2>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+          <li>Provide and maintain our money management services</li>
+          <li>Process your transactions and financial data</li>
+          <li>Generate reports and insights about your finances</li>
+          <li>Improve our application and user experience</li>
+          <li>Send important updates and notifications</li>
+          <li>Provide customer support and respond to inquiries</li>
+          <li>Ensure security and prevent fraud</li>
+        </ul>
+      </section>
+
+      <!-- Data Storage and Security -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Data Storage and Security</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          We implement industry-standard security measures to protect your personal and financial information:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+          <li>End-to-end encryption for sensitive data</li>
+          <li>Secure cloud storage with regular backups</li>
+          <li>Multi-factor authentication for account access</li>
+          <li>Regular security audits and updates</li>
+          <li>Limited access to personal data by authorized personnel only</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+          Your data is stored securely and we never share your financial information with third parties without your explicit consent.
+        </p>
+      </section>
+
+      <!-- Data Sharing -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Data Sharing</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+          <li>With your explicit consent</li>
+          <li>To comply with legal obligations</li>
+          <li>To protect our rights and prevent fraud</li>
+          <li>With trusted service providers who assist in app operations (under strict confidentiality agreements)</li>
+        </ul>
+      </section>
+
+      <!-- Your Rights -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Your Rights</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          You have the following rights regarding your personal information:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+          <li><strong>Access:</strong> Request a copy of your personal data</li>
+          <li><strong>Correction:</strong> Update or correct inaccurate information</li>
+          <li><strong>Deletion:</strong> Request deletion of your account and data</li>
+          <li><strong>Portability:</strong> Export your data in a standard format</li>
+          <li><strong>Opt-out:</strong> Unsubscribe from marketing communications</li>
+        </ul>
+      </section>
+
+      <!-- Cookies and Tracking -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Cookies and Tracking</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          We use cookies and similar technologies to:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+          <li>Remember your preferences and settings</li>
+          <li>Analyze app usage and performance</li>
+          <li>Provide personalized features</li>
+          <li>Ensure security and prevent fraud</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+          You can control cookie settings through your browser preferences.
+        </p>
+      </section>
+
+      <!-- Children's Privacy -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Children's Privacy</h2>
+        <p class="text-gray-700 leading-relaxed">
+          Our application is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.
+        </p>
+      </section>
+
+      <!-- Changes to Privacy Policy -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Changes to This Privacy Policy</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          We may update this Privacy Policy from time to time. We will notify you of any changes by:
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+          <li>Posting the new Privacy Policy on this page</li>
+          <li>Sending you an email notification</li>
+          <li>Displaying a notice in the application</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+          Your continued use of the application after any changes constitutes acceptance of the updated Privacy Policy.
+        </p>
+      </section>
+
+      <!-- Contact Information -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Contact Us</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          If you have any questions about this Privacy Policy or our data practices, please contact us:
+        </p>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="space-y-2 text-gray-700">
+            <p><strong>Email:</strong> Prashiln79&#64;gmail.com</p>
+            <p><strong>Address:</strong> Goa, India</p>
+            <p><strong>Response Time:</strong> We aim to respond to all privacy-related inquiries within 48 hours.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <div class="border-t pt-6 mt-8">
+        <p class="text-sm text-gray-500 text-center">
+          This Privacy Policy is effective as of {{ lastUpdated }} and will remain in effect except with respect to any changes in its provisions in the future.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div> 

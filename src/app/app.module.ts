@@ -103,6 +103,7 @@ import { LandingComponent } from './component/landing/landing.component';
 import { CustomDateRangeDialogComponent } from './util/components/custom-date-range-dialog';
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
 import { FeedbackComponent } from './component/feedback/feedback.component';
+import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component';
 
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
@@ -174,6 +175,7 @@ import { RouterModule } from '@angular/router';
     ProfileComponent,
     NotificationSettingsComponent,
     FeedbackComponent,
+    PrivacyPolicyComponent,
 
   ],
   imports: [
