@@ -265,18 +265,18 @@
   position: relative;
   width: 100%;
   margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  border: 2.8px dashed #d4d5d7;
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
   @media (max-width: 640px) {
-    padding: 0.75rem;
+    padding: 0.75rem 1px 10px 1px ;
     border-radius: 10px;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-top: 0;
+    margin-bottom: 1rem0;
   }
 
   // Group Header Label
@@ -314,7 +314,7 @@
 
     @media (max-width: 640px) {
       left: 1.5rem;
-      top: -1.75rem;
+      top: -0.95rem;
       width: 1.5px;
       height: 3.75rem;
     }
@@ -379,7 +379,6 @@
     transform: scale(0.98);
     opacity: 0.95;
     transition: all 0.3s ease;
-    border-left: 3px solid #d1d5db;
     position: relative;
     
     &:hover {
