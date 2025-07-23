@@ -69,6 +69,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public editMode: boolean = false;
   public TransactionType = TransactionType;
   public groups$: Observable<SplitwiseGroup[]>;
+  public recurringMinDate: string;
+  public recurringMaxDate: string;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -86,7 +88,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     private breakpointObserver: BreakpointObserver,
     private splitwiseService: SplitwiseService
   ) {
-
+    this.recurringMinDate = moment().add(1, 'day').format('YYYY-MM-DD');
+    this.recurringMaxDate = moment().add(1, 'year').format('YYYY-MM-DD');
     this.store.dispatch(loadGroups());// Load groups
     this.groups$ = this.store.select(selectGroups);
     this.categoryList$ = this.store.select(selectAllCategories);
@@ -242,8 +245,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           paymentMethod: formData.paymentMethod || '',
           isRecurring: formData.isRecurring || false,
           recurringInterval: formData.recurringInterval || RecurringInterval.MONTHLY,
-          recurringEndDate: formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined,
-          nextOccurrence: formData.isRecurring ? new Date(formData.recurringStartDate || formData.date) : undefined,
+          recurringEndDate: formData.recurringEndDate ? new Date(formData.recurringEndDate) : null,
+          nextOccurrence: formData.isRecurring ? new Date(formData.recurringStartDate || formData.date) : null,
           status: TransactionStatus.COMPLETED,
           isSplitTransaction: formData.isSplitTransaction || false,
           splitGroupId: formData.splitGroupId || '',
@@ -421,9 +424,9 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
    */
   toggleSplitTransaction(): void {
    
-    this.transactionForm.patchValue({
-      isSplitTransaction: !this.transactionForm.get('isSplitTransaction')?.value
-    });
+    // this.transactionForm.patchValue({
+    //   isSplitTransaction: !this.transactionForm.get('isSplitTransaction')?.value
+    // });
 
     // Update validation for splitGroupId
     const splitGroupIdControl = this.transactionForm.get('splitGroupId');
