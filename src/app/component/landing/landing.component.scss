@@ -315,3 +315,51 @@ a:focus {
     transition-duration: 0.01ms !important;
   }
 } 
+
+.install-btn {
+  background-color: #ffffff;
+    border-radius: 16px;
+    padding: 5px;
+    width: 60px;
+    height: 59px;
+}
+
+/* Material Icon Styles */
+mat-icon {
+  font-size: inherit;
+  width: inherit;
+  height: inherit;
+  line-height: inherit;
+}
+
+/* Feature card icons */
+.group mat-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  line-height: 3rem;
+}
+
+/* How it works icons */
+.text-3xl mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+}
+
+/* Phone mockup icon */
+.text-lg mat-icon {
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  line-height: 1.25rem;
+}
+
+/* Footer icon */
+.text-lg mat-icon {
+  font-size: 1.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  line-height: 1.125rem;
+}

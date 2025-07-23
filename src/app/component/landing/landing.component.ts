@@ -10,29 +10,50 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 export class LandingComponent implements OnInit {
   features = [
     {
-      icon: '📊',
-      title: 'Smart Budgeting',
-      description: 'AI-powered budget recommendations and spending alerts to keep you on track.'
+      icon: 'account_balance',
+      title: 'Connect Bank',
+      description: 'Securely connect your bank accounts for automatic transaction tracking and real-time balance updates.'
     },
     {
-      icon: '📈',
+      icon: 'pie_chart',
+      title: 'Smart Budgeting',
+      description: 'Create and manage budgets with intelligent spending alerts to keep you on track.'
+    },
+    {
+      icon: 'category',
+      title: 'Sub Category',
+      description: 'Create and manage sub categories to track your spending.'
+    },
+    //sub category
+    {
+      icon: 'trending_up',
       title: 'Real-Time Insights',
       description: 'Get instant financial insights and trends with beautiful charts and analytics.'
     },
     {
-      icon: '🏦',
-      title: 'Bank Syncing',
-      description: 'Securely connect all your bank accounts for automatic transaction tracking.'
-    },
-    {
-      icon: '🎯',
+      icon: 'flag',
       title: 'Goal Tracking',
       description: 'Set savings goals and track your progress with visual milestones.'
     },
     {
-      icon: '🔒',
-      title: 'Bank-Level Security',
-      description: '256-bit encryption and biometric authentication to protect your data.'
+      icon: 'wifi_off',
+      title: 'Offline Access',
+      description: 'Access your data anytime, even without an internet connection.'
+    },
+    {
+      icon: 'currency_exchange',
+      title: 'Multiple Currency Support',
+      description: 'Manage your finances in multiple currencies with ease.'
+    },
+    {
+      icon: 'devices',
+      title: 'PWA - Multi-Platform Support',
+      description: 'Access your data on multiple devices web, android and ios'
+    },
+    {
+      icon: 'security',
+      title: 'Secure & Private',
+      description: 'Your financial data is protected with industry-standard security measures.'
     }
   ];
 
@@ -41,25 +62,19 @@ export class LandingComponent implements OnInit {
       step: '1',
       title: 'Download & Sign Up',
       description: 'Get the app from App Store or Play Store and create your account in seconds.',
-      icon: '📱'
+      icon: 'smartphone'
     },
     {
       step: '2',
-      title: 'Connect Your Banks',
-      description: 'Securely link your bank accounts for automatic transaction syncing.',
-      icon: '🏦'
+      title: 'Set Your Goals',
+      description: 'Define your financial goals and create personalized budgets.',
+      icon: 'flag'
     },
     {
       step: '3',
-      title: 'Set Your Goals',
-      description: 'Define your financial goals and create personalized budgets.',
-      icon: '🎯'
-    },
-    {
-      step: '4',
       title: 'Track & Grow',
       description: 'Monitor your progress and watch your savings grow with smart insights.',
-      icon: '📈'
+      icon: 'trending_up'
     }
   ];
 
