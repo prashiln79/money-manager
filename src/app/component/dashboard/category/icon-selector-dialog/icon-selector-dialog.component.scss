@@ -235,29 +235,30 @@
 				font-size: 2rem;
 				width: 2rem;
 				height: 2rem;
-				margin: 0.5rem;
+				margin: 0.75rem;
 				margin-top: 0.75rem;
 			}
 
 			.icon-name {
-				font-size: 0.6rem;
-				font-weight: 600;
-				font-family: "Roboto Mono", monospace;
+				font-size: 0.75rem;
+				font-weight: 800;
+				font-family: serif;
 				color: #6b7280;
 				text-align: center;
-				line-height: 1.2;
 				word-break: break-word;
 				width: 100%;
-				height: 20px;
-				background-color: rgb(70 119 127 / 6%);
+				height: 21px;
+				background-color: rgb(129 158 163 / 6%);
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				line-height: 1;
+				text-transform: capitalize;
+				
 				
 
 				@media (max-width: 480px) {
-					padding: 5px;
+					padding: 4px 8px;
 					
 				}
 			}
