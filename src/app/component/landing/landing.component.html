@@ -25,14 +25,20 @@
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
           <button 
+            (click)="navigateToSignUp()"
+            class="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-primary-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <mat-icon class="!text-[1.5rem] ">person_add</mat-icon>
+            <span class="text-lg">Get Started Free</span>
+          </button>
+          <!-- <button 
             (click)="installPwa()"
-            class="flex items-center justify-center gap-3 px-6 py-4 bg-gray-500  text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            class="flex items-center justify-center gap-3 px-6 py-4 bg-gray-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
             <span class="text-xl"><img src="assets/icon/app-icon/icon-192x192.png" alt="Money Manager" class="w-10 h-10 install-btn"></span>
             <div class="text-left">
               <div class="text-xs">Install</div>
               <div class="text-sm font-bold">Money Manager</div>
             </div>
-          </button>
+          </button> -->
         </div>
       </div>
 
@@ -154,133 +160,98 @@
   </div>
 </section>
 
-
-<!-- Footer -->
-<footer class="py-16 bg-gray-900 text-white">
-  <div class="container mx-auto px-4">
-    <!-- Main Footer Content -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
-      <!-- Company Info -->
-      <div class="sm:col-span-2 lg:col-span-2">
-        <div class="flex items-center mb-6">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 shadow-lg bg-gradient-to-r from-primary to-primary-600">
-            <img src="assets/icon/app-icon/icon-192x192.png" alt="Money Manager" class="w-8 h-8">
-          </div>
-          <div>
-            <h3 class="text-2xl font-bold">Money Manager</h3>
-            <p class="text-sm text-gray-400">Simple Money Management</p>
-          </div>
+<!-- Final CTA Section -->
+<section class="py-20 bg-gradient-to-r from-primary via-primary-600 to-primary">
+  <div class="container mx-auto text-center px-4 flex flex-col items-center justify-center">
+    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+      Ready to Get Started?
+    </h2>
+    <p class="text-xl text-primary-100 mb-8 mx-auto leading-relaxed">
+      Join thousands of users who are already managing their money smarter.
+    </p>
+    
+    <!-- Features -->
+    <div class="flex flex-wrap items-center justify-center gap-6 mb-8">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+          <span class="text-white text-xs">✓</span>
         </div>
-        <p class="text-gray-400 mb-6 max-w-lg leading-relaxed">
-          A comprehensive money management app that helps you track expenses, manage budgets, and achieve your financial goals with ease.
-        </p>
-        
-        <!-- Social Links -->
-        <div class="flex space-x-4">
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors duration-300">
-            <mat-icon class="text-lg">facebook</mat-icon>
-          </a>
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors duration-300">
-            <mat-icon class="text-lg">twitter</mat-icon>
-          </a>
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors duration-300">
-            <mat-icon class="text-lg">linkedin</mat-icon>
-          </a>
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors duration-300">
-            <mat-icon class="text-lg">email</mat-icon>
-          </a>
+        <span class="text-primary-100 text-sm">Free to use</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+          <span class="text-white text-xs">✓</span>
         </div>
+        <span class="text-primary-100 text-sm">Works offline</span>
       </div>
-
-      <!-- Product Links -->
-      <div class="sm:col-span-1">
-        <h4 class="font-semibold text-lg mb-6 text-primary-400">Product</h4>
-        <ul class="space-y-3">
-          <li><a href="#features" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">featured_play_list</mat-icon>
-            Features
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">security</mat-icon>
-            Security
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">privacy_tip</mat-icon>
-            Privacy Policy
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">description</mat-icon>
-            Terms of Service
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">update</mat-icon>
-            Updates
-          </a></li>
-        </ul>
-      </div>
-
-      <!-- Support Links -->
-      <div class="sm:col-span-1">
-        <h4 class="font-semibold text-lg mb-6 text-primary-400">Support</h4>
-        <ul class="space-y-3">
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">help</mat-icon>
-            Help Center
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">contact_support</mat-icon>
-            Contact Us
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">feedback</mat-icon>
-            Feedback
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">bug_report</mat-icon>
-            Report Bug
-          </a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300 flex items-center">
-            <mat-icon class="text-base mr-3">forum</mat-icon>
-            Community
-          </a></li>
-        </ul>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+          <span class="text-white text-xs">✓</span>
+        </div>
+        <span class="text-primary-100 text-sm">No ads</span>
       </div>
     </div>
 
-    <!-- Newsletter Section -->
-    <div class="border-t border-gray-800 pt-8 mb-8">
-      <div class="max-w-md mx-auto lg:mx-0">
-        <h4 class="font-semibold text-lg mb-3 text-primary-400">Stay Updated</h4>
-        <p class="text-gray-400 mb-4 text-sm">Get the latest updates and tips for better money management.</p>
-        <div class="flex">
-          <input type="email" placeholder="Enter your email" 
-                 class="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary">
-          <button class="px-6 py-3 bg-primary hover:bg-primary-600 text-white rounded-r-lg transition-colors duration-300 flex items-center justify-center">
-            <mat-icon class="text-lg">send</mat-icon>
-          </button>
+    <!-- CTA Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <button 
+        (click)="navigateToSignUp()"
+        class="flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <mat-icon class="text-xl">person_add</mat-icon>
+        <span class="text-lg font-bold">Get Started Free</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-12 bg-gray-900 text-white">
+  <div class="container mx-auto px-4">
+    <!-- Main Footer Content -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+      <!-- Company Info -->
+      <div class="md:col-span-2">
+        <div class="flex items-start mb-4">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3 bg-gradient-to-r from-primary to-primary-600">
+            <img src="assets/icon/app-icon/icon-192x192.png" alt="Money Manager" class="w-6 h-6">
+          </div>
+          <div>
+            <h3 class="text-xl font-bold">Money Manager</h3>
+            <p class="text-sm text-gray-400">Simple Money Management</p>
+          </div>
         </div>
+        <p class="text-gray-400 mb-4 max-w-md leading-relaxed">
+          Track expenses, manage budgets, and organize your finances with ease.
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h4 class="font-semibold mb-4 text-primary-400">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="#features" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Features</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Privacy Policy</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Terms of Service</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Contact</a></li>
+        </ul>
       </div>
     </div>
 
     <!-- Bottom Footer -->
-    <div class="border-t border-gray-800 pt-8">
-      <div class="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
-        <div class="text-gray-400 text-sm text-center lg:text-left">
+    <div class="border-t border-gray-800 pt-6">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+        <div class="text-gray-400 text-sm">
           <p>&copy; 2024 Money Manager. All rights reserved.</p>
         </div>
         
-        <div class="flex items-center space-x-6 text-sm text-gray-400">
+        <div class="flex items-center space-x-4 text-sm text-gray-400">
           <span class="flex items-center">
-            <mat-icon class="text-base mr-2">verified</mat-icon>
-            SSL Secured
+            <mat-icon class="text-sm mr-1">security</mat-icon>
+            Secure
           </span>
           <span class="flex items-center">
-            <mat-icon class="text-base mr-2">cloud_done</mat-icon>
+            <mat-icon class="text-sm mr-1">cloud_done</mat-icon>
             Cloud Sync
-          </span>
-          <span class="flex items-center">
-            <mat-icon class="text-base mr-2">devices</mat-icon>
-            Multi-Platform
           </span>
         </div>
       </div>

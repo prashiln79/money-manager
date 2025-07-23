@@ -54,6 +54,11 @@ export class LandingComponent implements OnInit {
       icon: 'security',
       title: 'Secure & Private',
       description: 'Your financial data is protected with industry-standard security measures.'
+    },
+    {
+      icon: 'cloud',
+      title: 'Cloud Sync',
+      description: 'Sync your data across all your devices with ease.'
     }
   ];
 
