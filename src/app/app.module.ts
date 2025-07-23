@@ -117,6 +117,9 @@ import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-ba
 import { PwaNavigationBarComponent } from './util/components/pwa-navigation-bar/pwa-navigation-bar.component';
 import { PwaInstallPromptComponent } from './util/components/pwa-install-prompt/pwa-install-prompt.component';
 
+// Background Sync Service
+import { BackgroundSyncService } from './util/service/background-sync.service';
+
 
 // NgRx Store
 import { AppStoreModule } from './store';
@@ -247,6 +250,7 @@ import { RouterModule } from '@angular/router';
     provideHttpClient(withInterceptors([securityInterceptor])),
     Papa,
     provideClientHydration(),
+    BackgroundSyncService,
 
     // Firebase Initialization
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),

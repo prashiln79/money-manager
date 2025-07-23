@@ -18,6 +18,7 @@ import { CreateSplitTransactionRequest, SplitwiseGroup, TransactionSplit } from 
 import * as SplitwiseActions from '../../modules/splitwise/store/splitwise.actions';
 import { selectGroups } from '../../modules/splitwise/store/splitwise.selectors';
 import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
+import { BackgroundSyncService } from './background-sync.service';
 
 
 interface OfflineOperation {
@@ -43,7 +44,8 @@ export class TransactionsService {
         private dateService: DateService,
         private store: Store<AppState>,
         private accountsService: AccountsService,
-        private splitwiseService: SplitwiseService
+        private splitwiseService: SplitwiseService,
+        private backgroundSyncService: BackgroundSyncService
     ) {
         this.initializeOfflineHandling();
     }
@@ -90,6 +92,15 @@ export class TransactionsService {
 
         this.offlineQueue.push(offlineOp);
         await this.saveOfflineQueue();
+
+        // Register with background sync service
+        if (this.backgroundSyncService.isSupported()) {
+            await this.backgroundSyncService.registerSyncItem({
+                id: offlineOp.id,
+                type: 'transaction',
+                data: offlineOp
+            });
+        }
     }
 
     private generateId(): string {
@@ -186,6 +197,9 @@ export class TransactionsService {
                 // Remove processed operations from queue
                 this.offlineQueue = this.offlineQueue.filter(op => !processedOperations.includes(op.id));
                 await this.saveOfflineQueue();
+
+                // Clear completed items from background sync service
+                await this.backgroundSyncService.clearCompletedItems();
 
                 console.log(`✅ Processed ${processedOperations.length} offline operations`);
             } catch (error) {
