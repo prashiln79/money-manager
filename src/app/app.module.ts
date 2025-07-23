@@ -6,36 +6,6 @@ import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-// Angular Material Modules
-import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatTableModule } from '@angular/material/table';
-import { MatSortModule } from '@angular/material/sort';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
 
 // ngx-papaparse
 import { Papa } from 'ngx-papaparse';
@@ -81,7 +51,6 @@ import { CategoryComponent } from './component/dashboard/category/category.compo
 import { CategoryCardComponent } from './component/dashboard/category/category-card/category-card.component';
 import { LoaderComponent } from './util/components/loader/loader.component';
 import { HomeComponent } from './component/dashboard/home/home.component';
-import { ConfirmDialogComponent } from './util/components/confirm-dialog/confirm-dialog.component';
 import { ImportTransactionsComponent } from './component/dashboard/transaction-list/add-transaction/import-transactions.component';
 import { ReportsComponent } from './component/dashboard/reports/reports.component';
 import { TaxComponent } from './component/dashboard/tax/tax.component';
@@ -128,6 +97,7 @@ import { CurrencyPipe } from './util/pipes';
 // Security
 import { securityInterceptor } from './util/interceptors/security.interceptor';
 import { RouterModule } from '@angular/router';
+import { SharedModule } from './modules/shared/shared.module';
 
 
 @NgModule({
@@ -154,7 +124,6 @@ import { RouterModule } from '@angular/router';
     CategoryComponent,
     CategoryCardComponent,
     HomeComponent,
-    ConfirmDialogComponent,
     ImportTransactionsComponent,
     ReportsComponent,
     TaxComponent,
@@ -187,39 +156,8 @@ import { RouterModule } from '@angular/router';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
     LoaderComponent,
-
-    // Material Modules
-    MatCardModule,
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressBarModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSidenavModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatToolbarModule,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatTabsModule,
-    MatButtonToggleModule,
-    MatInputModule,
-    MatDialogModule,
-    MatMenuModule,
-    MatDatepickerModule,
-    MatCheckboxModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatSlideToggleModule,
-    MatAutocompleteModule,
-    MatExpansionModule,
-    MatDividerModule,
-    MatChipsModule,
+    SharedModule,
 
     // Utility
     IconModule,

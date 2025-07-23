@@ -548,6 +548,159 @@ export class TransactionsService {
     }
 
     /**
+     * Get recurring transactions for a user
+     */
+    getRecurringTransactions(userId: string): Observable<Transaction[]> {
+        const transactionsRef = query(
+            collection(this.firestore, `users/${userId}/transactions`),
+            orderBy('date', 'desc')
+        );
+
+        return new Observable<Transaction[]>(observer => {
+            const unsubscribe = onSnapshot(
+                transactionsRef,
+                (querySnapshot) => {
+                    const transactions: Transaction[] = [];
+
+                    querySnapshot.forEach(doc => {
+                        const transaction = { id: doc.id, ...doc.data() } as Transaction;
+                        transactions.push(transaction);
+                    });
+
+                    // Filter only recurring transactions
+                    const recurringTransactions = transactions.filter(t => t.isRecurring === true);
+                    
+                    observer.next(recurringTransactions);
+                },
+                (error) => {
+                    console.error('Failed to fetch recurring transactions:', error);
+                    observer.next([]);
+                }
+            );
+
+            return () => unsubscribe();
+        });
+    }
+
+    /**
+     * Get recurring transactions that are due (next occurrence is today or in the past)
+     */
+    getDueRecurringTransactions(userId: string): Observable<Transaction[]> {
+        return this.getRecurringTransactions(userId).pipe(
+            map(transactions => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                return transactions.filter(transaction => {
+                    if (!transaction.nextOccurrence) return false;
+                    
+                    const nextOccurrence = transaction.nextOccurrence instanceof Date 
+                        ? transaction.nextOccurrence 
+                        : transaction.nextOccurrence.toDate();
+                    
+                    nextOccurrence.setHours(0, 0, 0, 0);
+                    
+                    return nextOccurrence <= today;
+                });
+            })
+        );
+    }
+
+    /**
+     * Process a recurring transaction and update its next occurrence
+     */
+    processRecurringTransaction(userId: string, transaction: Transaction): Observable<void> {
+        return new Observable<void>(observer => {
+            const processAsync = async () => {
+                try {
+                    // Create a new transaction for the current occurrence
+                    const newTransaction: Omit<Transaction, 'id'> = {
+                        ...transaction,
+                        date: new Date(),
+                        nextOccurrence: undefined, // Remove recurring info for the new transaction
+                        isRecurring: false,
+                        recurringInterval: undefined,
+                        recurringEndDate: undefined,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        createdBy: userId,
+                        updatedBy: userId,
+                        syncStatus: SyncStatus.SYNCED,
+                        isPending: false,
+                        lastSyncedAt: new Date()
+                    };
+
+                    // Create the new transaction
+                    await this.createTransaction(userId, newTransaction).toPromise();
+
+                    // Update the original recurring transaction with next occurrence
+                    const nextOccurrence = this.calculateNextOccurrence(
+                        transaction.recurringInterval!,
+                        transaction.nextOccurrence || new Date()
+                    );
+
+                    const updateData: Partial<Transaction> = {
+                        nextOccurrence: nextOccurrence,
+                        updatedAt: new Date(),
+                        updatedBy: userId
+                    };
+
+                    // Check if we've reached the end date
+                    if (transaction.recurringEndDate) {
+                        const endDate = transaction.recurringEndDate instanceof Date 
+                            ? transaction.recurringEndDate 
+                            : transaction.recurringEndDate.toDate();
+                        
+                        if (nextOccurrence > endDate) {
+                            // Mark as non-recurring since we've reached the end
+                            updateData.isRecurring = false;
+                            updateData.recurringInterval = undefined;
+                            updateData.recurringEndDate = undefined;
+                        }
+                    }
+
+                    await this.updateTransaction(userId, transaction.id!, updateData).toPromise();
+
+                    observer.next();
+                    observer.complete();
+                } catch (error) {
+                    console.error('Error processing recurring transaction:', error);
+                    observer.error(error);
+                }
+            };
+
+            processAsync();
+        });
+    }
+
+    /**
+     * Calculate the next occurrence date based on the recurring interval
+     */
+    private calculateNextOccurrence(interval: RecurringInterval, currentDate: Date | Timestamp): Date {
+        const date = currentDate instanceof Date ? currentDate : currentDate.toDate();
+        const nextDate = new Date(date);
+
+        switch (interval) {
+            case RecurringInterval.DAILY:
+                nextDate.setDate(nextDate.getDate() + 1);
+                break;
+            case RecurringInterval.WEEKLY:
+                nextDate.setDate(nextDate.getDate() + 7);
+                break;
+            case RecurringInterval.MONTHLY:
+                nextDate.setMonth(nextDate.getMonth() + 1);
+                break;
+            case RecurringInterval.YEARLY:
+                nextDate.setFullYear(nextDate.getFullYear() + 1);
+                break;
+            default:
+                nextDate.setMonth(nextDate.getMonth() + 1); // Default to monthly
+        }
+
+        return nextDate;
+    }
+
+    /**
  * Create split transaction
  */
     private async createSplitTransaction(selectedGroupId: string, formData: any, originalTransactionId: string, userId: string): Promise<void> {

@@ -1,0 +1,148 @@
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <div class="header-content">
+    <div class="header-left">
+      <button 
+        mat-icon-button 
+        type="button" 
+        (click)="cancel()" 
+        matTooltip="Close" 
+        class="close-button mobile-only"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h6 class="header-title">
+        Recurring Transactions
+      </h6>
+    </div>
+    
+    <!-- Desktop Close Button -->
+    <button 
+      mat-icon-button 
+      type="button" 
+      (click)="cancel()" 
+      matTooltip="Close" 
+      class="close-button desktop-only"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+    
+    <!-- <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="confirm()" 
+      [disabled]="getSelectedTransactions().length === 0" 
+      matTooltip="Process Selected" 
+      class="save-button"
+    >
+      <mat-icon>check</mat-icon>
+      Process ({{ getSelectedTransactions().length }})
+    </button> -->
+  </div>
+</div>
+
+<!-- Mobile Form Content -->
+<div class="mobile-content">
+  <div class="form-container">
+    
+    <!-- Description -->
+    <div class="form-field">
+      <label class="field-label">
+        <mat-icon class="field-icon">schedule</mat-icon>
+        Due Transactions
+      </label>
+      <p class="field-description">
+        Select which recurring transactions you'd like to process:
+      </p>
+    </div>
+
+    <!-- Select All -->
+    <div class="form-field">
+      <mat-checkbox 
+        [checked]="allSelected" 
+        (change)="allSelected ? deselectAll() : selectAll()"
+        color="primary"
+        class="select-all-checkbox">
+        Select All Transactions
+      </mat-checkbox>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="form-field">
+      <div class="transactions-list">
+        <div 
+          *ngFor="let transaction of data.transactions; trackBy: trackByTransactionId" 
+          class="transaction-item"
+          [class.selected]="transaction.id && selectedTransactions.has(transaction.id)">
+          
+          <mat-checkbox 
+            [checked]="transaction.id && selectedTransactions.has(transaction.id)"
+            (change)="transaction.id && toggleTransaction(transaction.id)"
+            color="primary"
+            class="transaction-checkbox">
+          </mat-checkbox>
+
+          <div class="transaction-details">
+            <div class="transaction-header">
+              <span class="payee">{{ transaction.payee }}</span>
+              <span class="amount" [class.income]="transaction.type === 'income'" [class.expense]="transaction.type === 'expense'">
+                {{ formatAmount(transaction.amount) }}
+              </span>
+            </div>
+            
+            <div class="transaction-meta">
+              <span class="category">{{ transaction.category }}</span>
+              <span class="interval">{{ getRecurringIntervalText(transaction.recurringInterval!) }}</span>
+            </div>
+
+            <div class="transaction-notes" *ngIf="transaction.notes">
+              <mat-icon class="note-icon">note</mat-icon>
+              <span>{{ transaction.notes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="form-field" *ngIf="getSelectedTransactions().length > 0">
+      <label class="field-label">
+        <mat-icon class="field-icon">calculate</mat-icon>
+        Summary
+      </label>
+      <div class="summary-content">
+        <div class="summary-item">
+          <span class="summary-label">Selected Transactions:</span>
+          <span class="summary-value">{{ getSelectedTransactions().length }}</span>
+        </div>
+        <div class="summary-item total">
+          <span class="summary-label">Total Amount:</span>
+          <span class="summary-value total-amount">{{ formatAmount(getSelectedTransactionsTotal()) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-field">
+      <div class="action-buttons">
+        <button 
+          mat-stroked-button 
+          (click)="skip()"
+          class="skip-button">
+          Skip All
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="confirm()"
+          [disabled]="getSelectedTransactions().length === 0"
+          class="confirm-button">
+          Process Selected
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Spacing for Mobile -->
+    <div class="bottom-spacing"></div>
+  </div>
+</div> 

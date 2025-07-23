@@ -152,6 +152,14 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
         taxPercentage: this.dialogData.taxPercentage || 0,
         taxes: this.dialogData.taxes || [],
         paymentMethod: this.dialogData.paymentMethod || '',
+        isRecurring: this.dialogData.isRecurring || false,
+        recurringInterval: this.dialogData.recurringInterval || RecurringInterval.MONTHLY,
+        recurringStartDate: this.dialogData.nextOccurrence ?
+          moment(this.dateService.toDate(this.dialogData.nextOccurrence)).format('YYYY-MM-DD') :
+          moment().format('YYYY-MM-DD'),
+        recurringEndDate: this.dialogData.recurringEndDate ?
+          moment(this.dateService.toDate(this.dialogData.recurringEndDate)).format('YYYY-MM-DD') :
+          moment().add(1, 'year').format('YYYY-MM-DD'),
       });
       // this.isSplitTransaction = this.dialogData.isSplitTransaction || false;
       this.transactionForm.get('isSplitTransaction')?.setValue(this.dialogData.isSplitTransaction || false);
@@ -234,6 +242,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           paymentMethod: formData.paymentMethod || '',
           isRecurring: formData.isRecurring || false,
           recurringInterval: formData.recurringInterval || RecurringInterval.MONTHLY,
+          recurringEndDate: formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined,
+          nextOccurrence: formData.isRecurring ? new Date(formData.recurringStartDate || formData.date) : undefined,
           status: TransactionStatus.COMPLETED,
           isSplitTransaction: formData.isSplitTransaction || false,
           splitGroupId: formData.splitGroupId || '',

@@ -286,6 +286,78 @@
 				}
 			</div>
 
+			<!-- Recurring Transaction Section -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+				<div class="flex items-center justify-between mb-4">
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+						Recurring Transaction
+					</label>
+					<mat-slide-toggle formControlName="isRecurring"></mat-slide-toggle>
+				</div>
+
+				<!-- Recurring Transaction Options -->
+				@if(transactionForm.get('isRecurring')?.value) {
+					<div class="space-y-4">
+						<!-- Recurring Interval -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+								Repeat Every
+							</label>
+							<mat-form-field appearance="fill" class="w-full">
+								<mat-label>Select interval</mat-label>
+								<mat-select formControlName="recurringInterval">
+									<mat-option [value]="'daily'">Daily</mat-option>
+									<mat-option [value]="'weekly'">Weekly</mat-option>
+									<mat-option [value]="'monthly'">Monthly</mat-option>
+									<mat-option [value]="'yearly'">Yearly</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<!-- Start Date -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+								Start Date
+							</label>
+							<input 
+								type="date" 
+								formControlName="recurringStartDate"
+								class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							/>
+						</div>
+
+						<!-- End Date -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+								End Date (Optional)
+							</label>
+							<input 
+								type="date" 
+								formControlName="recurringEndDate"
+								class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Leave empty for unlimited recurrence</p>
+						</div>
+
+						<!-- Recurring Info -->
+						<div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+							<div class="flex items-center gap-2 mb-2">
+								<mat-icon class="text-sm text-blue-600 dark:text-blue-400">info</mat-icon>
+								<span class="text-sm font-medium text-blue-800 dark:text-blue-200">Recurring Details</span>
+							</div>
+							<div class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+								<p>• Transaction will repeat {{ transactionForm.get('recurringInterval')?.value || 'monthly' }}</p>
+								<p>• Starting from {{ transactionForm.get('recurringStartDate')?.value || 'today' }}</p>
+								@if(transactionForm.get('recurringEndDate')?.value) {
+									<p>• Until {{ transactionForm.get('recurringEndDate')?.value }}</p>
+								}
+								<p>• You'll be notified when each occurrence is due</p>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+
 			<!-- Tax Fields -->
 			<mat-expansion-panel class="bg-white dark:bg-gray-800 shadow-sm border-0">
 				<mat-expansion-panel-header class="px-4 py-3">
