@@ -825,7 +825,7 @@
   margin-bottom: 1rem;
 
   @media (max-width: 640px) {
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 10px;
   }
 
@@ -838,6 +838,7 @@
   .no-budget-content {
     display: flex;
     align-items: center;
+    align-items: flex-start;
     gap: 0.75rem;
 
     .no-budget-icon {
@@ -846,7 +847,7 @@
       width: 1.5rem;
       height: 1.5rem;
       background: #f59e0b;
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 0.5rem;
       display: flex;
       align-items: center;
@@ -858,7 +859,7 @@
       flex: 1;
 
       .no-budget-title {
-        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        font-size: clamp(0.8rem, 2.5vw, 1.25rem);
         font-weight: 600;
         color: #1f2937;
         margin: 0 0 0.25rem 0;
