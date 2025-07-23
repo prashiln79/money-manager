@@ -7,15 +7,13 @@
 		</button>
 	</div>
 
-	<button mat-fab color="primary" *ngIf="isMobile && !home" (click)="openAddMobileDialog()" class="add-category-btn z-[100]">
+	<button mat-fab color="primary" *ngIf="isMobile && !home" (click)="openAddMobileDialog()" class="mobile-fab-btn add-category-btn">
 		<mat-icon>add</mat-icon>
 	</button>
 
-	<div class="fab-button" *ngIf="!isMobile">
-		<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn">
-			<mat-icon>add</mat-icon>
-		</button>
-	</div>
+	<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn" *ngIf="!isMobile">
+		<mat-icon>add</mat-icon>
+	</button>
 
 	<!-- Main Content -->
 	<div class="categories-grid">

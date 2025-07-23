@@ -43,7 +43,6 @@
   background: inherit;
   overflow: auto;
   position: relative;
-  min-height: 100vh;
   
   @media (max-width: 640px) {
     padding: 0.5rem;
@@ -880,42 +879,16 @@
 // FLOATING ADD BUTTON
 // =============================================================================
 .add-category-btn {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 1000;
+  position: fixed !important;
+  bottom: 8rem;
+  right: 1rem;
+  z-index: 100;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
-  
-  @media (max-width: 640px) {
-    bottom: 1.5rem;
-    right: 1.5rem;
-  }
   
   &:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.fab-button {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 1000;
-  
-  .desktop-fab-btn {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: all 0.2s ease;
-    
-    &:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    }
-  }
-  
-  @media (max-width: 640px) {
-    display: none;
   }
 }
 
