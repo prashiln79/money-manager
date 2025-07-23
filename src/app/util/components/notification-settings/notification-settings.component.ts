@@ -170,6 +170,10 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
   async requestPermission(): Promise<void> {
     this.isLoading = true;
     try {
+      // First initialize messaging with permission request
+      await this.messagingService.initializeMessagingWithPermission();
+      
+      // Then get the permission status
       const permission = await this.messagingService.requestPermission();
       console.log('Permission result:', permission);
       

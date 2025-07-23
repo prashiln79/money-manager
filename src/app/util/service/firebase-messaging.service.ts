@@ -63,7 +63,7 @@ export class FirebaseMessagingService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.platformInfo = this.detectPlatform();
-    this.initializeMessaging();
+    this.initializeMessagingWithoutPermission();
   }
 
   private detectPlatform(): PlatformInfo {
@@ -119,6 +119,64 @@ export class FirebaseMessagingService {
 
   public getPlatformInfo(): PlatformInfo {
     return this.platformInfo;
+  }
+
+  private async initializeMessagingWithoutPermission(): Promise<void> {
+    try {
+      // Skip initialization on server-side
+      if (isPlatformServer(this.platformId)) {
+        console.log('Skipping Firebase messaging initialization on server-side');
+        return;
+      }
+
+      // Check platform support
+      if (!this.platformInfo.supportsNotifications) {
+        console.warn('This browser does not support notifications');
+        return;
+      }
+
+      if (!this.platformInfo.supportsServiceWorker) {
+        console.warn('Service Worker not supported');
+        return;
+      }
+
+      // Platform-specific initialization
+      await this.initializePlatformSpecific();
+
+      // Register Firebase messaging service worker first
+      await this.registerFirebaseMessagingSW();
+
+      // Initialize Firebase messaging
+      this.messaging = getMessaging();
+      
+      // Set up permission observer
+      this.permissionSubject.next(Notification.permission);
+      
+      // Listen for permission changes
+      if ('permissions' in navigator) {
+        navigator.permissions.query({ name: 'notifications' as PermissionName }).then(permission => {
+          permission.onchange = () => {
+            this.ngZone.run(() => {
+              this.permissionSubject.next(Notification.permission);
+            });
+          };
+        });
+      }
+
+      // Set up foreground message handler
+      onMessage(this.messaging, (payload) => {
+        this.ngZone.run(async () => {
+          console.log('Foreground message received:', payload);
+          await this.handleForegroundMessage(payload);
+        });
+      });
+
+      // Don't automatically request permission - let user do it manually
+      console.log('Firebase messaging initialized without automatic permission request');
+      
+    } catch (error) {
+      console.error('Failed to initialize Firebase messaging:', error);
+    }
   }
 
   private async initializeMessaging(): Promise<void> {
@@ -728,6 +786,14 @@ export class FirebaseMessagingService {
 
   public getServiceWorkerRegistration(): ServiceWorkerRegistration | null {
     return this.swRegistration;
+  }
+
+  /**
+   * Manually initialize messaging with permission request
+   * This method should be called when the user explicitly wants to enable notifications
+   */
+  public async initializeMessagingWithPermission(): Promise<void> {
+    await this.initializeMessaging();
   }
 
   // Method to send test notification
