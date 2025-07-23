@@ -23,11 +23,13 @@ import { NotificationSettingsComponent } from './util/components/notification-se
 import { FeedbackComponent } from './component/feedback/feedback.component';
 import { AppShellComponent } from './app-shell/app-shell.component';
 import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component';
+import { TermsConditionsComponent } from './component/terms-conditions/terms-conditions.component';
 
 export const routes: Routes = [
   { path: 'shell', component: AppShellComponent },
   { path: 'landing', component: LandingComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
+  { path: 'terms-conditions', component: TermsConditionsComponent },
   { path: 'sign-in', component: SignInComponent },
   { path: 'sign-up', component: SignInComponent },
   { path: 'register', component: RegistrationComponent },
