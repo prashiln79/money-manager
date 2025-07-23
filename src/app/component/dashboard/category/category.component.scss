@@ -42,6 +42,8 @@
 .categories-container {
   background: inherit;
   overflow: auto;
+  position: relative;
+  min-height: 100vh;
   
   @media (max-width: 640px) {
     padding: 0.5rem;
@@ -92,7 +94,7 @@
 // =============================================================================
 .categories-grid {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -104,7 +106,6 @@
   }
   
   @media (min-width: 768px) {
-    flex-wrap: nowrap;
     gap: 3rem;
   }
   
@@ -208,11 +209,21 @@
   
   // Categories Grid List
   .categories-grid-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 1rem;
     max-height: calc(92vh - 250px);
     overflow-y: auto;
+    
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    @media (min-width: 1200px) {
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 2rem;
+    }
     
     @media (max-width: 640px) {
       max-height: 100vh;
@@ -304,9 +315,9 @@
 
     @media (max-width: 640px) {
       left: 1.5rem;
-      top: -1.25rem;
+      top: -1.75rem;
       width: 1.5px;
-      height: 0.75rem;
+      height: 3.75rem;
     }
   }
 
@@ -335,6 +346,12 @@
     gap: 0.75rem;
     margin-top: 0.5rem;
     position: relative;
+
+    @media (min-width: 1200px) {
+      flex-direction: row !important;
+    }
+
+    
 
     @media (max-width: 640px) {
       gap: 0.5rem;
@@ -473,7 +490,6 @@
 // =============================================================================
 .budget-summary-card {
   width: 100%;
-  max-width: 48%;
   background: white;
   border-radius: 12px;
   padding: 1.25rem;
@@ -482,11 +498,11 @@
   border-left: 4px solid #4d98a4;
   position: relative;
   overflow: hidden;
+  margin-bottom: 1rem;
 
   @media (max-width: 640px) {
-    padding: 0.5rem;
+    padding: 1rem;
     border-radius: 10px;
-    max-width: 100%;
   }
 
   &:hover {
@@ -800,18 +816,17 @@
 // =============================================================================
 .no-budget-card {
   width: 100%;
-  max-width: 48%;
   background: white;
   border-radius: 12px;
   padding: 1.25rem;
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
   border-left: 4px solid #f59e0b;
+  margin-bottom: 1rem;
 
   @media (max-width: 640px) {
     padding: 1rem;
     border-radius: 10px;
-    max-width: 100%;
   }
 
   &:hover {
@@ -864,9 +879,43 @@
 // FLOATING ADD BUTTON
 // =============================================================================
 .add-category-btn {
-  position: absolute;
-  bottom: 8rem;
-  right: 1rem;
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  
+  @media (max-width: 640px) {
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.fab-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  
+  .desktop-fab-btn {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+  }
+  
+  @media (max-width: 640px) {
+    display: none;
+  }
 }
 
 // =============================================================================
@@ -896,400 +945,5 @@
     }
   }
 }
-
-  // Budget Summary Card
-  .budget-summary-card {
-    width: 100%;
-    max-width: 48%;
-    background: white;
-    border-radius: 12px;
-    padding: 1.25rem;
-    border: 1px solid #e5e7eb;
-    transition: all 0.2s ease;
-    border-left: 4px solid #4d98a4;
-    position: relative;
-    overflow: hidden;
-
-    @media (max-width: 640px) {
-      padding: 0.5rem;
-      border-radius: 10px;
-      max-width: 100%;
-    }
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      border-color: #d1d5db;
-    }
-
-    .budget-summary-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin: 0.65rem 0 0.5rem 0;
-
-      .budget-icon {
-        color: white;
-        font-size: 1.5rem;
-        width: 1.5rem;
-        height: 1.5rem;
-        @apply bg-primary;
-        border-radius: 8px;
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .budget-summary-title {
-        font-size: clamp(1rem, 2.5vw, 1.25rem);
-        font-weight: 600;
-        color: #1f2937;
-        margin: 0;
-        line-height: 1.2;
-      }
-    }
-
-    .budget-summary-stats {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-
-      .budget-stat-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.5rem;
-
-        .budget-stat-label {
-          font-size: 0.75rem;
-          color: #6b7280;
-          font-weight: 500;
-        }
-
-        .budget-stat-value {
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: #6b7280;
-
-          &.spent {
-            color: #dc2626;
-          }
-
-          &.danger {
-            color: #dc2626;
-          }
-
-          &.warning {
-            color: #f59e0b;
-          }
-
-          &.safe {
-            color: #10b981;
-          }
-        }
-      }
-    }
-
-    .overall-budget-progress {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      margin-bottom: 1rem;
-
-      .progress-bar {
-        width: 100%;
-        height: 6px;
-        background-color: #e5e7eb;
-        border-radius: 3px;
-        overflow: hidden;
-
-        .progress-fill {
-          height: 100%;
-          transition: width 0.3s ease;
-          border-radius: 3px;
-        }
-      }
-
-      .progress-text {
-        font-size: 0.75rem;
-        color: #6b7280;
-        display: block;
-        line-height: 1.2;
-      }
-    }
-
-    .budget-summary-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 0.75rem;
-      border-top: 1px solid #e5e7eb;
-
-             .budget-categories-count {
-         font-size: 0.75rem;
-         color: #6b7280;
-         font-weight: 500;
-       }
-     }
-
-     // Expand Section
-     .expand-section {
-       display: flex;
-       justify-content: center;
-       border-top: 1px solid #e5e7eb;
-
-       .expand-btn {
-         color: #6b7280;
-         font-size: 0.875rem;
-         display: flex;
-         align-items: center;
-         gap: 0.5rem;
-         transition: color 0.2s ease;
-
-         &:hover {
-           color: #3b82f6;
-         }
-
-         mat-icon {
-           font-size: 1.25rem;
-           width: 1.25rem;
-           height: 1.25rem;
-         }
-       }
-     }
-
-     // Expanded Details
-     .budget-details-expanded {
-       margin-top: 1rem;
-       padding-top: 1rem;
-       border-top: 1px solid #e5e7eb;
-
-       .details-tabs {
-         ::ng-deep .mat-tab-group {
-           .mat-tab-header {
-             border-bottom: 1px solid #e5e7eb;
-             margin-bottom: 1rem;
-
-             .mat-tab-label {
-               color: #6b7280;
-               font-weight: 500;
-               min-width: 120px;
-
-               &.mat-tab-label-active {
-                 color: #3b82f6;
-               }
-             }
-
-             .mat-ink-bar {
-               background-color: #3b82f6;
-             }
-           }
-         }
-       }
-
-       .tab-content {
-         padding: 0.5rem 0;
-
-         .detail-row {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           padding: 0.5rem 0;
-           border-bottom: 1px solid #f3f4f6;
-
-           &:last-child {
-             border-bottom: none;
-           }
-
-           .detail-label {
-             font-size: 0.875rem;
-             color: #6b7280;
-             font-weight: 500;
-           }
-
-           .detail-value {
-             font-size: 0.875rem;
-             color: #1f2937;
-             font-weight: 600;
-             display: flex;
-             align-items: center;
-             gap: 0.5rem;
-
-             mat-icon {
-               font-size: 1rem;
-               width: 1rem;
-               height: 1rem;
-             }
-           }
-         }
-
-         .category-breakdown-list {
-           display: flex;
-           flex-direction: column;
-           gap: 1rem;
-
-           .category-breakdown-item {
-             background: #f8fafc;
-             border: 1px solid #e2e8f0;
-             border-radius: 8px;
-             padding: 1rem;
-
-             .category-breakdown-header {
-               display: flex;
-               align-items: center;
-               gap: 0.75rem;
-               margin-bottom: 0.75rem;
-
-               mat-icon {
-                 font-size: 1.25rem;
-                 width: 1.25rem;
-                 height: 1.25rem;
-               }
-
-               .category-name {
-                 font-size: 1rem;
-                 font-weight: 600;
-                 color: #1f2937;
-               }
-             }
-
-             .category-breakdown-stats {
-               display: grid;
-               grid-template-columns: repeat(2, 1fr);
-               gap: 0.5rem;
-               margin-bottom: 0.75rem;
-
-               @media (max-width: 480px) {
-                 grid-template-columns: 1fr;
-               }
-
-               .breakdown-stat {
-                 display: flex;
-                 justify-content: space-between;
-                 align-items: center;
-
-                 .breakdown-label {
-                   font-size: 0.75rem;
-                   color: #6b7280;
-                   font-weight: 500;
-                 }
-
-                 .breakdown-value {
-                   font-size: 0.875rem;
-                   font-weight: 600;
-                   color: #1f2937;
-
-                   &.spent {
-                     color: #dc2626;
-                   }
-
-                   &.danger {
-                     color: #dc2626;
-                   }
-
-                   &.warning {
-                     color: #f59e0b;
-                   }
-
-                   &.safe {
-                     color: #10b981;
-                   }
-                 }
-               }
-             }
-
-             .category-breakdown-progress {
-               .progress-bar {
-                 width: 100%;
-                 height: 6px;
-                 background-color: #e5e7eb;
-                 border-radius: 3px;
-                 overflow: hidden;
-
-                 .progress-fill {
-                   height: 100%;
-                   transition: width 0.3s ease;
-                   border-radius: 3px;
-                 }
-               }
-             }
-           }
-         }
-       }
-     }
-   }
-  // Overall Budget Card
-  .overall-budget-card {
-    margin-bottom: 1rem;
-    animation: slideIn 0.3s ease;
-
-  
-
-    // No Budget Card
-    .no-budget-card {
-      width: 100%;
-      max-width: 48%;
-      background: white;
-      border-radius: 12px;
-      padding: 1.25rem;
-      border: 1px solid #e5e7eb;
-      transition: all 0.2s ease;
-      border-left: 4px solid #f59e0b;
-
-      @media (max-width: 640px) {
-        padding: 1rem;
-        border-radius: 10px;
-        max-width: 100%;
-      }
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        border-color: #d1d5db;
-      }
-
-      .no-budget-content {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-
-        .no-budget-icon {
-          color: white;
-          font-size: 1.5rem;
-          width: 1.5rem;
-          height: 1.5rem;
-          background: #f59e0b;
-          border-radius: 8px;
-          padding: 0.5rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .no-budget-text-content {
-          flex: 1;
-
-          .no-budget-title {
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
-            font-weight: 600;
-            color: #1f2937;
-            margin: 0 0 0.25rem 0;
-            line-height: 1.2;
-          }
-
-          .no-budget-text {
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin: 0;
-            line-height: 1.2;
-          }
-        }
-      }
-    }
-  }
 
 
