@@ -358,6 +358,7 @@ export const CATEGORY_ICONS: string[] = [
   'monetization_on',
   'request_quote',
   'price_check',
+  'wallet',
 
   // 🛒 Expenses & Purchases
   'shopping_cart',

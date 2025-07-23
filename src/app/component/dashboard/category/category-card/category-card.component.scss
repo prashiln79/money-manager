@@ -62,8 +62,9 @@
     min-width: 0;
     padding-right: 3rem; // Space for action buttons
     
+    
     @media (max-width: 640px) {
-      padding-right: 2.5rem;
+      padding-right: 1.5rem;
     }
     
     .category-icon-name {
@@ -226,7 +227,7 @@
           font-weight: 600;
           color: #6b7280;
           position: relative;
-          left: 1.4rem;
+          left: 0.3rem;
         }
       }
     }

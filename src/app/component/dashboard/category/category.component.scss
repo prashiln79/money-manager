@@ -273,7 +273,7 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
   @media (max-width: 640px) {
-    padding: 0.75rem 1px 10px 1px ;
+    // padding: 0.75rem 1px 10px 1px ;
     border-radius: 10px;
     margin-top: 0;
     margin-bottom: 1rem0;
@@ -309,7 +309,7 @@
     top: -1.5rem;
     width: 2px;
     height: 1rem;
-    background: linear-gradient(to bottom, #3b82f6, #d1d5db);
+   
     z-index: 0;
 
     @media (max-width: 640px) {
@@ -317,6 +317,7 @@
       top: -0.95rem;
       width: 1.5px;
       height: 3.75rem;
+      background: linear-gradient(to bottom, #3b82f6, #d1d5db);
     }
   }
 
@@ -488,7 +489,7 @@
 // =============================================================================
 .budget-summary-card {
   width: 100%;
-  background: white;
+  background: #dbfbff4a;
   border-radius: 12px;
   padding: 1.25rem;
   border: 1px solid #e5e7eb;
@@ -496,10 +497,9 @@
   border-left: 4px solid #4d98a4;
   position: relative;
   overflow: hidden;
-  margin-bottom: 1rem;
 
   @media (max-width: 640px) {
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 10px;
   }
 

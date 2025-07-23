@@ -176,6 +176,8 @@
 					</div>
 				</div>
 
+				<hr class="my-1" *ngIf="!home">
+
 				<!-- No Budget Set Card -->
 				<div class="no-budget-card" *ngIf="!home && getOverallBudgetStats().categoriesWithBudget === 0">
 					<div class="no-budget-content">
