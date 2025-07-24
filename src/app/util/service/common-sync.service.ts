@@ -1,17 +1,16 @@
-import { Injectable, NgZone, Inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, Observable, fromEvent, merge } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { Firestore, collection, doc, writeBatch, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, collection, doc, writeBatch } from '@angular/fire/firestore';
 import { Auth, getAuth } from '@angular/fire/auth';
 import { SwUpdate } from '@angular/service-worker';
 import { isPlatformServer } from '@angular/common';
 import { ValidationService } from './validation.service';
-import { UserService } from './user.service';
-import { DateService } from './date.service';
-import { NotificationService } from './notification.service';
-import { TransactionsService } from './transactions.service';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../store/app.state';
+import * as TransactionsActions from '../../store/transactions/transactions.actions';
+import { Transaction } from '../models/transaction.model';
 import { APP_CONFIG } from '../config/config';
-import { environment } from '@env/environment';
 
 export interface NetworkStatus {
   online: boolean;
@@ -97,13 +96,9 @@ export class CommonSyncService {
   constructor(
     private firestore: Firestore,
     private auth: Auth,
-    private ngZone: NgZone,
     private validationService: ValidationService,
     private swUpdate: SwUpdate,
-    private userService: UserService,
-    private dateService: DateService,
-    private notificationService: NotificationService,
-    private transactionsService: TransactionsService,
+    private store: Store<AppState>,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (!isPlatformServer(this.platformId)) {
@@ -412,8 +407,8 @@ export class CommonSyncService {
 
     switch (item.operation) {
       case 'create':
-        const docRef = doc(transactionsRef);
-        batch.set(docRef, item.data);
+        const transactionRef = doc(this.firestore, `users/${userId}/transactions/${item.data.id}`);
+        batch.set(transactionRef, item.data);
         break;
       case 'update':
         const updateRef = doc(this.firestore, `users/${userId}/transactions/${item.data.id}`);
@@ -431,8 +426,15 @@ export class CommonSyncService {
    */
   private async updateTransactionSyncStatus(transactionId: string, status: 'synced' | 'failed'): Promise<void> {
     try {
-      // Use TransactionsService to update sync status
-      this.transactionsService.updateTransactionSyncStatus(transactionId, status);
+      // Update in store
+      this.store.dispatch(TransactionsActions.updateTransactionSuccess({
+        transaction: {
+          id: transactionId,
+          syncStatus: status,
+          lastSyncedAt: new Date()
+        } as Transaction
+      }));
+
       console.log(`Transaction ${transactionId} sync status updated to: ${status}`);
     } catch (error) {
       console.error('Failed to update transaction sync status:', error);
@@ -1235,7 +1237,7 @@ export class CommonSyncService {
         if (event.data && event.data.type === 'SYNC_COMPLETED') {
           const { transactionId, success } = event.data;
           if (transactionId) {
-            this.transactionsService.updateTransactionSyncStatus(
+            this.updateTransactionSyncStatus(
               transactionId, 
               success ? 'synced' : 'failed'
             );

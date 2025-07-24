@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, addDoc, onSnapshot, writeBatch } from '@angular/fire/firestore';
+import { Firestore, collection, doc, updateDoc, deleteDoc, getDoc, addDoc, onSnapshot, setDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
-import { Observable, BehaviorSubject, from } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { orderBy, query, Timestamp } from '@angular/fire/firestore';
 import { DateService } from './date.service';
 import { Transaction } from '../models/transaction.model';
@@ -11,12 +11,9 @@ import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import * as CategoriesActions from '../../store/categories/categories.actions';
 import * as TransactionsActions from '../../store/transactions/transactions.actions';
-import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { AccountsService } from './accounts.service';
 import * as AccountsActions from '../../store/accounts/accounts.actions';
-import { CreateSplitTransactionRequest, SplitwiseGroup, TransactionSplit } from '../models/splitwise.model';
-import * as SplitwiseActions from '../../modules/splitwise/store/splitwise.actions';
-import { selectGroups } from '../../modules/splitwise/store/splitwise.selectors';
+import { CreateSplitTransactionRequest } from '../models/splitwise.model';
 import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
 import { CommonSyncService, SyncItem } from './common-sync.service';
 import { BaseService } from './base.service';
@@ -56,8 +53,8 @@ export class TransactionsService extends BaseService {
                 try {
                     if (this.commonSyncService.isCurrentlyOnline()) {
                         try {
-                            const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
-                            const transactionRef = await addDoc(transactionsCollection, transactionData);
+                           const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
+                           await setDoc(transactionRef, transactionData);
 
                             if (transaction.isSplitTransaction && transaction.splitGroupId) {
                                 await this.createSplitTransaction(transaction.splitGroupId, transaction, transactionRef.id, userId);
@@ -620,32 +617,7 @@ export class TransactionsService extends BaseService {
         }
     }
 
-    /**
-     * Update transaction sync status
-     */
-    public updateTransactionSyncStatus(transactionId: string, status: 'synced' | 'failed'): void {
-        try {
-            // Update in cache
-            this.updateTransactionCache(this.auth.currentUser?.uid || '', 'update', {
-                id: transactionId,
-                syncStatus: status,
-                lastSyncedAt: new Date()
-            } as Transaction);
 
-            // Update in store
-            this.store.dispatch(TransactionsActions.updateTransactionSuccess({
-                transaction: {
-                    id: transactionId,
-                    syncStatus: status,
-                    lastSyncedAt: new Date()
-                } as Transaction
-            }));
-
-            console.log(`Transaction ${transactionId} sync status updated to: ${status}`);
-        } catch (error) {
-            console.error('Failed to update transaction sync status:', error);
-        }
-    }
 
     /**
      * Check if Firebase validation error
