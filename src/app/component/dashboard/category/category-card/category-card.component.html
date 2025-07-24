@@ -19,12 +19,12 @@
             <span class="budget-period">/ {{ formatBudgetPeriod(category.budget?.budgetPeriod) }}</span>
           </div>
 
-          <div class="budget-progress" *ngIf="category.budget?.budgetProgressPercentage !== undefined">
+          <div class="budget-progress" *ngIf="category.budget?.hasBudget">
             <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="Math.min(category.budget?.budgetProgressPercentage || 0, 100)" [style.background-color]="getBudgetProgressColor(category)"></div>
+              <div class="progress-fill" [style.width.%]="Math.min(calculateBudgetProgressPercentage(category), 100)" [style.background-color]="getBudgetProgressColor(category)"></div>
             </div>
             <span class="progress-text">
-              {{ category.budget?.budgetSpent | currency }} ({{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%)
+              {{ calculateBudgetSpent(category) | currency }} ({{ calculateBudgetProgressPercentage(category).toFixed(1) }}%)
             </span>
           </div>
         </div>
@@ -119,19 +119,19 @@
           <div class="detail-row">
             <span class="detail-label">Amount Spent:</span>
             <span class="detail-value" [class]="getBudgetStatusClass(category)">
-              {{ category.budget?.budgetSpent | currency }}
+              {{ calculateBudgetSpent(category) | currency }}
             </span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Remaining Budget:</span>
             <span class="detail-value" [class]="getRemainingBudgetClass(category)">
-              {{ (category.budget?.budgetAmount || 0) - (category.budget?.budgetSpent || 0) | currency }}
+              {{ calculateBudgetRemaining(category) | currency }}
             </span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Progress Percentage:</span>
             <span class="detail-value" [class]="getBudgetStatusClass(category)">
-              {{ (category.budget?.budgetProgressPercentage || 0).toFixed(1) }}%
+              {{ calculateBudgetProgressPercentage(category).toFixed(1) }}%
             </span>
           </div>
           <div class="detail-row" *ngIf="category.budget?.budgetStartDate">

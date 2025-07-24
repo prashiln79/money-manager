@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Category, Budget } from 'src/app/util/models';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
+import { TransactionType } from 'src/app/util/config/enums';
 
 @Component({
   selector: 'app-category-card',
@@ -17,6 +18,7 @@ export class CategoryCardComponent {
   @Input() categoryStats: any;
   @Input() subCategoryCount: number = 0;
   @Input() Math: any;
+  @Input() allTransactions: Transaction[] = [];
 
   @Output() editCategory = new EventEmitter<Category>();
   @Output() deleteCategory = new EventEmitter<Category>();
@@ -26,6 +28,78 @@ export class CategoryCardComponent {
   @Output() toggleExpansion = new EventEmitter<Category>();
 
   constructor(public dateService: DateService) {}
+
+  /**
+   * Calculate budget spent for a category based on transactions
+   */
+  public calculateBudgetSpent(category: Category): number {
+    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
+      return 0;
+    }
+
+    const categoryTransactions = this.allTransactions.filter(t => 
+      t.categoryId === category.id && 
+      t.type === TransactionType.EXPENSE
+    );
+
+    // Filter transactions within the budget period
+    const budgetStartDate = category.budget.budgetStartDate;
+    const budgetEndDate = category.budget.budgetEndDate;
+    
+    let filteredTransactions = categoryTransactions;
+    
+    if (budgetStartDate) {
+      const startDate = this.dateService.toDate(budgetStartDate);
+      if (!startDate) {
+        return 0;
+      }
+      filteredTransactions = filteredTransactions.filter(t => {
+        const txDate = this.dateService.toDate(t.date);
+        return txDate && txDate >= startDate;
+      });
+    }
+    
+    if (budgetEndDate) {
+      const endDate = this.dateService.toDate(budgetEndDate);
+      if (!endDate) {
+        return 0;
+      }
+      filteredTransactions = filteredTransactions.filter(t => {
+        const txDate = this.dateService.toDate(t.date);
+        return txDate && txDate <= endDate;
+      });
+    }
+
+    return filteredTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  }
+
+  /**
+   * Calculate budget remaining for a category
+   */
+  public calculateBudgetRemaining(category: Category): number {
+    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
+      return 0;
+    }
+    
+    const spent = this.calculateBudgetSpent(category);
+    return Math.max(0, (category.budget.budgetAmount || 0) - spent);
+  }
+
+  /**
+   * Calculate budget progress percentage for a category
+   */
+  public calculateBudgetProgressPercentage(category: Category): number {
+    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
+      return 0;
+    }
+    
+    const spent = this.calculateBudgetSpent(category);
+    const budgetAmount = category.budget.budgetAmount || 0;
+    
+    if (budgetAmount === 0) return 0;
+    
+    return Math.min(100, (spent / budgetAmount) * 100);
+  }
 
   public calculateTotalSpentPerMonth(category: Category): number {
     if (!this.recentTransactions || this.recentTransactions.length === 0) {
@@ -57,7 +131,7 @@ export class CategoryCardComponent {
   }
 
   public getBudgetProgressColor(category: Category): string {
-    const progress = category.budget?.budgetProgressPercentage || 0;
+    const progress = this.calculateBudgetProgressPercentage(category);
     if (progress >= 100) return '#ef4444'; // Red
     if (progress >= 80) return '#f59e0b'; // Orange
     if (progress >= 60) return '#3b82f6'; // Blue
@@ -70,14 +144,14 @@ export class CategoryCardComponent {
   }
 
   public getBudgetStatusClass(category: Category): string {
-    const progress = category.budget?.budgetProgressPercentage || 0;
+    const progress = this.calculateBudgetProgressPercentage(category);
     if (progress >= 100) return 'danger';
     if (progress >= 80) return 'warning';
     return 'safe';
   }
 
   public getRemainingBudgetClass(category: Category): string {
-    const remaining = (category.budget?.budgetAmount || 0) - (category.budget?.budgetSpent || 0);
+    const remaining = this.calculateBudgetRemaining(category);
     return remaining < 0 ? 'danger' : 'safe';
   }
 

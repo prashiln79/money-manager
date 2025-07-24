@@ -232,45 +232,6 @@ export class CategoryService {
         });
     }
 
-    updateBudgetSpent(userId: string, categoryId: string, budgetSpent: number): Observable<void> {
-        return new Observable<void>(observer => {
-            const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
-
-            getDoc(categoryRef).then(categoryData => {
-                const data = categoryData.data();
-                if (
-                    categoryData.exists() &&
-                    data &&
-                    typeof data['budget'] === 'object' &&
-                    data['budget'] !== null &&
-                    (data['budget'] as any).hasBudget
-                ) {
-                    const category = data as Category;
-                    if (category.budget) {
-                        category.budget.budgetSpent = (category.budget.budgetSpent || 0) + budgetSpent;
-                        category.budget.budgetRemaining = (category.budget.budgetAmount || 0) - category.budget.budgetSpent;
-                        category.budget.budgetProgressPercentage = (category.budget.budgetSpent / (category.budget.budgetAmount || 0)   ) * 100;
-                        category.budget.budgetAlertEnabled = category.budget.budgetProgressPercentage > (category.budget.budgetAlertThreshold || 0);
-                        updateDoc(categoryRef, { budget: category.budget }).then(() => {
-                            observer.next();
-                            observer.complete();
-                        }).catch(error => {
-                            observer.error(error);
-                        });
-                        this.store.dispatch(CategoriesActions.loadCategories({ userId: userId }));
-                    } else {
-                        observer.error(new Error('Category budget not found'));
-                    }
-                } else {
-                    observer.error(new Error('Category not found or has no budget'));
-                }
-            }).catch(error => {
-                observer.error(error);
-            });
-                
-        });
-    }
-
     getCategoryNameById(categoryId: string):string {
         return this.categories[categoryId]?.name || '';
     }

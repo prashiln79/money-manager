@@ -60,14 +60,8 @@ export class TransactionsService extends BaseService {
                                 await this.createSplitTransaction(transaction.splitGroupId, transaction, transactionRef.id, userId);
                             }
 
-                            // Update category budget if categoryId exists
-                            if (transaction.categoryId) {
-                                this.store.dispatch(CategoriesActions.updateBudgetSpent({
-                                    userId: userId,
-                                    categoryId: transaction.categoryId,
-                                    budgetSpent: transaction.amount
-                                }));
-                            }
+                            // Budget spent is now calculated dynamically based on transactions
+                            // No need to update budget spent manually
 
                             // Update account balance
                             this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction({

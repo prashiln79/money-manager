@@ -82,20 +82,7 @@ export const deleteCategoryFailure = createAction(
   props<{ error: any }>()
 );
 
-export const updateBudgetSpent = createAction(
-  '[Categories] Update Budget Spent',
-  props<{ userId: string; categoryId: string; budgetSpent: number }>()
-);
 
-export const updateBudgetSpentSuccess = createAction(
-  '[Categories] Update Budget Spent Success',
-  props<{ categoryId: string; budgetSpent: number }>()
-);
-
-export const updateBudgetSpentFailure = createAction(
-  '[Categories] Update Budget Spent Failure',
-  props<{ error: any }>()
-);
 
 // Remove from Parent Category
 export const removeFromParentCategory = createAction(

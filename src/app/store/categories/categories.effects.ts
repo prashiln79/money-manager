@@ -86,27 +86,6 @@ export class CategoriesEffects {
     )
   );
 
-  updateBudgetSpent$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(CategoriesActions.updateBudgetSpent),
-      mergeMap(({ userId, categoryId, budgetSpent }) =>
-        this.categoryService
-          .updateBudgetSpent(userId, categoryId, budgetSpent)
-          .pipe(
-            map(() =>
-              CategoriesActions.updateBudgetSpentSuccess({
-                categoryId,
-                budgetSpent,
-              })
-            ),
-            catchError((error) =>
-              of(CategoriesActions.updateBudgetSpentFailure({ error }))
-            )
-          )
-      )
-    )
-  );
-
   removeFromParentCategory$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CategoriesActions.removeFromParentCategory),

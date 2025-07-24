@@ -20,9 +20,6 @@ export interface Budget {
   budgetPeriod?: 'daily' | 'weekly' | 'monthly' | 'yearly';
   budgetStartDate?: Date | Timestamp; // timestamp
   budgetEndDate?: Date | Timestamp; // timestamp
-  budgetSpent?: number;
-  budgetRemaining?: number;
-  budgetProgressPercentage?: number;
   budgetAlertThreshold?: number; // percentage (e.g., 80 for 80%)
   budgetAlertEnabled?: boolean;
 }

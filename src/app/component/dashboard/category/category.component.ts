@@ -316,8 +316,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
     );
   }
 
-  public getBudgetProgressColor(category: Category): string {
-    return this.budgetService.getBudgetProgressColor(category);
+  public getBudgetProgressColor(category: Category, budgetProgressPercentage?: number, budgetAlertThreshold?: number): string {
+    const progress = budgetProgressPercentage ?? this.calculateBudgetProgressPercentage(category);
+    const threshold = budgetAlertThreshold ?? (category.budget?.budgetAlertThreshold || 80);
+    return this.budgetService.getBudgetProgressColor(category, progress, threshold);
   }
 
   public formatBudgetPeriod(period: string | undefined): string {
@@ -424,10 +426,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
   /**
    * Get budget status class for styling
    */
-  public getBudgetStatusClass(category: Category): string {
+  public getBudgetStatusClass(category: Category, budgetProgressPercentage?: number): string {
     if (!category.budget?.hasBudget) return '';
     
-    const percentage = category.budget?.budgetProgressPercentage || 0;
+    const percentage = budgetProgressPercentage ?? this.calculateBudgetProgressPercentage(category);
     if (percentage >= 90) return 'danger';
     if (percentage >= 75) return 'warning';
     return 'safe';
@@ -436,10 +438,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
   /**
    * Get remaining budget class for styling
    */
-  public getRemainingBudgetClass(category: Category): string {
+  public getRemainingBudgetClass(category: Category, budgetSpent?: number): string {
     if (!category.budget?.hasBudget) return '';
     
-    const remaining = (category.budget?.budgetAmount || 0) - (category.budget?.budgetSpent || 0);
+    const spent = budgetSpent ?? this.calculateBudgetSpent(category);
+    const remaining = (category.budget?.budgetAmount || 0) - spent;
     if (remaining <= 0) return 'danger';
     if (remaining < (category.budget?.budgetAmount || 0) * 0.1) return 'warning';
     return 'safe';
@@ -455,6 +458,78 @@ export class CategoryComponent implements OnInit, OnDestroy {
     const categoryTransactions = this.transactions.filter(t => t.category === category.name);
     const totalIncome = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
     return totalIncome;
+  }
+
+  /**
+   * Calculate budget spent for a category based on transactions
+   */
+  public calculateBudgetSpent(category: Category): number {
+    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
+      return 0;
+    }
+
+    const categoryTransactions = this.transactions.filter(t => 
+      t.categoryId === category.id && 
+      t.type === TransactionType.EXPENSE
+    );
+
+    // Filter transactions within the budget period
+    const budgetStartDate = category.budget.budgetStartDate;
+    const budgetEndDate = category.budget.budgetEndDate;
+    
+    let filteredTransactions = categoryTransactions;
+    
+    if (budgetStartDate) {
+      const startDate = this.dateService.toDate(budgetStartDate);
+      if (!startDate) {
+        return 0;
+      }
+      filteredTransactions = filteredTransactions.filter(t => {
+        const txDate = this.dateService.toDate(t.date);
+        return txDate && txDate >= startDate;
+      });
+    }
+    
+    if (budgetEndDate) {
+      const endDate = this.dateService.toDate(budgetEndDate);
+      if (!endDate) {
+        return 0;
+      }
+      filteredTransactions = filteredTransactions.filter(t => {
+        const txDate = this.dateService.toDate(t.date);
+        return txDate && txDate <= endDate;
+      });
+    }
+
+    return filteredTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  }
+
+  /**
+   * Calculate budget remaining for a category
+   */
+  public calculateBudgetRemaining(category: Category): number {
+    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
+      return 0;
+    }
+    
+    const spent = this.calculateBudgetSpent(category);
+    return Math.max(0, (category.budget.budgetAmount || 0) - spent);
+  }
+
+  /**
+   * Calculate budget progress percentage for a category
+   */
+  public calculateBudgetProgressPercentage(category: Category): number {
+    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
+      return 0;
+    }
+    
+    const spent = this.calculateBudgetSpent(category);
+    const budgetAmount = category.budget.budgetAmount || 0;
+    
+    if (budgetAmount === 0) return 0;
+    
+    return Math.min(100, (spent / budgetAmount) * 100);
   }
 
   /**
@@ -481,7 +556,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     );
 
     const totalSpent = categoriesWithBudget.reduce((sum, cat) => 
-      sum + (cat.budget?.budgetSpent || 0), 0
+      sum + this.calculateBudgetSpent(cat), 0
     );
 
     const totalRemaining = totalBudget - totalSpent;
@@ -545,9 +620,9 @@ export class CategoryComponent implements OnInit, OnDestroy {
     const categoryStats = categoriesWithBudget.map(cat => ({
       name: cat.name,
       budget: cat.budget?.budgetAmount || 0,
-      spent: cat.budget?.budgetSpent || 0,
-      remaining: (cat.budget?.budgetAmount || 0) - (cat.budget?.budgetSpent || 0),
-      progress: cat.budget?.budgetProgressPercentage || 0,
+      spent: this.calculateBudgetSpent(cat),
+      remaining: this.calculateBudgetRemaining(cat),
+      progress: this.calculateBudgetProgressPercentage(cat),
       color: cat.color,
       icon: cat.icon
     }));

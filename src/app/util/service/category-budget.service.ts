@@ -89,9 +89,6 @@ export class CategoryBudgetService {
       budgetPeriod: formValue.hasBudget ? formValue?.budgetPeriod || 'monthly' : 'monthly',
       budgetStartDate: formValue.hasBudget ? formValue?.budgetStartDate?.getTime() || null : null,
       budgetEndDate: formValue.hasBudget && formValue.budgetEndDate ? formValue.budgetEndDate.getTime() : null,
-      budgetSpent: formValue.hasBudget ? formValue?.budgetSpent || 0 : 0,
-      budgetRemaining: formValue.hasBudget ? formValue?.budgetRemaining || 0 : 0,
-      budgetProgressPercentage: formValue.hasBudget ? formValue?.budgetProgressPercentage || 0 : 0,
       budgetAlertThreshold: formValue.hasBudget ? formValue?.budgetAlertThreshold || 80 : 80,
       budgetAlertEnabled: formValue.hasBudget ? formValue?.budgetAlertEnabled || true : true
     };
@@ -141,17 +138,16 @@ export class CategoryBudgetService {
   /**
    * Get budget progress color
    */
-  getBudgetProgressColor(category: Category): string {
-    if (!category.budget?.hasBudget || !category.budget?.budgetProgressPercentage) {
+  getBudgetProgressColor(category: Category, budgetProgressPercentage: number, budgetAlertThreshold: number): string {
+    if (!category.budget?.hasBudget || !budgetProgressPercentage) {
       return '#6b7280'; // gray
     }
     
-    const percentage = category.budget?.budgetProgressPercentage;
-    if (percentage >= 100) {
+    if (budgetProgressPercentage >= 100) {
       return '#ef4444'; // red - over budget
-    } else if (percentage >= 80) {
+    } else if (budgetProgressPercentage >= budgetAlertThreshold) {
       return '#f59e0b'; // amber - warning
-    } else if (percentage >= 60) {
+    } else if (budgetProgressPercentage >= 60) {
       return '#3b82f6'; // blue - good progress
     } else {
       return '#10b981'; // green - safe

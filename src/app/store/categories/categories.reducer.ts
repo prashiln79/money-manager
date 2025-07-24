@@ -117,40 +117,7 @@ export const categoriesReducer = createReducer(
     error
   })),
   
-  // Update Budget Spent
-  on(CategoriesActions.updateBudgetSpent, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
-  
-  on(CategoriesActions.updateBudgetSpentSuccess, (state, { categoryId, budgetSpent }) => {
-    const category = state.entities[categoryId];
-    if (category && category.budget) {
-      return {
-        ...state,
-        entities: {
-          ...state.entities,
-          [categoryId]: {
-            ...category,
-            budget: {
-              ...category.budget,
-              budgetSpent
-            }
-          }
-        },
-        loading: false,
-        error: null
-      };
-    }
-    return state;
-  }),
-  
-  on(CategoriesActions.updateBudgetSpentFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  })),
+
   
   // Remove from Parent Category
   on(CategoriesActions.removeFromParentCategory, (state) => ({
