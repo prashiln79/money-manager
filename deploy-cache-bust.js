@@ -13,7 +13,7 @@ const path = require('path');
 // Configuration
 const config = {
   versionFile: 'src/app/version.ts',
-  manifestFile: 'public/manifest.webmanifest',
+  manifestFile: 'public/manifest.json',
   indexFile: 'src/index.html',
   cacheBustingParam: 'v'
 };
