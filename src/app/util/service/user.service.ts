@@ -857,6 +857,12 @@ export class UserService {
         return JSON.parse(cachedUserData) as User;
       }
 
+      // Check if we're offline
+      if (!navigator.onLine) {
+        console.log('[UserService] Offline mode - returning cached data only');
+        return null; // Let the caller handle offline scenario
+      }
+
       // Fallback to Firestore
       const userRef = doc(this.firestore, `users/${currentUser.uid}`);
       const userSnap = await getDoc(userRef);
@@ -876,6 +882,16 @@ export class UserService {
       this.logAuditEvent('GET_USER_FAILED', currentUser.uid, {
         error: error instanceof Error ? error.message : 'Unknown error'
       });
+      
+      // If we're offline and there's an error, try to return cached data
+      if (!navigator.onLine) {
+        console.log('[UserService] Offline mode - error occurred, trying cached data');
+        const cachedUserData = localStorage.getItem(`user-data-${currentUser.uid}`);
+        if (cachedUserData) {
+          return JSON.parse(cachedUserData) as User;
+        }
+      }
+      
       return null;
     }
   }

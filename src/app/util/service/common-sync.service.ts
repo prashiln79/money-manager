@@ -2,7 +2,7 @@ import { Injectable, NgZone, Inject, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, Observable, fromEvent, merge } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Firestore, collection, doc, writeBatch, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
-import { Auth } from '@angular/fire/auth';
+import { Auth, getAuth } from '@angular/fire/auth';
 import { SwUpdate } from '@angular/service-worker';
 import { isPlatformServer } from '@angular/common';
 import { ValidationService } from './validation.service';
@@ -756,6 +756,40 @@ export class CommonSyncService {
    */
   public isCurrentlyOnline(): boolean {
     return this.networkStatusSubject.value.online;
+  }
+
+  /**
+   * Check if app should work in offline mode
+   */
+  public shouldWorkOffline(): boolean {
+    // App should work offline if:
+    // 1. User is authenticated (has cached auth data)
+    // 2. Has cached user data
+    // 3. Has cached app data
+    try {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      
+      if (!currentUser) {
+        return false;
+      }
+
+      // Check if user data is cached
+      const cachedUserData = localStorage.getItem(`user-data-${currentUser.uid}`);
+      if (!cachedUserData) {
+        return false;
+      }
+
+      // Check if app has some cached data
+      const hasCachedData = localStorage.getItem('app-cache-version') || 
+                           localStorage.getItem('transactions-cache') ||
+                           localStorage.getItem('categories-cache');
+      
+      return !!hasCachedData;
+    } catch (error) {
+      console.error('Error checking offline capability:', error);
+      return false;
+    }
   }
 
   /**

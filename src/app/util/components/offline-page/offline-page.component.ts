@@ -81,7 +81,8 @@ export class OfflinePageComponent {
     // Check if we're back online
     if (this.commonSyncService.isCurrentlyOnline()) {
       if (this.ssrService.isClientSide()) {
-        window.location.reload();
+        // Navigate back to dashboard instead of reloading
+        window.location.href = '/dashboard';
       }
     } else {
       // Show a message that we're still offline
@@ -90,7 +91,9 @@ export class OfflinePageComponent {
   }
 
   openOfflineData(): void {
-    // This could open a modal or navigate to a cached version
-    alert('Offline data viewer coming soon!');
+    // Navigate to dashboard to view cached data
+    if (this.ssrService.isClientSide()) {
+      window.location.href = '/dashboard';
+    }
   }
 } 

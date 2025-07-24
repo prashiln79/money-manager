@@ -13,6 +13,7 @@ import { getAuth, onAuthStateChanged, User } from '@angular/fire/auth';
 import { NotificationService } from "../service/notification.service";
 import { User as AppUser, UserRole } from "../models/user.model";
 import { LoaderService } from "../service/loader.service";
+import { CommonSyncService } from "../service/common-sync.service";
 
 interface SecurityConfig {
   readonly SESSION_TIMEOUT: number;
@@ -54,7 +55,8 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     private router: Router,
     private userService: UserService,
     private notificationService: NotificationService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private commonSyncService: CommonSyncService
   ) {
     this.startSessionMonitoring();
   }
@@ -117,11 +119,29 @@ export class AuthGuard implements CanActivate, CanActivateChild {
           return;
         }
 
-        const userData = await this.userService.getCurrentUser();
+        // Check if we're offline and use cached user data
+        const isOffline = !this.commonSyncService.isCurrentlyOnline();
+        let userData: AppUser | null;
+
+        if (isOffline) {
+          // Use cached user data when offline
+          userData = this.userService.getCachedUserData(firebaseUser.uid);
+          console.log('[AuthGuard] Offline mode - using cached user data:', userData ? 'found' : 'not found');
+        } else {
+          // Try to get fresh user data when online
+          userData = await this.userService.getCurrentUser();
+        }
 
         if (!userData) {
-          await this.handleInvalidUserData(firebaseUser, state);
-          return;
+          if (isOffline) {
+            // When offline and no cached data, allow access but log warning
+            console.warn('[AuthGuard] Offline mode - no cached user data available, allowing access');
+            this.updateSessionTimestamp(firebaseUser.uid);
+            return;
+          } else {
+            await this.handleInvalidUserData(firebaseUser, state);
+            return;
+          }
         }
 
         const hasPermission = await this.checkRoutePermissions(route, userData, firebaseUser);
@@ -133,6 +153,14 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         this.updateSessionTimestamp(firebaseUser.uid);
       } catch (error) {
         console.error('[AuthGuard] Background error:', error);
+        
+        // If we're offline and there's an error, allow access
+        if (!this.commonSyncService.isCurrentlyOnline()) {
+          console.warn('[AuthGuard] Offline mode - error occurred, allowing access for offline use');
+          this.updateSessionTimestamp(firebaseUser.uid);
+          return;
+        }
+        
         await this.handleSecurityError(error, state);
       } finally {
         this.loaderService.hide();

@@ -24,12 +24,14 @@ import { FeedbackComponent } from './component/feedback/feedback.component';
 import { AppShellComponent } from './app-shell/app-shell.component';
 import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component';
 import { TermsConditionsComponent } from './component/terms-conditions/terms-conditions.component';
+import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
 
 export const routes: Routes = [
   { path: 'shell', component: AppShellComponent },
   { path: 'landing', component: LandingComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
   { path: 'terms-conditions', component: TermsConditionsComponent },
+  { path: 'offline', component: OfflinePageComponent },
   { path: 'sign-in', component: SignInComponent },
   { path: 'sign-up', component: SignInComponent },
   { path: 'register', component: RegistrationComponent },
