@@ -2,7 +2,7 @@
   "name": "Money Manager",
   "short_name": "MoneyManager",
   "description": "Track your expenses, manage budgets, and achieve financial goals with our comprehensive money management app",
-  "theme_color": "#dbe9fe",
+  "theme_color": "#ffffff",
   "background_color": "#fafafa",
   "display": "standalone",
   "orientation": "portrait-primary",
