@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { OfflineService } from '../../service/offline.service';
+import { CommonSyncService } from '../../service/common-sync.service';
 import { SsrService } from '../../service/ssr.service';
 
 @Component({
@@ -75,11 +75,11 @@ import { SsrService } from '../../service/ssr.service';
   `]
 })
 export class OfflinePageComponent {
-  constructor(private offlineService: OfflineService, private ssrService: SsrService) { }
+  constructor(private commonSyncService: CommonSyncService, private ssrService: SsrService) { }
 
   retryConnection(): void {
     // Check if we're back online
-    if (this.offlineService.isCurrentlyOnline()) {
+    if (this.commonSyncService.isCurrentlyOnline()) {
       if (this.ssrService.isClientSide()) {
         window.location.reload();
       }

@@ -86,8 +86,8 @@ import { PwaBackButtonComponent } from './util/components/pwa-back-button/pwa-ba
 import { PwaNavigationBarComponent } from './util/components/pwa-navigation-bar/pwa-navigation-bar.component';
 import { PwaInstallPromptComponent } from './util/components/pwa-install-prompt/pwa-install-prompt.component';
 
-// Background Sync Service
-import { BackgroundSyncService } from './util/service/background-sync.service';
+// Common Sync Service (replaces BackgroundSyncService)
+import { CommonSyncService } from './util/service/common-sync.service';
 
 
 // NgRx Store
@@ -188,7 +188,7 @@ import { SharedModule } from './modules/shared/shared.module';
     provideHttpClient(withInterceptors([securityInterceptor])),
     Papa,
     provideClientHydration(),
-    BackgroundSyncService,
+    CommonSyncService,
 
     // Firebase Initialization
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),

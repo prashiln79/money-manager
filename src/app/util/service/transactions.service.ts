@@ -3,7 +3,6 @@ import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDo
 import { Auth } from '@angular/fire/auth';
 import { Observable, BehaviorSubject, from } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
-import { OfflineService } from './offline.service';
 import { orderBy, query, Timestamp } from '@angular/fire/firestore';
 import { DateService } from './date.service';
 import { Transaction } from '../models/transaction.model';
@@ -18,196 +17,30 @@ import { CreateSplitTransactionRequest, SplitwiseGroup, TransactionSplit } from 
 import * as SplitwiseActions from '../../modules/splitwise/store/splitwise.actions';
 import { selectGroups } from '../../modules/splitwise/store/splitwise.selectors';
 import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
-import { BackgroundSyncService } from './background-sync.service';
-
-
-interface OfflineOperation {
-    id: string;
-    type: 'create' | 'update' | 'delete';
-    data: any;
-    timestamp: number;
-    retryCount: number;
-}
+import { CommonSyncService, SyncItem } from './common-sync.service';
+import { BaseService } from './base.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class TransactionsService {
-    private offlineQueue: OfflineOperation[] = [];
+export class TransactionsService extends BaseService {
     private transactionsSubject = new BehaviorSubject<Transaction[]>([]);
-    private isOnline = true;
 
     constructor(
-        private firestore: Firestore,
-        private auth: Auth,
-        private offlineService: OfflineService,
+        firestore: Firestore,
+        auth: Auth,
         private dateService: DateService,
         private store: Store<AppState>,
         private accountsService: AccountsService,
         private splitwiseService: SplitwiseService,
-        private backgroundSyncService: BackgroundSyncService
+        private commonSyncService: CommonSyncService
     ) {
-        this.initializeOfflineHandling();
+        super(firestore, auth);
     }
 
-    private initializeOfflineHandling(): void {
-        // Subscribe to network status
-        this.offlineService.isOnline$.subscribe(online => {
-            this.isOnline = online;
-            if (online) {
-                this.processOfflineQueue();
-            }
-        });
-
-        // Load offline queue from storage
-        this.loadOfflineQueue();
-    }
-
-    private async loadOfflineQueue(): Promise<void> {
-        try {
-            const queue = await this.offlineService.getCachedData('offline-queue');
-            if (queue) {
-                this.offlineQueue = queue;
-            }
-        } catch (error) {
-            console.error('Failed to load offline queue:', error);
-        }
-    }
-
-    private async saveOfflineQueue(): Promise<void> {
-        try {
-            await this.offlineService.cacheData('offline-queue', this.offlineQueue);
-        } catch (error) {
-            console.error('Failed to save offline queue:', error);
-        }
-    }
-
-    private async addToOfflineQueue(operation: Omit<OfflineOperation, 'id' | 'timestamp' | 'retryCount'>): Promise<void> {
-        const offlineOp: OfflineOperation = {
-            ...operation,
-            id: this.generateId(),
-            timestamp: Date.now(),
-            retryCount: 0
-        };
-
-        this.offlineQueue.push(offlineOp);
-        await this.saveOfflineQueue();
-
-        // Register with background sync service
-        if (this.backgroundSyncService.isSupported()) {
-            await this.backgroundSyncService.registerSyncItem({
-                id: offlineOp.id,
-                type: 'transaction',
-                data: offlineOp
-            });
-        }
-    }
-
-    private generateId(): string {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-
-    private async processOfflineQueue(): Promise<void> {
-        if (this.offlineQueue.length === 0) return;
-
-        const batch = writeBatch(this.firestore);
-        const processedOperations: string[] = [];
-        const balanceUpdates: { userId: string; accountId: string; transactionType: 'create' | 'update' | 'delete'; oldTransaction?: Transaction; newTransaction?: Transaction }[] = [];
-
-        for (const operation of this.offlineQueue) {
-            try {
-                const userId = this.auth.currentUser?.uid;
-                if (!userId) continue;
-
-                switch (operation.type) {
-                    case 'create':
-                        const transactionsRef = collection(this.firestore, `users/${userId}/transactions`);
-                        const docRef = doc(transactionsRef);
-                        batch.set(docRef, operation.data);
-
-                        // Track balance update for create operation
-                        if (operation.data.accountId) {
-                            balanceUpdates.push({
-                                userId,
-                                accountId: operation.data.accountId,
-                                transactionType: 'create',
-                                newTransaction: operation.data as Transaction
-                            });
-                        }
-                        break;
-
-                    case 'update':
-                        const updateRef = doc(this.firestore, `users/${userId}/transactions/${operation.data.id}`);
-                        batch.update(updateRef, operation.data);
-
-                        // For update operations, we need to get the original transaction to calculate balance difference
-                        // This will be handled after the batch commit
-                        break;
-
-                    case 'delete':
-                        const deleteRef = doc(this.firestore, `users/${userId}/transactions/${operation.data.id}`);
-                        batch.delete(deleteRef);
-
-                        // Track balance update for delete operation
-                        if (operation.data.accountId) {
-                            balanceUpdates.push({
-                                userId,
-                                accountId: operation.data.accountId,
-                                transactionType: 'delete',
-                                oldTransaction: operation.data as Transaction
-                            });
-                        }
-                        break;
-                }
-
-                processedOperations.push(operation.id);
-            } catch (error) {
-                console.error(`Failed to process offline operation ${operation.id}:`, error);
-                operation.retryCount++;
-
-                // Remove operation if it has been retried too many times
-                if (operation.retryCount >= 3) {
-                    processedOperations.push(operation.id);
-                }
-            }
-        }
-
-        // Commit batch if there are operations to process
-        if (processedOperations.length > 0) {
-            try {
-                await batch.commit();
-
-                // Process balance updates after successful batch commit
-                for (const balanceUpdate of balanceUpdates) {
-                    this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction(balanceUpdate));
-                }
-
-                // Handle update operations that need original transaction data
-                for (const operation of this.offlineQueue) {
-                    if (operation.type === 'update' && processedOperations.includes(operation.id)) {
-                        const userId = this.auth.currentUser?.uid;
-                        if (userId && operation.data.accountId) {
-                            // For update operations, we'll let the account balance update happen
-                            // when the transaction is next loaded, or we could implement a more
-                            // sophisticated approach here if needed
-                        }
-                    }
-                }
-
-                // Remove processed operations from queue
-                this.offlineQueue = this.offlineQueue.filter(op => !processedOperations.includes(op.id));
-                await this.saveOfflineQueue();
-
-                // Clear completed items from background sync service
-                await this.backgroundSyncService.clearCompletedItems();
-
-                console.log(`✅ Processed ${processedOperations.length} offline operations`);
-            } catch (error) {
-                console.error('Failed to commit offline operations:', error);
-            }
-        }
-    }
-
+    /**
+     * Create a new transaction
+     */
     createTransaction(userId: string, transaction: Omit<Transaction, 'id'>): Observable<void> {
         return new Observable<void>(observer => {
             const transactionData = {
@@ -218,7 +51,7 @@ export class TransactionsService {
 
             const createTransactionAsync = async () => {
                 try {
-                    if (this.isOnline) {
+                    if (this.commonSyncService.isCurrentlyOnline()) {
                         try {
                             const transactionsCollection = collection(this.firestore, `users/${userId}/transactions`);
                             const transactionRef = await addDoc(transactionsCollection, transactionData);
@@ -249,61 +82,13 @@ export class TransactionsService {
                         } catch (error) {
                             console.error('Failed to create transaction online:', error);
                             // Fall back to offline mode
-                            await this.addToOfflineQueue({
-                                type: 'create',
-                                data: { ...transactionData, syncStatus: 'pending' }
-                            });
-
-                            // Update local cache
-                            const currentTransactions = this.transactionsSubject.value;
-                            const newTransaction: Transaction = {
-                                ...transactionData,
-                                id: this.generateId(),
-                                isPending: true,
-                                syncStatus: SyncStatus.PENDING,
-                                createdAt: new Date(),
-                                updatedAt: new Date(),
-                                createdBy: userId,
-                                updatedBy: userId,
-                                lastSyncedAt: new Date(),
-                                nextOccurrence: new Date(),
-                                recurringInterval: RecurringInterval.DAILY,
-                                recurringEndDate: new Date(),
-                                isRecurring: false,
-                                date: transactionData.date || new Date(),
-                            };
-                            this.transactionsSubject.next([...currentTransactions, newTransaction]);
-
+                            await this.addToSyncQueue('create', transactionData);
                             observer.next();
                             observer.complete();
                         }
                     } else {
                         // Store offline
-                        await this.addToOfflineQueue({
-                            type: 'create',
-                            data: { ...transactionData, syncStatus: 'pending' }
-                        });
-
-                        // Update local cache
-                        const currentTransactions = this.transactionsSubject.value;
-                        const newTransaction: Transaction = {
-                            ...transactionData,
-                            id: this.generateId(),
-                            isPending: true,
-                            syncStatus: SyncStatus.PENDING,
-                            createdAt: new Date(),
-                            updatedAt: new Date(),
-                            createdBy: userId,
-                            updatedBy: userId,
-                            lastSyncedAt: new Date(),
-                            nextOccurrence: new Date(),
-                            recurringInterval: RecurringInterval.DAILY,
-                            recurringEndDate: new Date(),
-                            isRecurring: false,
-                            date: transactionData.date || new Date(),
-                        };
-                        this.transactionsSubject.next([...currentTransactions, newTransaction]);
-
+                        await this.addToSyncQueue('create', transactionData);
                         observer.next();
                         observer.complete();
                     }
@@ -317,7 +102,113 @@ export class TransactionsService {
         });
     }
 
-    // 🔹 Get all transactions for a user
+    /**
+     * Update an existing transaction
+     */
+    updateTransaction(userId: string, transactionId: string, updatedTransaction: Partial<Transaction>): Observable<void> {
+        return new Observable<void>(observer => {
+            const updateTransactionAsync = async () => {
+                try {
+                    const updateData = {
+                        ...updatedTransaction,
+                        updatedAt: new Date(),
+                        updatedBy: userId,
+                        syncStatus: 'synced' as const
+                    };
+
+                    if (this.commonSyncService.isCurrentlyOnline()) {
+                        try {
+                            const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
+                            await updateDoc(transactionRef, updateData);
+
+                            // Update account balance if amount or account changed
+                            if (updatedTransaction.amount || updatedTransaction.accountId) {
+                                this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction({
+                                    userId: userId,
+                                    accountId: updatedTransaction.accountId || '',
+                                    transactionType: 'update',
+                                    oldTransaction: { id: transactionId } as Transaction,
+                                    newTransaction: updateData as Transaction
+                                }));
+                            }
+
+                            observer.next();
+                            observer.complete();
+                        } catch (error) {
+                            console.error('Failed to update transaction online:', error);
+                            await this.addToSyncQueue('update', { id: transactionId, ...updateData });
+                            observer.next();
+                            observer.complete();
+                        }
+                    } else {
+                        await this.addToSyncQueue('update', { id: transactionId, ...updateData, syncStatus: 'pending' });
+                        observer.next();
+                        observer.complete();
+                    }
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            updateTransactionAsync();
+        });
+    }
+
+    /**
+     * Delete a transaction
+     */
+    deleteTransaction(userId: string, transactionId: string): Observable<void> {
+        return new Observable<void>(observer => {
+            const deleteTransactionAsync = async () => {
+                try {
+                    // Get transaction data for balance update
+                    const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
+                    const transactionDoc = await getDoc(transactionRef);
+                    const transactionToDelete = transactionDoc.exists() ? { id: transactionDoc.id, ...transactionDoc.data() } as Transaction : null;
+
+                    if (this.commonSyncService.isCurrentlyOnline()) {
+                        try {
+                            await deleteDoc(transactionRef);
+
+                            // Update account balance to reverse the transaction effect
+                            if (transactionToDelete) {
+                                this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction({
+                                    userId: userId,
+                                    accountId: transactionToDelete.accountId,
+                                    transactionType: 'delete',
+                                    oldTransaction: transactionToDelete
+                                }));
+
+                                if (transactionToDelete.isSplitTransaction) {
+                                    await this.splitwiseService.deleteSplitTransaction(transactionToDelete.id!, userId);
+                                }
+                            }
+
+                            observer.next();
+                            observer.complete();
+                        } catch (error) {
+                            console.error('Failed to delete transaction online:', error);
+                            await this.addToSyncQueue('delete', { id: transactionId });
+                            observer.next();
+                            observer.complete();
+                        }
+                    } else {
+                        await this.addToSyncQueue('delete', { id: transactionId });
+                        observer.next();
+                        observer.complete();
+                    }
+                } catch (error) {
+                    observer.error(error);
+                }
+            };
+
+            deleteTransactionAsync();
+        });
+    }
+
+    /**
+     * Get all transactions for a user
+     */
     getTransactions(userId: string): Observable<Transaction[]> {
         const transactionsRef = query(
             collection(this.firestore, `users/${userId}/transactions`),
@@ -335,20 +226,12 @@ export class TransactionsService {
                         transactions.push(transaction);
                     });
 
-                    // Avoid duplicates by checking existing IDs
-                    const pendingTransactions = this.transactionsSubject.value.filter(
-                        t => t.isPending && !transactions.some(tr => tr.id === t.id)
-                    );
-
-                    const allTransactions = [...transactions, ...pendingTransactions];
-
-                    this.transactionsSubject.next(allTransactions);
-                    observer.next(allTransactions);
+                    this.transactionsSubject.next(transactions);
+                    observer.next(transactions);
                 },
                 (error) => {
                     console.error('Failed to fetch transactions:', error);
-                    observer.next(this.transactionsSubject.value); // Fallback
-                    observer.complete(); // Optional
+                    observer.next([]);
                 }
             );
 
@@ -356,16 +239,18 @@ export class TransactionsService {
         });
     }
 
-
-    // 🔹 Get a single transaction by its ID
+    /**
+     * Get a specific transaction
+     */
     getTransaction(userId: string, transactionId: string): Observable<Transaction | undefined> {
         return new Observable<Transaction | undefined>(observer => {
             const getTransactionAsync = async () => {
                 try {
                     const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                    const transactionSnap = await getDoc(transactionRef);
-                    if (transactionSnap.exists()) {
-                        const transaction = { id: transactionSnap.id, ...transactionSnap.data() } as Transaction;
+                    const transactionDoc = await getDoc(transactionRef);
+
+                    if (transactionDoc.exists()) {
+                        const transaction = { id: transactionDoc.id, ...transactionDoc.data() } as Transaction;
                         observer.next(transaction);
                     } else {
                         observer.next(undefined);
@@ -380,171 +265,22 @@ export class TransactionsService {
         });
     }
 
-    // 🔹 Update an existing transaction
-    updateTransaction(userId: string, transactionId: string, updatedTransaction: Partial<Transaction>): Observable<void> {
-        return new Observable<void>(observer => {
-            const updateData = { ...updatedTransaction, syncStatus: 'synced' as const };
-
-            const updateTransactionAsync = async () => {
-                try {
-                    // Get the original transaction to calculate balance difference
-                    let originalTransaction: Transaction | undefined;
-                    try {
-                        const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                        const transactionSnap = await getDoc(transactionRef);
-                        if (transactionSnap.exists()) {
-                            originalTransaction = { id: transactionSnap.id, ...transactionSnap.data() } as Transaction;
-                        }
-                    } catch (error) {
-                        console.warn('Could not fetch original transaction for balance update:', error);
-                    }
-
-                    if (this.isOnline) {
-                        try {
-                            const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                            await updateDoc(transactionRef, updateData);
-
-                            // Handle account balance updates
-                            if (originalTransaction) {
-                                const newTransaction = { ...originalTransaction, ...updateData } as Transaction;
-
-                                // Check if account was changed
-                                if (updatedTransaction.accountId && updatedTransaction.accountId !== originalTransaction.accountId) {
-                                    // Handle account transfer
-                                    this.store.dispatch(AccountsActions.updateAccountBalanceForAccountTransfer({
-                                        userId: userId,
-                                        oldAccountId: originalTransaction.accountId,
-                                        newAccountId: updatedTransaction.accountId,
-                                        transaction: newTransaction
-                                    }));
-                                } else if (updatedTransaction.amount !== undefined || updatedTransaction.type !== undefined) {
-                                    // Handle amount or type change
-                                    this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction({
-                                        userId: userId,
-                                        accountId: originalTransaction.accountId,
-                                        transactionType: 'update',
-                                        oldTransaction: originalTransaction,
-                                        newTransaction: newTransaction
-                                    }));
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Failed to update transaction online:', error);
-                            await this.addToOfflineQueue({
-                                type: 'update',
-                                data: { id: transactionId, ...updateData }
-                            });
-                        }
-                    } else {
-                        await this.addToOfflineQueue({
-                            type: 'update',
-                            data: { id: transactionId, ...updateData, syncStatus: 'pending' }
-                        });
-
-                        // Update local cache
-                        const currentTransactions = this.transactionsSubject.value;
-                        const updatedTransactions = currentTransactions.map(t =>
-                            t.id === transactionId ? {
-                                ...t,
-                                ...updateData,
-                                isPending: true,
-                                syncStatus: SyncStatus.PENDING,
-                                lastSyncedAt: new Date(),
-                                nextOccurrence: new Date(),
-                                recurringInterval: RecurringInterval.DAILY,
-                                recurringEndDate: new Date(),
-                            } : t
-                        );
-                        this.transactionsSubject.next(updatedTransactions);
-                    }
-                    observer.next();
-                    observer.complete();
-                } catch (error) {
-                    observer.error(error);
-                }
-            };
-
-            updateTransactionAsync();
-        });
-    }
-
-    // 🔹 Delete a transaction
-    deleteTransaction(userId: string, transactionId: string): Observable<void> {
-        return new Observable<void>(observer => {
-            const deleteTransactionAsync = async () => {
-                try {
-                    // Get the transaction to calculate balance reversal
-                    let transactionToDelete: Transaction | undefined;
-                    try {
-                        const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                        const transactionSnap = await getDoc(transactionRef);
-                        if (transactionSnap.exists()) {
-                            transactionToDelete = { id: transactionSnap.id, ...transactionSnap.data() } as Transaction;
-                        }
-                    } catch (error) {
-                        console.warn('Could not fetch transaction for balance update:', error);
-                    }
-
-                    if (this.isOnline) {
-                        try {
-                            const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                            await deleteDoc(transactionRef);
-
-                            // Update account balance to reverse the transaction effect
-                            if (transactionToDelete) {
-                                this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction({
-                                    userId: userId,
-                                    accountId: transactionToDelete.accountId,
-                                    transactionType: 'delete',
-                                    oldTransaction: transactionToDelete
-                                }));
-
-                                if (transactionToDelete.isSplitTransaction) {
-                                    await this.splitwiseService.deleteSplitTransaction(transactionToDelete.id!, userId);
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Failed to delete transaction online:', error);
-                            await this.addToOfflineQueue({
-                                type: 'delete',
-                                data: { id: transactionId }
-                            });
-                        }
-                    } else {
-                        await this.addToOfflineQueue({
-                            type: 'delete',
-                            data: { id: transactionId }
-                        });
-
-                        // Update local cache
-                        const currentTransactions = this.transactionsSubject.value;
-                        const filteredTransactions = currentTransactions.filter(t => t.id !== transactionId);
-                        this.transactionsSubject.next(filteredTransactions);
-                    }
-                    observer.next();
-                    observer.complete();
-                } catch (error) {
-                    observer.error(error);
-                }
-            };
-
-            deleteTransactionAsync();
-        });
-    }
-
-    // 🔹 Get offline queue status
-    getOfflineQueueStatus(): { count: number; hasPendingOperations: boolean } {
+    /**
+     * Get sync status
+     */
+    getSyncStatus(): { count: number; hasPendingOperations: boolean } {
+        const status = this.commonSyncService.syncStatus;
         return {
-            count: this.offlineQueue.length,
-            hasPendingOperations: this.offlineQueue.length > 0
+            count: status.pendingItems,
+            hasPendingOperations: status.pendingItems > 0
         };
     }
 
-    // 🔹 Force sync offline operations
+    /**
+     * Force sync offline operations
+     */
     async forceSync(): Promise<void> {
-        if (this.isOnline) {
-            await this.processOfflineQueue();
-        }
+        await this.commonSyncService.manualSync();
     }
 
     /**
@@ -634,37 +370,33 @@ export class TransactionsService {
                     await this.createTransaction(userId, newTransaction).toPromise();
 
                     // Update the original recurring transaction with next occurrence
-                    const nextOccurrence = this.calculateNextOccurrence(
-                        transaction.recurringInterval!,
-                        transaction.nextOccurrence || new Date()
-                    );
+                    if (transaction.recurringInterval && transaction.nextOccurrence) {
+                        const nextOccurrence = this.calculateNextOccurrence(
+                            transaction.recurringInterval,
+                            transaction.nextOccurrence
+                        );
 
-                    const updateData: Partial<Transaction> = {
-                        nextOccurrence: nextOccurrence,
-                        updatedAt: new Date(),
-                        updatedBy: userId
-                    };
+                        const updatedRecurringTransaction: Partial<Transaction> = {
+                            nextOccurrence: nextOccurrence,
+                            updatedAt: new Date(),
+                            updatedBy: userId
+                        };
 
-                    // Check if we've reached the end date
-                    if (transaction.recurringEndDate) {
-                        const endDate = transaction.recurringEndDate instanceof Date 
-                            ? transaction.recurringEndDate 
-                            : transaction.recurringEndDate.toDate();
-                        
-                        if (nextOccurrence > endDate) {
+                        // Check if we've reached the end date
+                        if (transaction.recurringEndDate && nextOccurrence > transaction.recurringEndDate) {
                             // Mark as non-recurring since we've reached the end
-                            updateData.isRecurring = false;
-                            updateData.recurringInterval = undefined;
-                            updateData.recurringEndDate = undefined;
+                            updatedRecurringTransaction.isRecurring = false;
+                            updatedRecurringTransaction.recurringInterval = undefined;
+                            updatedRecurringTransaction.recurringEndDate = undefined;
                         }
-                    }
 
-                    await this.updateTransaction(userId, transaction.id!, updateData).toPromise();
+                        await this.updateTransaction(userId, transaction.id!, updatedRecurringTransaction).toPromise();
+                    }
 
                     observer.next();
                     observer.complete();
                 } catch (error) {
-                    console.error('Error processing recurring transaction:', error);
+                    console.error('Failed to process recurring transaction:', error);
                     observer.error(error);
                 }
             };
@@ -674,7 +406,7 @@ export class TransactionsService {
     }
 
     /**
-     * Calculate the next occurrence date based on the recurring interval
+     * Calculate next occurrence for recurring transactions
      */
     private calculateNextOccurrence(interval: RecurringInterval, currentDate: Date | Timestamp): Date {
         const date = currentDate instanceof Date ? currentDate : currentDate.toDate();
@@ -694,42 +426,58 @@ export class TransactionsService {
                 nextDate.setFullYear(nextDate.getFullYear() + 1);
                 break;
             default:
-                nextDate.setMonth(nextDate.getMonth() + 1); // Default to monthly
+                nextDate.setDate(nextDate.getDate() + 1);
         }
 
         return nextDate;
     }
 
     /**
- * Create split transaction
- */
+     * Create split transaction
+     */
     private async createSplitTransaction(selectedGroupId: string, formData: any, originalTransactionId: string, userId: string): Promise<void> {
+        try {
+            const splitTransactionData: CreateSplitTransactionRequest = {
+                groupId: selectedGroupId,
+                originalTransactionId: originalTransactionId,
+                amount: formData.amount,
+                splits: formData.splits || []
+            };
 
-
-        const selectedGroup = await this.splitwiseService.getGroupById(selectedGroupId);
-
-        if (!selectedGroup) {
-            throw new Error('No group selected for split transaction');
+            await this.splitwiseService.createSplitTransaction(splitTransactionData, userId).toPromise();
+        } catch (error) {
+            console.error('Failed to create split transaction:', error);
         }
+    }
 
-        // Create equal splits for all group members
-        const splits: TransactionSplit[] = selectedGroup.members.map((member: any) => ({
-            userId: member.userId,
-            amount: parseFloat(formData.amount) / selectedGroup.members.length,
-            percentage: 100 / selectedGroup.members.length,
-            isPaid: member.userId === userId, // Current user is marked as paid
-            email: member.email,
-            displayName: member.displayName
-        }));
-
-        const request: CreateSplitTransactionRequest = {
-            groupId: selectedGroup.id!,
-            amount: parseFloat(formData.amount),
-            splits: splits,
-            originalTransactionId: originalTransactionId
+    /**
+     * Add transaction to sync queue
+     */
+    private async addToSyncQueue(operation: 'create' | 'update' | 'delete', data: any): Promise<void> {
+        const syncItem: Omit<SyncItem, 'timestamp' | 'retryCount'> = {
+            id: this.generateId(),
+            type: 'transaction',
+            operation: operation,
+            data: data,
+            maxRetries: 3
         };
 
-        // Dispatch action to create split transaction
-        this.store.dispatch(SplitwiseActions.createSplitTransaction({ request }));
+        const result = await this.commonSyncService.registerSyncItem(syncItem);
+        if (!result.success) {
+            console.error('Failed to register transaction for sync:', result.errors);
+        }
+    }
+
+    /**
+     * Check if Firebase validation error
+     */
+    private isFirebaseValidationError(error: any): boolean {
+        return error && (
+            error.code === 'permission-denied' ||
+            error.code === 'unavailable' ||
+            error.code === 'invalid-argument' ||
+            error.message?.includes('permission') ||
+            error.message?.includes('validation')
+        );
     }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { PwaNavigationService, NavigationState } from '../../service/pwa-navigation.service';
-import { OfflineService } from '../../service/offline.service';
+import { CommonSyncService } from '../../service/common-sync.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -227,7 +227,7 @@ export class PwaNavigationBarComponent implements OnInit, OnDestroy {
 
   constructor(
     private pwaNavigationService: PwaNavigationService,
-    private offlineService: OfflineService
+    private commonSyncService: CommonSyncService
   ) {
     this.navigationState = {
       canGoBack: false,
@@ -246,7 +246,7 @@ export class PwaNavigationBarComponent implements OnInit, OnDestroy {
         this.navigationState = state;
       });
 
-    this.offlineService.isOnline$
+    this.commonSyncService.isOnline$
       .pipe(takeUntil(this.destroy$))
       .subscribe(isOnline => {
         this.isOnline = isOnline;

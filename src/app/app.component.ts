@@ -3,7 +3,7 @@ import { ThemeSwitchingService } from './util/service/theme-switching.service';
 import { Location } from '@angular/common';
 import { LoaderService } from './util/service/loader.service';
 import { PwaNavigationService, NavigationState } from './util/service/pwa-navigation.service';
-import { OfflineService } from './util/service/offline.service';
+import { CommonSyncService } from './util/service/common-sync.service';
 import { Subject, takeUntil } from 'rxjs';
 import { APP_CONFIG } from './util/config/config';
 import { SsrService } from './util/service/ssr.service';
@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private location: Location,
     private loaderService: LoaderService,
     private pwaNavigationService: PwaNavigationService,
-    private offlineService: OfflineService,
+    private commonSyncService: CommonSyncService,
     private ssrService: SsrService,
     private firebaseMessagingService: FirebaseMessagingService
   ) {
@@ -62,7 +62,7 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     // Subscribe to online/offline status
-    this.offlineService.isOnline$
+    this.commonSyncService.isOnline$
       .pipe(takeUntil(this.destroy$))
       .subscribe(isOnline => {
         this.isOnline = isOnline;

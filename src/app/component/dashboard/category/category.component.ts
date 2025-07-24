@@ -36,7 +36,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   @Input() home: boolean = false;
 
   public isLoading$: Observable<boolean>;
-  public error$: Observable<any>;
+  // public error$: Observable<any>;
   public transactions$: Observable<Transaction[]>;
   public Math = Math; // Make Math available in template
 
@@ -65,7 +65,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   ) {
    
     this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
-    this.error$ = this.store.select(CategoriesSelectors.selectCategoriesError);
+    // this.error$ = this.store.select(CategoriesSelectors.selectCategoriesError);
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
 
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
@@ -129,13 +129,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.isLoading = loading;
     });
 
-    this.error$.pipe(takeUntil(this.destroy$)).subscribe(error => {
-      if (error) {
-        this.errorMessage = 'Failed to load categories';
-        console.error('Error loading categories:', error);
-        this.notificationService.error('Failed to load categories');
-      }
-    });
+    // this.error$.pipe(takeUntil(this.destroy$)).subscribe(error => {
+    //   if (error) {
+    //     this.errorMessage = 'Failed to load categories';
+    //     console.error('Error loading categories:', error);
+    //     this.notificationService.error('Failed to load categories');
+    //   }
+    // });
   }
 
 

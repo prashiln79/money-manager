@@ -198,17 +198,7 @@ export interface ISecurityService {
   validateToken(token: string): boolean;
 }
 
-/**
- * Cache service interface
- */
-export interface ICacheService {
-  set<T>(key: string, data: T, expiry?: number): void;
-  get<T>(key: string): T | null;
-  remove(key: string): void;
-  clear(): void;
-  has(key: string): boolean;
-  getKeys(): string[];
-}
+
 
 /**
  * Validation service interface

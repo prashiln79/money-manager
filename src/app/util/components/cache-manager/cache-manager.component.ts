@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { OfflineService } from '../../service/offline.service';
+import { CommonSyncService } from '../../service/common-sync.service';
 import { SsrService } from '../../service/ssr.service';
 
 @Component({
@@ -112,12 +112,12 @@ export class CacheManagerComponent {
   isUpdating = false;
   isChecking = false;
 
-  constructor(private offlineService: OfflineService, private ssrService: SsrService) { }
+  constructor(private commonSyncService: CommonSyncService, private ssrService: SsrService) { }
 
   async clearApplicationCache(): Promise<void> {
     this.isClearing = true;
     try {
-      await this.offlineService.clearCache();
+      await this.commonSyncService.clearCache();
       alert('Application cache cleared successfully! Your login and data are preserved.');
     } catch (error) {
       console.error('Failed to clear application cache:', error);
@@ -131,7 +131,8 @@ export class CacheManagerComponent {
     if (confirm('This will clear ALL cache including your login. You will need to sign in again. Continue?')) {
       this.isUpdating = true;
       try {
-        this.offlineService.forceUpdate();
+        await this.commonSyncService.clearCache();
+        window.location.reload();
       } catch (error) {
         console.error('Failed to force update:', error);
         alert('Failed to force update. Please try again.');
@@ -156,7 +157,7 @@ export class CacheManagerComponent {
   }
 
   getNetworkStatusClass(): string {
-    const status = this.offlineService.getCurrentNetworkStatus();
+    const status = this.commonSyncService.getCurrentNetworkStatus();
     if (!status.online) return 'bg-red-500';
     if (status.effectiveType === '4g') return 'bg-green-500';
     if (status.effectiveType === '3g') return 'bg-yellow-500';
@@ -164,7 +165,7 @@ export class CacheManagerComponent {
   }
 
   getNetworkStatusText(): string {
-    const status = this.offlineService.getCurrentNetworkStatus();
+    const status = this.commonSyncService.getCurrentNetworkStatus();
     if (!status.online) return 'Offline';
     if (status.effectiveType === '4g') return '4G';
     if (status.effectiveType === '3g') return '3G';

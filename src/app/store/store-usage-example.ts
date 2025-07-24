@@ -19,6 +19,7 @@ import * as AccountsSelectors from './accounts/accounts.selectors';
 import { Transaction } from '../util/service/transactions.service';
 import { Category } from '../util/models/category.model';
 import { Account } from '../util/models/account.model';
+import { TransactionType } from '../util/config/enums';
 
 @Component({
   selector: 'app-example',
@@ -122,7 +123,7 @@ export class ExampleComponent implements OnInit {
     
     this.store.dispatch(TransactionsActions.createTransaction({ 
       userId, 
-      transaction: newTransaction 
+      transaction: newTransaction as any
     }));
   }
   
@@ -132,7 +133,7 @@ export class ExampleComponent implements OnInit {
     this.store.dispatch(CategoriesActions.createCategory({
       userId,
       name: 'New Category',
-      categoryType: 'expense',
+      categoryType: TransactionType.EXPENSE,
       icon: 'category',
       color: '#FF5722'
     }));
@@ -150,7 +151,7 @@ export class ExampleComponent implements OnInit {
     
     this.store.dispatch(AccountsActions.createAccount({
       userId,
-      accountData
+      accountData: accountData as any
     }));
   }
   

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { OfflineService, NetworkStatus } from '../../service/offline.service';
+import { CommonSyncService, NetworkStatus } from '../../service/common-sync.service';
 import { NotificationService } from '../../service/notification.service';
 import { APP_CONFIG } from '../../config/config';
 
@@ -35,12 +35,12 @@ export class OfflineIndicatorComponent implements OnInit, OnDestroy {
   showOnlineBanner = false;
   private subscriptions: Subscription[] = [];
 
-  constructor(private offlineService: OfflineService, private notificationService: NotificationService) {}
+  constructor(private commonSyncService: CommonSyncService, private notificationService: NotificationService) {}
 
   ngOnInit(): void {
     // Subscribe to network status changes
     this.subscriptions.push(
-      this.offlineService.networkStatus$.subscribe(status => {
+      this.commonSyncService.networkStatus$.subscribe(status => {
         const wasOnline = this.isOnline;
         this.isOnline = status.online;
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { OfflineService } from '../../../util/service/offline.service';
+import { CommonSyncService } from '../../../util/service/common-sync.service';
 import { Subscription, interval } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { HapticFeedbackService } from '../../../util/service/haptic-feedback.service';
@@ -21,7 +21,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   batteryLevel = 0;
 
   constructor(
-    private offlineService: OfflineService,
+    private commonSyncService: CommonSyncService,
     private router: Router,
     private _dialog: MatDialog,
     private hapticFeedback: HapticFeedbackService,
@@ -152,7 +152,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   getNetworkStatusClass(): string {
-    const status = this.offlineService.getCurrentNetworkStatus();
+    const status = this.commonSyncService.getCurrentNetworkStatus();
     if (!status.online) return 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300';
     if (status.effectiveType === '4g') return 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300';
     if (status.effectiveType === '3g') return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300';
@@ -160,7 +160,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   getNetworkIndicatorClass(): string {
-    const status = this.offlineService.getCurrentNetworkStatus();
+    const status = this.commonSyncService.getCurrentNetworkStatus();
     if (!status.online) return 'bg-red-500';
     if (status.effectiveType === '4g') return 'bg-green-500';
     if (status.effectiveType === '3g') return 'bg-yellow-500';
@@ -168,7 +168,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   getNetworkStatusText(): string {
-    const status = this.offlineService.getCurrentNetworkStatus();
+    const status = this.commonSyncService.getCurrentNetworkStatus();
     if (!status.online) return 'Offline';
     if (status.effectiveType === '4g') return '4G';
     if (status.effectiveType === '3g') return '3G';

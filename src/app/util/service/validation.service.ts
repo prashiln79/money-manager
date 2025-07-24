@@ -823,8 +823,14 @@ export class ValidationService implements IValidationService {
    * Validate transaction data
    */
   validateTransactionData(data: any): ValidationResult {
+
+
     const errors: string[] = [];
     const warnings: string[] = [];
+
+    if (Object.values(data).some(value => value === undefined)) {
+      errors.push('Data contains undefined values');
+    }
 
     // Validate required fields
     const requiredFields = ['payee', 'amount', 'type', 'date', 'accountId', 'categoryId'];
@@ -860,6 +866,22 @@ export class ValidationService implements IValidationService {
       warnings
     };
   }
+  
+  validateCommonData(data: any): ValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    if (Object.values(data).some(value => value === undefined)) {
+      errors.push('Data contains undefined values');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    };
+  }
+  
 
   /**
    * Sanitize input string
