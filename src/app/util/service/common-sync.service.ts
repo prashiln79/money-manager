@@ -230,14 +230,14 @@ export class CommonSyncService {
    * Show online notification
    */
   private showOnlineNotification(): void {
-    this.notificationService.success('You are back online!', 'Your data will sync automatically.');
+    console.log('You are back online!', 'Your data will sync automatically.');
   }
 
   /**
    * Show offline notification
    */
   private showOfflineNotification(): void {
-    this.notificationService.warning('You are offline', 'Changes will be saved locally and synced when you reconnect.');
+    console.log('You are offline', 'Changes will be saved locally and synced when you reconnect.');
   }
 
   /**
