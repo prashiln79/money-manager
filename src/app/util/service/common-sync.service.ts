@@ -9,6 +9,7 @@ import { ValidationService } from './validation.service';
 import { UserService } from './user.service';
 import { DateService } from './date.service';
 import { NotificationService } from './notification.service';
+import { TransactionsService } from './transactions.service';
 import { APP_CONFIG } from '../config/config';
 import { environment } from '@env/environment';
 
@@ -102,11 +103,13 @@ export class CommonSyncService {
     private userService: UserService,
     private dateService: DateService,
     private notificationService: NotificationService,
+    private transactionsService: TransactionsService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (!isPlatformServer(this.platformId)) {
       this.networkStatusSubject.next({ online: navigator.onLine });
       this.initializeServices();
+      this.setupServiceWorkerSyncListener();
     }
   }
 
@@ -358,14 +361,23 @@ export class CommonSyncService {
         }
 
         processedItems.push(item.id);
-      } catch (error) {
-        console.error(`Failed to process sync item ${item.id}:`, error);
         
-        item.retryCount++;
-        if (item.retryCount >= (item.maxRetries || 3)) {
-          failedItems.push(item.id);
+        // Update sync status for successful transactions
+        if (item.type === 'transaction') {
+          await this.updateTransactionSyncStatus(item.data.id || item.id, 'synced');
         }
-      }
+              } catch (error) {
+          console.error(`Failed to process sync item ${item.id}:`, error);
+          
+          item.retryCount++;
+          if (item.retryCount >= (item.maxRetries || 3)) {
+            failedItems.push(item.id);
+            // Update sync status to failed for transactions
+            if (item.type === 'transaction') {
+              await this.updateTransactionSyncStatus(item.data.id || item.id, 'failed');
+            }
+          }
+        }
     }
 
     if (processedItems.length > 0) {
@@ -413,6 +425,21 @@ export class CommonSyncService {
         break;
     }
   }
+
+  /**
+   * Update transaction sync status after successful sync
+   */
+  private async updateTransactionSyncStatus(transactionId: string, status: 'synced' | 'failed'): Promise<void> {
+    try {
+      // Use TransactionsService to update sync status
+      this.transactionsService.updateTransactionSyncStatus(transactionId, status);
+      console.log(`Transaction ${transactionId} sync status updated to: ${status}`);
+    } catch (error) {
+      console.error('Failed to update transaction sync status:', error);
+    }
+  }
+
+
 
   /**
    * Process budget sync operations
@@ -1197,5 +1224,24 @@ export class CommonSyncService {
    */
   isSupported(): boolean {
     return 'serviceWorker' in navigator && 'sync' in window;
+  }
+
+  /**
+   * Listen for sync events from service worker
+   */
+  private setupServiceWorkerSyncListener(): void {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'SYNC_COMPLETED') {
+          const { transactionId, success } = event.data;
+          if (transactionId) {
+            this.transactionsService.updateTransactionSyncStatus(
+              transactionId, 
+              success ? 'synced' : 'failed'
+            );
+          }
+        }
+      });
+    }
   }
 } 

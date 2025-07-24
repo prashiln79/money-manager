@@ -10,6 +10,7 @@ import { RecurringInterval, SyncStatus } from '../config/enums';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import * as CategoriesActions from '../../store/categories/categories.actions';
+import * as TransactionsActions from '../../store/transactions/transactions.actions';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { AccountsService } from './accounts.service';
 import * as AccountsActions from '../../store/accounts/accounts.actions';
@@ -43,10 +44,12 @@ export class TransactionsService extends BaseService {
      */
     createTransaction(userId: string, transaction: Omit<Transaction, 'id'>): Observable<void> {
         return new Observable<void>(observer => {
+            const transactionId = this.generateId();
             const transactionData = {
                 ...transaction,
+                id: transactionId,
                 date: this.dateService.toDate(transaction.date),
-                syncStatus: 'synced' as const
+                syncStatus: this.commonSyncService.isCurrentlyOnline() ? 'synced' as const : 'pending' as const
             };
 
             const createTransactionAsync = async () => {
@@ -77,18 +80,40 @@ export class TransactionsService extends BaseService {
                                 newTransaction: transactionData as Transaction
                             }));
 
+                            // Add to store immediately for online transactions
+                            this.store.dispatch(TransactionsActions.createTransactionSuccess({ 
+                                transaction: transactionData as Transaction 
+                            }));
+                            
+                            // Update cache
+                            this.updateTransactionCache(userId, 'create', transactionData as Transaction);
+
                             observer.next();
                             observer.complete();
                         } catch (error) {
                             console.error('Failed to create transaction online:', error);
                             // Fall back to offline mode
                             await this.addToSyncQueue('create', transactionData);
+                            // Add to store immediately for offline transactions
+                            this.store.dispatch(TransactionsActions.createTransactionSuccess({ 
+                                transaction: transactionData as Transaction 
+                            }));
+                            
+                            // Update cache
+                            this.updateTransactionCache(userId, 'create', transactionData as Transaction);
                             observer.next();
                             observer.complete();
                         }
                     } else {
                         // Store offline
                         await this.addToSyncQueue('create', transactionData);
+                        // Add to store immediately for offline transactions
+                        this.store.dispatch(TransactionsActions.createTransactionSuccess({ 
+                            transaction: transactionData as Transaction 
+                        }));
+                        
+                        // Update cache
+                        this.updateTransactionCache(userId, 'create', transactionData as Transaction);
                         observer.next();
                         observer.complete();
                     }
@@ -113,7 +138,7 @@ export class TransactionsService extends BaseService {
                         ...updatedTransaction,
                         updatedAt: new Date(),
                         updatedBy: userId,
-                        syncStatus: 'synced' as const
+                        syncStatus: this.commonSyncService.isCurrentlyOnline() ? 'synced' as const : 'pending' as const
                     };
 
                     if (this.commonSyncService.isCurrentlyOnline()) {
@@ -132,16 +157,38 @@ export class TransactionsService extends BaseService {
                                 }));
                             }
 
+                            // Update store immediately for online transactions
+                            this.store.dispatch(TransactionsActions.updateTransactionSuccess({ 
+                                transaction: { id: transactionId, ...updateData } as Transaction 
+                            }));
+                            
+                            // Update cache
+                            this.updateTransactionCache(userId, 'update', { id: transactionId, ...updateData } as Transaction);
+
                             observer.next();
                             observer.complete();
                         } catch (error) {
                             console.error('Failed to update transaction online:', error);
                             await this.addToSyncQueue('update', { id: transactionId, ...updateData });
+                            // Update store immediately for offline transactions
+                            this.store.dispatch(TransactionsActions.updateTransactionSuccess({ 
+                                transaction: { id: transactionId, ...updateData } as Transaction 
+                            }));
+                            
+                            // Update cache
+                            this.updateTransactionCache(userId, 'update', { id: transactionId, ...updateData } as Transaction);
                             observer.next();
                             observer.complete();
                         }
                     } else {
-                        await this.addToSyncQueue('update', { id: transactionId, ...updateData, syncStatus: 'pending' });
+                        await this.addToSyncQueue('update', { id: transactionId, ...updateData });
+                        // Update store immediately for offline transactions
+                        this.store.dispatch(TransactionsActions.updateTransactionSuccess({ 
+                            transaction: { id: transactionId, ...updateData } as Transaction 
+                        }));
+                        
+                        // Update cache
+                        this.updateTransactionCache(userId, 'update', { id: transactionId, ...updateData } as Transaction);
                         observer.next();
                         observer.complete();
                     }
@@ -184,16 +231,32 @@ export class TransactionsService extends BaseService {
                                 }
                             }
 
+                            // Remove from store immediately for online transactions
+                            this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
+                            
+                            // Update cache
+                            this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
+
                             observer.next();
                             observer.complete();
                         } catch (error) {
                             console.error('Failed to delete transaction online:', error);
                             await this.addToSyncQueue('delete', { id: transactionId });
+                            // Remove from store immediately for offline transactions
+                            this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
+                            
+                            // Update cache
+                            this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
                             observer.next();
                             observer.complete();
                         }
                     } else {
                         await this.addToSyncQueue('delete', { id: transactionId });
+                        // Remove from store immediately for offline transactions
+                        this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
+                        
+                        // Update cache
+                        this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
                         observer.next();
                         observer.complete();
                     }
@@ -226,12 +289,37 @@ export class TransactionsService extends BaseService {
                         transactions.push(transaction);
                     });
 
+                    // If offline, also load any cached transactions
+                    if (!this.commonSyncService.isCurrentlyOnline()) {
+                        const cachedTransactions = this.getCachedTransactions(userId);
+                        const cachedTransactionIds = cachedTransactions.map(t => t.id);
+                        
+                        // Merge online and cached transactions, avoiding duplicates
+                        const onlineTransactionIds = transactions.map(t => t.id);
+                        const uniqueCachedTransactions = cachedTransactions.filter(t => 
+                            t.id && !onlineTransactionIds.includes(t.id)
+                        );
+                        
+                        transactions.push(...uniqueCachedTransactions);
+                    }
+
+                    // Cache transactions for offline use
+                    this.cacheTransactions(userId, transactions);
+                    
                     this.transactionsSubject.next(transactions);
                     observer.next(transactions);
                 },
                 (error) => {
                     console.error('Failed to fetch transactions:', error);
-                    observer.next([]);
+                    
+                    // If offline and error, try to load from cache
+                    if (!this.commonSyncService.isCurrentlyOnline()) {
+                        const cachedTransactions = this.getCachedTransactions(userId);
+                        this.transactionsSubject.next(cachedTransactions);
+                        observer.next(cachedTransactions);
+                    } else {
+                        observer.next([]);
+                    }
                 }
             );
 
@@ -465,6 +553,97 @@ export class TransactionsService extends BaseService {
         const result = await this.commonSyncService.registerSyncItem(syncItem);
         if (!result.success) {
             console.error('Failed to register transaction for sync:', result.errors);
+        }
+    }
+
+    /**
+     * Get cached transactions from localStorage
+     */
+    private getCachedTransactions(userId: string): Transaction[] {
+        try {
+            const cachedData = localStorage.getItem(`transactions-cache-${userId}`);
+            if (cachedData) {
+                const transactions = JSON.parse(cachedData) as Transaction[];
+                return transactions.filter(t => t && t.id);
+            }
+        } catch (error) {
+            console.error('Error loading cached transactions:', error);
+        }
+        return [];
+    }
+
+    /**
+     * Cache transactions to localStorage
+     */
+    private cacheTransactions(userId: string, transactions: Transaction[]): void {
+        try {
+            localStorage.setItem(`transactions-cache-${userId}`, JSON.stringify(transactions));
+        } catch (error) {
+            console.error('Error caching transactions:', error);
+        }
+    }
+
+    /**
+     * Update transaction cache when transactions are created, updated, or deleted
+     */
+    private updateTransactionCache(userId: string, operation: 'create' | 'update' | 'delete', transaction?: Transaction): void {
+        try {
+            const cachedTransactions = this.getCachedTransactions(userId);
+            
+            switch (operation) {
+                case 'create':
+                    if (transaction) {
+                        cachedTransactions.push(transaction);
+                    }
+                    break;
+                case 'update':
+                    if (transaction) {
+                        const index = cachedTransactions.findIndex(t => t.id === transaction.id);
+                        if (index !== -1) {
+                            cachedTransactions[index] = transaction;
+                        }
+                    }
+                    break;
+                case 'delete':
+                    if (transaction) {
+                        const index = cachedTransactions.findIndex(t => t.id === transaction.id);
+                        if (index !== -1) {
+                            cachedTransactions.splice(index, 1);
+                        }
+                    }
+                    break;
+            }
+            
+            this.cacheTransactions(userId, cachedTransactions);
+        } catch (error) {
+            console.error('Error updating transaction cache:', error);
+        }
+    }
+
+    /**
+     * Update transaction sync status
+     */
+    public updateTransactionSyncStatus(transactionId: string, status: 'synced' | 'failed'): void {
+        try {
+            // Update in cache
+            this.updateTransactionCache(this.auth.currentUser?.uid || '', 'update', {
+                id: transactionId,
+                syncStatus: status,
+                lastSyncedAt: new Date()
+            } as Transaction);
+
+            // Update in store
+            this.store.dispatch(TransactionsActions.updateTransactionSuccess({
+                transaction: {
+                    id: transactionId,
+                    syncStatus: status,
+                    lastSyncedAt: new Date()
+                } as Transaction
+            }));
+
+            console.log(`Transaction ${transactionId} sync status updated to: ${status}`);
+        } catch (error) {
+            console.error('Failed to update transaction sync status:', error);
         }
     }
 
