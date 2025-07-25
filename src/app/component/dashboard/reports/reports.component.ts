@@ -300,11 +300,9 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   private calculateTopCategories(): void {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
-    // Filter current month expense transactions
     const currentMonthExpenses = this.transactions.filter(t => {
       const transactionDate = this.dateService.toDate(t.date);
       return t.type === 'expense' &&
@@ -312,21 +310,21 @@ export class ReportsComponent implements OnInit, OnDestroy {
              transactionDate?.getFullYear() === currentYear;
     });
 
-    // Group by category and calculate totals
+    // Group by category ID and calculate totals
     const categoryTotals = new Map<string, number>();
     
     currentMonthExpenses.forEach(transaction => {
-      const current = categoryTotals.get(transaction.category) || 0;
-      categoryTotals.set(transaction.category, current + transaction.amount);
+      const current = categoryTotals.get(transaction.categoryId) || 0;
+      categoryTotals.set(transaction.categoryId, current + transaction.amount);
     });
 
     // Convert to array and sort by amount
     const totalExpenses = this.totalExpenses;
     this.topCategories = Array.from(categoryTotals.entries())
-      .map(([category, amount]) => {
-        const categoryData = this.categories.find(c => c.name === category);
+      .map(([categoryId, amount]) => {
+        const categoryData = this.categories.find(c => c.id === categoryId);
         return {
-          category,
+          category: categoryData?.name || 'Unknown',
           amount,
           percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
           icon: categoryData?.icon || 'category',
@@ -560,7 +558,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       // Current month data
       const currentMonthTransactions = this.transactions.filter(t => {
         const transactionDate = this.dateService.toDate(t.date);
-        return t.category === category.name &&
+        return t.categoryId === category.id &&
                t.type === 'expense' &&
                transactionDate?.getMonth() === currentMonth && 
                transactionDate?.getFullYear() === currentYear;
@@ -571,7 +569,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       // Previous month data
       const previousMonthTransactions = this.transactions.filter(t => {
         const transactionDate = this.dateService.toDate(t.date);
-        return t.category === category.name &&
+        return t.categoryId === category.id &&
                t.type === 'expense' &&
                transactionDate?.getMonth() === lastMonth && 
                transactionDate?.getFullYear() === lastYear;

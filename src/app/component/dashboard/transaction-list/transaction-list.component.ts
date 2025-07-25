@@ -178,8 +178,8 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.dateSubscription.add(
       this.filterService.categoryFilter$.subscribe(categoryFilter => {
         if (categoryFilter) {
-          // Set the category filter
-          this.selectedCategory = [categoryFilter.categoryName];
+          // Set the category filter using categoryId
+          this.selectedCategory = [categoryFilter.categoryId];
           
           // Set date range for the selected month/year
           const startDate = new Date(categoryFilter.year, categoryFilter.month, 1);
@@ -191,7 +191,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
           this.applyDateFilter();
           
           // Show notification
-          this.notificationService.success(`Showing ${categoryFilter.categoryName} transactions for ${categoryFilter.monthName} ${categoryFilter.year}`);
+          this.notificationService.success(`Showing category transactions for ${categoryFilter.monthName} ${categoryFilter.year}`);
         }
       })
     );

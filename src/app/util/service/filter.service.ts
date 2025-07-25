@@ -9,7 +9,7 @@ export interface DateRange {
 }
 
 export interface CategoryFilter {
-  categoryName: string;
+  categoryId: string;
   year: number;
   month: number;
   monthName: string;
@@ -124,12 +124,12 @@ export class FilterService {
   }
 
   // ===== CATEGORY FILTER METHODS =====
-  setCategoryFilter(categoryName: string, year: number, month: number, monthName: string): void {
-    if (!categoryName || year === undefined || month === undefined || !monthName) {
+  setCategoryFilter(categoryId: string, year: number, month: number, monthName: string): void {
+    if (!categoryId || year === undefined || month === undefined || !monthName) {
       console.warn('Invalid category filter parameters provided');
       return;
     }
-    const filter: CategoryFilter = { categoryName, year, month, monthName };
+    const filter: CategoryFilter = { categoryId, year, month, monthName };
     this.categoryFilterSubject.next(filter);
   }
 
@@ -473,7 +473,7 @@ export class FilterService {
     if (filterState.selectedType !== 'all') parts.push(`Type: ${filterState.selectedType}`);
     if (filterState.selectedDate) parts.push(`Date: ${filterState.selectedDate.toLocaleDateString()}`);
     if (filterState.selectedDateRange) parts.push(`Date Range: ${filterState.selectedDateRange.startDate.toLocaleDateString()} - ${filterState.selectedDateRange.endDate.toLocaleDateString()}`);
-    if (filterState.categoryFilter) parts.push(`Category Filter: ${filterState.categoryFilter.categoryName} (${filterState.categoryFilter.monthName} ${filterState.categoryFilter.year})`);
+    if (filterState.categoryFilter) parts.push(`Category Filter: ${filterState.categoryFilter.categoryId} (${filterState.categoryFilter.monthName} ${filterState.categoryFilter.year})`);
     
     return parts.length > 0 ? parts.join(', ') : 'No filters applied';
   }

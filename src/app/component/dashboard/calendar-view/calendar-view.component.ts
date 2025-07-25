@@ -226,15 +226,19 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   // Handle chart click events
   onChartClick(event: any) {
     if (this.chartViewMode === 'category' && event.data && !this.isMobile) {
-      this.applyCategoryFilter(event.data.name);
+      this.applyCategoryFilter(event.data.categoryId || event.data.name);
     }
   }
 
   // Apply category filter to transaction list
-  applyCategoryFilter(categoryName: string) {
+  applyCategoryFilter(categoryId: string) {
+    // Find the category name for display
+    const category = this.categories.find(c => c.id === categoryId);
+    const categoryName = category ? category.name : categoryId;
+    
     // Set category filter using the date selection service
     this.filterService.setCategoryFilter(
-      categoryName, 
+      categoryId, 
       this.selectedYear, 
       this.selectedMonth, 
       this.availableMonths[this.selectedMonth].label
@@ -304,17 +308,24 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   // Get category-wise spending data
   getCategorySpendingData(transactions: Transaction[]): any[] {
-    const categoryMap = new Map<string, number>();
+    const categoryMap = new Map<string, { name: string; id: string; amount: number }>();
     
     transactions.forEach(transaction => {
       const categoryId = transaction.categoryId;
       const category = this.categories.find(c => c.id === categoryId);
       const categoryName = category ? category.name : '';
       
-      if (categoryName && categoryMap.has(categoryName)) {
-        categoryMap.set(categoryName, categoryMap.get(categoryName)! + transaction.amount);
-      } else {
-        categoryMap.set(categoryName, transaction.amount);
+      if (categoryName && categoryId) {
+        if (categoryMap.has(categoryId)) {
+          const existing = categoryMap.get(categoryId)!;
+          existing.amount += transaction.amount;
+        } else {
+          categoryMap.set(categoryId, {
+            name: categoryName,
+            id: categoryId,
+            amount: transaction.amount
+          });
+        }
       }
     });
 
@@ -334,9 +345,10 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       '#D0F4DE'  // Mint
     ];
 
-    return Array.from(categoryMap.entries()).map(([name, value], index) => ({
-      name,
-      value,
+    return Array.from(categoryMap.values()).map((category, index) => ({
+      name: category.name,
+      categoryId: category.id,
+      value: category.amount,
       itemStyle: { color: colors[index % colors.length] }
     }));
   }

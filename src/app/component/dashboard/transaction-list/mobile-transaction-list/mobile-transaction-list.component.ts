@@ -103,8 +103,8 @@ export class MobileTransactionListComponent
     this.subscription.add(
       this.filterService.categoryFilter$.subscribe((categoryFilter: any) => {
         if (categoryFilter) {
-          // Set the category filter
-          this.selectedCategory = [categoryFilter.categoryName];
+          // Set the category filter using categoryId
+          this.selectedCategory = [categoryFilter.categoryId];
           
           // Set date range for the selected month/year
           const startDate = new Date(categoryFilter.year, categoryFilter.month, 1);

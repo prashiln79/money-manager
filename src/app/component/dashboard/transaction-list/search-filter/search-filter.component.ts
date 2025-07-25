@@ -254,7 +254,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       const categoryName = this.categories.find(c => c.id === this.selectedCategory)?.name;
       filters.push({
         type: 'category',
-        label: `Category: ${categoryName}`,
+        label: `Category: ${categoryName || 'Unknown'}`,
         onRemove: () => this.onClearCategoryFilter()
       });
     }

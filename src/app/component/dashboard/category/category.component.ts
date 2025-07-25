@@ -372,7 +372,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       };
     }
 
-    const categoryTransactions = this.transactions.filter(t => t.category === category.name);
+    const categoryTransactions = this.transactions.filter(t => t.categoryId === category.id);
     
     if (categoryTransactions.length === 0) {
       return {
@@ -447,13 +447,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   public calculateTotalSpentPerMonth(category: Category): number {
-    const categoryTransactions = this.transactions.filter(t => t.category === category.name);
+    const categoryTransactions = this.transactions.filter(t => t.categoryId === category.id);
     const totalSpent = categoryTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
     return totalSpent;
   }
 
   public calculateTotalIncomePerMonth(category: Category): number {
-    const categoryTransactions = this.transactions.filter(t => t.category === category.name);
+    const categoryTransactions = this.transactions.filter(t => t.categoryId === category.id);
     const totalIncome = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
     return totalIncome;
   }
