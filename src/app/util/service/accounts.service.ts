@@ -115,11 +115,16 @@ export class AccountsService {
 
                     const account = accountSnap.data() as Account;
                     let balanceChange = 0;
+                    let loanRemainingBalanceChange = 0;
 
                     switch (transactionType) {
                         case 'create':
                             if (newTransaction) {
                                 balanceChange = newTransaction.type === 'income' ? newTransaction.amount : -newTransaction.amount;
+                                // For loan accounts, if it's an expense transaction, it reduces the remaining balance
+                                if (account.type === 'loan' && newTransaction.type === 'expense') {
+                                    loanRemainingBalanceChange = -newTransaction.amount;
+                                }
                             }
                             break;
                         
@@ -129,6 +134,13 @@ export class AccountsService {
                                 const oldAmount = oldTransaction.type === 'income' ? oldTransaction.amount : -oldTransaction.amount;
                                 const newAmount = newTransaction.type === 'income' ? newTransaction.amount : -newTransaction.amount;
                                 balanceChange = newAmount - oldAmount;
+                                
+                                // For loan accounts, calculate the difference in remaining balance
+                                if (account.type === 'loan') {
+                                    const oldLoanChange = oldTransaction.type === 'expense' ? -oldTransaction.amount : 0;
+                                    const newLoanChange = newTransaction.type === 'expense' ? -newTransaction.amount : 0;
+                                    loanRemainingBalanceChange = newLoanChange - oldLoanChange;
+                                }
                             }
                             break;
                         
@@ -136,18 +148,31 @@ export class AccountsService {
                             if (oldTransaction) {
                                 // Reverse the transaction effect
                                 balanceChange = oldTransaction.type === 'income' ? -oldTransaction.amount : oldTransaction.amount;
+                                // For loan accounts, reverse the remaining balance change
+                                if (account.type === 'loan' && oldTransaction.type === 'expense') {
+                                    loanRemainingBalanceChange = oldTransaction.amount;
+                                }
                             }
                             break;
                     }
 
-                    // Update account balance
-                    const newBalance = (account.balance || 0) + balanceChange;
-                    await updateDoc(accountRef, { 
-                        balance: newBalance,
+                    // Prepare update data
+                    const updateData: any = {
+                        balance: (account.balance || 0) + balanceChange,
                         updatedAt: new Date() as any
-                    });
+                    };
 
-                    observer.next(newBalance);
+                    // Update loan remaining balance if it's a loan account and there's a change
+                    if (account.type === 'loan' && account.loanDetails && loanRemainingBalanceChange !== 0) {
+                        const currentRemainingBalance = account.loanDetails.remainingBalance || 0;
+                        const newRemainingBalance = Math.max(0, currentRemainingBalance + loanRemainingBalanceChange);
+                        
+                        updateData['loanDetails.remainingBalance'] = newRemainingBalance;
+                    }
+
+                    await updateDoc(accountRef, updateData);
+
+                    observer.next(updateData.balance);
                     observer.complete();
                 } catch (error) {
                     observer.error(error);
@@ -168,12 +193,19 @@ export class AccountsService {
                 try {
                     const batch = writeBatch(this.firestore);
                     const accountBalanceChanges = new Map<string, number>();
+                    const accountLoanChanges = new Map<string, number>();
 
                     // Calculate balance changes for each account
                     transactions.forEach(transaction => {
                         const currentChange = accountBalanceChanges.get(transaction.accountId) || 0;
                         const transactionChange = transaction.type === 'income' ? transaction.amount : -transaction.amount;
                         accountBalanceChanges.set(transaction.accountId, currentChange + transactionChange);
+                        
+                        // Track loan changes for expense transactions
+                        if (transaction.type === 'expense') {
+                            const currentLoanChange = accountLoanChanges.get(transaction.accountId) || 0;
+                            accountLoanChanges.set(transaction.accountId, currentLoanChange + transaction.amount);
+                        }
                     });
 
                     // Update each account's balance
@@ -184,10 +216,23 @@ export class AccountsService {
                         if (accountSnap.exists()) {
                             const account = accountSnap.data() as Account;
                             const newBalance = (account.balance || 0) + balanceChange;
-                            batch.update(accountRef, { 
+                            const updateData: any = {
                                 balance: newBalance,
                                 updatedAt: new Date() as any
-                            });
+                            };
+
+                            // Handle loan account updates
+                            if (account.type === 'loan' && account.loanDetails) {
+                                const loanChange = accountLoanChanges.get(accountId) || 0;
+                                if (loanChange > 0) {
+                                    const currentRemainingBalance = account.loanDetails.remainingBalance || 0;
+                                    const newRemainingBalance = Math.max(0, currentRemainingBalance - loanChange);
+                                    
+                                    updateData['loanDetails.remainingBalance'] = newRemainingBalance;
+                                }
+                            }
+
+                            batch.update(accountRef, updateData);
                         }
                     }
 
@@ -235,19 +280,39 @@ export class AccountsService {
                     // Calculate the transaction effect
                     const transactionEffect = transaction.type === 'income' ? transaction.amount : -transaction.amount;
                     
-                    // Update old account (remove the transaction effect)
-                    const oldAccountNewBalance = (oldAccount.balance || 0) - transactionEffect;
-                    batch.update(oldAccountRef, { 
-                        balance: oldAccountNewBalance,
+                    // Prepare update data for old account
+                    const oldAccountUpdateData: any = {
+                        balance: (oldAccount.balance || 0) - transactionEffect,
                         updatedAt: new Date() as any
-                    });
+                    };
                     
-                    // Update new account (add the transaction effect)
-                    const newAccountNewBalance = (newAccount.balance || 0) + transactionEffect;
-                    batch.update(newAccountRef, { 
-                        balance: newAccountNewBalance,
+                    // Handle loan account updates for old account
+                    if (oldAccount.type === 'loan' && oldAccount.loanDetails && transaction.type === 'expense') {
+                        // Remove the loan payment effect from old account
+                        const currentRemainingBalance = oldAccount.loanDetails.remainingBalance || 0;
+                        const newRemainingBalance = currentRemainingBalance + transaction.amount;
+                        
+                        oldAccountUpdateData['loanDetails.remainingBalance'] = newRemainingBalance;
+                    }
+                    
+                    // Prepare update data for new account
+                    const newAccountUpdateData: any = {
+                        balance: (newAccount.balance || 0) + transactionEffect,
                         updatedAt: new Date() as any
-                    });
+                    };
+                    
+                    // Handle loan account updates for new account
+                    if (newAccount.type === 'loan' && newAccount.loanDetails && transaction.type === 'expense') {
+                        // Add the loan payment effect to new account
+                        const currentRemainingBalance = newAccount.loanDetails.remainingBalance || 0;
+                        const newRemainingBalance = Math.max(0, currentRemainingBalance - transaction.amount);
+                        
+                        newAccountUpdateData['loanDetails.remainingBalance'] = newRemainingBalance;
+                    }
+                    
+                    // Update both accounts
+                    batch.update(oldAccountRef, oldAccountUpdateData);
+                    batch.update(newAccountRef, newAccountUpdateData);
                     
                     await batch.commit();
                     observer.next();
@@ -260,6 +325,8 @@ export class AccountsService {
             updateBalancesAsync();
         });
     }
+
+
 
     // 🔹 Generate a unique account ID
     private generateAccountId(): string {

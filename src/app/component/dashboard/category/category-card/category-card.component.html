@@ -50,7 +50,7 @@
         <button mat-menu-item (click)="onEditCategory()" class="action-button edit-button" matTooltip="Edit category">
           <mat-icon>edit</mat-icon> Edit
         </button>
-        <button mat-menu-item (click)="onSelectParentCategory()" class="action-button parent-button" matTooltip="Select parent category" *ngIf="!category.isSubCategory && !category.parentCategoryId">
+        <button mat-menu-item *ngIf="!category.subCategories?.length" (click)="onSelectParentCategory()" class="action-button parent-button" matTooltip="Select parent category">
           <mat-icon>account_tree</mat-icon> Select Parent Category
         </button>
         <button mat-menu-item (click)="onRemoveFromParentCategory()" class="action-button remove-parent-button" matTooltip="Remove from parent category" *ngIf="category.isSubCategory || category.parentCategoryId">
