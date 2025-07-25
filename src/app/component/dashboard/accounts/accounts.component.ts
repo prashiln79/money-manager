@@ -5,7 +5,6 @@ import { Subject, takeUntil, Observable, of } from 'rxjs';
 import { Account, LoanDetails } from 'src/app/util/models/account.model';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { MobileAccountComponent } from './mobile-account/mobile-account.component';
 import { AddAccountDialogComponent } from './add-account-dialog/add-account-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
@@ -144,22 +143,13 @@ export class AccountsComponent implements OnInit, OnDestroy {
    * Open dialog for adding/editing accounts
    */
   public openAccountDialog(account?: Account): void {
-    let dialogRef;
-    
-    if (this.isMobile) {
-      dialogRef = this.dialog.open(MobileAccountComponent, {
-        width: '100vw',
-        height: '100vh',
-        maxWidth: '100vw',
-        panelClass: 'full-screen-dialog',
-        data: account || null
-      });
-    } else {
-      dialogRef = this.dialog.open(AddAccountDialogComponent, {
-        width: '500px',
-        data: account || null
-      });
-    }
+    const dialogRef = this.dialog.open(AddAccountDialogComponent, {
+      width: this.isMobile ? '100vw' : '500px',
+      height: this.isMobile ? '100vh' : 'auto',
+      maxWidth: this.isMobile ? '100vw' : '500px',
+      panelClass: this.isMobile ? 'full-screen-dialog' : '',
+      data: account || null
+    });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

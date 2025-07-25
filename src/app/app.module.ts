@@ -65,7 +65,6 @@ import { RegistrationComponent } from './component/auth/registration/registratio
 import { OfflineIndicatorComponent } from './util/components/offline-indicator/offline-indicator.component';
 import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
 import { FooterComponent } from './component/dashboard/footer/footer.component';
-import { MobileAccountComponent } from './component/dashboard/accounts/mobile-account/mobile-account.component';
 import { TermsConditionsComponent } from './component/terms-conditions/terms-conditions.component';
 import { AddAccountDialogComponent } from './component/dashboard/accounts/add-account-dialog/add-account-dialog.component';
 import { MobileAccountsListComponent } from './component/dashboard/accounts/mobile-accounts-list/mobile-accounts-list.component';
@@ -140,7 +139,6 @@ import { SharedModule } from './modules/shared/shared.module';
     PwaBackButtonComponent,
     PwaNavigationBarComponent,
     PwaInstallPromptComponent,
-    MobileAccountComponent,
     AddAccountDialogComponent,
     MobileAccountsListComponent,
     LandingComponent,
