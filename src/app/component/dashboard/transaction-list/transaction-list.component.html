@@ -1,4 +1,4 @@
-@if (isMobile) {
+@if (breakpointService.device.isMobile || (breakpointService.device.isTablePortrait && isTransactionsPage)) {
 <mobile-transaction-list
   [transactions]="allTransactions"
   [searchTerm]="searchTerm"

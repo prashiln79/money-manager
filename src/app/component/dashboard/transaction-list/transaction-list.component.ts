@@ -21,6 +21,8 @@ import * as CategoriesActions from '../../../store/categories/categories.actions
 import { DateService } from 'src/app/util/service/date.service';
 import { RecurringInterval, SyncStatus, TransactionStatus, TransactionType } from 'src/app/util/config/enums';
 import { APP_CONFIG } from 'src/app/util/config/config';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'transaction-list',
@@ -37,7 +39,6 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   transactionsLoading$: Observable<boolean>;
   transactionsError$: Observable<any>;
 
-  isMobile = false;
   displayedColumns: string[] = ['Payee', 'Amount', 'Status', 'Type', 'Date', 'Actions'];
   public pageSizeOptions: number[] = [...APP_CONFIG.PAGINATION.PAGE_SIZE_OPTIONS]; // Use config values and make mutable
   selectedTx: any = null;
@@ -60,6 +61,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   // Table properties
   showFullTable: boolean = false;
+  isTransactionsPage: boolean = false;
 
   // Getter for single category (for desktop components)
   get selectedCategorySingle(): string {
@@ -74,21 +76,22 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   constructor(
     private loaderService: LoaderService, 
     private _dialog: MatDialog, 
-    private breakpointObserver: BreakpointObserver, 
     private auth: Auth,  
     private notificationService: NotificationService,
     private filterService: FilterService,
     private store: Store<AppState>,
-    private dateService: DateService
+    private dateService: DateService,
+    public breakpointService:BreakpointService,
+    private router: Router
+
   ) {
+    this.isTransactionsPage =this.router.url.includes('transactions') ?  true : false;
     // Initialize selectors
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
     this.transactionsLoading$ = this.store.select(TransactionsSelectors.selectTransactionsLoading);
     this.transactionsError$ = this.store.select(TransactionsSelectors.selectTransactionsError);
 
-    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
-      this.isMobile = result.matches;
-    });
+   
   }
 
   ngAfterViewInit() {
@@ -291,9 +294,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   editTransaction(transaction: Transaction) {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-        width: this.isMobile ? '100vw' : '600px',
-        height: this.isMobile ? '100vh' : 'auto',
-        maxWidth: this.isMobile ? '100vw' : '95vw',
+        width: this.breakpointService.device.isMobile ? '100vw' : '600px',
+        height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
+        maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: transaction
       });
@@ -563,9 +566,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   addTransactionDialog(): void {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-        width: this.isMobile ? '100vw' : '600px',
-        height: this.isMobile ? '100vh' : 'auto',
-        maxWidth: this.isMobile ? '100vw' : '95vw',
+        width: this.breakpointService.device.isMobile ? '100vw' : '600px',
+        height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
+        maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
         panelClass: 'full-screen-dialog',
         data: null
       });

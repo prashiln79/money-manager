@@ -15,17 +15,15 @@ import { APP_CONFIG } from '../../config/config';
         transform: 'translateY(-100%)',
         opacity: 0
       })),
-      transition('void => *', [
-        animate('0.3s ease-out')
-      ])
-    ]),
-    trigger('fadeIn', [
-      state('void', style({
-        opacity: 0,
-        transform: 'scale(0.9)'
+      state('*', style({
+        transform: 'translateY(0)',
+        opacity: 1
       })),
       transition('void => *', [
-        animate('0.2s ease-out')
+        animate('0.3s ease-out')
+      ]),
+      transition('* => void', [
+        animate('0.2s ease-in')
       ])
     ])
   ]

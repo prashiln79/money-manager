@@ -1,35 +1,21 @@
 <div 
   *ngIf="!isOnline" 
-  class="fixed top-8 left-0 right-[-10px]  z-50 bg-transparent text-white px-4 py-4 text-center flex flex-row-reverse"
+  class="fixed top-3 left-12 z-50"
   [@slideDown]
 >
-  <div class="flex items-center justify-center space-x-2  bg-gray-800 opacity-40 w-fit rounded-full p-2 mr-2">
-    <mat-icon class="text-white">wifi_off</mat-icon>
-    <!-- <span class="text-sm ">You're offline.</span> -->
-    <!-- <button 
-      mat-icon-button 
-      class="text-white hover:bg-primary rounded-full"
-      (click)="dismissOfflineBanner()"
-    >
-      <mat-icon>close</mat-icon>
-    </button> -->
+  <div class="flex items-center space-x-2 bg-gray-800 bg-opacity-50 rounded-full px-3 py-1 shadow-lg">
+    <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+    <span class="text-white text-xm font-medium">Offline</span>
   </div>
 </div>
 
 <div 
   *ngIf="showOnlineBanner" 
-  class="fixed top-8 left-0 right-[-10px] z-50 bg-transparent text-white px-4 py-4 text-center flex flex-row-reverse"
+  class="fixed top-3 left-12 z-50"
   [@slideDown]
 >
-  <div class="flex items-center justify-center space-x-2 bg-green-500  w-fit rounded-full p-2 mr-2">
-    <mat-icon class="text-white">wifi</mat-icon>
-    <!-- <span class="text-sm font-medium">Connection restored. Syncing data...</span> -->
-    <!-- <button 
-      mat-icon-button 
-      class="text-white hover:bg-green-600 rounded-full"
-      (click)="dismissOnlineBanner()"
-    >
-      <mat-icon>close</mat-icon>
-    </button> -->
+  <div class="flex items-center space-x-2 bg-green-500 bg-opacity-90 rounded-full px-3 py-1 shadow-lg">
+    <div class="w-2 h-2 bg-white rounded-full"></div>
+    <span class="text-white text-sm font-medium">Connected</span>
   </div>
 </div>
