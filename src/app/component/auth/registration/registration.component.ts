@@ -95,7 +95,7 @@ export class RegistrationComponent implements OnInit {
 
 	private initializeDefaultData() {
 		//get from googgle token
-		this.currentUser = this.userService.getUser();
+		this.currentUser = this.userService.userAuth$.value;
 		if (this.currentUser) {
 			this.registrationForm.get("profile.email")?.setValue(this.currentUser?.email);
 			this.registrationForm.get("profile.firstName")?.setValue(this.currentUser?.displayName);

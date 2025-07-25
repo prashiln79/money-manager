@@ -123,7 +123,7 @@ export class SecurityService {
    */
   private initializeSecurityMonitoring(): void {
     // Monitor for security events
-    this.userService.user$.subscribe(user => {
+    this.userService.userAuth$.subscribe((user: any) => {
       this.updateSecurityStatus();
     });
 
@@ -204,7 +204,7 @@ export class SecurityService {
    * Update security status
    */
   private updateSecurityStatus(): void {
-    const currentUser = this.userService.getUser();
+    const currentUser = this.userService.userAuth$.value;
     const userSecurityStatus = this.userService.getSecurityStatus();
     
     const status: SecurityStatus = {
@@ -261,7 +261,7 @@ export class SecurityService {
    * Perform periodic security checks
    */
   private performSecurityChecks(): void {
-    const currentUser = this.userService.getUser();
+    const currentUser = this.userService.userAuth$.value;
     if (!currentUser) return;
     
     // Check for session timeout
@@ -285,7 +285,7 @@ export class SecurityService {
    */
   private detectSuspiciousActivityPatterns(): void {
     const recentEvents = this.getRecentSecurityEvents();
-    const currentUser = this.userService.getUser();
+    const currentUser = this.userService.userAuth$.value;
     
     if (!currentUser) return;
     

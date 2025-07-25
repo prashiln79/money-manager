@@ -6,6 +6,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { User } from 'src/app/util/models/user.model';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-user',
@@ -32,8 +33,14 @@ import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.s
 })
 export class UserComponent {
   isOpen = false;
-  public user: User | null = null;
   public isMobile = false;
+  user: {
+   displayName: string;
+   photoURL: string;
+  } = {
+    displayName: '',
+    photoURL: '',
+  };
 
   constructor(
     private userService: UserService,
@@ -48,23 +55,10 @@ export class UserComponent {
   }
 
   ngOnInit() {
-    this.userService.user$.subscribe((user) => {
+    this.userService.userAuth$.pipe(take(1)).subscribe((user: any) => {
       this.user = {
-        uid: user?.uid,
-        email: user?.email,
-        firstName: user?.displayName,
-        photoURL: user?.photoURL,
-        emailVerified: user?.emailVerified,
-        phoneNumber: user?.phoneNumber,
-        providerId: user?.providerId,
         displayName: user?.displayName,
-        role: user?.role,
-        createdAt: user?.createdAt,
-        lastName: user?.lastName,
-        phone: user?.phone,
-        dateOfBirth: user?.dateOfBirth,
-        occupation: user?.occupation,
-        monthlyIncome: user?.monthlyIncome,
+        photoURL: user?.photoURL,
       };
     });
   }

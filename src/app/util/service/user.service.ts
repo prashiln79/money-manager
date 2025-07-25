@@ -90,8 +90,7 @@ interface RateLimitEntry {
   providedIn: 'root',
 })
 export class UserService {
-  private readonly userSubject = new BehaviorSubject<any>(null);
-  public readonly user$ = this.userSubject.asObservable();
+  public readonly userAuth$ = new BehaviorSubject<User | null>(null);
   public isAdmin: boolean = false;
   
   // Security tracking
@@ -115,14 +114,14 @@ export class UserService {
    * Initialize authentication state listener with enhanced security
    */
   private initializeAuthState(): void {
-    onAuthStateChanged(getAuth(), async (user) => {
+    onAuthStateChanged(getAuth(), async (user:any) => {
       await this.checkIfAdmin(user);
       console.log(
         'Auth state changed:',
         user ? 'User logged in' : 'User logged out'
       );
       
-      this.userSubject.next(user);
+      this.userAuth$.next(user);
 
       if (user) {
         this.ensureUserDataCached(user.uid);
@@ -477,13 +476,6 @@ export class UserService {
       });
       throw error;
     }
-  }
-
-  /**
-   * Get current user from BehaviorSubject
-   */
-  public getUser() {
-    return this.userSubject.value;
   }
 
   /**
@@ -900,7 +892,7 @@ export class UserService {
    * Check if user is authenticated (for offline scenarios)
    */
   public isAuthenticated(): boolean {
-    return this.userSubject.value !== null;
+    return this.userAuth$.value !== null;
   }
 
   /**
@@ -992,7 +984,7 @@ export class UserService {
    * Get security status for current user
    */
   public getSecurityStatus(): any {
-    const currentUser = this.getUser();
+    const currentUser = this.userAuth$.value;
     if (!currentUser) return null;
     
     const email = currentUser.email;
@@ -1020,7 +1012,7 @@ export class UserService {
    */
   public forceLogout(reason: string): void {
     console.warn('Force logout triggered:', reason);
-    this.logAuditEvent('FORCE_LOGOUT', this.getUser()?.uid, { reason });
+    this.logAuditEvent('FORCE_LOGOUT', this.userAuth$.value?.uid, { reason });
     this.signOut();
   }
 

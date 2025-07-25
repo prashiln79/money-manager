@@ -339,7 +339,7 @@ export class SignInComponent implements OnInit, OnDestroy {
    */
   private async loadUserData(): Promise<void> {
     try {
-      const currentUser = this.userService.getUser();
+      const currentUser = this.userService.userAuth$.value;
       if (!currentUser?.uid) {
         console.warn('No user ID available for loading data');
         return;

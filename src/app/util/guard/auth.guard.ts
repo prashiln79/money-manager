@@ -270,7 +270,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private handleInactivity(): void {
-    const currentUser = this.userService.getUser();
+    const currentUser = this.userService.userAuth$.value;
     if (currentUser) {
       console.log('[AuthGuard] Inactivity detected. Logging out user:', currentUser.uid);
       this.userService.signOut();

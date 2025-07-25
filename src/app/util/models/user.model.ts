@@ -1,5 +1,31 @@
 import { Timestamp } from "@angular/fire/firestore";
 
+
+/**
+ * User interface representing a user in the system
+ */
+export interface User {
+	uid: string;
+	email: string;
+	role: UserRole;
+	createdAt: Date | Timestamp;
+	firstName?: string;
+	lastName?: string;
+	phone?: string;
+	dateOfBirth?: Date | Timestamp;
+	occupation?: string;
+	monthlyIncome?: number;
+	preferences?: UserPreferences;
+	updatedAt?: Date | Timestamp;
+	photoURL?: string;
+	emailVerified?: boolean;
+	phoneNumber?: string;
+	providerId?: string;
+	displayName?: string;
+	profilePicture?: string;
+}
+
+
 /**
  * User role types
  */
@@ -17,29 +43,6 @@ export interface UserPreferences {
 	budgetAlerts: boolean;
 }
 
-/**
- * User interface representing a user in the system
- */
-export interface User {
-	uid: string;
-	email: string;
-	role: UserRole;
-	createdAt: Date | Timestamp;
-	firstName?: string;
-	lastName?: string;
-	phone?: string;
-	dateOfBirth?: Date | Timestamp;
-	occupation?: string;
-	monthlyIncome?: number;
-	preferences?: UserPreferences;
-	updatedAt?:  Date | Timestamp;
-	photoURL?: string;
-	emailVerified?: boolean;
-	phoneNumber?: string;
-	providerId?: string;
-	displayName?: string;
-	profilePicture?: string;
-}
 
 /**
  * Firebase Auth error interface for better error handling

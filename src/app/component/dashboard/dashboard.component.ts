@@ -20,6 +20,7 @@ import { RecurringTransactionService } from 'src/app/util/service/recurring-tran
 export class DashboardComponent {
   isMobile = false;
 
+
   constructor(
     private breakpointObserver: BreakpointObserver,
     private store: Store<AppState>,
@@ -37,21 +38,21 @@ export class DashboardComponent {
   ngOnInit() {
     // Load App Data **********
     this.store.dispatch(
-      loadProfile({ userId: this.userService.getUser()?.uid })
+      loadProfile({ userId: this.userService.userAuth$.value?.uid || '' })
     );
     this.store.dispatch(
-      loadAccounts({ userId: this.userService.getUser()?.uid })
+      loadAccounts({ userId: this.userService.userAuth$.value?.uid || '' })
     );
     this.store.dispatch(
-      loadCategories({ userId: this.userService.getUser()?.uid })
+      loadCategories({ userId: this.userService.userAuth$.value?.uid || '' })
     );
     this.store.dispatch(
-      loadBudgets({ userId: this.userService.getUser()?.uid })
+      loadBudgets({ userId: this.userService.userAuth$.value?.uid || '' })
     );
-    this.store.dispatch(loadGoals({ userId: this.userService.getUser()?.uid }));
+    this.store.dispatch(loadGoals({ userId: this.userService.userAuth$.value?.uid || '' }));
 
     this.store.dispatch(
-      loadTransactions({ userId: this.userService.getUser()?.uid })
+      loadTransactions({ userId: this.userService.userAuth$.value?.uid || '' })
     );
 
     this.invitationPopupService.showInvitationsAfterLogin();

@@ -24,7 +24,7 @@ export class RecurringTransactionService {
    * Check for due recurring transactions and show confirmation dialog
    */
   checkDueRecurringTransactions(): Observable<void> {
-    const userId = this.userService.getUser()?.uid;
+    const userId = this.userService.userAuth$.value?.uid;
     if (!userId) {
       return of(void 0);
     }
@@ -79,7 +79,7 @@ export class RecurringTransactionService {
    * Process confirmed recurring transactions
    */
   private processConfirmedTransactions(transactions: Transaction[]): Observable<void> {
-    const userId = this.userService.getUser()?.uid;
+    const userId = this.userService.userAuth$.value?.uid;
     if (!userId) {
       return of(void 0);
     }
