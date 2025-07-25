@@ -406,7 +406,9 @@ export class AddAccountDialogComponent {
     );
 
     console.log('Calculated remaining balance:', remainingBalance);
-    this.accountForm.patchValue({ remainingBalance }, { emitEvent: false });
+    this.accountForm.patchValue({ remainingBalance,
+      balance: -remainingBalance
+    }, { emitEvent: false });
   }
 
   /**
