@@ -19,19 +19,19 @@
        
     
       <button 
-        mat-flat-button 
-        class="!bg-primary text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md" 
+      mat-stroked-button
+        class=" rounded-lg transition-all duration-200 shadow-sm hover:shadow-md " 
         matTooltip="Import transactions" 
         (click)="onImportTransactions()"
       >
-        <mat-icon class="text-sm">file_upload</mat-icon>Import
+        <mat-icon class="text-md">file_upload</mat-icon>Import
       </button>
       <button mat-stroked-button
-        class="transition-all duration-200 shadow-sm hover:shadow-md !text-primary" 
+        class="transition-all duration-200 shadow-sm hover:shadow-md !bg-primary-500 !text-white" 
         matTooltip="Add transaction" 
         (click)="onAddTransaction()"
       >
-        <mat-icon class="text-sm">add</mat-icon>Add
+        <mat-icon class="text-md">add</mat-icon>Add Transaction
       </button>
     </div>
   </div>

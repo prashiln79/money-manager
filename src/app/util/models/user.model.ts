@@ -38,6 +38,7 @@ export interface User {
 	phoneNumber?: string;
 	providerId?: string;
 	displayName?: string;
+	profilePicture?: string;
 }
 
 /**

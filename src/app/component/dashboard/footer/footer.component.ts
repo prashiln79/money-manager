@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { CommonSyncService } from '../../../util/service/common-sync.service';
-import { Subscription, interval } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { HapticFeedbackService } from '../../../util/service/haptic-feedback.service';
 import { filter } from 'rxjs/operators';
 import { MobileAddTransactionComponent } from '../transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
-import { APP_CONFIG } from '../../../util/config/config';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-footer',
@@ -14,34 +14,18 @@ import { APP_CONFIG } from '../../../util/config/config';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit, OnDestroy {
-  private timeSubscription?: Subscription;
-  private batterySubscription?: Subscription;
   private routeSubscription?: Subscription;
-  currentTime = '';
-  batteryLevel = 0;
 
   constructor(
     private commonSyncService: CommonSyncService,
     private router: Router,
     private _dialog: MatDialog,
     private hapticFeedback: HapticFeedbackService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    public breakpointService: BreakpointService,
+  ) { }
 
   ngOnInit() {
-    this.updateTime();
-    this.updateBatteryLevel();
-    
-    // Update time every minute
-    this.timeSubscription = interval(60000).subscribe(() => {
-      this.updateTime();
-    });
-
-    // Update battery level every 5 minutes
-    this.batterySubscription = interval(APP_CONFIG.OFFLINE.SYNC_INTERVAL).subscribe(() => {
-      this.updateBatteryLevel();
-    });
-
     // Listen to route changes for highlighting
     this.routeSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -52,8 +36,6 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.timeSubscription?.unsubscribe();
-    this.batterySubscription?.unsubscribe();
     this.routeSubscription?.unsubscribe();
   }
 
@@ -81,7 +63,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   isMoreActive(): boolean {
     const moreRoutes = [
       '/dashboard/accounts',
-      '/dashboard/budgets', 
+      '/dashboard/budgets',
       '/dashboard/goals',
       '/dashboard/notes',
       '/dashboard/tax',
@@ -176,33 +158,4 @@ export class FooterComponent implements OnInit, OnDestroy {
     return 'Online';
   }
 
-  getCurrentTime(): string {
-    return this.currentTime;
-  }
-
-  getBatteryLevel(): number {
-    return this.batteryLevel;
-  }
-
-  private updateTime(): void {
-    const now = new Date();
-    this.currentTime = now.toLocaleTimeString(APP_CONFIG.LANGUAGE.DEFAULT, { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    });
-  }
-
-  private updateBatteryLevel(): void {
-    if ('getBattery' in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
-        this.batteryLevel = Math.round(battery.level * 100);
-      }).catch(() => {
-        this.batteryLevel = 0;
-      });
-    } else {
-      // Fallback for browsers that don't support battery API
-      this.batteryLevel = 0;
-    }
-  }
 } 

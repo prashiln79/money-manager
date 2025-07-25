@@ -1,9 +1,14 @@
-<section class="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-5 lg:grid-cols-7 lg:px-5 lg:gap-4 xl">
+<section
+	class="grid grid-cols-1 gap-2 lg:grid-cols-7 lg:px-5 lg:gap-4 xl"
+	[ngClass]="{  'md:grid-cols-2 ':!breakpointService.device.isTablePortrait,
+'md:gap-5':!breakpointService.device.isTablePortrait
+}"
+>
+	@if(!breakpointService.device.isTablePortrait){
 	<calendar-view class="lg:col-span-2"></calendar-view>
-	@if (deviceType.mobile) {
+	} @if (breakpointService.device.isMobile) {
 	<user-category [home]="true" class="lg:col-span-5"></user-category>
 	<user-accounts [home]="true"></user-accounts>
-
 	}
-	<transaction-list *ngIf="!deviceType.mobile" class="lg:col-span-5"></transaction-list>
+	<transaction-list *ngIf="!breakpointService.device.isMobile" class="lg:col-span-5"></transaction-list>
 </section>
