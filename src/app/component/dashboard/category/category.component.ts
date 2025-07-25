@@ -2,14 +2,12 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Subject, Observable, of, combineLatest } from 'rxjs';
-import { map, startWith, takeUntil } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
-import { IconSelectorDialogComponent } from './icon-selector-dialog/icon-selector-dialog.component';
-import { ColorSelectorDialogComponent } from './color-selector-dialog/color-selector-dialog.component';
 import { CategoryBudgetDialogComponent } from './category-budget-dialog/category-budget-dialog.component';
 import { ParentCategorySelectorDialogComponent } from './parent-category-selector-dialog/parent-category-selector-dialog.component';
 

@@ -54,7 +54,7 @@ export class UserComponent {
     });
   }
 
-  ngOnInit() {
+  ngOnInit() {  
     this.userService.userAuth$.pipe(take(1)).subscribe((user: any) => {
       this.user = {
         displayName: user?.displayName,

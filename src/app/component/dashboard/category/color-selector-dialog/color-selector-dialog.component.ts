@@ -13,10 +13,10 @@ export interface ColorSelectorDialogData {
   styleUrls: ['./color-selector-dialog.component.scss']
 })
 export class ColorSelectorDialogComponent implements OnInit {
-  public availableColors: string[] = CATEGORY_COLORS;
+  public availableColors: { label: string; value: string }[] = CATEGORY_COLORS;
   public selectedColor: string;
   public searchTerm: string = '';
-  public filteredColors: string[] = [];
+  public filteredColors: { label: string; value: string }[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<ColorSelectorDialogComponent>,
@@ -27,10 +27,7 @@ export class ColorSelectorDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.data.availableColors) {
-      this.availableColors = this.data.availableColors;
-      this.filteredColors = [...this.availableColors];
-    }
+  
   }
 
   public selectColor(color: string): void {
@@ -43,7 +40,7 @@ export class ColorSelectorDialogComponent implements OnInit {
       this.filteredColors = [...this.availableColors];
     } else {
       this.filteredColors = this.availableColors.filter(color =>
-        color.toLowerCase().includes(this.searchTerm.toLowerCase())
+        color.label.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
   }

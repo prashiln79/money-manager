@@ -1,16 +1,13 @@
 <div class="color-selector-dialog">
-  <!-- Dialog Header -->
+  <!-- Simplified Header -->
   <div class="dialog-header">
-    <h2 class="dialog-title">
-      <mat-icon class="title-icon">palette</mat-icon>
-      Select Color
-    </h2>
-    <button mat-icon-button (click)="onCancel()" class="close-button">
+    <h2 class="dialog-title">Choose Color</h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- Search Bar -->
+  <!-- Streamlined Search -->
   <div class="search-container">
     <div class="search-input-wrapper">
       <mat-icon class="search-icon">search</mat-icon>
@@ -28,17 +25,18 @@
         mat-icon-button 
         (click)="clearSearch()" 
         class="clear-search-button"
-        type="button">
+        type="button"
+        aria-label="Clear search">
         <mat-icon>clear</mat-icon>
       </button>
     </div>
   </div>
 
-  <!-- Colors Grid -->
+  <!-- Improved Colors Grid -->
   <div class="colors-container">
     <div *ngIf="filteredColors.length === 0" class="no-results">
       <mat-icon class="no-results-icon">search_off</mat-icon>
-      <p class="no-results-text">No colors found for "{{ searchTerm }}"</p>
+      <p class="no-results-text">No colors found</p>
       <button mat-stroked-button (click)="clearSearch()" class="clear-search-btn">
         Clear Search
       </button>
@@ -48,14 +46,14 @@
       @for (color of filteredColors; track color) {
       <button 
         type="button"
-        (click)="selectColor(color)"
+        (click)="selectColor(color.value)"
         class="color-option"
-        [class.selected]="selectedColor === color"
-        [style.background-color]="color"
-        [attr.aria-label]="'Select ' + color + ' color'">
-        <div class="color-preview" [style.background-color]="color"></div>
-        <!-- <span class="color-name">{{ color }}</span> -->
-        @if (selectedColor === color) {
+        [class.selected]="selectedColor === color.value"
+        [style.background-color]="color.value"
+        [attr.aria-label]="'Select ' + color.label + ' color'">
+        <!-- <div class="color-preview" [style.background-color]="color.value"></div> -->
+        <span class="color-name">{{ color.label }}</span>
+        @if (selectedColor === color.value) {
         <mat-icon class="check-icon">check</mat-icon>
         }
       </button>
@@ -63,17 +61,10 @@
     </div>
   </div>
 
-  <!-- Dialog Actions -->
+  <!-- Simplified Actions -->
   <div class="dialog-actions">
     <button mat-stroked-button (click)="onCancel()" class="cancel-button">
       Cancel
-    </button>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      (click)="selectColor(selectedColor)"
-      class="select-button">
-      Select Color
     </button>
   </div>
 </div> 
