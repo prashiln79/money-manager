@@ -220,7 +220,7 @@
     }
     
     @media (min-width: 1200px) {
-      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(445px, 1fr));
       gap: 2rem;
     }
     
@@ -348,9 +348,9 @@
     margin-top: 0.5rem;
     position: relative;
 
-    @media (min-width: 1200px) {
-      flex-direction: row !important;
-    }
+    // @media (min-width: 1200px) {
+    //   flex-direction: row !important;
+    // }
 
     
 

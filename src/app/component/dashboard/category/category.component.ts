@@ -23,6 +23,7 @@ import { TransactionType } from 'src/app/util/config/enums';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
 import moment from 'moment';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'user-category',
@@ -59,9 +60,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
     private store: Store<AppState>,
     private budgetService: CategoryBudgetService,
-    public dateService: DateService
+    public dateService: DateService,
+    private breakpointService: BreakpointService
   ) {
-   
+
     this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
     // this.error$ = this.store.select(CategoriesSelectors.selectCategoriesError);
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
@@ -108,12 +110,20 @@ export class CategoryComponent implements OnInit, OnDestroy {
         const aHasBudget = a.budget?.hasBudget ?? false;
         const bHasBudget = b.budget?.hasBudget ?? false;
         if (aHasBudget !== bHasBudget) return aHasBudget ? -1 : 1;
-      
-        // 2. Prioritize categories with subcategories
-        const aHasSub = (a.subCategories?.length ?? 0) > 0;
-        const bHasSub = (b.subCategories?.length ?? 0) > 0;
-        if (aHasSub !== bHasSub) return aHasSub ? -1 : 1;
-      
+
+        if (this.breakpointService.device.isDesktop) {
+          const aHasSub = (a.subCategories?.length ?? 0) > 0;
+          const bHasSub = (b.subCategories?.length ?? 0) > 0;
+          if (aHasSub !== bHasSub) return aHasSub ? 1 : -1;
+        } else {
+          // 2. Prioritize categories with subcategories
+          const aHasSub = (a.subCategories?.length ?? 0) > 0;
+          const bHasSub = (b.subCategories?.length ?? 0) > 0;
+          if (aHasSub !== bHasSub) return aHasSub ? -1 : 1;
+
+        }
+
+
         // 3. Alphabetical order by name
         return a.name.localeCompare(b.name);
       });
@@ -141,9 +151,9 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public editCategory(category: Category): void {
     if (this.isMobile) {
       this.hapticFeedback.lightVibration();
-    } 
+    }
     this.openMobileDialog(category);
-   
+
   }
 
 
@@ -190,7 +200,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
 
   private openMobileDialog(category?: Category): void {
-    
+
     const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
       width: this.isMobile ? '90vw' : '600px',
       maxWidth: this.isMobile ? '400px' : '90vw',
@@ -201,7 +211,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (result) {
-        this.loadUserCategories(); 
+        this.loadUserCategories();
       }
     });
   }
@@ -220,9 +230,9 @@ export class CategoryComponent implements OnInit, OnDestroy {
       data: {
         title: 'Select Parent Category',
         message: `Select a parent category for "${category.name}"`,
-        categories: this.categories.filter(cat => 
-          cat.id !== category.id && 
-          !cat.isSubCategory && 
+        categories: this.categories.filter(cat =>
+          cat.id !== category.id &&
+          !cat.isSubCategory &&
           !cat.parentCategoryId
         )
       },
@@ -267,7 +277,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   public getSubCategoriesForCategory(categoryId: string): Category[] {
-    return this.categories.filter(cat => 
+    return this.categories.filter(cat =>
       cat.isSubCategory && cat.parentCategoryId === categoryId
     );
   }
@@ -295,7 +305,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   private updateCategoryBudget(category: Category, budgetData: Budget): void {
-  
+
 
     this.store.dispatch(CategoriesActions.updateCategory({
       userId: this.userId,
@@ -308,7 +318,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }));
 
     this.notificationService.success(
-      budgetData.hasBudget 
+      budgetData.hasBudget
         ? 'Budget set successfully for ' + category.name
         : 'Budget removed from ' + category.name
     );
@@ -349,11 +359,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public getRecentTransactions(category: Category): Transaction[] {
     if (!category || !category.name) return [];
-  
+
     return this.transactions
       .filter(transaction =>
         transaction.categoryId === category.id &&
-        moment( this.dateService.toDate(transaction.date) ).isSame(moment(), 'month')
+        moment(this.dateService.toDate(transaction.date)).isSame(moment(), 'month')
       )
   }
 
@@ -373,7 +383,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }
 
     const categoryTransactions = this.transactions.filter(t => t.categoryId === category.id);
-    
+
     if (categoryTransactions.length === 0) {
       return {
         totalTransactions: 0,
@@ -426,7 +436,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public getBudgetStatusClass(category: Category, budgetProgressPercentage?: number): string {
     if (!category.budget?.hasBudget) return '';
-    
+
     const percentage = budgetProgressPercentage ?? this.calculateBudgetProgressPercentage(category);
     if (percentage >= 90) return 'danger';
     if (percentage >= 75) return 'warning';
@@ -438,7 +448,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public getRemainingBudgetClass(category: Category, budgetSpent?: number): string {
     if (!category.budget?.hasBudget) return '';
-    
+
     const spent = budgetSpent ?? this.calculateBudgetSpent(category);
     const remaining = (category.budget?.budgetAmount || 0) - spent;
     if (remaining <= 0) return 'danger';
@@ -466,17 +476,17 @@ export class CategoryComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    const categoryTransactions = this.transactions.filter(t => 
-      t.categoryId === category.id && 
+    const categoryTransactions = this.transactions.filter(t =>
+      t.categoryId === category.id &&
       t.type === TransactionType.EXPENSE
     );
 
     // Filter transactions within the budget period
     const budgetStartDate = category.budget.budgetStartDate;
     const budgetEndDate = category.budget.budgetEndDate;
-    
+
     let filteredTransactions = categoryTransactions;
-    
+
     if (budgetStartDate) {
       const startDate = this.dateService.toDate(budgetStartDate);
       if (!startDate) {
@@ -487,7 +497,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         return txDate && txDate >= startDate;
       });
     }
-    
+
     if (budgetEndDate) {
       const endDate = this.dateService.toDate(budgetEndDate);
       if (!endDate) {
@@ -509,7 +519,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
       return 0;
     }
-    
+
     const spent = this.calculateBudgetSpent(category);
     return Math.max(0, (category.budget.budgetAmount || 0) - spent);
   }
@@ -521,12 +531,12 @@ export class CategoryComponent implements OnInit, OnDestroy {
     if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
       return 0;
     }
-    
+
     const spent = this.calculateBudgetSpent(category);
     const budgetAmount = category.budget.budgetAmount || 0;
-    
+
     if (budgetAmount === 0) return 0;
-    
+
     return Math.min(100, (spent / budgetAmount) * 100);
   }
 
@@ -534,7 +544,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    * Calculate overall budget statistics for all categories
    */
   public getOverallBudgetStats(): any {
-    const categoriesWithBudget = this.categories.filter(cat => 
+    const categoriesWithBudget = this.categories.filter(cat =>
       cat.budget?.hasBudget && cat.type === TransactionType.EXPENSE
     );
 
@@ -549,11 +559,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
       };
     }
 
-    const totalBudget = categoriesWithBudget.reduce((sum, cat) => 
+    const totalBudget = categoriesWithBudget.reduce((sum, cat) =>
       sum + (cat.budget?.budgetAmount || 0), 0
     );
 
-    const totalSpent = categoriesWithBudget.reduce((sum, cat) => 
+    const totalSpent = categoriesWithBudget.reduce((sum, cat) =>
       sum + this.calculateBudgetSpent(cat), 0
     );
 
@@ -601,7 +611,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
    * Get detailed budget statistics for expanded view
    */
   public getDetailedBudgetStats(): any {
-    const categoriesWithBudget = this.categories.filter(cat => 
+    const categoriesWithBudget = this.categories.filter(cat =>
       cat.budget?.hasBudget && cat.type === TransactionType.EXPENSE
     );
 
@@ -627,11 +637,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     const totalSpent = categoryStats.reduce((sum, cat) => sum + cat.spent, 0);
     const averageSpentPerCategory = totalSpent / categoryStats.length;
-    
-    const mostExpensiveCategory = categoryStats.reduce((max, cat) => 
+
+    const mostExpensiveCategory = categoryStats.reduce((max, cat) =>
       cat.spent > max.spent ? cat : max, categoryStats[0]);
-    
-    const leastExpensiveCategory = categoryStats.reduce((min, cat) => 
+
+    const leastExpensiveCategory = categoryStats.reduce((min, cat) =>
       cat.spent < min.spent ? cat : min, categoryStats[0]);
 
     return {
