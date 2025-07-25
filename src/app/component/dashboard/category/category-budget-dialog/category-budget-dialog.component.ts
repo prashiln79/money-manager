@@ -17,6 +17,8 @@ export interface CategoryBudgetDialogData {
 export class CategoryBudgetDialogComponent implements OnInit {
   budgetForm: FormGroup;
   budgetPeriods: Array<{ value: string; label: string }>;
+  minDate: Date = new Date();
+  maxDate: Date = new Date(new Date().getFullYear() + 1, 11, 31);
 
   constructor(
     private dialogRef: MatDialogRef<CategoryBudgetDialogComponent>,

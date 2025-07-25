@@ -64,6 +64,8 @@
         <mat-form-field appearance="fill" class="form-input-field">
           <input matInput
                  [matDatepicker]="startPicker"
+                 [min]="minDate"
+                 [max]="maxDate"
                  formControlName="budgetStartDate"
                  placeholder="Choose start date"
                  class="form-input" />
@@ -81,6 +83,8 @@
         <mat-form-field appearance="fill" class="form-input-field">
           <input matInput
                  [matDatepicker]="endPicker"
+                 [min]="minDate"
+                 [max]="maxDate"
                  formControlName="budgetEndDate"
                  placeholder="Choose end date (optional)"
                  class="form-input" />
