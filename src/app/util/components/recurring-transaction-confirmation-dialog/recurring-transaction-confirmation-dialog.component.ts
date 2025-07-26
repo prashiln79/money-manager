@@ -1,11 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest, map } from 'rxjs';
 import { Transaction } from '../../models/transaction.model';
+import { Account } from '../../models/account.model';
 import { RecurringInterval } from '../../config/enums';
 import { AppState } from '../../../store/app.state';
 import { selectUserCurrency } from '../../../store/profile/profile.selectors';
+import { selectAllAccounts } from '../../../store/accounts/accounts.selectors';
 import { CurrencyService } from '../../service/currency.service';
 
 export interface RecurringTransactionDialogData {
@@ -26,6 +28,7 @@ export class RecurringTransactionConfirmationDialogComponent implements OnInit {
   selectedTransactions: Set<string> = new Set();
   allSelected = false;
   userCurrency$: Observable<string | undefined>;
+  accounts$: Observable<Account[]>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: RecurringTransactionDialogData,
@@ -34,6 +37,7 @@ export class RecurringTransactionConfirmationDialogComponent implements OnInit {
     private currencyService: CurrencyService
   ) {
     this.userCurrency$ = this.store.select(selectUserCurrency);
+    this.accounts$ = this.store.select(selectAllAccounts);
   }
 
   ngOnInit(): void {
@@ -129,6 +133,83 @@ export class RecurringTransactionConfirmationDialogComponent implements OnInit {
    */
   trackByTransactionId(index: number, transaction: Transaction): string {
     return transaction.id || index.toString();
+  }
+
+  /**
+   * Get account details for a transaction
+   */
+  getAccountDetails(transaction: Transaction): Observable<Account | undefined> {
+    return this.accounts$.pipe(
+      map(accounts => accounts.find(account => account.accountId === transaction.accountId))
+    );
+  }
+
+  /**
+   * Check if transaction is for a credit card account
+   */
+  isCreditCardTransaction(transaction: Transaction): Observable<boolean> {
+    return this.getAccountDetails(transaction).pipe(
+      map(account => account?.type === 'credit')
+    );
+  }
+
+  /**
+   * Get credit card due date for a transaction
+   */
+  getCreditCardDueDate(transaction: Transaction): Observable<string | null> {
+    return this.getAccountDetails(transaction).pipe(
+      map(account => {
+        if (account?.type === 'credit' && account.creditCardDetails?.dueDate) {
+          const dueDate = account.creditCardDetails.dueDate;
+          const today = new Date();
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+          
+          // Calculate next due date
+          let nextDueDate = new Date(currentYear, currentMonth, dueDate);
+          
+          // If the due date has passed this month, move to next month
+          if (nextDueDate < today) {
+            nextDueDate = new Date(currentYear, currentMonth + 1, dueDate);
+          }
+          
+          return nextDueDate.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            year: 'numeric'
+          });
+        }
+        return null;
+      })
+    );
+  }
+
+  /**
+   * Get billing cycle info for a credit card transaction
+   */
+  getBillingCycleInfo(transaction: Transaction): Observable<string | null> {
+    return this.getAccountDetails(transaction).pipe(
+      map(account => {
+        if (account?.type === 'credit' && account.creditCardDetails?.billingCycleStart) {
+          const billingCycleStart = account.creditCardDetails.billingCycleStart;
+          return `Billing cycle starts on ${billingCycleStart}${this.getDaySuffix(billingCycleStart)} of each month`;
+        }
+        return null;
+      })
+    );
+  }
+
+  /**
+   * Get day suffix (st, nd, rd, th)
+   */
+  private getDaySuffix(day: number): string {
+    if (day >= 11 && day <= 13) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
   }
 
   /**

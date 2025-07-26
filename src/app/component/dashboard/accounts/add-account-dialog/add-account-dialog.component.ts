@@ -79,6 +79,12 @@ export class AddAccountDialogComponent {
       useCalculatedPayment: [true],
       customMonthlyPayment: [0, [Validators.min(0)]],
       createRecurringTransaction: [true],
+      // Credit card-specific fields
+      dueDate: [15, [Validators.required, Validators.min(1), Validators.max(31)]],
+      billingCycleStart: [1, [Validators.required, Validators.min(1), Validators.max(31)]],
+      creditLimit: [0, [Validators.min(0)]],
+      minimumPayment: [0, [Validators.min(0)]],
+      creditCardShowReminder: [true],
     });
 
     // If editing, populate form with existing data
@@ -104,6 +110,14 @@ export class AddAccountDialogComponent {
           useCalculatedPayment: true,
           customMonthlyPayment: this.dialogData.loanDetails.monthlyPayment || 0,
           createRecurringTransaction: true,
+        }),
+        // Populate credit card details if they exist
+        ...(this.dialogData.creditCardDetails && {
+          dueDate: this.dialogData.creditCardDetails.dueDate,
+          billingCycleStart: this.dialogData.creditCardDetails.billingCycleStart,
+          creditLimit: this.dialogData.creditCardDetails.creditLimit,
+          minimumPayment: this.dialogData.creditCardDetails.minimumPayment,
+          creditCardShowReminder: this.dialogData.creditCardDetails.showReminder,
         })
 
       })
@@ -119,13 +133,19 @@ export class AddAccountDialogComponent {
         }
       });
 
-      // Add/remove validation for loan fields based on account type
+      // Add/remove validation for loan and credit card fields based on account type
       this.accountForm.get('type')?.valueChanges.subscribe(type => {
         const lenderNameControl = this.accountForm.get('lenderName');
         const loanAmountControl = this.accountForm.get('loanAmount');
         const interestRateControl = this.accountForm.get('interestRate');
         const durationMonthsControl = this.accountForm.get('durationMonths');
         const nextDueDateControl = this.accountForm.get('nextDueDate');
+        
+        // Credit card controls
+        const dueDateControl = this.accountForm.get('dueDate');
+        const billingCycleStartControl = this.accountForm.get('billingCycleStart');
+        const creditLimitControl = this.accountForm.get('creditLimit');
+        const minimumPaymentControl = this.accountForm.get('minimumPayment');
 
         if (type === 'loan') {
           lenderNameControl?.setValidators([Validators.required]);
@@ -133,12 +153,36 @@ export class AddAccountDialogComponent {
           interestRateControl?.setValidators([Validators.required, ...this.validationService.getInterestRateValidators()]);
           durationMonthsControl?.setValidators([Validators.required, ...this.validationService.getDurationMonthsValidators()]);
           nextDueDateControl?.setValidators([Validators.required]);
-        } else {
+          
+          // Clear credit card validators
+          dueDateControl?.clearValidators();
+          billingCycleStartControl?.clearValidators();
+          creditLimitControl?.clearValidators();
+          minimumPaymentControl?.clearValidators();
+        } else if (type === 'credit') {
+          // Clear loan validators
           lenderNameControl?.clearValidators();
           loanAmountControl?.clearValidators();
           interestRateControl?.clearValidators();
           durationMonthsControl?.clearValidators();
           nextDueDateControl?.clearValidators();
+          
+          // Set credit card validators
+          dueDateControl?.setValidators([Validators.required, Validators.min(1), Validators.max(31)]);
+          billingCycleStartControl?.setValidators([Validators.required, Validators.min(1), Validators.max(31)]);
+          creditLimitControl?.setValidators([Validators.min(0)]);
+          minimumPaymentControl?.setValidators([Validators.min(0)]);
+        } else {
+          // Clear all specific validators for other account types
+          lenderNameControl?.clearValidators();
+          loanAmountControl?.clearValidators();
+          interestRateControl?.clearValidators();
+          durationMonthsControl?.clearValidators();
+          nextDueDateControl?.clearValidators();
+          dueDateControl?.clearValidators();
+          billingCycleStartControl?.clearValidators();
+          creditLimitControl?.clearValidators();
+          minimumPaymentControl?.clearValidators();
         }
 
         lenderNameControl?.updateValueAndValidity();
@@ -146,6 +190,10 @@ export class AddAccountDialogComponent {
         interestRateControl?.updateValueAndValidity();
         durationMonthsControl?.updateValueAndValidity();
         nextDueDateControl?.updateValueAndValidity();
+        dueDateControl?.updateValueAndValidity();
+        billingCycleStartControl?.updateValueAndValidity();
+        creditLimitControl?.updateValueAndValidity();
+        minimumPaymentControl?.updateValueAndValidity();
       });
 
       // Update remaining balance based on time elapsed since loan start
@@ -231,7 +279,7 @@ export class AddAccountDialogComponent {
           name: formData.name.trim(),
           type: formData.type,
           balance: Number(formData.balance) || 0,
-          description: formData.description,
+          description: formData.description || '',
         };
 
         // Add loan details if it's a loan account
@@ -247,6 +295,17 @@ export class AddAccountDialogComponent {
             remainingBalance: Number(formData.remainingBalance) + this.getCalculatedMonthlyPayment() || 0,
             nextDueDate: formData.nextDueDate,
             showReminder: formData.showReminder,
+          };
+        }
+
+        // Add credit card details if it's a credit card account
+        if (formData.type === 'credit') {
+          accountData.creditCardDetails = {
+            dueDate: Number(formData.dueDate) || 15,
+            billingCycleStart: Number(formData.billingCycleStart) || 1,
+            creditLimit: Number(formData.creditLimit) || 0,
+            minimumPayment: Number(formData.minimumPayment) || 0,
+            showReminder: formData.creditCardShowReminder,
           };
         }
 
@@ -310,6 +369,10 @@ export class AddAccountDialogComponent {
    */
   isLoanAccount(): boolean {
     return this.accountForm.get('type')?.value === 'loan';
+  }
+
+  isCreditCardAccount(): boolean {
+    return this.accountForm.get('type')?.value === 'credit';
   }
 
   /**

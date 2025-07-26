@@ -215,6 +215,66 @@ export class AccountsComponent implements OnInit, OnDestroy {
     return account.loanDetails;
   }
 
+  public isCreditCardAccount(account: Account): boolean {
+    return account.type === AccountType.CREDIT;
+  }
+
+  public getCreditCardDetails(account: Account): any {
+    return account.creditCardDetails;
+  }
+
+  public getDaySuffix(day: number): string {
+    if (day >= 11 && day <= 13) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  }
+
+  public calculateNextDueDate(account: Account): Date {
+    if (!account.creditCardDetails?.dueDate) {
+      return new Date();
+    }
+
+    const dueDate = account.creditCardDetails.dueDate;
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    // Calculate next due date
+    let nextDueDate = new Date(currentYear, currentMonth, dueDate);
+    
+    // If the due date has passed this month, move to next month
+    if (nextDueDate < today) {
+      nextDueDate = new Date(currentYear, currentMonth + 1, dueDate);
+    }
+    
+    return nextDueDate;
+  }
+
+  public calculateNextBillingDate(account: Account): Date {
+    if (!account.creditCardDetails?.billingCycleStart) {
+      return new Date();
+    }
+
+    const billingCycleStart = account.creditCardDetails.billingCycleStart;
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    // Calculate next billing date
+    let nextBillingDate = new Date(currentYear, currentMonth, billingCycleStart);
+    
+    // If the billing date has passed this month, move to next month
+    if (nextBillingDate < today) {
+      nextBillingDate = new Date(currentYear, currentMonth + 1, billingCycleStart);
+    }
+    
+    return nextBillingDate;
+  }
+
   /**
    * Handle account click to show/hide actions
    */

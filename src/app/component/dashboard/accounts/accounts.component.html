@@ -191,6 +191,36 @@
 								</div>
 							</mat-tab>
 
+							<!-- Credit Card Details Tab (only for credit card accounts) -->
+							<mat-tab label="Credit Card Details" *ngIf="isCreditCardAccount(account)">
+								<div class="tab-content">
+									<div class="detail-row">
+										<span class="detail-label">Payment Due Date:</span>
+										<span class="detail-value">{{ getCreditCardDetails(account)?.dueDate }}{{ getDaySuffix(getCreditCardDetails(account)?.dueDate) }} of each month</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Billing Cycle Start:</span>
+										<span class="detail-value">{{ getCreditCardDetails(account)?.billingCycleStart }}{{ getDaySuffix(getCreditCardDetails(account)?.billingCycleStart) }} of each month</span>
+									</div>
+									<div class="detail-row" *ngIf="getCreditCardDetails(account)?.creditLimit">
+										<span class="detail-label">Credit Limit:</span>
+										<span class="detail-value">{{ getCreditCardDetails(account)?.creditLimit | currency }}</span>
+									</div>
+									<div class="detail-row" *ngIf="getCreditCardDetails(account)?.minimumPayment">
+										<span class="detail-label">Minimum Payment:</span>
+										<span class="detail-value">{{ getCreditCardDetails(account)?.minimumPayment | currency }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Next Due Date:</span>
+										<span class="detail-value">{{ calculateNextDueDate(account) | date:'fullDate' }}</span>
+									</div>
+									<div class="detail-row">
+										<span class="detail-label">Next Billing Date:</span>
+										<span class="detail-value">{{ calculateNextBillingDate(account) | date:'fullDate' }}</span>
+									</div>
+								</div>
+							</mat-tab>
+
 							<!-- Transaction History Tab -->
 							<mat-tab label="Recent Transactions">
 								<div class="tab-content">

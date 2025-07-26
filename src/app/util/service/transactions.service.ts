@@ -411,11 +411,11 @@ export class TransactionsService extends BaseService {
                     
                     const nextOccurrence = transaction.nextOccurrence instanceof Date 
                         ? transaction.nextOccurrence 
-                        : transaction.nextOccurrence.toDate();
+                        : this.dateService.toDate(transaction.nextOccurrence);
                     
-                    nextOccurrence.setHours(0, 0, 0, 0);
+                    nextOccurrence?.setHours(0, 0, 0, 0);
                     
-                    return nextOccurrence <= today;
+                    return nextOccurrence && nextOccurrence <= today;
                 });
             })
         );

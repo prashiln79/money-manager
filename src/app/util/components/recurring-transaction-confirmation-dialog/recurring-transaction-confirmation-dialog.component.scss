@@ -318,6 +318,62 @@
         height: 14px;
       }
     }
+
+    .credit-card-info {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: #f0f9ff;
+      border-radius: 4px;
+      border-left: 3px solid #3b82f6;
+
+      .dark & {
+        background: #1e3a8a;
+        border-left-color: #60a5fa;
+      }
+
+      .due-date-info,
+      .billing-cycle-info {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .due-date-icon,
+        .billing-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+          color: #3b82f6;
+
+          .dark & {
+            color: #60a5fa;
+          }
+        }
+
+        .due-date-text {
+          color: #1e40af;
+          font-weight: 500;
+
+          .dark & {
+            color: #93c5fd;
+          }
+        }
+
+        .billing-text {
+          color: #374151;
+          font-style: italic;
+
+          .dark & {
+            color: #d1d5db;
+          }
+        }
+      }
+    }
   }
 }
 
