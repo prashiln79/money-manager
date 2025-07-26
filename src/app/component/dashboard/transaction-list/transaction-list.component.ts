@@ -44,24 +44,24 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   selectedTx: any = null;
   longPressTimeout: any;
   selectedTabIndex: number = 0;
-  
+
   // Table properties
   showFullTable: boolean = false;
   isTransactionsPage: boolean = false;
 
   constructor(
-    private loaderService: LoaderService, 
-    private _dialog: MatDialog, 
-    private auth: Auth,  
+    private loaderService: LoaderService,
+    private _dialog: MatDialog,
+    private auth: Auth,
     private notificationService: NotificationService,
     private filterService: FilterService,
     private store: Store<AppState>,
     private dateService: DateService,
-    public breakpointService:BreakpointService,
+    public breakpointService: BreakpointService,
     private router: Router
 
   ) {
-    this.isTransactionsPage =this.router.url.includes('transactions') ?  true : false;
+    this.isTransactionsPage = this.router.url.includes('transactions') ? true : false;
     // Initialize selectors
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
     this.transactionsLoading$ = this.store.select(TransactionsSelectors.selectTransactionsLoading);
@@ -84,7 +84,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   loadTransactions() {
     this.loaderService.show();
-    
+
     // Load transactions and categories from store
     const userId = this.auth.currentUser?.uid;
     if (userId) {
@@ -113,12 +113,12 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   editTransaction(transaction: Transaction) {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-        width: this.breakpointService.device.isMobile ? '100vw' : '600px',
-        height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
-        maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
-        panelClass: 'full-screen-dialog',
-        data: transaction
-      });
+      width: this.breakpointService.device.isMobile ? '100vw' : '600px',
+      height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
+      maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
+      panelClass: 'full-screen-dialog',
+      data: transaction
+    });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -178,10 +178,10 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     // Save to database using store
     const userId = this.auth.currentUser?.uid;
     if (userId && element.id) {
-      this.store.dispatch(TransactionsActions.updateTransaction({ 
-        userId, 
-        transactionId: element.id, 
-        transaction: updateData 
+      this.store.dispatch(TransactionsActions.updateTransaction({
+        userId,
+        transactionId: element.id,
+        transaction: updateData
       }));
       this.notificationService.success('Transaction updated successfully');
       element.isEditing = false;
@@ -213,7 +213,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   private async importTransactions(transactions: any[]) {
     this.loaderService.show();
     const userId = this.auth.currentUser?.uid;
-    
+
     if (!userId) {
       this.notificationService.error('User not authenticated');
       this.loaderService.hide();
@@ -261,17 +261,17 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       }
 
       this.loaderService.hide();
-      
+
       if (successCount > 0) {
         this.notificationService.success(`Successfully imported ${successCount} transactions`);
         // Refresh the list by dispatching load action
         this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
       }
-      
+
       if (errorCount > 0) {
         this.notificationService.warning(`${errorCount} transactions failed to import`);
       }
-      
+
     } catch (error) {
       this.loaderService.hide();
       this.notificationService.error('Failed to import transactions');
@@ -388,15 +388,12 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   addTransactionDialog(): void {
-    let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-        width: this.breakpointService.device.isMobile ? '100vw' : '600px',
-        height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
-        maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
-        panelClass: 'full-screen-dialog',
-        data: null
-      });
-
-    dialogRef.afterClosed().subscribe((transaction: Transaction) => {
+   this._dialog.open(MobileAddTransactionComponent, {
+      width: this.breakpointService.device.isMobile ? '100vw' : '600px',
+      height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
+      maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
+      panelClass: 'full-screen-dialog',
+    }).afterClosed().subscribe((transaction: Transaction) => {
       if (transaction) {
         const userId = this.auth.currentUser?.uid;
         if (userId) {

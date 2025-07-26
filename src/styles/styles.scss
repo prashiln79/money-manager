@@ -331,14 +331,6 @@ app-root {
   }
 }
 
-/* Dark mode support for dialogs */
-@media (prefers-color-scheme: dark) {
-  .full-screen-dialog .mat-dialog-container {
-    background-color: #1f2937 !important;
-    color: #f9fafb !important;
-  }
-}
-
 .header-content {
   text-align: center;
   margin-bottom: 16px;

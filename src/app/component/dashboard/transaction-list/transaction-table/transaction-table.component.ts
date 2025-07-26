@@ -17,6 +17,7 @@ import { SsrService } from 'src/app/util/service/ssr.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MobileAddTransactionComponent } from '../add-transaction/mobile-add-transaction/mobile-add-transaction.component';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'transaction-table',
@@ -35,14 +36,14 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   dataSource: MatTableDataSource<Transaction> = new MatTableDataSource<Transaction>();
   displayedColumns: string[] = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
-  
+
   // Responsive breakpoints
   private readonly MOBILE_BREAKPOINT = 640; // sm
   private readonly TABLET_BREAKPOINT = 768; // md
 
   private subscription = new Subscription();
   categories: { [key: string]: Category } = {};
-  
+
   // Store observables
   transactions$: Observable<Transaction[]> = this.store.select(selectAllTransactions);
   allTransactions: Transaction[] = [];
@@ -53,8 +54,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
     private filterService: FilterService,
     private store: Store<AppState>,
     private ssrService: SsrService,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    public breakpointService: BreakpointService
+  ) { }
 
   ngOnInit() {
     this.setupDataSource();
@@ -79,16 +81,16 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   private updateColumnVisibility() {
     if (this.ssrService.isClientSide()) {
-    const screenWidth = window.innerWidth;
-    
-    if (screenWidth < this.MOBILE_BREAKPOINT) {
-      // Mobile: Show only essential columns
-      this.displayedColumns = ['Date', 'Payee', 'Amount', 'Actions'];
-    } else if (screenWidth < this.TABLET_BREAKPOINT) {
-      // Small tablet: Show more columns but hide status
-      this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Actions'];
-    } else {
-      // Desktop: Show all columns
+      const screenWidth = window.innerWidth;
+
+      if (screenWidth < this.MOBILE_BREAKPOINT) {
+        // Mobile: Show only essential columns
+        this.displayedColumns = ['Date', 'Payee', 'Amount', 'Actions'];
+      } else if (screenWidth < this.TABLET_BREAKPOINT) {
+        // Small tablet: Show more columns but hide status
+        this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Actions'];
+      } else {
+        // Desktop: Show all columns
         this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
       }
     }
@@ -96,7 +98,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   private setupDataSource() {
     this.dataSource = new MatTableDataSource<Transaction>([]);
-    
+
     // Custom filter predicate for complex filtering - delegate to FilterService
     this.dataSource.filterPredicate = (data: Transaction, filter: string) => {
       // Use FilterService for filtering logic
@@ -146,7 +148,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
     // Check if we have specific date filters applied
     const hasDateFilters = this.filterService.getSelectedDate() || this.filterService.getSelectedDateRange();
-    
+
     if (!hasDateFilters) {
       // Filter to show only current year transactions when no specific date filter is applied
       filteredData = this.filterService.filterCurrentYearTransactions(
@@ -165,9 +167,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
     const sortDirection = this.sort?.direction || 'desc';
     const sortActive = this.sort?.active || 'Date';
     const sortBy = this.getSortByFromMatSort(sortActive, sortDirection);
-    
+
     const sortedData = this.filterService.sortTransactions(filteredData, sortBy);
-    
+
     // Update data source
     this.dataSource.data = sortedData;
   }
@@ -231,21 +233,21 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   onDeleteTransaction(transaction: Transaction) {
     this.dialog
-    .open(ConfirmDialogComponent, {
-      width: '300px',
-      data: {
-        title: 'Delete Transaction',
-        message: 'Are you sure you want to delete this transaction?',
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
-      },
-    })
-    .afterClosed()
-    .subscribe((result) => {
-      if (result) {
-        this.deleteTransaction.emit(transaction);
-      }
-    });
+      .open(ConfirmDialogComponent, {
+        width: '300px',
+        data: {
+          title: 'Delete Transaction',
+          message: 'Are you sure you want to delete this transaction?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+        },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.deleteTransaction.emit(transaction);
+        }
+      });
   }
 
   onStartRowEdit(transaction: Transaction) {
@@ -271,11 +273,10 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   private openTransactionViewDialog(transaction: Transaction) {
     const dialogRef = this.dialog.open(MobileAddTransactionComponent, {
-      width: '100%',
-      maxWidth: '500px',
-      height: '100%',
-      maxHeight: '100vh',
-      panelClass: 'fullscreen-dialog',
+      width: this.breakpointService.device.isMobile ? '100vw' : '600px',
+      height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
+      maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
+      panelClass: 'full-screen-dialog',
       data: {
         transaction: transaction,
         mode: 'view' // This will make the dialog read-only

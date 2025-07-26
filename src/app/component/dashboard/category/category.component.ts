@@ -202,11 +202,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
   private openMobileDialog(category?: Category): void {
 
     const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
-      width: this.isMobile ? '90vw' : '600px',
-      maxWidth: this.isMobile ? '400px' : '90vw',
+      width: this.breakpointService.device.isMobile ? '100vw' : '600px',
+      height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
+      maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
+      panelClass: 'full-screen-dialog',
       data: category || null,
-      disableClose: true,
-      panelClass: this.isMobile ? 'mobile-dialog' : 'desktop-dialog'
     });
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
