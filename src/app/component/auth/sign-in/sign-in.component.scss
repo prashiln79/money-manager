@@ -1,7 +1,11 @@
 .bg{
     background-image: url('../../../../assets/images/sign-in.png');
-    height: 22rem;
-    width: 25rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100%;
+    width: 100%;
+    min-height: 400px;
 }
 
 // Security notice animation for better UX
@@ -22,4 +26,17 @@
 .form-container {
   will-change: transform;
   contain: layout style paint;
+}
+
+// Responsive improvements
+@media (max-width: 768px) {
+  .bg {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bg {
+    min-height: 250px;
+  }
 }
