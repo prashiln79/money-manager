@@ -4,12 +4,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
-import { CategoryBudgetDialogComponent } from './category-budget-dialog/category-budget-dialog.component';
-import { ParentCategorySelectorDialogComponent } from './parent-category-selector-dialog/parent-category-selector-dialog.component';
 
 import { Category, Budget } from 'src/app/util/models';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
@@ -44,7 +41,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public isLoading: boolean = false;
   public errorMessage: string = '';
   public isMobile: boolean = false;
-  public expandedCategory: Category | null = null;
+
   public isBudgetSummaryExpanded: boolean = false;
 
 
@@ -148,44 +145,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
 
 
-  public editCategory(category: Category): void {
-    if (this.isMobile) {
-      this.hapticFeedback.lightVibration();
-    }
-    this.openMobileDialog(category);
 
-  }
-
-
-
-  public deleteCategory(category: Category): void {
-    if (this.isMobile) {
-      this.hapticFeedback.warningVibration();
-    }
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: this.isMobile ? '90vw' : '600px',
-      maxWidth: this.isMobile ? '400px' : '90vw',
-      data: {
-        title: 'Delete Category',
-        message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
-        type: 'delete'
-      }
-    });
-
-    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
-      if (result && category.id) {
-        this.performDelete(category.id);
-      }
-    });
-  }
-
-  private performDelete(categoryId: string): void {
-    this.store.dispatch(CategoriesActions.deleteCategory({ userId: this.userId, categoryId }));
-    this.notificationService.success('Category deleted successfully');
-  }
 
 
 
@@ -220,58 +180,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.openMobileDialog();
   }
 
-  public selectParentCategory(category: Category): void {
-    // Open a dialog to select parent category
-    const dialogRef = this.dialog.open(ParentCategorySelectorDialogComponent, {
-      panelClass: this.isMobile ? 'mobile-dialog-center' : 'desktop-dialog',
-      data: {
-        title: 'Select Parent Category',
-        message: `Select a parent category for "${category.name}"`,
-        categories: this.categories.filter(cat =>
-          cat.id !== category.id &&
-          !cat.isSubCategory &&
-          !cat.parentCategoryId
-        )
-      },
-      disableClose: false
-    });
 
-    dialogRef.afterClosed().subscribe((result: Category | null) => {
-      if (result) {
-        this.convertToSubCategory(category, result);
-      }
-    });
-  }
-
-  private convertToSubCategory(category: Category, parentCategory: Category): void {
-    // Update the category to be a sub-category
-    this.store.dispatch(CategoriesActions.updateCategory({
-      userId: this.userId,
-      categoryId: category.id!,
-      name: category.name,
-      categoryType: category.type,
-      icon: category.icon,
-      color: category.color,
-      parentCategoryId: parentCategory.id,
-      isSubCategory: true
-    }));
-
-    this.notificationService.success(
-      `"${category.name}" is now a sub-category of "${parentCategory.name}"`
-    );
-  }
-
-  public removeFromParentCategory(category: Category): void {
-    // Remove the category from its parent (convert back to main category)
-    this.store.dispatch(CategoriesActions.removeFromParentCategory({
-      userId: this.userId,
-      categoryId: category.id!
-    }));
-
-    this.notificationService.success(
-      `"${category.name}" is now a main category`
-    );
-  }
 
   public getSubCategoriesForCategory(categoryId: string): Category[] {
     return this.categories.filter(cat =>
@@ -283,43 +192,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
 
 
-  public openBudgetDialog(category: Category): void {
-    const dialogRef = this.dialog.open(CategoryBudgetDialogComponent, {
-      width: '500px',
-      maxWidth: '90vw',
-      data: {
-        category: category,
-        isEdit: category.budget?.hasBudget || false
-      },
-      disableClose: false
-    });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.updateCategoryBudget(category, result);
-      }
-    });
-  }
-
-  private updateCategoryBudget(category: Category, budgetData: Budget): void {
-
-
-    this.store.dispatch(CategoriesActions.updateCategory({
-      userId: this.userId,
-      categoryId: category.id!,
-      name: category.name,
-      categoryType: category.type,
-      icon: category.icon,
-      color: category.color,
-      budgetData: budgetData
-    }));
-
-    this.notificationService.success(
-      budgetData.hasBudget
-        ? 'Budget set successfully for ' + category.name
-        : 'Budget removed from ' + category.name
-    );
-  }
 
   public getBudgetProgressColor(category: Category, budgetProgressPercentage?: number, budgetAlertThreshold?: number): string {
     const progress = budgetProgressPercentage ?? this.calculateBudgetProgressPercentage(category);
@@ -333,16 +206,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
 
 
-  /**
-   * Toggle category expansion to show/hide details
-   */
-  public toggleCategoryExpansion(category: Category): void {
-    if (this.expandedCategory?.id === category.id) {
-      this.expandedCategory = null;
-    } else {
-      this.expandedCategory = category;
-    }
-  }
+
 
   /**
    * Toggle budget summary expansion to show/hide details

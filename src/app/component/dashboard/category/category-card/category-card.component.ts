@@ -5,6 +5,18 @@ import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
 import { TransactionType } from 'src/app/util/config/enums';
 import { CategoryDetailsDialogComponent, CategoryDetailsDialogData } from '../category-details-dialog/category-details-dialog.component';
+import { CategoryBudgetDialogComponent } from '../category-budget-dialog/category-budget-dialog.component';
+import { MobileCategoryAddEditPopupComponent } from '../mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
+import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { NotificationService } from 'src/app/util/service/notification.service';
+import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
+import { CategoryService } from 'src/app/util/service/category.service';
+import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import * as CategoriesActions from 'src/app/store/categories/categories.actions';
+import * as CategoriesSelectors from 'src/app/store/categories/categories.selectors';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-category-card',
@@ -13,7 +25,7 @@ import { CategoryDetailsDialogComponent, CategoryDetailsDialogData } from '../ca
 })
 export class CategoryCardComponent {
   @Input() category!: Category;
-  @Input() isExpanded: boolean = false;
+
   @Input() isMobile: boolean = false;
   @Input() home: boolean = false;
   @Input() recentTransactions: Transaction[] = [];
@@ -23,17 +35,29 @@ export class CategoryCardComponent {
   @Input() allTransactions: Transaction[] = [];
   @Input() subCategories: Category[] = [];
 
-  @Output() editCategory = new EventEmitter<Category>();
-  @Output() deleteCategory = new EventEmitter<Category>();
-  @Output() openBudgetDialog = new EventEmitter<Category>();
-  @Output() selectParentCategory = new EventEmitter<Category>();
-  @Output() removeFromParentCategory = new EventEmitter<Category>();
-  @Output() toggleExpansion = new EventEmitter<Category>();
+
+
+  private userId: string = '';
 
   constructor(
     public dateService: DateService,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    private notificationService: NotificationService,
+    private hapticFeedback: HapticFeedbackService,
+    private categoryService: CategoryService,
+    private budgetService: CategoryBudgetService,
+    private store: Store<AppState>,
+    private auth: Auth
+  ) {
+    this.initializeUserId();
+  }
+
+  private async initializeUserId(): Promise<void> {
+    const currentUser = await this.auth.currentUser;
+    if (currentUser) {
+      this.userId = currentUser.uid;
+    }
+  }
 
   /**
    * Calculate budget spent for a category based on transactions
@@ -162,28 +186,30 @@ export class CategoryCardComponent {
   }
 
   public onEditCategory(): void {
-    this.editCategory.emit(this.category);
+    if (this.isMobile) {
+      this.openMobileEditDialog();
+    } else {
+      this.openEditDialog();
+    }
   }
 
   public onDeleteCategory(): void {
-    this.deleteCategory.emit(this.category);
+    this.openDeleteConfirmationDialog();
   }
 
   public onOpenBudgetDialog(): void {
-    this.openBudgetDialog.emit(this.category);
+    this.openBudgetDialog();
   }
 
   public onSelectParentCategory(): void {
-    this.selectParentCategory.emit(this.category);
+    this.openParentCategorySelectorDialog();
   }
 
   public onRemoveFromParentCategory(): void {
-    this.removeFromParentCategory.emit(this.category);
+    this.removeFromParentCategory();
   }
 
-  public onToggleExpansion(): void {
-    this.toggleExpansion.emit(this.category);
-  }
+
 
   public onOpenDetailsDialog(): void {
     const dialogData: CategoryDetailsDialogData = {
@@ -206,5 +232,181 @@ export class CategoryCardComponent {
       backdropClass: 'dialog-backdrop',
       panelClass: 'category-details-dialog-panel'
     });
+  }
+
+  private openMobileEditDialog(): void {
+    const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      data: {
+        category: this.category,
+        isEdit: true
+      },
+      disableClose: false,
+      autoFocus: false,
+      hasBackdrop: true,
+      backdropClass: 'dialog-backdrop',
+      panelClass: 'mobile-category-dialog-panel'
+    });
+
+          dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.notificationService.success('Category updated successfully');
+          this.hapticFeedback.successVibration();
+        }
+      });
+  }
+
+  private openEditDialog(): void {
+    const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
+      width: '500px',
+      maxWidth: '90vw',
+      data: {
+        category: this.category,
+        isEdit: true
+      },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.notificationService.success('Category updated successfully');
+      }
+    });
+  }
+
+  private openDeleteConfirmationDialog(): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Category',
+        message: `Are you sure you want to delete "${this.category.name}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        confirmColor: 'warn'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.performDelete();
+      }
+    });
+  }
+
+  private performDelete(): void {
+    if (!this.category.id) {
+      this.notificationService.error('Category ID not found');
+      return;
+    }
+
+    this.store.dispatch(CategoriesActions.deleteCategory({
+      userId: this.userId,
+      categoryId: this.category.id
+    }));
+
+    this.notificationService.success('Category deleted successfully');
+    this.hapticFeedback.successVibration();
+  }
+
+  private openBudgetDialog(): void {
+    const dialogRef = this.dialog.open(CategoryBudgetDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
+      data: {
+        category: this.category,
+        isEdit: this.category.budget?.hasBudget || false
+      },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.updateCategoryBudget(result);
+      }
+    });
+  }
+
+  private updateCategoryBudget(budgetData: Budget): void {
+    if (!this.category.id) {
+      this.notificationService.error('Category ID not found');
+      return;
+    }
+
+    this.store.dispatch(CategoriesActions.updateCategory({
+      userId: this.userId,
+      categoryId: this.category.id,
+      name: this.category.name,
+      categoryType: this.category.type,
+      icon: this.category.icon,
+      color: this.category.color,
+      budgetData: budgetData
+    }));
+
+    this.notificationService.success(
+      budgetData.hasBudget
+        ? 'Budget set successfully for ' + this.category.name
+        : 'Budget removed from ' + this.category.name
+    );
+  }
+
+  private openParentCategorySelectorDialog(): void {
+    this.categoryService.openParentCategorySelectorDialog(this.category).subscribe(result => {
+      if (result) {
+        this.convertToSubCategory(result);
+      }
+    });
+  }
+
+  private convertToSubCategory(parentCategory: Category): void {
+    if (!this.category.id || !parentCategory.id) {
+      this.notificationService.error('Category ID not found');
+      return;
+    }
+
+    // Update the current category to be a sub-category
+    this.store.dispatch(CategoriesActions.updateCategory({
+      userId: this.userId,
+      categoryId: this.category.id,
+      name: this.category.name,
+      categoryType: this.category.type,
+      icon: this.category.icon,
+      color: this.category.color,
+      parentCategoryId: parentCategory.id,
+      isSubCategory: true
+    }));
+
+    // Note: The parent category's subCategories array would need to be updated separately
+    // This is handled by the backend or through a separate action
+
+    this.notificationService.success(`${this.category.name} is now a sub-category of ${parentCategory.name}`);
+  }
+
+  private removeFromParentCategory(): void {
+    if (!this.category.id) {
+      this.notificationService.error('Category ID not found');
+      return;
+    }
+
+    // Remove from parent category
+    this.store.dispatch(CategoriesActions.updateCategory({
+      userId: this.userId,
+      categoryId: this.category.id,
+      name: this.category.name,
+      categoryType: this.category.type,
+      icon: this.category.icon,
+      color: this.category.color,
+      parentCategoryId: null,
+      isSubCategory: false
+    }));
+
+    // If there's a parent category, remove this category from its subCategories array
+    if (this.category.parentCategoryId) {
+      // Note: This would require fetching the parent category first to get its current subCategories
+      // For now, we'll just update the current category
+      this.notificationService.success(`${this.category.name} is no longer a sub-category`);
+    }
   }
 } 

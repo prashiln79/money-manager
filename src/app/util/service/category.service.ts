@@ -8,13 +8,19 @@ import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import * as CategoriesActions from 'src/app/store/categories/categories.actions';
 import * as CategoriesSelectors from 'src/app/store/categories/categories.selectors';
+import { MatDialog } from '@angular/material/dialog';
+import { ParentCategorySelectorDialogComponent, ParentCategorySelectorData } from 'src/app/component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CategoryService {
     private categories: { [key: string]: Category } = {};
-    constructor(private firestore: Firestore, private store: Store<AppState>) { 
+    constructor(
+        private firestore: Firestore, 
+        private store: Store<AppState>,
+        private dialog: MatDialog
+    ) { 
 
         this.store.select(CategoriesSelectors.selectAllCategories).subscribe(categories => {
             categories.forEach((category: Category) => {
@@ -312,5 +318,41 @@ export class CategoryService {
     getSubCategoriesCount(categoryId: string): number {
         const category = this.categories[categoryId];
         return category?.subCategories?.length || 0;
+    }
+
+    /**
+     * Open parent category selector dialog
+     */
+    openParentCategorySelectorDialog(category: Category): Observable<Category | null> {
+        return new Observable<Category | null>(observer => {
+            try {
+                // Get all categories from the current state
+                const allCategories = Object.values(this.categories);
+                const availableParentCategories = allCategories.filter(cat => 
+                    cat.id !== category.id && 
+                    !cat.isSubCategory && 
+                    !cat.parentCategoryId
+                );
+
+                const dialogRef = this.dialog.open(ParentCategorySelectorDialogComponent, {
+                    width: '500px',
+                    maxWidth: '90vw',
+                    data: {
+                        title: 'Select Parent Category',
+                        message: `Select a parent category for "${category.name}"`,
+                        categories: availableParentCategories
+                    } as ParentCategorySelectorData,
+                    disableClose: false
+                });
+
+                dialogRef.afterClosed().subscribe(result => {
+                    observer.next(result);
+                    observer.complete();
+                });
+            } catch (error) {
+                console.error('Error opening parent category selector dialog:', error);
+                observer.error(error);
+            }
+        });
     }
 }

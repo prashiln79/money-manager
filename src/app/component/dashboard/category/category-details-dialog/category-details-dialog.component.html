@@ -90,7 +90,6 @@
             <div class="mb-2">
             <app-category-card
                 [category]="subCategory"
-                [isExpanded]="false"
                 [isMobile]="true"
                 [home]="true"
                 [recentTransactions]="data.recentTransactions"
@@ -167,7 +166,6 @@
             @for (subCategory of data.subCategories; track subCategory.id) {
               <app-category-card
                 [category]="subCategory"
-                [isExpanded]="false"
                 [isMobile]="true"
                 [home]="true"
                 [recentTransactions]="data.recentTransactions"
