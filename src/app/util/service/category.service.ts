@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, doc, updateDoc, deleteDoc, collectionData, getDocs, getDoc, deleteField } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, doc, updateDoc, deleteDoc, collectionData, getDocs, getDoc, deleteField, setDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Category } from 'src/app/util/models';
@@ -66,16 +66,19 @@ export class CategoryService {
         });
     }
 
-    createCategory(userId: string, name: string, type: TransactionType, icon: string, color: string): Observable<void> {
-        return new Observable<void>(observer => {
-            addDoc(this.getUserCategoriesCollection(userId), {
+    createCategory(userId: string, name: string, type: TransactionType, icon: string, color: string): Observable<string> {
+        return new Observable<string>(observer => {
+            const categoryId = this.generateCategoryId();
+            const categoryRef = doc(this.firestore, `users/${userId}/categories/${categoryId}`);
+            
+            setDoc(categoryRef, {
                 name,
                 type,
                 icon,
                 color,
                 createdAt: Date.now()
             }).then(() => {
-                observer.next();
+                observer.next(categoryId);
                 observer.complete();
             }).catch(error => {
                 observer.error(error);
@@ -354,5 +357,12 @@ export class CategoryService {
                 observer.error(error);
             }
         });
+    }
+
+    /**
+     * Generate a unique category ID
+     */
+    private generateCategoryId(): string {
+        return 'cat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 }

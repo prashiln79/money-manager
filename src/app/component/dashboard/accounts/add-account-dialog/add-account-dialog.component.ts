@@ -8,10 +8,6 @@ import { ValidationService } from 'src/app/util/service/validation.service';
 import { Account } from 'src/app/util/models/account.model';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
-import {
-  createAccount,
-  updateAccount,
-} from 'src/app/store/accounts/accounts.actions';
 import { AccountType } from 'src/app/util/config/enums';
 import { TransactionsService } from 'src/app/util/service/transactions.service';
 import { CategoryService } from 'src/app/util/service/category.service';
@@ -248,35 +244,31 @@ export class AddAccountDialogComponent {
             durationMonths: Number(formData.durationMonths) || 12,
             repaymentFrequency: formData.repaymentFrequency,
             status: formData.status,
-            remainingBalance: Number(formData.remainingBalance) || 0,
+            remainingBalance: Number(formData.remainingBalance) + this.getCalculatedMonthlyPayment() || 0,
             nextDueDate: formData.nextDueDate,
             showReminder: formData.showReminder,
           };
         }
 
         if (this.dialogData?.accountId) {
-          // Update existing account
-          await this.store.dispatch(
-            updateAccount({
-              userId: this.userId,
-              accountId: this.dialogData.accountId,
-              accountData,
-            })
-          );
+          // Update existing account using service
+          await this.accountsService.updateAccount(
+            this.userId,
+            this.dialogData.accountId,
+            accountData
+          ).toPromise();
           this.notificationService.success('Account updated successfully');
         } else {
-          // Create new account using store dispatch
-          await this.store.dispatch(
-            createAccount({
-              userId: this.userId,
-              accountData,
-            })
-          );
+          // Create new account using service directly
+          const accountId = await this.accountsService.createAccount(
+            this.userId,
+            accountData
+          ).toPromise();
 
           // For loan accounts, create recurring transaction after account is created
-          if (isLoanAccount && accountData.loanDetails && this.accountForm.get('createRecurringTransaction')?.value) {
-            // Create the recurring transaction after a short delay to ensure account is created
-            this.createLoanPaymentRecurringTransactionAfterAccountCreation(accountData);
+          if (isLoanAccount && accountData.loanDetails && this.accountForm.get('createRecurringTransaction')?.value && accountId) {
+            // Create the recurring transaction immediately since we have the accountId
+            this.createLoanPaymentRecurringTransactionAfterAccountCreation(accountData, accountId);
           }
 
           if (isLoanAccount && this.accountForm.get('createRecurringTransaction')?.value) {
@@ -483,15 +475,6 @@ export class AddAccountDialogComponent {
           TransactionType.EXPENSE,
           'account_balance',
           '#ef4444' // Red color for loan payments
-        ).pipe(
-          switchMap(() => this.categoryService.getCategories(userId)),
-          map(categories => {
-            const newCategory = categories.find(cat =>
-              cat.name === 'Loan Payment' &&
-              cat.type === TransactionType.EXPENSE
-            );
-            return newCategory?.id || '';
-          })
         );
       })
     );
@@ -577,34 +560,21 @@ export class AddAccountDialogComponent {
   /**
    * Create loan payment recurring transaction after account creation
    */
-  private createLoanPaymentRecurringTransactionAfterAccountCreation(accountData: any): void {
-    // Wait for account to be created and loaded into store
-    setTimeout(async () => {
-      try {
-        // Get the newly created account from store
-        const accounts = await this.store.select(state => state.accounts.entities).pipe(
-          map(entities => Object.values(entities))
-        ).toPromise();
-        
-        const newAccount = accounts?.find(acc => 
-          acc.name === accountData.name && 
-          acc.type === accountData.type
-        );
-        
-        if (newAccount?.accountId) {
-          await this.createLoanPaymentRecurringTransaction(
-            this.userId,
-            newAccount.accountId,
-            accountData.loanDetails
-          ).toPromise();
-          
-          this.notificationService.success('Loan payment recurring transaction created successfully');
-        }
-      } catch (error) {
+  private createLoanPaymentRecurringTransactionAfterAccountCreation(accountData: any, accountId: string): void {
+    // Create the recurring transaction immediately since we have the accountId
+    this.createLoanPaymentRecurringTransaction(
+      this.userId,
+      accountId,
+      accountData.loanDetails
+    ).subscribe({
+      next: () => {
+        this.notificationService.success('Loan payment recurring transaction created successfully');
+      },
+      error: (error) => {
         console.error('Failed to create loan payment recurring transaction:', error);
         this.notificationService.warning('Account created but failed to create loan payment recurring transaction');
       }
-    }, 1000); // Wait 1 second for account creation to complete
+    });
   }
 
 }
