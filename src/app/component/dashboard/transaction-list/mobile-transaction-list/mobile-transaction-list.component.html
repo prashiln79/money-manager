@@ -23,15 +23,17 @@
 		</div>
 
 		<!-- Filter Menu Buttons -->
-		<div class="filter-menu-container">
+		<div class="filter-menu-container md:justify-center">
 			<!-- Import Button -->
-			<button mat-icon-button class="filter-menu-btn import-btn" (click)="openImportDialog()" matTooltip="Import transactions">
+			<button mat-icon-button class="filter-menu-btn import-btn" (click)="openImportDialog()" matTooltip="Import transactions" aria-label="Import transactions">
 				<mat-icon>upload_file</mat-icon>
+				<span class="filter-btn-text">Import</span>
 			</button>
 
 			<!-- Sort Menu -->
-			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="sortMenu" matTooltip="{{ getCurrentSortLabel() }}">
+			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="sortMenu" matTooltip="{{ getCurrentSortLabel() }}" aria-label="Sort transactions">
 				<mat-icon>sort</mat-icon>
+				<span class="filter-btn-text">{{ getCurrentSortLabel() }}</span>
 			</button>
 
 			<mat-menu #sortMenu="matMenu" class="filter-menu">
@@ -47,8 +49,9 @@
 			</mat-menu>
 
 			<!-- Type Menu -->
-			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="typeMenu" matTooltip="{{ getCurrentTypeLabel() }}">
+			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="typeMenu" matTooltip="{{ getCurrentTypeLabel() }}" aria-label="Filter by transaction type">
 				<mat-icon>account_balance_wallet</mat-icon>
+				<span class="filter-btn-text">{{ getCurrentTypeLabel() }}</span>
 			</button>
 
 			<mat-menu #typeMenu="matMenu" class="filter-menu">
@@ -70,8 +73,9 @@
 			</mat-menu>
 
 			<!-- Category Menu -->
-			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="categoryMenu" matTooltip="{{ getCurrentCategoryLabel() }}">
+			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="categoryMenu" matTooltip="{{ getCurrentCategoryLabel() }}" aria-label="Filter by category">
 				<mat-icon>category</mat-icon>
+				<span class="filter-btn-text">{{ getCurrentCategoryLabel() }}</span>
 			</button>
 
 			<mat-menu #categoryMenu="matMenu" class="filter-menu">
@@ -93,8 +97,9 @@
 			</mat-menu>
 
 			<!-- Date Range Menu -->
-			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="dateMenu" matTooltip="{{ getCurrentDateLabel() }}">
+			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="dateMenu" matTooltip="{{ getCurrentDateLabel() }}" aria-label="Filter by date range">
 				<mat-icon>calendar_today</mat-icon>
+				<span class="filter-btn-text">{{ getCurrentDateLabel() }}</span>
 			</button>
 
 			<mat-menu #dateMenu="matMenu" class="filter-menu">
