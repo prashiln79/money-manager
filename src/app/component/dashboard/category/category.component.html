@@ -7,11 +7,11 @@
 		</button>
 	</div>
 
-	<button mat-fab color="primary" *ngIf="isMobile && !home" (click)="openAddMobileDialog()" class="mobile-fab-btn add-category-btn">
+	<button mat-fab color="primary" *ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !home" (click)="openAddMobileDialog()" class="mobile-fab-btn add-category-btn">
 		<mat-icon>add</mat-icon>
 	</button>
 
-	<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn" *ngIf="!isMobile">
+	<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn" *ngIf="!breakpointService.device.isMobile">
 		<mat-icon>add</mat-icon>
 	</button>
 
@@ -33,14 +33,14 @@
 				</div>
 				<h3 class="empty-title">No categories yet</h3>
 				<p class="empty-text">Add your first category to get started</p>
-				<button *ngIf="isMobile" mat-raised-button color="primary" (click)="openAddMobileDialog()" class="empty-state-button">
+				<button *ngIf="breakpointService.device.isMobile" mat-raised-button color="primary" (click)="openAddMobileDialog()" class="empty-state-button">
 					<mat-icon>add</mat-icon>
 					Add Category
 				</button>
 			</div>
 
 			<!-- Categories List -->
-			<div *ngIf="categories.length > 0" class="categories-grid-list">
+			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait}">
 				<!-- Overall Budget Card -->
 				<div class="budget-summary-card lg:col-span-2" *ngIf="getOverallBudgetStats().categoriesWithBudget > 0" [class.expanded]="isBudgetSummaryExpanded">
 					<div class="budget-summary-header">
@@ -84,7 +84,7 @@
 					</div> -->
 
 					<!-- Expand/Collapse Button -->
-					<div class="expand-section" *ngIf="!isMobile || home">
+					<div class="expand-section" *ngIf="!breakpointService.device.isMobile || home">
 						<button mat-button (click)="toggleBudgetSummaryExpansion()" class="expand-btn">
 							<mat-icon>{{ isBudgetSummaryExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
 							<span>{{ isBudgetSummaryExpanded ? 'Show Less' : 'Show More' }}</span>
@@ -176,7 +176,7 @@
 					</div>
 				</div>
 
-				<hr class="my-1" *ngIf="!home && isMobile">
+				<hr class="my-1" *ngIf="!home && breakpointService.device.isMobile">
 
 				<!-- No Budget Set Card -->
 				<div class="no-budget-card" *ngIf="!home && getOverallBudgetStats().categoriesWithBudget === 0">
@@ -194,7 +194,7 @@
 				@if(!category.isSubCategory && !category.parentCategoryId) {
 				<app-category-card
 					[category]="category"
-					[isMobile]="isMobile"
+					[isMobile]="breakpointService.device.isMobile"
 					[home]="home"
 					[recentTransactions]="getRecentTransactions(category)"
 					[categoryStats]="getCategoryStats(category)"
@@ -206,14 +206,14 @@
 				}
 
 				<!-- Display sub-categories under their parent -->
-				@if(getSubCategoriesForCategory(category.id!).length > 0 && isMobile) {
+				@if(getSubCategoriesForCategory(category.id!).length > 0 && breakpointService.device.isMobile) {
 				<div class="sub-category-wrapper">
 					<div class="group-header">Sub-categories</div>
 					<div class="sub-categories-container">
 						@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
 						<app-category-card
 							[category]="subCategory"
-							[isMobile]="isMobile"
+							[isMobile]="breakpointService.device.isMobile"
 							[home]="home"
 							[recentTransactions]="getRecentTransactions(subCategory)"
 							[categoryStats]="getCategoryStats(subCategory)"

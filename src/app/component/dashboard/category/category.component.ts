@@ -40,7 +40,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public transactions: Transaction[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
-  public isMobile: boolean = false;
 
   public isBudgetSummaryExpanded: boolean = false;
 
@@ -58,16 +57,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private budgetService: CategoryBudgetService,
     public dateService: DateService,
-    private breakpointService: BreakpointService
+    public breakpointService: BreakpointService
   ) {
 
     this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
     // this.error$ = this.store.select(CategoriesSelectors.selectCategoriesError);
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
 
-    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
-      this.isMobile = result.matches;
-    });
   }
 
   ngOnInit(): void {
@@ -174,7 +170,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   public openAddMobileDialog(): void {
-    if (this.isMobile) {
+    if (this.breakpointService.device.isMobile) {
       this.hapticFeedback.lightVibration();
     }
     this.openMobileDialog();

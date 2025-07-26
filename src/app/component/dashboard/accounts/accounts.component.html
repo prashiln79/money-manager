@@ -7,11 +7,11 @@
 		</button>
 	</div>
 
-	<button mat-fab color="primary" *ngIf="isMobile && !home" (click)="addAccount()" class="add-account-btn z-[100]">
+	<button mat-fab color="primary" *ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !home" (click)="addAccount()" class="add-account-btn z-[100]">
 		<mat-icon>add</mat-icon>
 	</button>
 
-	<div class="fab-button" *ngIf="!isMobile">
+	<div class="fab-button" *ngIf="!breakpointService.device.isMobile">
 		<button mat-fab color="primary" (click)="addAccount()" class="desktop-fab-btn">
 			<mat-icon>add</mat-icon>
 		</button>
@@ -20,7 +20,7 @@
 	<!-- Main Content -->
 	<div class="accounts-grid">
 		<!-- Accounts List Section -->
-		<section class="accounts-list">
+		<section class="accounts-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait}">
 			<div class="section-header" *ngIf="!home">
 				<div class="header-content">
 					<h2 class="section-title">Manage Accounts</h2>
