@@ -1,19 +1,9 @@
 @if (breakpointService.device.isMobile || (breakpointService.device.isTablePortrait && isTransactionsPage)) {
 <mobile-transaction-list
-  [transactions]="allTransactions"
-  [searchTerm]="searchTerm"
-  [selectedCategory]="selectedCategory"
-  [selectedType]="selectedType"
-  [selectedDate]="selectedDate"
-  [selectedDateRange]="selectedDateRange"
   (editTransaction)="editTransaction($event)"
   (deleteTransaction)="deleteTransaction($event)"
   (addTransaction)="addTransactionDialog()"
-  (importTransactions)="openImportDialog()"
-  (searchTermChange)="searchTerm = $event; onSearchChange()"
-  (selectedCategoryChange)="selectedCategory = $event; onCategoryChange()"
-  (selectedTypeChange)="selectedType = $event; onTypeChange()"
-  (selectedDateRangeChange)="selectedDateRange = $event; onCategoryChange()">
+  (importTransactions)="openImportDialog()">
 </mobile-transaction-list>
 
 } @else {
@@ -32,39 +22,17 @@
 
 				<!-- Search and Filter Section -->
 				<search-filter
-					[transactions]="allTransactions"
-					[searchTerm]="searchTerm"
-					[selectedCategory]="selectedCategorySingle"
-					[selectedType]="selectedType"
-					[selectedYear]="selectedYear"
-					[selectedMonth]="selectedMonth"
-					[selectedMonthOption]="selectedMonthOption"
-					[selectedDate]="selectedDate"
-					[selectedDateRange]="selectedDateRange"
 					[filteredCount]="getFilteredCount()"
 					[currentYearCount]="getCurrentYearCount()"
-					(searchTermChange)="searchTerm = $event; onSearchChange()"
-					(selectedCategoryChange)="selectedCategorySingle = $event; onCategoryChange()"
-					(selectedTypeChange)="selectedType = $event; onTypeChange()"
-					(selectedYearChange)="selectedYear = $event; onYearChange()"
 					(addTransaction)="addTransactionDialog()"
 					(importTransactions)="openImportDialog()"
 					(openFilterDialog)="openFilterDialog()"
 					(viewAnalytics)="viewAnalytics()"
 					(expandTable)="expandTable()"
-					(selectedDateRangeChange)="selectedDateRange = $event; onDateRangeChange()"
-					(clearDateFilter)="clearDateFilter()"
-					(clearAllFilters)="clearAllFilters()"
 				></search-filter>
 
 				<!-- Table Container -->
 				<transaction-table
-					[transactions]="allTransactions"
-					[searchTerm]="searchTerm"
-					[selectedCategory]="selectedCategory"
-					[selectedType]="selectedType"
-					[selectedDate]="selectedDate"
-					[selectedDateRange]="selectedDateRange"
 					(editTransaction)="editTransaction($event)"
 					(deleteTransaction)="deleteTransaction($event)"
 					(startRowEdit)="startRowEdit($event)"

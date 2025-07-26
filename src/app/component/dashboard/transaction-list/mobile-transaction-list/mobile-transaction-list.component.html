@@ -102,17 +102,17 @@
 					<span>All Time</span>
 					<mat-icon *ngIf="selectedDateRange === null" class="check-icon">check</mat-icon>
 				</button>
-				<button mat-menu-item [class.active-menu-item]="isCurrentMonth()" (click)="onDateRangeChange('currentMonth')">
+				<button mat-menu-item [class.active-menu-item]="isCurrentMonth()" (click)="onDateRangeChange('this-month')">
 					<mat-icon>calendar_month</mat-icon>
 					<span>This Month</span>
 					<mat-icon *ngIf="isCurrentMonth()" class="check-icon">check</mat-icon>
 				</button>
-				<button mat-menu-item [class.active-menu-item]="isLastMonth()" (click)="onDateRangeChange('lastMonth')">
+				<button mat-menu-item [class.active-menu-item]="isLastMonth()" (click)="onDateRangeChange('last-month')">
 					<mat-icon>calendar_view_month</mat-icon>
 					<span>Last Month</span>
 					<mat-icon *ngIf="isLastMonth()" class="check-icon">check</mat-icon>
 				</button>
-				<button mat-menu-item [class.active-menu-item]="isCurrentYear()" (click)="onDateRangeChange('currentYear')">
+				<button mat-menu-item [class.active-menu-item]="isCurrentYear()" (click)="onDateRangeChange('this-year')">
 					<mat-icon>calendar_today</mat-icon>
 					<span>This Year</span>
 					<mat-icon *ngIf="isCurrentYear()" class="check-icon">check</mat-icon>
@@ -159,13 +159,13 @@
 				</div>
 				<h3 class="empty-title text-base">No transactions found</h3>
 				<p class="empty-description text-base">
-					{{ transactions.length === 0 ? 'Start by adding your first transaction' : 'No transactions match your current filters. Try adjusting your search or filters.' }}
+					{{ allTransactions.length === 0 ? 'Start by adding your first transaction' : 'No transactions match your current filters. Try adjusting your search or filters.' }}
 				</p>
-				<button *ngIf="transactions.length === 0" mat-raised-button color="primary" class="add-first-btn" (click)="onAddTransaction()">
+				<button *ngIf="allTransactions.length === 0" mat-raised-button color="primary" class="add-first-btn" (click)="onAddTransaction()">
 					<mat-icon>add</mat-icon>
 					<span class="text-base">Add First Transaction</span>
 				</button>
-				<button *ngIf="transactions.length > 0 && hasActiveFilters()" mat-stroked-button class="clear-filters-btn-large" (click)="clearAllFilters()">
+				<button *ngIf="allTransactions.length > 0 && hasActiveFilters()" mat-stroked-button class="clear-filters-btn-large" (click)="clearAllFilters()">
 					<mat-icon>clear</mat-icon>
 					<span class="text-base">Clear Filters</span>
 				</button>

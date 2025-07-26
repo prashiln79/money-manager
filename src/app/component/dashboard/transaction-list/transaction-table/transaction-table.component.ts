@@ -1,13 +1,14 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, HostListener } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, OnInit, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { Transaction } from '../../../../util/models/transaction.model';
 import { Auth } from '@angular/fire/auth';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import moment from 'moment';
 import { DateService } from 'src/app/util/service/date.service';
 import { FilterService } from 'src/app/util/service/filter.service';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
+import { selectAllTransactions } from 'src/app/store/transactions/transactions.selectors';
 import { Category } from 'src/app/util/models';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
@@ -21,14 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
   templateUrl: './transaction-table.component.html',
   styleUrls: ['./transaction-table.component.scss']
 })
-export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
-  @Input() transactions: Transaction[] = [];
-  @Input() searchTerm: string = '';
-  @Input() selectedCategory: string[] = ['all'];
-  @Input() selectedType: string = 'all';
-  @Input() selectedDate: Date | null = null;
-  @Input() selectedDateRange: { start: Date; end: Date } | null = null;
-
+export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() editTransaction = new EventEmitter<Transaction>();
   @Output() deleteTransaction = new EventEmitter<Transaction>();
   @Output() startRowEdit = new EventEmitter<Transaction>();
@@ -47,6 +41,10 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   private subscription = new Subscription();
   categories: { [key: string]: Category } = {};
+  
+  // Store observables
+  transactions$: Observable<Transaction[]> = this.store.select(selectAllTransactions);
+  allTransactions: Transaction[] = [];
 
   constructor(
     private auth: Auth,
@@ -59,17 +57,14 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
 
   ngOnInit() {
     this.setupDataSource();
-    this.filterTransactions();
+    this.setupFilterServiceSubscriptions();
+    this.setupTransactionSubscriptions();
     this.loadCategories();
     this.updateColumnVisibility();
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    this.filterTransactions();
   }
 
   ngAfterViewInit() {
@@ -101,17 +96,94 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   private setupDataSource() {
     this.dataSource = new MatTableDataSource<Transaction>([]);
     
-    // Custom filter predicate for complex filtering
+    // Custom filter predicate for complex filtering - delegate to FilterService
     this.dataSource.filterPredicate = (data: Transaction, filter: string) => {
-      const searchStr = filter.toLowerCase();
-      return (
-        data.payee.toLowerCase().includes(searchStr) ||
-        data.category.toLowerCase().includes(searchStr) ||
-        (data.notes && data.notes.toLowerCase().includes(searchStr)) ||
-        data.type.toLowerCase().includes(searchStr) ||
-        data.amount.toString().includes(searchStr)
-      );
+      // Use FilterService for filtering logic
+      const filtered = this.filterService.filterTransactions([data], {
+        searchTerm: filter,
+        selectedCategory: this.filterService.getSelectedCategory(),
+        selectedType: this.filterService.getSelectedType(),
+        selectedDate: this.filterService.getSelectedDate(),
+        selectedDateRange: this.filterService.getSelectedDateRange(),
+        categoryFilter: this.filterService.getCategoryFilter(),
+        accountFilter: this.filterService.getAccountFilter(),
+        amountRange: this.filterService.getAmountRange(),
+        statusFilter: this.filterService.getStatusFilter(),
+        tags: this.filterService.getTags()
+      });
+      return filtered.length > 0;
     };
+  }
+
+  private setupTransactionSubscriptions() {
+    // Subscribe to transactions from store
+    this.subscription.add(
+      this.transactions$.subscribe(transactions => {
+        this.allTransactions = transactions.sort((a: any, b: any) => {
+          const dateA = this.dateService.toDate(a.date);
+          const dateB = this.dateService.toDate(b.date);
+          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
+        });
+        this.updateFilteredData();
+      })
+    );
+  }
+
+  private setupFilterServiceSubscriptions() {
+    // Subscribe to filter state changes and update data source
+    this.subscription.add(
+      this.filterService.filterState$.subscribe(() => {
+        this.updateFilteredData();
+      })
+    );
+  }
+
+  private updateFilteredData() {
+    // Use FilterService to get filtered and sorted transactions
+    const currentYear = moment().year();
+    let filteredData: Transaction[];
+
+    // Check if we have specific date filters applied
+    const hasDateFilters = this.filterService.getSelectedDate() || this.filterService.getSelectedDateRange();
+    
+    if (!hasDateFilters) {
+      // Filter to show only current year transactions when no specific date filter is applied
+      filteredData = this.filterService.filterCurrentYearTransactions(
+        this.allTransactions,
+        this.filterService.getCurrentFilterState()
+      );
+    } else {
+      // Use all filters including date filters
+      filteredData = this.filterService.filterTransactions(
+        this.allTransactions,
+        this.filterService.getCurrentFilterState()
+      );
+    }
+
+    // Apply sorting using FilterService
+    const sortDirection = this.sort?.direction || 'desc';
+    const sortActive = this.sort?.active || 'Date';
+    const sortBy = this.getSortByFromMatSort(sortActive, sortDirection);
+    
+    const sortedData = this.filterService.sortTransactions(filteredData, sortBy);
+    
+    // Update data source
+    this.dataSource.data = sortedData;
+  }
+
+  private getSortByFromMatSort(active: string, direction: string): string {
+    switch (active) {
+      case 'Date':
+        return direction === 'asc' ? 'date-asc' : 'date-desc';
+      case 'Amount':
+        return direction === 'asc' ? 'amount-asc' : 'amount-desc';
+      case 'Payee':
+        return 'payee-asc';
+      case 'Type':
+        return 'category-asc';
+      default:
+        return 'date-desc';
+    }
   }
 
   private setupSorting() {
@@ -136,11 +208,11 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     // Connect the sort to the data source
     this.dataSource.sort = this.sort;
 
-    // Subscribe to sort changes for additional functionality
+    // Subscribe to sort changes and update filtered data
     this.subscription.add(
       this.sort.sortChange.subscribe((sort: Sort) => {
         console.log(`Sorting by ${sort.active} in ${sort.direction} order`);
-        // You can add additional logic here, such as analytics tracking
+        this.updateFilteredData();
       })
     );
 
@@ -150,38 +222,6 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
       start: 'desc',
       disableClear: false
     });
-  }
-
-  filterTransactions() {
-    // Use the common filtering service with custom filters
-    const filtered = this.filterService.filterTransactionsWithCustomFilters(
-      this.transactions,
-      {
-        searchTerm: this.searchTerm,
-        selectedCategory: this.selectedCategory,
-        selectedType: this.selectedType,
-        selectedDate: this.selectedDate,
-        selectedDateRange: this.selectedDateRange ? {
-          startDate: this.selectedDateRange.start,
-          endDate: this.selectedDateRange.end
-        } : null
-      }
-    );
-
-    // Only apply year filter if no specific date range is selected
-    // This allows month filtering to work properly
-    let finalFiltered = filtered;
-    if (!this.selectedDateRange && !this.selectedDate) {
-      // Filter to show only current year transactions when no specific date filter is applied
-      const currentYear = moment().year();
-      finalFiltered = filtered.filter(tx => {
-        const txYear = moment(this.dateService.toDate(tx.date)).year();
-        return txYear === currentYear;
-      });
-    }
-
-    // update only if the data is different
-    this.dataSource.data = finalFiltered;
   }
 
   onEditTransaction(transaction: Transaction) {
@@ -228,7 +268,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
   }
 
   getTotalCount(): number {
-    return this.transactions.length;
+    return this.allTransactions.length;
   }
 
   getCurrentYear(): number {
@@ -288,7 +328,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     return '';
   }
 
-  // Calculate totals for the footer
+  // Calculate totals for the footer using FilterService filtered data
   getTotalIncome(): number {
     return this.dataSource.data
       .filter(transaction => transaction.type === 'income')
@@ -309,5 +349,20 @@ export class TransactionTableComponent implements OnInit, OnDestroy, OnChanges, 
     return this.dataSource.data.length;
   }
 
-  // Removed duplicate sort methods - now using FilterService.sortTransactions()
+  // FilterService interaction methods
+  clearAllFilters(): void {
+    this.filterService.clearAllFilters();
+  }
+
+  getActiveFiltersCount(): number {
+    return this.filterService.getActiveFiltersCount();
+  }
+
+  hasActiveFilters(): boolean {
+    return this.filterService.hasActiveFilters();
+  }
+
+  getCurrentFilterState() {
+    return this.filterService.getCurrentFilterState();
+  }
 } 

@@ -4,8 +4,9 @@ import { NotificationService } from '../../../../util/service/notification.servi
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../../store/app.state';
 import * as CategoriesSelectors from '../../../../store/categories/categories.selectors';
+import { selectAllTransactions } from '../../../../store/transactions/transactions.selectors';
 import { Category } from '../../../../util/models';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import moment from 'moment';
 import { DateService } from 'src/app/util/service/date.service';
 import { FilterService } from '../../../../util/service/filter.service';
@@ -16,39 +17,34 @@ import { FilterService } from '../../../../util/service/filter.service';
   styleUrls: ['./search-filter.component.scss']
 })
 export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() transactions: Transaction[] = [];
-  @Input() searchTerm: string = '';
-  @Input() selectedCategory: string = 'all';
-  @Input() selectedType: string = 'all';
-  @Input() selectedYear: number = moment().year();
-  @Input() selectedMonth: number = moment().month();
-  @Input() selectedMonthOption: string = 'all';
-  @Input() selectedDate: Date | null = null;
-  @Input() selectedDateRange: { start: Date; end: Date } | null = null;
   @Input() filteredCount: number = 0;
   @Input() currentYearCount: number = 0;
 
-  @Output() searchTermChange = new EventEmitter<string>();
-  @Output() selectedCategoryChange = new EventEmitter<string>();
-  @Output() selectedTypeChange = new EventEmitter<string>();
-  @Output() selectedYearChange = new EventEmitter<number>();
   @Output() addTransaction = new EventEmitter<void>();
   @Output() importTransactions = new EventEmitter<void>();
   @Output() openFilterDialog = new EventEmitter<void>();
   @Output() viewAnalytics = new EventEmitter<void>();
   @Output() expandTable = new EventEmitter<void>();
-  @Output() clearAllFilters = new EventEmitter<void>();
-  @Output() selectedDateRangeChange = new EventEmitter<{
-    start: Date;
-    end: Date;
-  } | null>();
-  @Output() clearDateFilter = new EventEmitter<void>();
+
+  // Filter state from FilterService
+  searchTerm: string = '';
+  selectedCategory: string = 'all';
+  selectedType: string = 'all';
+  selectedYear: number = moment().year();
+  selectedMonth: number = moment().month();
+  selectedMonthOption: string = 'all';
+  selectedDate: Date | null = null;
+  selectedDateRange: { start: Date; end: Date } | null = null;
 
   categories: { id: string; name: string }[] = [];
   availableYears: number[] = [];
   months: { value: number; label: string }[] = [];
   currentYear: number;
   private subscription = new Subscription();
+
+  // Store observables
+  transactions$: Observable<Transaction[]> = this.store.select(selectAllTransactions);
+  allTransactions: Transaction[] = [];
 
   constructor(
     private notificationService: NotificationService,
@@ -61,8 +57,10 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     this.loadCategoriesFromStore();
+    this.setupTransactionSubscriptions();
     this.updateAvailableYears();
     this.updateMonths();
+    this.setupFilterServiceSubscriptions();
   }
 
   ngOnDestroy() {
@@ -75,6 +73,59 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       this.updateAvailableYears();
       this.updateCategoriesFromTransactions();
     }
+  }
+
+  private setupTransactionSubscriptions() {
+    // Subscribe to transactions from store
+    this.subscription.add(
+      this.transactions$.subscribe(transactions => {
+        this.allTransactions = transactions;
+        this.updateAvailableYears();
+        this.updateCategoriesFromTransactions();
+      })
+    );
+  }
+
+  private setupFilterServiceSubscriptions() {
+    // Subscribe to FilterService state changes
+    this.subscription.add(
+      this.filterService.searchTerm$.subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+      })
+    );
+
+    this.subscription.add(
+      this.filterService.selectedCategory$.subscribe(categories => {
+        this.selectedCategory = categories.includes('all') ? 'all' : categories[0] || 'all';
+      })
+    );
+
+    this.subscription.add(
+      this.filterService.selectedType$.subscribe(type => {
+        this.selectedType = type;
+      })
+    );
+
+    this.subscription.add(
+      this.filterService.selectedDate$.subscribe(date => {
+        this.selectedDate = date;
+        if (date) {
+          this.selectedDateRange = null;
+        }
+      })
+    );
+
+    this.subscription.add(
+      this.filterService.selectedDateRange$.subscribe(dateRange => {
+        this.selectedDateRange = dateRange ? {
+          start: dateRange.startDate,
+          end: dateRange.endDate
+        } : null;
+        if (dateRange) {
+          this.selectedDate = null;
+        }
+      })
+    );
   }
 
   private loadCategoriesFromStore() {
@@ -90,11 +141,11 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
 
   private updateCategoriesFromTransactions() {
     // Update categories based on actual transaction data
-    if (this.transactions && this.transactions.length > 0) {
+    if (this.allTransactions && this.allTransactions.length > 0) {
       const categoriesSet = new Set<string>();
       const categoryMap = new Map<string, string>();
       
-      this.transactions.forEach(tx => {
+      this.allTransactions.forEach(tx => {
         if (tx.categoryId && tx.category) {
           categoriesSet.add(tx.categoryId);
           categoryMap.set(tx.categoryId, tx.category);
@@ -113,10 +164,10 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
 
   private updateAvailableYears() {
     // Extract unique years from transaction data
-    if (this.transactions && this.transactions.length > 0) {
+    if (this.allTransactions && this.allTransactions.length > 0) {
       const yearsSet = new Set<number>();
       
-      this.transactions.forEach(tx => {
+      this.allTransactions.forEach(tx => {
         if (tx.date) {
           const year = moment(this.dateService.toDate(tx.date)).year();
           yearsSet.add(year);
@@ -156,56 +207,48 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     ];
   }
 
-  onSearchChange(event: any) {
-    const searchValue = event.target.value;
-    this.searchTermChange.emit(searchValue);
+  onSearchChange(value: any) {
+    const searchValue = value;
+    this.filterService.setSearchTerm(searchValue);
   }
 
-  onCategoryChange(event: any) {
-    const category = event.target.value;
-    this.selectedCategoryChange.emit(category);
+  onCategoryChange(value: any) {
+    const category = value;
+    this.filterService.setSelectedCategory([category]);
   }
 
-  onTypeChange(event: any) {
-    const type = event.target.value;
-    this.selectedTypeChange.emit(type);
+  onTypeChange(value: any) {
+    const type = value;
+    this.filterService.setSelectedType(type);
   }
 
   onSelectedYearChange(value: any) {
     const year = value;
     this.selectedYear = year;
-    this.selectedYearChange.emit(year);
     
     // If a specific month is selected, update the date range for the new year
     if (this.selectedMonthOption !== 'all') {
       const month = parseInt(this.selectedMonthOption);
-      this.selectedDateRange = {
-        start: moment().year(year).month(month).startOf('month').toDate(),
-        end: moment().year(year).month(month).endOf('month').toDate()
-      };
-
-    }else{
-      this.selectedDateRange = {
-        start: moment().year(year).startOf('year').toDate(),
-        end: moment().year(year).endOf('year').toDate()
-      };
+      const startDate = moment().year(year).month(month).startOf('month').toDate();
+      const endDate = moment().year(year).month(month).endOf('month').toDate();
+      this.filterService.setSelectedDateRange(startDate, endDate);
+    } else {
+      const startDate = moment().year(year).startOf('year').toDate();
+      const endDate = moment().year(year).endOf('year').toDate();
+      this.filterService.setSelectedDateRange(startDate, endDate);
     }
-    this.selectedDateRangeChange.emit(this.selectedDateRange);
   }
 
   onSelectedMonthChange(monthValue: string) {
     this.selectedMonthOption = monthValue;
     if (monthValue !== 'all') {
       const month = parseInt(monthValue);
-      this.selectedDateRange = {
-        start: moment().year(this.selectedYear).month(month).startOf('month').toDate(),
-        end: moment().year(this.selectedYear).month(month).endOf('month').toDate()
-      };
-      this.selectedDateRangeChange.emit(this.selectedDateRange);
+      const startDate = moment().year(this.selectedYear).month(month).startOf('month').toDate();
+      const endDate = moment().year(this.selectedYear).month(month).endOf('month').toDate();
+      this.filterService.setSelectedDateRange(startDate, endDate);
     } else {
       // Clear date range when "all" is selected
-      this.selectedDateRange = null;
-      this.selectedDateRangeChange.emit(null);
+      this.filterService.clearSelectedDate();
     }
   }
 
@@ -230,57 +273,47 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onClearAllFilters() {
+    this.filterService.clearAllFilters();
+    // Reset local state
     this.selectedDateRange = null;
     this.selectedDate = null;
     this.searchTerm = '';
     this.selectedCategory = 'all';
     this.selectedType = 'all';
-    // Reset to current year or first available year
     this.selectedYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
     this.selectedMonthOption = 'all';
-    this.filterService.clearSelectedDate();
-    this.clearAllFilters.emit();
   }
 
   onClearSearchFilter() {
-    this.searchTerm = '';
-    this.searchTermChange.emit('');
+    this.filterService.clearSearchTerm();
   }
 
   onClearYearFilter() {
     // Reset to current year or first available year
     const resetYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
     this.selectedYear = resetYear;
-    this.selectedYearChange.emit(resetYear);
+    this.filterService.clearSelectedDate();
   }
 
   onClearMonthFilter() {
     this.selectedMonthOption = 'all';
-    this.onSelectedMonthChange('all');
+    this.filterService.clearSelectedDate();
   }
 
   onClearCategoryFilter() {
-    this.selectedCategory = 'all';
-    this.selectedCategoryChange.emit('all');
+    this.filterService.clearSelectedCategory();
   }
 
   onClearTypeFilter() {
-    this.selectedType = 'all';
-    this.selectedTypeChange.emit('all');
+    this.filterService.clearSelectedType();
   }
 
   onClearDateRangeFilter() {
-    this.selectedDateRange = null;
-    this.selectedDateRangeChange.emit(null);
     this.filterService.clearSelectedDate();
   }
 
   onClearDateFilter() {
-    this.selectedDate = null;
-    this.selectedDateRange = null;
-    this.selectedDateRangeChange.emit(null);
     this.filterService.clearSelectedDate();
-    this.clearDateFilter.emit();
   }
 
   getActiveFilters() {
@@ -349,17 +382,31 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   hasActiveFilters(): boolean {
-    const defaultYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
-    return !!(
-      this.selectedDate || 
-      this.selectedDateRange || 
-      this.searchTerm || 
-      this.selectedCategory !== 'all' || 
-      this.selectedType !== 'all' ||
-      this.selectedYear !== defaultYear ||
-      this.selectedMonthOption !== 'all'
-    );
+    return this.filterService.hasActiveFilters();
   }
 
+  // FilterService interaction methods
+  getActiveFiltersCount(): number {
+    return this.filterService.getActiveFiltersCount();
+  }
 
+  getCurrentFilterState() {
+    return this.filterService.getCurrentFilterState();
+  }
+
+  saveFilterPreset(name: string, description: string): void {
+    this.filterService.saveAsPreset(name, description);
+  }
+
+  applyFilterPreset(presetId: string): void {
+    this.filterService.applyPreset(presetId);
+  }
+
+  getFilterPresets() {
+    return this.filterService.filterPresets$;
+  }
+
+  getFilterHistory() {
+    return this.filterService.filterHistory$;
+  }
 } 

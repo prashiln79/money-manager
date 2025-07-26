@@ -45,33 +45,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   longPressTimeout: any;
   selectedTabIndex: number = 0;
   
-  // Date filtering properties
-  selectedDate: Date | null = null;
-  selectedDateRange: any = null;
-  allTransactions: any[] = [];
-  private dateSubscription = new Subscription();
-  
-  // Search and filter properties
-  searchTerm: string = '';
-  selectedCategory: string[] = ['all'];
-  selectedType: string = 'all';
-  selectedYear: number = moment().year();
-  selectedMonth: number = moment().month();
-  selectedMonthOption: string = 'all';
-
   // Table properties
   showFullTable: boolean = false;
   isTransactionsPage: boolean = false;
-
-  // Getter for single category (for desktop components)
-  get selectedCategorySingle(): string {
-    return this.selectedCategory.includes('all') ? 'all' : this.selectedCategory[0] || 'all';
-  }
-
-  // Setter for single category (for desktop components)
-  set selectedCategorySingle(value: string) {
-    this.selectedCategory = [value];
-  }
 
   constructor(
     private loaderService: LoaderService, 
@@ -90,8 +66,6 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
     this.transactionsLoading$ = this.store.select(TransactionsSelectors.selectTransactionsLoading);
     this.transactionsError$ = this.store.select(TransactionsSelectors.selectTransactionsError);
-
-   
   }
 
   ngAfterViewInit() {
@@ -99,16 +73,13 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.dataSource.sort = this.sort;
   }
 
-
   ngOnInit() {
-    this.clearDateFilter();
     this.loadTransactions();
-    this.subscribeToDateSelection();
     this.subscribeToStoreData();
   }
 
   ngOnDestroy() {
-    this.dateSubscription.unsubscribe();
+    // Cleanup handled by individual subscriptions
   }
 
   loadTransactions() {
@@ -123,173 +94,21 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   subscribeToStoreData() {
-    // Subscribe to store data for backward compatibility
-    this.dateSubscription.add(
-      this.transactions$.subscribe(transactions => {
-        this.allTransactions = transactions.sort((a: any, b: any) => {
-          const dateA = this.dateService.toDate(a.date);
-          const dateB = this.dateService.toDate(b.date);
-          return (dateB?.getTime() ?? 0) - (dateA?.getTime() ?? 0);
-        });
-        this.applyDateFilter();
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.loaderService.hide();
-      })
-    );
+    // Subscribe to store data for error handling
+    this.transactions$.subscribe(transactions => {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+      this.loaderService.hide();
+    });
 
     // Handle errors
-    this.dateSubscription.add(
-      this.transactionsError$.subscribe(error => {
-        if (error) {
-          console.error('Error loading transactions:', error);
-          this.notificationService.error('Failed to load transactions');
-          this.loaderService.hide();
-        }
-      })
-    );
-  }
-
-  subscribeToDateSelection() {
-    // Subscribe to single date selection
-    this.dateSubscription.add(
-      this.filterService.selectedDate$.subscribe(date => {
-        if(date){
-          this.selectedDate = date;
-          this.selectedDateRange = null;
-          this.applyDateFilter();
-          this.selectedTabIndex = 0;
-        }
-      })
-    );
-
-    // Subscribe to date range selection
-    this.dateSubscription.add(
-      this.filterService.selectedDateRange$.subscribe(dateRange => {
-        if(dateRange){
-        this.selectedDateRange = dateRange;
-          this.selectedDate = null;
-          this.applyDateFilter();
-        }
-      })
-    );
-
-    // Subscribe to category filter selection
-    this.dateSubscription.add(
-      this.filterService.categoryFilter$.subscribe(categoryFilter => {
-        if (categoryFilter) {
-          // Set the category filter using categoryId
-          this.selectedCategory = [categoryFilter.categoryId];
-          
-          // Set date range for the selected month/year
-          const startDate = new Date(categoryFilter.year, categoryFilter.month, 1);
-          const endDate = new Date(categoryFilter.year, categoryFilter.month + 1, 0);
-          this.selectedDateRange = { startDate, endDate };
-          this.selectedDate = null;
-          
-          // Apply filters
-          this.applyDateFilter();
-          
-          // Show notification
-          this.notificationService.success(`Showing category transactions for ${categoryFilter.monthName} ${categoryFilter.year}`);
-        }
-      })
-    );
-  }
-
-  applyDateFilter() {
-    let filteredData = [...this.allTransactions];
-    
-    // Apply date filtering
-    if (this.selectedDate) {
-      const selectedDateStr = this.formatDate(this.selectedDate);
-      filteredData = filteredData.filter(transaction => {
-        const transactionDate: Date | null = this.dateService.toDate(transaction.date);
-        if (!transactionDate) {
-          return false;
-        }
-        return this.formatDate(transactionDate) === selectedDateStr;
-      });
-      this.notificationService.success(`Showing transactions for ${moment(this.selectedDate).format('MMM DD, YYYY')}`);
-    } else if (this.selectedDateRange && this.selectedDateRange?.startDate && this.selectedDateRange?.endDate) {
-      // Use Moment.js for date range filtering
-      const startOfDay = moment(this.selectedDateRange.startDate).startOf('day').toDate();
-      const endOfDay = moment(this.selectedDateRange.endDate).endOf('day').toDate();
-      
-      filteredData = filteredData.filter(transaction => {
-        const transactionDate: Date | null = this.dateService.toDate(transaction.date);
-        if (!transactionDate) {
-          return false;
-        }
-        return transactionDate >= startOfDay && transactionDate <= endOfDay;
-      });
-      const startDate = moment(this.selectedDateRange.startDate).format('MMM DD, YYYY');
-      const endDate = moment(this.selectedDateRange.endDate).format('MMM DD, YYYY');
-      this.notificationService.success(`Showing transactions from ${startDate} to ${endDate}`);
-    }
-    
-    // Apply search and other filters
-    filteredData = this.applySearchAndFilters(filteredData);
-    
-    this.dataSource.data = filteredData;
-  }
-
-  applySearchAndFilters(transactions: any[]): any[] {
-    // Use the common filtering service
-    return this.filterService.filterTransactionsWithCustomFilters(
-      transactions,
-      {
-        searchTerm: this.searchTerm,
-        selectedCategory: this.selectedCategory,
-        selectedType: this.selectedType
+    this.transactionsError$.subscribe(error => {
+      if (error) {
+        console.error('Error loading transactions:', error);
+        this.notificationService.error('Failed to load transactions');
+        this.loaderService.hide();
       }
-    );
-  }
-
-  onSearchChange(): void {
-    this.applyDateFilter();
-  }
-
-  onCategoryChange(): void {
-    this.applyDateFilter();
-  }
-
-  onTypeChange(): void {
-    this.applyDateFilter();
-  }
-
-  onYearChange(): void {
-    this.applyDateFilter();
-  }
-
-  onDateRangeChange(): void {
-    this.applyDateFilter();
-  }
-
-  private formatDate(date: Date): string {
-    // Use Moment.js for consistent date formatting
-    return moment(date).format('YYYY-MM-DD');
-  }
-
-  clearDateFilter() {
-    this.selectedDate = null;
-    this.selectedDateRange = null;
-    this.filterService.clearSelectedDate();
-    this.applyDateFilter();
-  }
-
-  clearAllFilters(): void {
-    this.selectedDate = null;
-    this.selectedDateRange = null;
-    this.searchTerm = '';
-    this.selectedCategory = ['all'];
-    this.selectedType = 'all';
-    this.selectedYear = moment().year();
-    this.selectedMonth = moment().month();
-    this.selectedMonthOption = 'all';
-    this.filterService.clearSelectedDate();
-    this.applyDateFilter();
-    this.notificationService.success('All filters cleared');
+    });
   }
 
   editTransaction(transaction: Transaction) {
@@ -300,7 +119,6 @@ export class TransactionListComponent implements OnInit, OnDestroy {
         panelClass: 'full-screen-dialog',
         data: transaction
       });
-
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -414,8 +232,6 @@ export class TransactionListComponent implements OnInit, OnDestroy {
             throw new Error('Invalid date format');
           }
 
-      
-
           const transactionData = {
             payee: tx.payee,
             userId: userId,
@@ -527,12 +343,12 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   getTotalCount(): number {
-    return this.allTransactions.length;
+    return this.dataSource.data.length;
   }
 
   getCurrentYearCount(): number {
     const currentYear = moment().year();
-    return this.allTransactions.filter((tx: any) => {
+    return this.dataSource.data.filter((tx: any) => {
       const transactionDate = this.dateService.toDate(tx.date);
       if (!transactionDate) return false;
       const txYear = moment(transactionDate).year();
@@ -545,7 +361,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   }
 
   getCategoriesList(): string[] {
-    const categories = new Set(this.allTransactions.map((tx: any) => tx.category));
+    const categories = new Set(this.dataSource.data.map((tx: any) => tx.category));
     return Array.from(categories).sort();
   }
 
@@ -580,7 +396,6 @@ export class TransactionListComponent implements OnInit, OnDestroy {
         data: null
       });
 
-
     dialogRef.afterClosed().subscribe((transaction: Transaction) => {
       if (transaction) {
         const userId = this.auth.currentUser?.uid;
@@ -595,4 +410,20 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     this.showFullTable = !this.showFullTable;
   }
 
+  // FilterService interaction methods
+  clearAllFilters(): void {
+    this.filterService.clearAllFilters();
+  }
+
+  getActiveFiltersCount(): number {
+    return this.filterService.getActiveFiltersCount();
+  }
+
+  hasActiveFilters(): boolean {
+    return this.filterService.hasActiveFilters();
+  }
+
+  getCurrentFilterState() {
+    return this.filterService.getCurrentFilterState();
+  }
 }
