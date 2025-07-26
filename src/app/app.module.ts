@@ -98,6 +98,7 @@ import { securityInterceptor } from './util/interceptors/security.interceptor';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from './modules/shared/shared.module';
 import { ParentCategorySelectorDialogComponent } from './component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
+import { CategoryDetailsDialogComponent } from './component/dashboard/category/category-details-dialog/category-details-dialog.component';
 
 
 @NgModule({
@@ -111,6 +112,7 @@ import { ParentCategorySelectorDialogComponent } from './component/dashboard/cat
     MobileAddTransactionComponent,
     MobileCategoryAddEditPopupComponent,
     ParentCategorySelectorDialogComponent,
+    CategoryDetailsDialogComponent,
     IconSelectorDialogComponent,
     ColorSelectorDialogComponent,
     CategoryBudgetDialogComponent,

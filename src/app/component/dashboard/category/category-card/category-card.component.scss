@@ -25,11 +25,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border-left: 4px solid transparent;
-  animation: slideIn 0.3s ease;
+  min-height: 12.6rem;
   
   @media (max-width: 640px) {
     padding: 0.5rem;
     border-radius: 10px;
+    min-height: inherit;
   }
   
   &:hover {

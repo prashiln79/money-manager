@@ -68,9 +68,9 @@
 
   <!-- Expand/Collapse Button -->
   <div class="expand-section" *ngIf="!isMobile">
-    <button mat-button (click)="onToggleExpansion()" class="expand-btn">
-      <mat-icon>{{ isExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
-      <span>{{ isExpanded ? 'Show Less' : 'Show More' }}</span>
+    <button mat-button (click)="onOpenDetailsDialog()" class="expand-btn">
+      <mat-icon>expand_more</mat-icon>
+      <span>Show More</span>
     </button>
   </div>
 

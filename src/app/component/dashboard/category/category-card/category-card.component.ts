@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Category, Budget } from 'src/app/util/models';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
 import { TransactionType } from 'src/app/util/config/enums';
+import { CategoryDetailsDialogComponent, CategoryDetailsDialogData } from '../category-details-dialog/category-details-dialog.component';
 
 @Component({
   selector: 'app-category-card',
@@ -19,6 +21,7 @@ export class CategoryCardComponent {
   @Input() subCategoryCount: number = 0;
   @Input() Math: any;
   @Input() allTransactions: Transaction[] = [];
+  @Input() subCategories: Category[] = [];
 
   @Output() editCategory = new EventEmitter<Category>();
   @Output() deleteCategory = new EventEmitter<Category>();
@@ -27,7 +30,10 @@ export class CategoryCardComponent {
   @Output() removeFromParentCategory = new EventEmitter<Category>();
   @Output() toggleExpansion = new EventEmitter<Category>();
 
-  constructor(public dateService: DateService) {}
+  constructor(
+    public dateService: DateService,
+    private dialog: MatDialog
+  ) {}
 
   /**
    * Calculate budget spent for a category based on transactions
@@ -177,5 +183,28 @@ export class CategoryCardComponent {
 
   public onToggleExpansion(): void {
     this.toggleExpansion.emit(this.category);
+  }
+
+  public onOpenDetailsDialog(): void {
+    const dialogData: CategoryDetailsDialogData = {
+      category: this.category,
+      subCategories: this.subCategories,
+      recentTransactions: this.recentTransactions,
+      categoryStats: this.categoryStats,
+      allTransactions: this.allTransactions
+    };
+
+    this.dialog.open(CategoryDetailsDialogComponent, {
+      data: dialogData,
+      width: '90vw',
+      maxWidth: '700px',
+      height: '85vh',
+      maxHeight: '85vh',
+      disableClose: false,
+      autoFocus: false,
+      hasBackdrop: true,
+      backdropClass: 'dialog-backdrop',
+      panelClass: 'category-details-dialog-panel'
+    });
   }
 } 
