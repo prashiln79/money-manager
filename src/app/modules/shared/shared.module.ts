@@ -34,13 +34,15 @@ import { MatChipsModule } from '@angular/material/chips';
 // Utility Components
 import { ConfirmDialogComponent } from '../../util/components/confirm-dialog/confirm-dialog.component';
 import { RecurringTransactionConfirmationDialogComponent } from '../../util/components/recurring-transaction-confirmation-dialog/recurring-transaction-confirmation-dialog.component';
-import { CommonHeaderComponent } from '../../util/components/common-header/common-header.component';
+import { CommonHeaderComponent } from '../../util/components/dialog/common-header/common-header.component';
+import { CommonBodyContentComponent } from 'src/app/util/components/dialog/common-body-content/common-body-content.component';
 
 @NgModule({
   declarations: [
     ConfirmDialogComponent,
     RecurringTransactionConfirmationDialogComponent,
-    CommonHeaderComponent
+    CommonHeaderComponent,
+    CommonBodyContentComponent
   ],
   imports: [
     CommonModule,
@@ -113,7 +115,8 @@ import { CommonHeaderComponent } from '../../util/components/common-header/commo
     // Components
     ConfirmDialogComponent,
     RecurringTransactionConfirmationDialogComponent,
-    CommonHeaderComponent
+    CommonHeaderComponent,
+    CommonBodyContentComponent
   ]
 })
 export class SharedModule { } 
