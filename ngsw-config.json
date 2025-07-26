@@ -61,7 +61,7 @@
         "strategy": "performance",
         "maxSize": 1000,
         "maxAge": "7d",
-        "timeout": "0s"
+        "timeout": "1s"
       }
     },
     {
@@ -75,7 +75,7 @@
         "strategy": "performance",
         "maxSize": 10,
         "maxAge": "1h",
-        "timeout": "0s"
+        "timeout": "1s"
       }
     },
     {
@@ -87,7 +87,7 @@
         "strategy": "performance",
         "maxSize": 50,
         "maxAge": "1h",
-        "timeout": "0s"
+        "timeout": "1s"
       }
     },
     {
@@ -100,7 +100,7 @@
         "strategy": "performance",
         "maxSize": 200,
         "maxAge": "30d",
-        "timeout": "0s"
+        "timeout": "1s"
       }
     },
     {
@@ -112,7 +112,7 @@
         "strategy": "performance",
         "maxSize": 1000,
         "maxAge": "365d",
-        "timeout": "0s"
+        "timeout": "1s"
       }
     }
   ],
