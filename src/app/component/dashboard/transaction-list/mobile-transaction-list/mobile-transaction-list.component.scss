@@ -734,9 +734,9 @@
 // Responsive adjustments
 @media (max-width: 480px) {
 	.filter-menu-container {
-		flex-direction: row-reverse;
+		flex-direction: row;
 		align-items: stretch;
-	}
+		justify-content: flex-end;	}
 
 	.filter-menu-btn {
 		justify-content: space-between;

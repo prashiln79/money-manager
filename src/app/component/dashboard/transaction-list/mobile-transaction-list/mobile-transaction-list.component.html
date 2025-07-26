@@ -24,12 +24,6 @@
 
 		<!-- Filter Menu Buttons -->
 		<div class="filter-menu-container md:justify-center">
-			<!-- Import Button -->
-			<button mat-icon-button class="filter-menu-btn import-btn" (click)="openImportDialog()" matTooltip="Import transactions" aria-label="Import transactions">
-				<mat-icon>upload_file</mat-icon>
-				<span class="filter-btn-text">Import</span>
-			</button>
-
 			<!-- Sort Menu -->
 			<button mat-icon-button class="filter-menu-btn" [matMenuTriggerFor]="sortMenu" matTooltip="{{ getCurrentSortLabel() }}" aria-label="Sort transactions">
 				<mat-icon>sort</mat-icon>
@@ -85,11 +79,11 @@
 					<mat-icon *ngIf="selectedCategory.includes('all')" class="check-icon">check</mat-icon>
 				</button>
 				<mat-divider></mat-divider>
-				@for (category of getCategoriesList(); track category) {
-				<button mat-menu-item [class.active-menu-item]="isCategorySelected(category)" (click)="onCategoryChange(category)">
-					<mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
-					<span>{{ category }}</span>
-					@if (isCategorySelected(category)) {
+				@for (category of getCategoriesList(); track category.id) {
+				<button mat-menu-item [class.active-menu-item]="isCategorySelected(category.id)" (click)="onCategoryChange(category.id)">
+					<mat-icon>{{ category.icon }}</mat-icon>
+					<span>{{ category.name }}</span>
+					@if (isCategorySelected(category.id)) {
 					<mat-icon class="check-icon">check</mat-icon>
 					}
 				</button>
@@ -130,6 +124,12 @@
 					<mat-icon *ngIf="isCustomDateRange()" class="check-icon">check</mat-icon>
 				</button>
 			</mat-menu>
+
+			<!-- Import Button -->
+			<button mat-icon-button class="filter-menu-btn import-btn" (click)="openImportDialog()" matTooltip="Import transactions" aria-label="Import transactions">
+				<mat-icon>upload_file</mat-icon>
+				<span class="filter-btn-text">Import</span>
+			</button>
 		</div>
 	</div>
 
@@ -179,16 +179,14 @@
 					<!-- Icon Section -->
 					<div class="transaction-icon">
 						<div class="icon-container">
-							<mat-icon [style.color]="getCategoryColor(tx.category)">
-
-								{{ getCategoryIcon(tx.category) }}
+							<mat-icon [style.color]="getCategoryColor(tx.categoryId)">
+								{{ getCategoryIcon(tx.categoryId) }}
 							</mat-icon>
 							@if(tx.isSplitTransaction) {
-								<mat-icon class="split-transaction">bookmark</mat-icon>
+							<mat-icon class="split-transaction">bookmark</mat-icon>
 							}
 						</div>
 					</div>
-					
 
 					<!-- Transaction Details -->
 					<div class="transaction-details">

@@ -286,7 +286,10 @@ export class MobileTransactionListComponent
       return 'All Categories';
     }
     if (this.selectedCategory.length === 1) {
-      return this.selectedCategory[0];
+      // Get category name from ID
+      const categoryId = this.selectedCategory[0];
+      const category = this.categories.find(c => c.id === categoryId);
+      return category ? category.name : categoryId;
     }
     return `${this.selectedCategory.length} Categories`;
   }
@@ -354,9 +357,15 @@ export class MobileTransactionListComponent
     return this.getTotalIncome() - this.getTotalExpenses();
   }
 
-  getCategoriesList(): string[] {
-    const categories = new Set(this.transactions.map((tx) => tx.category));
-    return Array.from(categories).sort();
+  getCategoriesList(): (Category & { id: string })[] {
+    // Get unique category IDs from transactions
+    const categoryIds = new Set(this.transactions.map((tx) => tx.categoryId));
+    return Array.from(categoryIds)
+      .map(id => this.categories.find(c => c.id === id))
+      .filter((category): category is Category & { id: string } => 
+        category !== undefined && category.id !== undefined
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   getFilteredCount(): number {
@@ -371,12 +380,12 @@ export class MobileTransactionListComponent
     return moment().year();
   }
 
-  getCategoryIcon(category: string): string {
-    return this.categories.find((c) => c.name === category)?.icon || 'category';
+  getCategoryIcon(categoryId: string): string {
+    return this.categories.find((c) => c.id === categoryId)?.icon || 'category';
   }
 
-  getCategoryColor(category: string): string {
-    return this.categories.find((c) => c.name === category)?.color || '#46777f';
+  getCategoryColor(categoryId: string): string {
+    return this.categories.find((c) => c.id === categoryId)?.color || '#46777f';
   }
 
   private async loadUserCategories(): Promise<void> {
@@ -500,8 +509,8 @@ export class MobileTransactionListComponent
     return count;
   }
 
-  isCategorySelected(category: string): boolean {
-    return this.selectedCategory.includes(category);
+  isCategorySelected(categoryId: string): boolean {
+    return this.selectedCategory.includes(categoryId);
   }
 
   isCustomDateRange(): boolean {
