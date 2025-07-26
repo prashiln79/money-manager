@@ -67,6 +67,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     { value: PaymentMethod.DIGITAL_WALLET, label: 'Digital Wallet', icon: 'account_balance_wallet' },
   ];
   public editMode: boolean = false;
+  public viewMode: boolean = false;
   public TransactionType = TransactionType;
   public groups$: Observable<SplitwiseGroup[]>;
   public recurringMinDate: string;
@@ -137,39 +138,50 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   }
 
 
-  private initializeFormData(): void {
-    if (this.dialogData?.id) {
-      this.editMode = true;
-      this.transactionForm.patchValue({
-        payee: this.dialogData.payee || '',
-        amount: this.dialogData.amount || '',
-        date: this.dialogData.date ?
-          moment(this.dateService.toDate(this.dialogData.date)).format('YYYY-MM-DD') :
-          moment().format('YYYY-MM-DD'),
-        description: this.dialogData.notes || '',
-        categoryId: this.dialogData.categoryId || '',
-        categoryName: this.dialogData.categoryName || '',
-        categoryType: this.dialogData.categoryType || '',
-        accountId: this.dialogData.accountId || '',
-        taxAmount: this.dialogData.taxAmount || 0,
-        taxPercentage: this.dialogData.taxPercentage || 0,
-        taxes: this.dialogData.taxes || [],
-        paymentMethod: this.dialogData.paymentMethod || '',
-        isRecurring: this.dialogData.isRecurring || false,
-        recurringInterval: this.dialogData.recurringInterval || RecurringInterval.MONTHLY,
-        recurringStartDate: this.dialogData.nextOccurrence ?
-          moment(this.dateService.toDate(this.dialogData.nextOccurrence)).format('YYYY-MM-DD') :
-          moment().format('YYYY-MM-DD'),
-        recurringEndDate: this.dialogData.recurringEndDate ?
-          moment(this.dateService.toDate(this.dialogData.recurringEndDate)).format('YYYY-MM-DD') :
-          moment().add(1, 'year').format('YYYY-MM-DD'),
-      });
-      // this.isSplitTransaction = this.dialogData.isSplitTransaction || false;
-      this.transactionForm.get('isSplitTransaction')?.setValue(this.dialogData.isSplitTransaction || false);
-      this.transactionForm.get('splitGroupId')?.setValue(this.dialogData.splitGroupId || '');
-      this.transactionForm.get('splitAmount')?.setValue(this.dialogData.splitAmount || 0);
+  private patchTransactionForm(transaction: any): void {
+    this.transactionForm.patchValue({
+      payee: transaction.payee || '',
+      amount: transaction.amount || '',
+      date: transaction.date ?
+        moment(this.dateService.toDate(transaction.date)).format('YYYY-MM-DD') :
+        moment().format('YYYY-MM-DD'),
+      description: transaction.notes || '',
+      categoryId: transaction.categoryId || '',
+      categoryName: transaction.categoryName || '',
+      categoryType: transaction.categoryType || transaction.type || '',
+      accountId: transaction.accountId || '',
+      taxAmount: transaction.taxAmount || 0,
+      taxPercentage: transaction.taxPercentage || 0,
+      taxes: transaction.taxes || [],
+      paymentMethod: transaction.paymentMethod || '',
+      isRecurring: transaction.isRecurring || false,
+      recurringInterval: transaction.recurringInterval || RecurringInterval.MONTHLY,
+      recurringStartDate: transaction.nextOccurrence ?
+        moment(this.dateService.toDate(transaction.nextOccurrence)).format('YYYY-MM-DD') :
+        moment().format('YYYY-MM-DD'),
+      recurringEndDate: transaction.recurringEndDate ?
+        moment(this.dateService.toDate(transaction.recurringEndDate)).format('YYYY-MM-DD') :
+        moment().add(1, 'year').format('YYYY-MM-DD'),
+    });
+    
+    this.transactionForm.get('isSplitTransaction')?.setValue(transaction.isSplitTransaction || false);
+    this.transactionForm.get('splitGroupId')?.setValue(transaction.splitGroupId || '');
+    this.transactionForm.get('splitAmount')?.setValue(transaction.splitAmount || 0);
 
-      this.onCategoryChange(this.dialogData.categoryId);
+    this.onCategoryChange(transaction.categoryId);
+  }
+
+  private initializeFormData(): void {
+    // Check if we're in view mode
+    if (this.dialogData?.mode === 'view' && this.dialogData?.transaction) {
+      this.viewMode = true;
+      this.editMode = false;
+      this.patchTransactionForm(this.dialogData.transaction);
+      // Disable all form controls in view mode
+      this.transactionForm.disable();
+    } else if (this.dialogData?.id) {
+      this.editMode = true;
+      this.patchTransactionForm(this.dialogData);
     } else {
       this.transactionForm.patchValue({
         payee: '',
@@ -206,15 +218,22 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Focus on amount field after view is initialized
-    setTimeout(() => {
-      if (this.amountInput) {
-        this.amountInput.nativeElement.focus();
-      }
-    }, 200);
+    // Focus on amount field after view is initialized (only if not in view mode)
+    if (!this.viewMode) {
+      setTimeout(() => {
+        if (this.amountInput) {
+          this.amountInput.nativeElement.focus();
+        }
+      }, 200);
+    }
   }
 
   async onSubmit(): Promise<void> {
+    // Don't submit if in view mode
+    if (this.viewMode) {
+      return;
+    }
+
     this.transactionForm.markAllAsTouched();
 
     // Additional validation for split transactions

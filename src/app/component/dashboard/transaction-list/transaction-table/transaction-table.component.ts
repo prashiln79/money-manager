@@ -16,6 +16,7 @@ import { APP_CONFIG } from 'src/app/util/config/config';
 import { SsrService } from 'src/app/util/service/ssr.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MobileAddTransactionComponent } from '../add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 
 @Component({
   selector: 'transaction-table',
@@ -261,6 +262,25 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   onAddTransaction() {
     this.addTransaction.emit();
+  }
+
+  onRowClick(transaction: Transaction) {
+    // Open transaction in view mode (read-only)
+    this.openTransactionViewDialog(transaction);
+  }
+
+  private openTransactionViewDialog(transaction: Transaction) {
+    const dialogRef = this.dialog.open(MobileAddTransactionComponent, {
+      width: '100%',
+      maxWidth: '500px',
+      height: '100%',
+      maxHeight: '100vh',
+      panelClass: 'fullscreen-dialog',
+      data: {
+        transaction: transaction,
+        mode: 'view' // This will make the dialog read-only
+      }
+    });
   }
 
   getFilteredCount(): number {

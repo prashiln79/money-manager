@@ -1,5 +1,5 @@
 <!-- Table Container -->
-<div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col max-h-[calc(80vh-205px)]">
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col max-h-[calc(78vh-210px)]">
   <!-- Desktop/Tablet Table View -->
   <div class="hidden sm:flex flex-1 overflow-auto table-container">
     <table mat-table [dataSource]="dataSource" matSort class="w-full min-w-[800px]">
@@ -45,8 +45,8 @@
       <ng-container matColumnDef="Payee">
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-3 py-4 md:px-6 sticky top-0 z-10 bg-gray-50">
           <div class="flex items-center space-x-1 md:space-x-2">
-            <mat-icon class="text-gray-500 text-xs md:text-sm">person</mat-icon>
-            <span class="font-semibold text-gray-700 text-xs md:text-sm">Payee</span>
+            <mat-icon class="text-gray-500 text-xs md:text-sm">description</mat-icon>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Description</span>
           </div>
         </th>
         <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6">
@@ -119,10 +119,10 @@
         <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 text-center md:px-6">
           <!-- Normal state -->
           <div *ngIf="!element.isEditing" class="flex justify-center space-x-1 md:space-x-2">
-            <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="onStartRowEdit(element)" matTooltip="Edit transaction">
+            <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onStartRowEdit(element)" matTooltip="Edit transaction">
               <mat-icon class="text-sm md:text-base">edit</mat-icon>
             </button>
-            <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="onDeleteTransaction(element)" matTooltip="Delete transaction">
+            <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onDeleteTransaction(element)" matTooltip="Delete transaction">
               <mat-icon class="text-sm md:text-base">delete</mat-icon>
             </button>
           </div>
@@ -133,12 +133,12 @@
               mat-icon-button
               color="primary"
               class="bg-green-100 text-green-600 hover:bg-green-200 rounded-full transition-colors"
-              (click)="onSaveRowEdit(element)"
+              (click)="$event.stopPropagation(); onSaveRowEdit(element)"
               matTooltip="Save changes"
             >
               <mat-icon class="text-sm md:text-base">check</mat-icon>
             </button>
-            <button mat-icon-button color="warn" class="bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition-colors" (click)="onCancelRowEdit(element)" matTooltip="Cancel editing">
+            <button mat-icon-button color="warn" class="bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition-colors" (click)="$event.stopPropagation(); onCancelRowEdit(element)" matTooltip="Cancel editing">
               <mat-icon class="text-sm md:text-base">close</mat-icon>
             </button>
           </div>
@@ -146,7 +146,7 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-12 md:h-16 sticky top-0 z-10"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors cursor-pointer" (click)="onRowClick(row)"></tr>
     </table>
   </div>
 
@@ -197,7 +197,7 @@
   <div class="sm:hidden flex-1 overflow-auto max-h-full mobile-card-view">
     <div class="p-4 space-y-3">
       @for (element of dataSource.data; track element.id) {
-      <div class="transaction-card">
+      <div class="transaction-card" (click)="onRowClick(element)">
         <!-- Header Row -->
         <div class="card-header">
           <div class="left-section">
@@ -226,10 +226,10 @@
 
           <!-- Actions -->
           <div class="action-buttons">
-            <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="onStartRowEdit(element)" matTooltip="Edit transaction">
+            <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onStartRowEdit(element)" matTooltip="Edit transaction">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="onDeleteTransaction(element)" matTooltip="Delete transaction">
+            <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onDeleteTransaction(element)" matTooltip="Delete transaction">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
