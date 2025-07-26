@@ -32,16 +32,12 @@
 			<div class="balance-summary-card" [ngClass]="{'mt-[-12px] m-1': home}" *ngIf="((accounts$ | async)?.length ?? 0) > 0">
 				<div class="balance-summary-header">
 					<mat-icon class="balance-icon">account_balance</mat-icon>
-					<h3 class="balance-summary-title">Total Balance</h3>
-				</div>
-				
-				<div class="balance-summary-stats">
-					<div class="balance-stat-item">
-						<span class="balance-stat-label">Net Worth:</span>
-						<span class="balance-stat-value" [class]="((totalBalance$ | async) ?? 0) >= 0 ? 'positive' : 'negative'">
+					<h3 class="balance-summary-title flex justify-between w-full">Total Balance
+
+						<span class="balance-stat-value pr-2" [class]="((totalBalance$ | async) ?? 0) >= 0 ? 'positive' : 'negative'">
 							{{ (totalBalance$ | async) ?? 0 | currency }}
 						</span>
-					</div>
+					</h3>
 				</div>
 				
 				<!-- Balance Breakdown -->
