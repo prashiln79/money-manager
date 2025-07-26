@@ -1,0 +1,132 @@
+<div class="category-split-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Split Transaction by Category</h2>
+    <button mat-icon-button mat-dialog-close class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <div class="split-info mb-4">
+      <div class="total-amount">
+        <span class="label">Total Amount:</span>
+        <span class="amount">₹{{ totalAmount.toFixed(2) }}</span>
+      </div>
+      <div class="remaining-amount" [class]="getRemainingAmountColor()">
+        <span class="label">Remaining:</span>
+        <span class="amount">₹{{ remainingAmount.toFixed(2) }}</span>
+      </div>
+    </div>
+
+    <form [formGroup]="categorySplitForm">
+      <div formArrayName="splits" class="splits-container">
+        <div *ngFor="let split of splitsArray.controls; let i = index" [formGroupName]="i" class="split-item">
+          <div class="split-header">
+            <h3>Split {{ i + 1 }}</h3>
+            <button 
+              type="button" 
+              mat-icon-button 
+              (click)="removeSplit(i)"
+              [disabled]="splitsArray.length === 1"
+              class="remove-button"
+              matTooltip="Remove split"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <div class="split-content">
+            <!-- Category Selection -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Category</mat-label>
+              <mat-select formControlName="categoryId" (selectionChange)="onCategoryChange($event.value, i)">
+                <mat-option *ngFor="let category of categories$ | async" [value]="category.id">
+                  <div class="category-option">
+                    <div class="category-icon" [style.background-color]="category.color">
+                      <mat-icon>{{ category.icon }}</mat-icon>
+                    </div>
+                    <span>{{ category.name }}</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="split.get('categoryId')?.hasError('required')">
+                Category is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Amount and Percentage -->
+            <div class="amount-percentage-row">
+              <mat-form-field appearance="outline" class="amount-field">
+                <mat-label>Amount</mat-label>
+                <input matInput type="number" formControlName="amount" step="0.01" min="0">
+                <mat-error *ngIf="split.get('amount')?.hasError('required')">
+                  Amount is required
+                </mat-error>
+                <mat-error *ngIf="split.get('amount')?.hasError('min')">
+                  Amount must be positive
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="percentage-field">
+                <mat-label>Percentage</mat-label>
+                <input matInput type="number" formControlName="percentage" step="0.01" min="0" max="100">
+                <span matSuffix>%</span>
+                <mat-error *ngIf="split.get('percentage')?.hasError('required')">
+                  Percentage is required
+                </mat-error>
+                <mat-error *ngIf="split.get('percentage')?.hasError('min') || split.get('percentage')?.hasError('max')">
+                  Percentage must be between 0 and 100
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Notes -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Notes (Optional)</mat-label>
+              <textarea matInput formControlName="notes" rows="2" placeholder="Add notes for this split..."></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Split Button -->
+      <div class="add-split-section">
+        <button 
+          type="button" 
+          mat-stroked-button 
+          (click)="addSplit()"
+          class="add-split-button"
+        >
+          <mat-icon>add</mat-icon>
+          Add Another Split
+        </button>
+      </div>
+
+      <!-- Distribute Remaining Button -->
+      <div *ngIf="remainingAmount > 0" class="distribute-section">
+        <button 
+          type="button" 
+          mat-stroked-button 
+          (click)="distributeRemaining()"
+          class="distribute-button"
+        >
+          <mat-icon>account_balance_wallet</mat-icon>
+          Distribute Remaining (₹{{ remainingAmount.toFixed(2) }})
+        </button>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="categorySplitForm.invalid || remainingAmount >= 0.01 || isSubmitting"
+    >
+      <mat-icon *ngIf="isSubmitting" class="spinning">refresh</mat-icon>
+      {{ isSubmitting ? 'Saving...' : 'Save Splits' }}
+    </button>
+  </mat-dialog-actions>
+</div> 

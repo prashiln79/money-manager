@@ -43,8 +43,9 @@ import { selectGroups } from 'src/app/modules/splitwise/store/splitwise.selector
 import { loadGroups } from 'src/app/modules/splitwise/store/splitwise.actions';
 import { filter, map, Observable, take } from 'rxjs';
 import { selectLatestTransaction } from 'src/app/store/transactions/transactions.selectors';
-import { Transaction } from 'src/app/util/models/transaction.model';
+import { Transaction, CategorySplit } from 'src/app/util/models/transaction.model';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { CategorySplitDialogComponent } from 'src/app/util/components/category-split-dialog/category-split-dialog.component';
 
 @Component({
   selector: 'app-mobile-add-transaction',
@@ -73,6 +74,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public groups$: Observable<SplitwiseGroup[]>;
   public recurringMinDate: string;
   public recurringMaxDate: string;
+  public categorySplits: CategorySplit[] = [];
+  public isCategorySplit: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -124,6 +127,8 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       isSplitTransaction: [false],
       splitGroupId: [''],
       splitAmount: [0],
+      // Category split fields
+      isCategorySplit: [false],
     });
     this.isMobile = this.breakpointObserver.isMatched('(max-width: 640px)');
   }
@@ -270,6 +275,10 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
           status: TransactionStatus.COMPLETED,
           isSplitTransaction: formData.isSplitTransaction || false,
           splitGroupId: formData.splitGroupId || '',
+          // Category split fields
+          isCategorySplit: this.isCategorySplit,
+          categorySplits: this.categorySplits,
+          totalSplitAmount: this.categorySplits.reduce((sum, split) => sum + split.amount, 0),
           updatedBy: this.userId,
           updatedAt: new Date(),
         };
@@ -460,6 +469,37 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   openSplitwise(): void {
     // Navigate to Splitwise component
     this.router.navigate(['/dashboard/splitwise']);
+  }
+
+  openCategorySplitDialog(): void {
+    const dialogRef = this.dialog.open(CategorySplitDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: {
+        totalAmount: this.transactionForm.get('amount')?.value || 0,
+        existingSplits: this.categorySplits,
+        transactionType: this.transactionForm.get('categoryType')?.value || 'expense'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: CategorySplit[] | undefined) => {
+      if (result) {
+        this.categorySplits = result;
+        this.isCategorySplit = true;
+        this.transactionForm.patchValue({ isCategorySplit: true });
+        this.notificationService.success('Category splits configured successfully');
+      }
+    });
+  }
+
+  clearCategorySplits(): void {
+    this.categorySplits = [];
+    this.isCategorySplit = false;
+    this.transactionForm.patchValue({ isCategorySplit: false });
+  }
+
+  getTotalSplitAmount(): number {
+    return this.categorySplits.reduce((sum, split) => sum + split.amount, 0);
   }
 
 }

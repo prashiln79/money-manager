@@ -61,6 +61,11 @@ export interface Transaction extends Auditable, RecurrenceInfo {
   isSplitTransaction?: boolean;
   splitGroupId?: string;
 
+  // Category split support
+  isCategorySplit?: boolean;
+  categorySplits?: CategorySplit[];
+  totalSplitAmount?: number;
+
   // Tax support
   taxAmount?: number;       // total tax amount (optional)
   taxPercentage?: number;   // tax percent (optional)
@@ -269,4 +274,24 @@ export interface TransactionAuditLog {
     newValue: any;
   }[];
   metadata?: Record<string, any>;
+}
+
+/**
+ * Individual category split within a transaction
+ */
+export interface CategorySplit {
+  categoryId: string;
+  categoryName: string;
+  amount: number;
+  percentage: number;
+  notes?: string;
+}
+
+/**
+ * Category split transaction interface
+ */
+export interface CategorySplitTransaction extends Transaction {
+  isCategorySplit: boolean;
+  categorySplits: CategorySplit[];
+  totalSplitAmount: number;
 }

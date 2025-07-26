@@ -1,0 +1,233 @@
+.category-split-dialog {
+  min-width: 500px;
+  max-width: 700px;
+
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    .close-button {
+      color: #666;
+    }
+  }
+
+  mat-dialog-content {
+    padding: 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .split-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 20px;
+
+    .total-amount, .remaining-amount {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .label {
+        font-size: 0.875rem;
+        color: #666;
+        margin-bottom: 4px;
+      }
+
+      .amount {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+    }
+
+    .remaining-amount {
+      &.text-green-600 {
+        color: #059669;
+      }
+      &.text-orange-600 {
+        color: #ea580c;
+      }
+      &.text-red-600 {
+        color: #dc2626;
+      }
+    }
+  }
+
+  .splits-container {
+    .split-item {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+
+      .split-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+
+        h3 {
+          margin: 0;
+          font-size: 1rem;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .remove-button {
+          color: #dc2626;
+          
+          &:disabled {
+            color: #9ca3af;
+          }
+        }
+      }
+
+      .split-content {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .category-option {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .category-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+          }
+        }
+
+        .amount-percentage-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+
+          .amount-field, .percentage-field {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  .add-split-section {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+
+    .add-split-button {
+      border: 2px dashed #d1d5db;
+      color: #6b7280;
+      padding: 12px 24px;
+      border-radius: 8px;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        background-color: #eff6ff;
+      }
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .distribute-section {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+
+    .distribute-button {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #fde68a;
+        border-color: #d97706;
+      }
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  mat-dialog-actions {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    margin: 0;
+
+    button {
+      min-width: 100px;
+    }
+  }
+}
+
+// Spinning animation for loading icon
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive design
+@media (max-width: 600px) {
+  .category-split-dialog {
+    min-width: 100%;
+    max-width: 100%;
+
+    mat-dialog-content {
+      padding: 16px;
+    }
+
+    .split-info {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .amount-percentage-row {
+      grid-template-columns: 1fr !important;
+    }
+  }
+} 

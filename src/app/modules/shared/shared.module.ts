@@ -36,13 +36,15 @@ import { ConfirmDialogComponent } from '../../util/components/confirm-dialog/con
 import { RecurringTransactionConfirmationDialogComponent } from '../../util/components/recurring-transaction-confirmation-dialog/recurring-transaction-confirmation-dialog.component';
 import { CommonHeaderComponent } from '../../util/components/dialog/common-header/common-header.component';
 import { CommonBodyContentComponent } from 'src/app/util/components/dialog/common-body-content/common-body-content.component';
+import { CategorySplitDialogComponent } from '../../util/components/category-split-dialog/category-split-dialog.component';
 
 @NgModule({
   declarations: [
     ConfirmDialogComponent,
     RecurringTransactionConfirmationDialogComponent,
     CommonHeaderComponent,
-    CommonBodyContentComponent
+    CommonBodyContentComponent,
+    CategorySplitDialogComponent
   ],
   imports: [
     CommonModule,
@@ -116,7 +118,8 @@ import { CommonBodyContentComponent } from 'src/app/util/components/dialog/commo
     ConfirmDialogComponent,
     RecurringTransactionConfirmationDialogComponent,
     CommonHeaderComponent,
-    CommonBodyContentComponent
+    CommonBodyContentComponent,
+    CategorySplitDialogComponent
   ]
 })
 export class SharedModule { } 
