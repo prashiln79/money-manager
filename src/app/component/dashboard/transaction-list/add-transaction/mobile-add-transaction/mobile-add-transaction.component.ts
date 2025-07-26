@@ -44,6 +44,7 @@ import { loadGroups } from 'src/app/modules/splitwise/store/splitwise.actions';
 import { filter, map, Observable, take } from 'rxjs';
 import { selectLatestTransaction } from 'src/app/store/transactions/transactions.selectors';
 import { Transaction } from 'src/app/util/models/transaction.model';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-mobile-add-transaction',
@@ -87,7 +88,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     private dateService: DateService,
     private validationService: ValidationService,
     private breakpointObserver: BreakpointObserver,
-    private splitwiseService: SplitwiseService
+    public breakpointService: BreakpointService
   ) {
     this.recurringMinDate = moment().add(1, 'day').format('YYYY-MM-DD');
     this.recurringMaxDate = moment().add(1, 'year').format('YYYY-MM-DD');
@@ -337,31 +338,25 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
   openNewAccountDialog(): void {
     this.dialog.open(AddAccountDialogComponent, {
-      width: this.isMobile ? '90vw' : '400px',
-      maxWidth: this.isMobile ? '400px' : '90vw',
       data: null, // null for new account
       disableClose: true,
-      panelClass: 'mobile-dialog',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
   }
 
   openEditAccountDialog(account: any): void {
     this.dialog.open(AddAccountDialogComponent, {
-      width: this.isMobile ? '90vw' : '400px',
-      maxWidth: this.isMobile ? '400px' : '90vw',
       data: account, // existing account data
       disableClose: true,
-      panelClass: 'mobile-dialog',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
   }
 
   openNewCategoryDialog(): void {
     this.dialog.open(MobileCategoryAddEditPopupComponent, {
-      width: '90vw',
-      maxWidth: '400px',
       data: null, // null for new category
       disableClose: true,
-      panelClass: 'mobile-dialog',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
   }
 

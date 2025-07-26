@@ -273,10 +273,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   private openTransactionViewDialog(transaction: Transaction) {
     const dialogRef = this.dialog.open(MobileAddTransactionComponent, {
-      width: this.breakpointService.device.isMobile ? '100vw' : '600px',
-      height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
-      maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
-      panelClass: 'full-screen-dialog',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
       data: {
         transaction: transaction,
         mode: 'view' // This will make the dialog read-only

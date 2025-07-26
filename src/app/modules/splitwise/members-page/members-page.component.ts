@@ -14,6 +14,7 @@ import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog
 import { AppState } from '../../../store/app.state';
 import * as SplitwiseActions from '../store/splitwise.actions';
 import { selectSplitwiseState } from '../store/splitwise.selectors';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-members-page',
@@ -35,7 +36,8 @@ export class MembersPageComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private dialog: MatDialog,
     private notificationService: NotificationService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    public breakpointService: BreakpointService
   ) {
     // Observe breakpoints for mobile detection
     this.breakpointObserver.observe([Breakpoints.Handset])
@@ -101,11 +103,9 @@ export class MembersPageComponent implements OnInit, OnDestroy {
     if (!this.group) return;
 
     const dialogRef = this.dialog.open(AddMemberDialogComponent, {
-      width: '400px',
-      maxWidth: '90vw',
       data: { group: this.group },
       disableClose: true,
-      panelClass: 'mobile-dialog'
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {

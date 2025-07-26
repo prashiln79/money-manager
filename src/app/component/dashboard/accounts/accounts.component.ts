@@ -14,6 +14,7 @@ import * as AccountsActions from '../../../store/accounts/accounts.actions';
 import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
 import { DateService } from 'src/app/util/service/date.service';
 import { AccountType } from 'src/app/util/config/enums';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'user-accounts',
@@ -49,7 +50,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
     private readonly breakpointObserver: BreakpointObserver,
     private readonly notificationService: NotificationService,
     private readonly store: Store<AppState>,
-    public readonly dateService: DateService
+    public readonly dateService: DateService,
+    public readonly breakpointService: BreakpointService
   ) {
     // Initialize selectors
     this.accounts$ = this.store.select(AccountsSelectors.selectAllAccounts) || of([]);
@@ -144,10 +146,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   public openAccountDialog(account?: Account): void {
     const dialogRef = this.dialog.open(AddAccountDialogComponent, {
-      width: this.isMobile ? '100vw' : '500px',
-      height: this.isMobile ? '100vh' : 'auto',
-      maxWidth: this.isMobile ? '100vw' : '500px',
-      panelClass: this.isMobile ? 'full-screen-dialog' : '',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
       data: account || null
     });
 

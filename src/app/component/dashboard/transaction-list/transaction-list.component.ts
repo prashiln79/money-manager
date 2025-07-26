@@ -113,10 +113,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   editTransaction(transaction: Transaction) {
     let dialogRef = this._dialog.open(MobileAddTransactionComponent, {
-      width: this.breakpointService.device.isMobile ? '100vw' : '600px',
-      height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
-      maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
-      panelClass: 'full-screen-dialog',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
       data: transaction
     });
 
@@ -389,10 +386,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   addTransactionDialog(): void {
    this._dialog.open(MobileAddTransactionComponent, {
-      width: this.breakpointService.device.isMobile ? '100vw' : '600px',
-      height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
-      maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
-      panelClass: 'full-screen-dialog',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     }).afterClosed().subscribe((transaction: Transaction) => {
       if (transaction) {
         const userId = this.auth.currentUser?.uid;

@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Auth } from '@angular/fire/auth';
 import { SplitwiseGroup } from 'src/app/util/models/splitwise.model';
 import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog.component';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-group',
@@ -21,7 +22,8 @@ export class GroupComponent {
   constructor(
     private router: Router,
     private auth: Auth,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public breakpointService: BreakpointService
   ) {}
 
   onGroupClick(): void {
@@ -33,11 +35,9 @@ export class GroupComponent {
     event.stopPropagation();
     
     const dialogRef = this.dialog.open(AddMemberDialogComponent, {
-      width: this.isMobile ? '90vw' : '400px',
-      maxWidth: this.isMobile ? '400px' : '90vw',
       data: { group: this.group },
       disableClose: true,
-      panelClass: 'mobile-dialog'
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
 
     dialogRef.afterClosed().subscribe(result => {

@@ -75,10 +75,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   // Toolbar Action Methods
   addTransaction() {
    this._dialog.open(MobileAddTransactionComponent, {
-    width: this.breakpointService.device.isMobile ? '100vw' : '600px',
-    height: this.breakpointService.device.isMobile ? '100vh' : 'auto',
-    maxWidth: this.breakpointService.device.isMobile ? '100vw' : '95vw',
-    panelClass: 'full-screen-dialog',
+    panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
   }
 

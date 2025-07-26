@@ -14,6 +14,7 @@ import { AppState } from '../../store/app.state';
 import * as SplitwiseActions from './store/splitwise.actions';
 import { selectSplitwiseState } from './store/splitwise.selectors';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-splitwise',
@@ -33,7 +34,8 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
     private auth: Auth,
     private store: Store<AppState>,
     private dialog: MatDialog,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    public breakpointService: BreakpointService
   ) {
     // Observe breakpoints for mobile detection
     this.breakpointObserver.observe([Breakpoints.Handset])
@@ -77,10 +79,8 @@ export class SplitwiseComponent implements OnInit, OnDestroy {
 
   openCreateGroupDialog(): void {
     const dialogRef = this.dialog.open(CreateGroupDialogComponent, {
-      width: this.isMobile ? '90vw' : '500px',
-      maxWidth: this.isMobile ? '500px' : '90vw',
       disableClose: true,
-      panelClass: 'mobile-dialog'
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {

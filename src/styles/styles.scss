@@ -123,23 +123,6 @@
   background-color: transparent !important;
 }
 
-/* Full Screen Dialog for Mobile */
-.full-screen-dialog {
-  .mat-dialog-container {
-    border-radius: 0 !important;
-    padding: 0 !important;
-    max-width: 100vw !important;
-    max-height: 100vh !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    overflow: hidden;
-  }
-  
-  .mat-dialog-overlay {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-}
-
 /* Mobile Dialog Responsive */
 @media (max-width: 768px) {
   .mat-dialog-container {
@@ -393,52 +376,20 @@ app-footer {
 
 /* Mobile Dialog Styles */
 .mobile-dialog {
-  .mat-mdc-dialog-container {
-    border-radius: 16px 16px 0 0 !important;
-    max-height: 90vh !important;
-    overflow: hidden !important;
-  }
-  
-  .mat-mdc-dialog-surface {
-    border-radius: 16px 16px 0 0 !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  .mat-dialog-container {
+    border-radius: 0 !important;
     padding: 0 !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden;
   }
   
-  .mat-mdc-dialog-content {
-    max-height: calc(90vh - 120px) !important;
-    overflow-y: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  
-  /* Mobile form field styles */
-  .mat-mdc-form-field {
-    width: 100% !important;
-    margin-bottom: 16px !important;
-  }
-  
-  .mat-mdc-form-field-wrapper {
-    padding-bottom: 0 !important;
-  }
-  
-  /* Mobile button styles */
-  .mat-mdc-button,
-  .mat-mdc-raised-button {
-    min-height: 48px !important;
-    font-size: 16px !important;
-    border-radius: 8px !important;
-  }
-  
-  /* Mobile input styles */
-  .mat-mdc-input-element {
-    font-size: 16px !important;
-    padding: 12px 16px !important;
-  }
-  
-  /* Mobile select styles */
-  .mat-mdc-select {
-    font-size: 16px !important;
-    padding: 12px 16px !important;
+  .mat-dialog-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -447,25 +398,13 @@ app-footer {
     border-radius: 16px !important;
     max-height: 90vh !important;
     overflow: hidden !important;
+    width: 60vw !important;
+  }
+  .mat-mdc-dialog-surface{
+    overflow: hidden !important;
   }
 }
 
-/* Mobile-specific dialog adjustments */
-@media (max-width: 768px) {
-  .mobile-dialog {
-    .mat-mdc-dialog-container {
-      width: 100vw !important;
-      height: 90vh !important;
-      max-width: none !important;
-      border-radius: 16px 16px 0 0 !important;
-    }
-    
-    .mat-mdc-dialog-surface {
-      width: 100% !important;
-      height: 100% !important;
-    }
-  }
-}
 
 .mobile-fab-btn {
 	position: absolute !important;

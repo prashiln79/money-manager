@@ -18,6 +18,7 @@ import { selectSplitwiseState } from '../store/splitwise.selectors';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { SplitwiseService } from '../services/splitwise.service';
 import { CurrencyService } from 'src/app/util/service/currency.service';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-group-details',
@@ -45,7 +46,8 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private breakpointObserver: BreakpointObserver,
     private splitwiseService: SplitwiseService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    public breakpointService: BreakpointService
   ) {
     // Observe breakpoints for mobile detection
     this.breakpointObserver.observe([Breakpoints.Handset])
@@ -139,11 +141,9 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     if (!this.group) return;
 
     const dialogRef = this.dialog.open(AddMemberDialogComponent, {
-      width: '400px',
-      maxWidth: '90vw',
       data: { group: this.group },
       disableClose: true,
-      panelClass: 'mobile-dialog'
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
@@ -791,15 +791,12 @@ export class GroupDetailsComponent implements OnInit, OnDestroy {
     if (!this.group) return;
 
     const dialogRef = this.dialog.open(EditTransactionDialogComponent, {
-      width: '700px',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
       data: {
         transaction: transaction,
         groupMembers: this.group.members
       },
       disableClose: true,
-      panelClass: 'edit-transaction-dialog'
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
