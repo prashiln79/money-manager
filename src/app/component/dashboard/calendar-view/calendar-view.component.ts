@@ -74,7 +74,6 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private userService: UserService,
     private filterService: FilterService,
     private notificationService: NotificationService,
     private dateService: DateService,
@@ -692,18 +691,18 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     //     this.updatePieChart();
     //   })
     // );
-
-    // // Subscribe to category filter changes (for pie chart category filtering)
-    // this.subscription.add(
-    //   this.filterService.categoryFilter$.subscribe(categoryFilter => {
-    //     if (categoryFilter) {
-    //       // Update year and month based on category filter
-    //       this.selectedYear = categoryFilter.year;
-    //       this.selectedMonth = categoryFilter.month;
-    //       this.updatePieChart();
-    //     }
-    //   })
-    // );
+    
+   // subscribe to month change
+   this.subscription.add(
+    this.filterService.selectedDateRange$.subscribe(dateRange => {
+      if(dateRange){
+        this.selectedMonth = dateRange.startDate.getMonth();
+        this.selectedYear = dateRange.startDate.getFullYear();
+      }
+      this.updatePieChart();
+    })
+   );
+    
   }
 
   updateCalendar() {
