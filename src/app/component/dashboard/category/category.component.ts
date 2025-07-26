@@ -223,7 +223,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public selectParentCategory(category: Category): void {
     // Open a dialog to select parent category
     const dialogRef = this.dialog.open(ParentCategorySelectorDialogComponent, {
-      width: this.isMobile ? '90vw' : '500px',
+      panelClass: this.isMobile ? 'mobile-dialog-center' : 'desktop-dialog',
       data: {
         title: 'Select Parent Category',
         message: `Select a parent category for "${category.name}"`,

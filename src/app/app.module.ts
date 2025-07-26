@@ -97,6 +97,7 @@ import { CurrencyPipe } from './util/pipes';
 import { securityInterceptor } from './util/interceptors/security.interceptor';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from './modules/shared/shared.module';
+import { ParentCategorySelectorDialogComponent } from './component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
 
 
 @NgModule({
@@ -109,6 +110,7 @@ import { SharedModule } from './modules/shared/shared.module';
     SideBarComponent,
     MobileAddTransactionComponent,
     MobileCategoryAddEditPopupComponent,
+    ParentCategorySelectorDialogComponent,
     IconSelectorDialogComponent,
     ColorSelectorDialogComponent,
     CategoryBudgetDialogComponent,

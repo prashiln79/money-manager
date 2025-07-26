@@ -50,6 +50,7 @@ import { LoaderComponent } from '../../util/components/loader/loader.component';
 import { TranslatePipe } from '../../util/pipes/translate.pipe';
 import { CurrencyPipe } from '../../util/pipes/currency.pipe';
 import { MembersComponent } from './members/members.component';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -87,6 +88,7 @@ import { MembersComponent } from './members/members.component';
     MatExpansionModule,
     MatButtonToggleModule,
     MatCheckboxModule,
+    SharedModule,
     
     // NgRx
     StoreModule.forFeature('splitwise', splitwiseReducer),

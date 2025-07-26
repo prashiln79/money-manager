@@ -1,47 +1,31 @@
-<div class="parent-category-dialog">
-  <div class="dialog-header">
-    <h2 mat-dialog-title class="dialog-title">{{ data.title }}</h2>
-    <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close dialog">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-  
-  <div mat-dialog-content class="dialog-content">
-    <p class="dialog-message">{{ data.message }}</p>
-    
-    <div class="categories-container">
-      <div class="categories-list">
-        <mat-list class="category-list">
-          <mat-list-item 
-            *ngFor="let category of data.categories; trackBy: trackByCategory" 
-            (click)="selectCategory(category)"
-            class="category-item"
-            [class.selected]="selectedCategory === category"
-          >
-            <div class="category-info">
-              <div class="category-icon-wrapper">
-                <mat-icon [style.color]="category.color" class="category-icon">
-                  {{ category.icon }}
-                </mat-icon>
-              </div>
-              <div class="category-details">
-                <span class="category-name">{{ category.name }}</span>
-                <span class="category-type">{{ category.type | titlecase }}</span>
-              </div>
-              <mat-icon class="select-icon">arrow_forward_ios</mat-icon>
-            </div>
-          </mat-list-item>
-        </mat-list>
-      </div>
-      
-      <div class="no-categories" *ngIf="data.categories.length === 0">
-        <mat-icon class="no-categories-icon">category</mat-icon>
-        <p>No categories available</p>
-      </div>
-    </div>
-  </div>
-  
-  <div mat-dialog-actions class="dialog-actions">
-    <button mat-button (click)="onCancel()" class="cancel-button">Cancel</button>
-  </div>
-</div> 
+<app-common-header [title]="data.title" (closeButtonClick)="onCancel()" [showCloseButton]="true"></app-common-header>
+
+<app-common-body-content>
+	<p class="dialog-message">{{ data.message }}</p>
+
+	<div class="categories-container">
+		<div class="categories-list">
+			<mat-list class="category-list">
+				<mat-list-item *ngFor="let category of data.categories; trackBy: trackByCategory" (click)="selectCategory(category)" class="category-item" [class.selected]="selectedCategory === category">
+					<div class="category-info">
+						<div class="category-icon-wrapper">
+							<mat-icon [style.color]="category.color" class="category-icon">
+								{{ category.icon }}
+							</mat-icon>
+						</div>
+						<div class="category-details">
+							<span class="category-name">{{ category.name }}</span>
+							<span class="category-type">{{ category.type | titlecase }}</span>
+						</div>
+						<mat-icon class="select-icon">arrow_forward_ios</mat-icon>
+					</div>
+				</mat-list-item>
+			</mat-list>
+		</div>
+
+		<div class="no-categories" *ngIf="data.categories.length === 0">
+			<mat-icon class="no-categories-icon">category</mat-icon>
+			<p>No categories available</p>
+		</div>
+	</div>
+</app-common-body-content>

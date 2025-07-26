@@ -14,14 +14,6 @@ export interface ParentCategorySelectorData {
 
 @Component({
   selector: 'app-parent-category-selector-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule
-  ],
   templateUrl: './parent-category-selector-dialog.component.html',
   styleUrls: ['./parent-category-selector-dialog.component.scss']
 })
