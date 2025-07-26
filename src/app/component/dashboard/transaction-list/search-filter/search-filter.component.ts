@@ -8,6 +8,7 @@ import { Category } from '../../../../util/models';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
 import { DateService } from 'src/app/util/service/date.service';
+import { FilterService } from '../../../../util/service/filter.service';
 
 @Component({
   selector: 'search-filter',
@@ -41,6 +42,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     start: Date;
     end: Date;
   } | null>();
+  @Output() clearDateFilter = new EventEmitter<void>();
 
   categories: { id: string; name: string }[] = [];
   availableYears: number[] = [];
@@ -51,7 +53,8 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private notificationService: NotificationService,
     private store: Store<AppState>,
-    public dateService: DateService
+    public dateService: DateService,
+    private filterService: FilterService
   ) {
     this.currentYear = moment().year();
   }
@@ -235,6 +238,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     // Reset to current year or first available year
     this.selectedYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
     this.selectedMonthOption = 'all';
+    this.filterService.clearSelectedDate();
     this.clearAllFilters.emit();
   }
 
@@ -263,6 +267,20 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   onClearTypeFilter() {
     this.selectedType = 'all';
     this.selectedTypeChange.emit('all');
+  }
+
+  onClearDateRangeFilter() {
+    this.selectedDateRange = null;
+    this.selectedDateRangeChange.emit(null);
+    this.filterService.clearSelectedDate();
+  }
+
+  onClearDateFilter() {
+    this.selectedDate = null;
+    this.selectedDateRange = null;
+    this.selectedDateRangeChange.emit(null);
+    this.filterService.clearSelectedDate();
+    this.clearDateFilter.emit();
   }
 
   getActiveFilters() {
@@ -308,6 +326,22 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
         type: 'type',
         label: `Type: ${this.selectedType}`,
         onRemove: () => this.onClearTypeFilter()
+      });
+    }
+
+    if(this.selectedDateRange && this.selectedMonthOption === 'all'){
+      filters.push({
+        type: 'dateRange',
+        label: `Date Range: ${this.selectedDateRange.start.toLocaleDateString()} - ${this.selectedDateRange.end.toLocaleDateString()}`,
+        onRemove: () => this.onClearDateRangeFilter()
+      });
+    }
+
+    if(this.selectedDate ){
+      filters.push({
+        type: 'date',
+        label: `Date: ${this.selectedDate.toLocaleDateString()}`,
+        onRemove: () => this.onClearDateFilter()
       });
     }
     

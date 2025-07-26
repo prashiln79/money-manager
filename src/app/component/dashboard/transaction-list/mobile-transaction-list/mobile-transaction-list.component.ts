@@ -497,6 +497,20 @@ export class MobileTransactionListComponent
     this.performClearAllFilters();
   }
 
+  onClearDateFilter() {
+    this.selectedDate = null;
+    this.selectedDateRange = null;
+    
+    // Emit changes to parent
+    this.selectedDateRangeChange.emit(null);
+    
+    // Clear filters in service
+    this.filterService.clearSelectedDate();
+    
+    // Apply filters
+    this.filterTransactions();
+  }
+
   getActiveFiltersCount(): number {
     let count = 0;
 

@@ -90,6 +90,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.loadCategories();
     this.initializePieChart();
     this.generateAvailableYears();
+    this.subscribeToFilterService();
   }
 
   ngOnDestroy() {
@@ -642,6 +643,67 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.clearSelections();
     this.isControlsExpanded = this.isRangeMode = false;
     this.filterService.clearSelectedDate();
+  }
+
+  private subscribeToFilterService() {
+    // // Subscribe to date selection changes from FilterService
+    // this.subscription.add(
+    //   this.filterService.selectedDate$.subscribe(date => {
+    //     if (date && !this.isRangeMode) {
+    //       this.selectedDate = date;
+    //       this.handleSingleDateSelection(date);
+    //       this.updatePieChart();
+    //     }
+    //   })
+    // );
+
+    // // Subscribe to date range changes from FilterService
+    // this.subscription.add(
+    //   this.filterService.selectedDateRange$.subscribe(dateRange => {
+    //     if (dateRange && this.isRangeMode) {
+    //       this.startDate = dateRange.startDate;
+    //       this.endDate = dateRange.endDate;
+    //       this.rangeTransactions = this.getTransactionsForDateRange(dateRange.startDate, dateRange.endDate);
+    //       this.updatePieChart();
+    //     }
+    //   })
+    // );
+
+    // // Subscribe to search term changes
+    // this.subscription.add(
+    //   this.filterService.searchTerm$.subscribe(searchTerm => {
+    //     // Update pie chart when search term changes
+    //     this.updatePieChart();
+    //   })
+    // );
+
+    // // Subscribe to category filter changes
+    // this.subscription.add(
+    //   this.filterService.selectedCategory$.subscribe(categories => {
+    //     // Update pie chart when category filter changes
+    //     this.updatePieChart();
+    //   })
+    // );
+
+    // // Subscribe to type filter changes
+    // this.subscription.add(
+    //   this.filterService.selectedType$.subscribe(type => {
+    //     // Update pie chart when type filter changes
+    //     this.updatePieChart();
+    //   })
+    // );
+
+    // // Subscribe to category filter changes (for pie chart category filtering)
+    // this.subscription.add(
+    //   this.filterService.categoryFilter$.subscribe(categoryFilter => {
+    //     if (categoryFilter) {
+    //       // Update year and month based on category filter
+    //       this.selectedYear = categoryFilter.year;
+    //       this.selectedMonth = categoryFilter.month;
+    //       this.updatePieChart();
+    //     }
+    //   })
+    // );
   }
 
   updateCalendar() {
