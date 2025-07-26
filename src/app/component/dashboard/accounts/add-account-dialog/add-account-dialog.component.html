@@ -10,309 +10,299 @@
 ></app-common-header>
 
 <!-- Mobile Form Content -->
-<div class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 h-[100vh]">
-	<div class="p-4 space-y-6">
-		<form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-6">
-			
-			<!-- Account Name Field -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-					Account Name *
-				</label>
-				<input 
-					type="text" 
-					formControlName="name" 
-					[maxlength]="50" 
-					placeholder="e.g., Chase Checking" 
-					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-				/>
-				<div class="flex justify-between items-center mt-1">
-					@if(accountForm.get('name')?.hasError('required') && accountForm.get('name')?.touched) {
-						<p class="text-red-500 text-sm">Account name is required</p>
-					}
-					@if(accountForm.get('name')?.hasError('maxlength')) {
-						<p class="text-red-500 text-sm">Account name must be less than 50 characters</p>
-					}
-					<span class="text-xs text-gray-500">
-						{{ accountForm.get('name')?.value?.length || 0 }}/50
-					</span>
-				</div>
+<app-common-body-content>
+	<form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-6">
+		<!-- Account Name Field -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+				Account Name *
+			</label>
+			<input
+				type="text"
+				formControlName="name"
+				[maxlength]="50"
+				placeholder="e.g., Chase Checking"
+				class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+			/>
+			<div class="flex justify-between items-center mt-1">
+				@if(accountForm.get('name')?.hasError('required') && accountForm.get('name')?.touched) {
+				<p class="text-red-500 text-sm">Account name is required</p>
+				} @if(accountForm.get('name')?.hasError('maxlength')) {
+				<p class="text-red-500 text-sm">Account name must be less than 50 characters</p>
+				}
+				<span class="text-xs text-gray-500">
+					{{ accountForm.get('name')?.value?.length || 0 }}/50
+				</span>
 			</div>
+		</div>
 
-			<!-- Account Type Field -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-					Account Type *
-				</label>
-				<mat-form-field appearance="fill" class="w-full">
-					<mat-label>Select account type</mat-label>
-					<mat-select formControlName="type">
-						@for (type of accountTypes; track type.value) {
-							<mat-option [value]="type.value">{{ type.label }}</mat-option>
-						}
-					</mat-select>
-					@if(accountForm.get('type')?.hasError('required') && accountForm.get('type')?.touched) {
-						<mat-error>Account type is required</mat-error>
+		<!-- Account Type Field -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+				Account Type *
+			</label>
+			<mat-form-field appearance="fill" class="w-full">
+				<mat-label>Select account type</mat-label>
+				<mat-select formControlName="type">
+					@for (type of accountTypes; track type.value) {
+					<mat-option [value]="type.value">{{ type.label }}</mat-option>
 					}
-				</mat-form-field>
-			</div>
+				</mat-select>
+				@if(accountForm.get('type')?.hasError('required') && accountForm.get('type')?.touched) {
+				<mat-error>Account type is required</mat-error>
+				}
+			</mat-form-field>
+		</div>
 
-			<!-- Balance Field -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+		<!-- Balance Field -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+				Initial Balance *
+			</label>
+			<input
+				type="number"
+				formControlName="balance"
+				placeholder="0.00"
+				step="0.01"
+				class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+			/>
+			@if(getBalanceError()) {
+			<p class="text-red-500 text-sm mt-1">{{ getBalanceError() }}</p>
+			}
+		</div>
+
+		<!-- Loan-specific fields (only shown when type is 'loan') -->
+		@if(isLoanAccount()) {
+		<!-- Loan Details Section -->
+		<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+			<h4 class="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-4 flex items-center gap-2">
+				<mat-icon class="text-amber-600 dark:text-amber-400">account_balance_wallet</mat-icon>
+				Loan Details
+			</h4>
+
+			<!-- Lender Name -->
+			<div class="mb-4">
 				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-					Initial Balance *
+					Lender Name *
 				</label>
-				<input 
-					type="number" 
-					formControlName="balance" 
-					placeholder="0.00" 
-					step="0.01" 
-					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+				<input
+					type="text"
+					formControlName="lenderName"
+					placeholder="e.g., Bank of America"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
 				/>
-				@if(getBalanceError()) {
-					<p class="text-red-500 text-sm mt-1">{{ getBalanceError() }}</p>
+				@if(accountForm.get('lenderName')?.hasError('required') && accountForm.get('lenderName')?.touched) {
+				<p class="text-red-500 text-sm mt-1">Lender name is required</p>
 				}
 			</div>
 
-			<!-- Loan-specific fields (only shown when type is 'loan') -->
-			@if(isLoanAccount()) {
-				<!-- Loan Details Section -->
-				<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-					<h4 class="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-4 flex items-center gap-2">
-						<mat-icon class="text-amber-600 dark:text-amber-400">account_balance_wallet</mat-icon>
-						Loan Details
-					</h4>
+			<!-- Loan Amount -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Loan Amount *
+				</label>
+				<input
+					type="number"
+					formControlName="loanAmount"
+					placeholder="0.00"
+					step="0.01"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+				/>
+				@if(getLoanAmountError()) {
+				<p class="text-red-500 text-sm mt-1">{{ getLoanAmountError() }}</p>
+				}
+			</div>
 
-					<!-- Lender Name -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Lender Name *
-						</label>
-						<input 
-							type="text" 
-							formControlName="lenderName" 
-							placeholder="e.g., Bank of America" 
-							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+			<!-- Interest Rate -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Annual Interest Rate (%) *
+				</label>
+				<input
+					type="number"
+					formControlName="interestRate"
+					placeholder="5.5"
+					step="0.1"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+				/>
+				@if(getInterestRateError()) {
+				<p class="text-red-500 text-sm mt-1">{{ getInterestRateError() }}</p>
+				}
+			</div>
+
+			<!-- Start Date -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Loan Start Date *
+				</label>
+				<input
+					type="date"
+					formControlName="startDate"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+				/>
+			</div>
+
+			<!-- Duration -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Loan Duration (months) *
+				</label>
+				<input
+					type="number"
+					formControlName="durationMonths"
+					placeholder="12"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+				/>
+				@if(getDurationError()) {
+				<p class="text-red-500 text-sm mt-1">{{ getDurationError() }}</p>
+				}
+			</div>
+
+			<!-- Monthly Payment Options -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Monthly Payment Amount
+				</label>
+
+				<!-- Use Calculated Payment Toggle -->
+				<div class="mb-3">
+					<label class="flex items-center gap-2">
+						<input
+							type="checkbox"
+							formControlName="useCalculatedPayment"
+							class="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
 						/>
-						@if(accountForm.get('lenderName')?.hasError('required') && accountForm.get('lenderName')?.touched) {
-							<p class="text-red-500 text-sm mt-1">Lender name is required</p>
-						}
-					</div>
-
-					<!-- Loan Amount -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Loan Amount *
-						</label>
-						<input 
-							type="number" 
-							formControlName="loanAmount" 
-							placeholder="0.00" 
-							step="0.01" 
-							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-						/>
-						@if(getLoanAmountError()) {
-							<p class="text-red-500 text-sm mt-1">{{ getLoanAmountError() }}</p>
-						}
-					</div>
-
-					<!-- Interest Rate -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Annual Interest Rate (%) *
-						</label>
-						<input 
-							type="number" 
-							formControlName="interestRate" 
-							placeholder="5.5" 
-							step="0.1" 
-							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-						/>
-						@if(getInterestRateError()) {
-							<p class="text-red-500 text-sm mt-1">{{ getInterestRateError() }}</p>
-						}
-					</div>
-
-					<!-- Start Date -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Loan Start Date *
-						</label>
-						<input 
-							type="date" 
-							formControlName="startDate" 
-							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-						/>
-					</div>
-
-					<!-- Duration -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Loan Duration (months) *
-						</label>
-						<input 
-							type="number" 
-							formControlName="durationMonths" 
-							placeholder="12" 
-							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-						/>
-						@if(getDurationError()) {
-							<p class="text-red-500 text-sm mt-1">{{ getDurationError() }}</p>
-						}
-					</div>
-
-					<!-- Monthly Payment Options -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Monthly Payment Amount
-						</label>
-						
-						<!-- Use Calculated Payment Toggle -->
-						<div class="mb-3">
-							<label class="flex items-center gap-2">
-								<input 
-									type="checkbox" 
-									formControlName="useCalculatedPayment"
-									class="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-								/>
-								<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-									Use calculated payment amount
-								</span>
-							</label>
-						</div>
-
-						<!-- Calculated Payment Display -->
-						@if(accountForm.get('useCalculatedPayment')?.value) {
-							<div class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center justify-between">
-								<span class="text-lg font-semibold text-amber-600 dark:text-amber-400">
-									{{ getCalculatedMonthlyPayment() | currency }}
-								</span>
-								<mat-icon class="text-amber-600 dark:text-amber-400">calculate</mat-icon>
-							</div>
-							<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-								Calculated using loan amortization formula
-							</p>
-						}
-
-						<!-- Custom Payment Input -->
-						@if(!accountForm.get('useCalculatedPayment')?.value) {
-							<input 
-								type="number" 
-								formControlName="customMonthlyPayment" 
-								placeholder="0.00" 
-								step="0.01" 
-								class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-							/>
-							<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-								Enter your actual monthly payment amount
-							</p>
-						}
-					</div>
-
-					<!-- Repayment Frequency -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Repayment Frequency *
-						</label>
-						<mat-form-field appearance="fill" class="w-full">
-							<mat-label>Select frequency</mat-label>
-							<mat-select formControlName="repaymentFrequency">
-								@for (freq of repaymentFrequencies; track freq.value) {
-									<mat-option [value]="freq.value">{{ freq.label }}</mat-option>
-								}
-							</mat-select>
-						</mat-form-field>
-					</div>
-
-					<!-- Loan Status -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Loan Status *
-						</label>
-						<mat-form-field appearance="fill" class="w-full">
-							<mat-label>Select status</mat-label>
-							<mat-select formControlName="status">
-								@for (status of loanStatuses; track status.value) {
-									<mat-option [value]="status.value">{{ status.label }}</mat-option>
-								}
-							</mat-select>
-						</mat-form-field>
-					</div>
-
-
-
-					<!-- Remaining Balance (read-only) -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Calculated Remaining Balance
-						</label>
-						<div class="flex gap-2">
-							<input 
-								type="number" 
-								formControlName="remainingBalance" 
-								readonly
-								class="flex-1 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-							/>
-							<button 
-								type="button"
-								(click)="updateRemainingBalance()"
-								class="px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
-							>
-								Recalculate
-							</button>
-						</div>
-						<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-							Automatically calculated based on time elapsed since loan start date
-						</p>
-					</div>
-
-					<!-- Next Due Date -->
-					<div class="mb-4">
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Next Payment Due Date *
-						</label>
-						<input 
-							type="date" 
-							formControlName="nextDueDate" 
-							class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-						/>
-					</div>
-
-					<!-- Show Reminder -->
-					<div class="mb-4">
-						<label class="flex items-center gap-2">
-							<input 
-								type="checkbox" 
-								formControlName="showReminder"
-								class="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-							/>
-							<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-								Show payment reminders
-							</span>
-						</label>
-					</div>
-
-					<!-- Create Recurring Transaction -->
-					<div class="mb-4">
-						<label class="flex items-center gap-2">
-							<input 
-								type="checkbox" 
-								formControlName="createRecurringTransaction"
-								class="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-							/>
-							<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-								Create recurring transaction for loan payments
-							</span>
-						</label>
-						<p class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
-							Automatically creates a recurring transaction for monthly loan payments
-						</p>
-					</div>
+						<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+							Use calculated payment amount
+						</span>
+					</label>
 				</div>
-			}
 
-			<!-- Bottom Spacing for Mobile -->
-			<div class="h-20"></div>
-		</form>
-	</div>
-</div> 
+				<!-- Calculated Payment Display -->
+				@if(accountForm.get('useCalculatedPayment')?.value) {
+				<div class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center justify-between">
+					<span class="text-lg font-semibold text-amber-600 dark:text-amber-400">
+						{{ getCalculatedMonthlyPayment() | currency }}
+					</span>
+					<mat-icon class="text-amber-600 dark:text-amber-400">calculate</mat-icon>
+				</div>
+				<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+					Calculated using loan amortization formula
+				</p>
+				}
+
+				<!-- Custom Payment Input -->
+				@if(!accountForm.get('useCalculatedPayment')?.value) {
+				<input
+					type="number"
+					formControlName="customMonthlyPayment"
+					placeholder="0.00"
+					step="0.01"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+				/>
+				<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+					Enter your actual monthly payment amount
+				</p>
+				}
+			</div>
+
+			<!-- Repayment Frequency -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Repayment Frequency *
+				</label>
+				<mat-form-field appearance="fill" class="w-full">
+					<mat-label>Select frequency</mat-label>
+					<mat-select formControlName="repaymentFrequency">
+						@for (freq of repaymentFrequencies; track freq.value) {
+						<mat-option [value]="freq.value">{{ freq.label }}</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
+			</div>
+
+			<!-- Loan Status -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Loan Status *
+				</label>
+				<mat-form-field appearance="fill" class="w-full">
+					<mat-label>Select status</mat-label>
+					<mat-select formControlName="status">
+						@for (status of loanStatuses; track status.value) {
+						<mat-option [value]="status.value">{{ status.label }}</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
+			</div>
+
+			<!-- Remaining Balance (read-only) -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Calculated Remaining Balance
+				</label>
+				<div class="flex gap-2">
+					<input
+						type="number"
+						formControlName="remainingBalance"
+						readonly
+						class="flex-1 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+					/>
+					<button type="button" (click)="updateRemainingBalance()" class="px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500">
+						Recalculate
+					</button>
+				</div>
+				<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+					Automatically calculated based on time elapsed since loan start date
+				</p>
+			</div>
+
+			<!-- Next Due Date -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Next Payment Due Date *
+				</label>
+				<input
+					type="date"
+					formControlName="nextDueDate"
+					class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+				/>
+			</div>
+
+			<!-- Show Reminder -->
+			<div class="mb-4">
+				<label class="flex items-center gap-2">
+					<input
+						type="checkbox"
+						formControlName="showReminder"
+						class="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+					/>
+					<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+						Show payment reminders
+					</span>
+				</label>
+			</div>
+
+			<!-- Create Recurring Transaction -->
+			<div class="mb-4">
+				<label class="flex items-center gap-2">
+					<input
+						type="checkbox"
+						formControlName="createRecurringTransaction"
+						class="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+					/>
+					<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+						Create recurring transaction for loan payments
+					</span>
+				</label>
+				<p class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
+					Automatically creates a recurring transaction for monthly loan payments
+				</p>
+			</div>
+		</div>
+		}
+
+		<!-- Bottom Spacing for Mobile -->
+		<div class="h-20"></div>
+	</form>
+</app-common-body-content>
