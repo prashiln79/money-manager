@@ -35,7 +35,6 @@ export class AccountsComponent implements OnInit, OnDestroy {
   public accounts: Account[] = [];
   public isLoading: boolean = false;
   public errorMessage: string = '';
-  public isMobile: boolean = false;
   public selectedAccount: Account | null = null;
   public expandedAccount: Account | null = null;
   
@@ -62,7 +61,6 @@ export class AccountsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.setupMobileDetection();
   }
 
   ngOnDestroy(): void {
@@ -130,15 +128,6 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   public trackByAccountId(index: number, account: Account): string {
     return account.accountId;
-  }
-
-  /**
-   * Setup mobile detection using breakpoint observer
-   */
-  private setupMobileDetection(): void {
-    this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
-      this.isMobile = result.matches;
-    });
   }
 
   /**

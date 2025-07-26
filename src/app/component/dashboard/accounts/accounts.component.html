@@ -60,7 +60,7 @@
 				</div>
 				<h3 class="empty-title">No accounts yet</h3>
 				<p class="empty-text">Add your first account to get started</p>
-				<button *ngIf="isMobile" mat-raised-button color="primary" (click)="addAccount()" class="empty-state-button">
+				<button *ngIf="breakpointService.device.isMobile" mat-raised-button color="primary" (click)="addAccount()" class="empty-state-button">
 					<mat-icon>add</mat-icon>
 					Add Account
 				</button>
