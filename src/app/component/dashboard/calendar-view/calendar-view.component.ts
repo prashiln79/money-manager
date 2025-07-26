@@ -237,13 +237,13 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     const category = this.categories.find(c => c.id === categoryId);
     const categoryName = category ? category.name : categoryId;
     
-    // Set category filter using the date selection service
-    this.filterService.setCategoryFilter(
-      categoryId, 
-      this.selectedYear, 
-      this.selectedMonth, 
-      this.availableMonths[this.selectedMonth].label
-    );
+    // Set category filter using the FilterService
+    this.filterService.setSelectedCategory([categoryId]);
+    
+    // Also set the date range to the current month/year for context
+    const startDate = moment([this.selectedYear, this.selectedMonth, 1]).startOf('month').toDate();
+    const endDate = moment([this.selectedYear, this.selectedMonth, 1]).endOf('month').toDate();
+    this.filterService.setSelectedDateRange(startDate, endDate);
     
     // Show success notification
     this.notificationService.success(`Filtering transactions for ${categoryName} in ${this.availableMonths[this.selectedMonth].label} ${this.selectedYear}`);
