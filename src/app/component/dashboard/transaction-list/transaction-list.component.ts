@@ -470,15 +470,18 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     }
 
     // Prepare data for export using Moment.js
-    const exportData = this.dataSource.data.map(tx => ({
-      'Date': moment(tx.date.seconds * 1000).format('MM/DD/YYYY'),
-      'Time': moment(tx.date.seconds * 1000).format('hh:mm A'),
-      'Payee': tx.payee,
-      'Amount': tx.amount,
-      'Type': tx.type,
-      'Category': tx.category,
-      'Notes': tx.notes || ''
-    }));
+    const exportData = this.dataSource.data.map(tx => {
+      const transactionDate = this.dateService.toDate(tx.date);
+      return {
+        'Date': moment(transactionDate).format('MM/DD/YYYY'),
+        'Time': moment(transactionDate).format('hh:mm A'),
+        'Payee': tx.payee,
+        'Amount': tx.amount,
+        'Type': tx.type,
+        'Category': tx.category,
+        'Notes': tx.notes || ''
+      };
+    });
 
     // Convert to CSV
     const headers = Object.keys(exportData[0]);
@@ -507,7 +510,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     const currentMonth = moment().month();
     const currentYear = moment().year();
     return this.dataSource.data.filter((tx: any) => {
-      const txDate = moment(tx.date.seconds * 1000);
+      const transactionDate = this.dateService.toDate(tx.date);
+      if (!transactionDate) return false;
+      const txDate = moment(transactionDate);
       return txDate.month() === currentMonth && txDate.year() === currentYear;
     }).length;
   }
@@ -528,7 +533,9 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   getCurrentYearCount(): number {
     const currentYear = moment().year();
     return this.allTransactions.filter((tx: any) => {
-      const txYear = moment(tx.date.seconds * 1000).year();
+      const transactionDate = this.dateService.toDate(tx.date);
+      if (!transactionDate) return false;
+      const txYear = moment(transactionDate).year();
       return txYear === currentYear;
     }).length;
   }

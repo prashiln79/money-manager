@@ -5,7 +5,7 @@
       <div class="flex items-center space-x-2">
         <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
         <span class="text-sm font-medium text-gray-700">
-          {{ getCurrentYear() }} Transactions
+          {{ selectedYear }} Transactions
         </span>
       </div>
       <div class="flex items-center space-x-1">
@@ -77,7 +77,7 @@
     <div>
       <mat-form-field appearance="fill" class="w-full">
         <mat-label>Year</mat-label>
-        <mat-select [ngModel]="selectedYear" (ngModelChange)="selectedYearChange.emit($event)">
+        <mat-select [ngModel]="selectedYear" (ngModelChange)="onSelectedYearChange($event)">
           @for (year of availableYears; track year) {
           <mat-option [value]="year">
             {{ year }}

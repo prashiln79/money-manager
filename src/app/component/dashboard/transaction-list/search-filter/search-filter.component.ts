@@ -7,6 +7,7 @@ import * as CategoriesSelectors from '../../../../store/categories/categories.se
 import { Category } from '../../../../util/models';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
+import { DateService } from 'src/app/util/service/date.service';
 
 @Component({
   selector: 'search-filter',
@@ -49,7 +50,8 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private notificationService: NotificationService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    public dateService: DateService
   ) {
     this.currentYear = moment().year();
   }
@@ -65,10 +67,10 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Categories are now loaded from store, so no need to update based on transactions
-    // Only update available years if needed
+    // Update available years and categories when transactions change
     if (changes['transactions']) {
       this.updateAvailableYears();
+      this.updateCategoriesFromTransactions();
     }
   }
 
@@ -83,23 +85,55 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
-  private updateCategories() {
-    // This method is now deprecated in favor of loadCategoriesFromStore
-    // Keeping it for backward compatibility
+  private updateCategoriesFromTransactions() {
+    // Update categories based on actual transaction data
     if (this.transactions && this.transactions.length > 0) {
-      const categoriesSet = new Set(this.transactions.map(tx => ({ id: tx.categoryId, name: tx.category })));
-      this.categories = Array.from(categoriesSet).sort((a, b) => a.name.localeCompare(b.name));
+      const categoriesSet = new Set<string>();
+      const categoryMap = new Map<string, string>();
+      
+      this.transactions.forEach(tx => {
+        if (tx.categoryId && tx.category) {
+          categoriesSet.add(tx.categoryId);
+          categoryMap.set(tx.categoryId, tx.category);
+        }
+      });
+      
+      // Convert to array and sort
+      this.categories = Array.from(categoriesSet).map(id => ({
+        id: id,
+        name: categoryMap.get(id) || 'Unknown'
+      })).sort((a, b) => a.name.localeCompare(b.name));
     } else {
       this.categories = [];
     }
   }
 
   private updateAvailableYears() {
-    //check this year is coming as NaN
-    if (isNaN(this.selectedYear)) {
-      this.selectedYear = this.currentYear;
+    // Extract unique years from transaction data
+    if (this.transactions && this.transactions.length > 0) {
+      const yearsSet = new Set<number>();
+      
+      this.transactions.forEach(tx => {
+        if (tx.date) {
+          const year = moment(this.dateService.toDate(tx.date)).year();
+          yearsSet.add(year);
+        }
+      });
+      
+      // Add current year if not present in transactions
+      yearsSet.add(this.currentYear);
+      
+      // Convert to array, sort in descending order (newest first)
+      this.availableYears = Array.from(yearsSet).sort((a, b) => b - a);
+    } else {
+      // Fallback to current year if no transactions
+      this.availableYears = [this.currentYear];
     }
-    this.availableYears = Array.from({ length: 10 }, (_, i) => this.currentYear - i);
+    
+    // Ensure selected year is valid
+    if (isNaN(this.selectedYear) || !this.availableYears.includes(this.selectedYear)) {
+      this.selectedYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
+    }
   }
 
   private updateMonths() {
@@ -134,8 +168,8 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedTypeChange.emit(type);
   }
 
-  onSelectedYearChange(event: any) {
-    const year = event.target.value;
+  onSelectedYearChange(value: any) {
+    const year = value;
     this.selectedYear = year;
     this.selectedYearChange.emit(year);
     
@@ -146,8 +180,14 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
         start: moment().year(year).month(month).startOf('month').toDate(),
         end: moment().year(year).month(month).endOf('month').toDate()
       };
-      this.selectedDateRangeChange.emit(this.selectedDateRange);
+
+    }else{
+      this.selectedDateRange = {
+        start: moment().year(year).startOf('year').toDate(),
+        end: moment().year(year).endOf('year').toDate()
+      };
     }
+    this.selectedDateRangeChange.emit(this.selectedDateRange);
   }
 
   onSelectedMonthChange(monthValue: string) {
@@ -192,7 +232,8 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     this.searchTerm = '';
     this.selectedCategory = 'all';
     this.selectedType = 'all';
-    this.selectedYear = this.currentYear;
+    // Reset to current year or first available year
+    this.selectedYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
     this.selectedMonthOption = 'all';
     this.clearAllFilters.emit();
   }
@@ -203,8 +244,10 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onClearYearFilter() {
-    this.selectedYear = this.currentYear;
-    this.selectedYearChange.emit(this.currentYear);
+    // Reset to current year or first available year
+    const resetYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
+    this.selectedYear = resetYear;
+    this.selectedYearChange.emit(resetYear);
   }
 
   onClearMonthFilter() {
@@ -224,6 +267,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
 
   getActiveFilters() {
     const filters = [];
+    const defaultYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
     
     if (this.searchTerm) {
       filters.push({
@@ -233,7 +277,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       });
     }
     
-    if (this.selectedYear !== this.currentYear) {
+    if (this.selectedYear !== defaultYear) {
       filters.push({
         type: 'year',
         label: `Year: ${this.selectedYear}`,
@@ -271,18 +315,17 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   hasActiveFilters(): boolean {
+    const defaultYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
     return !!(
       this.selectedDate || 
       this.selectedDateRange || 
       this.searchTerm || 
       this.selectedCategory !== 'all' || 
       this.selectedType !== 'all' ||
-      this.selectedYear !== this.currentYear ||
+      this.selectedYear !== defaultYear ||
       this.selectedMonthOption !== 'all'
     );
   }
 
-  getCurrentYear(): number {
-    return this.currentYear;
-  }
+
 } 
