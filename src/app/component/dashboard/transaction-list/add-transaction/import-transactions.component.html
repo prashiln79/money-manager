@@ -31,14 +31,14 @@
       <div class="mb-4">
         <button mat-stroked-button color="primary" (click)="downloadTemplate()" class="w-full sm:w-auto">
           <mat-icon>download</mat-icon>
-          Download Templates (CSV + Excel)
+          Download Excel Template
         </button>
       </div>
       
       <div class="file-upload-container" #fileUploadContainer [class.drag-over]="isDragOver">
         <input 
           type="file" 
-          accept=".csv,.xlsx,.xls" 
+          accept=".xlsx,.xls" 
           (change)="onFileSelected($event)"
           class="file-input"
           [disabled]="isLoading"
@@ -48,7 +48,7 @@
           <p class="text-sm text-gray-600">
             {{ isLoading ? 'Processing...' : 'Click to select file or drag and drop' }}
           </p>
-          <p class="text-xs text-gray-500 mt-1">Supports CSV, Excel (XLSX, XLS) files</p>
+          <p class="text-xs text-gray-500 mt-1">Supports Excel (XLSX, XLS) files only</p>
           <div *ngIf="selectedFile" class="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
             <mat-icon class="text-sm mr-1">file_present</mat-icon>
             {{ selectedFile.name }} ({{ fileType }})
@@ -87,235 +87,56 @@
         </div>
       </div>
 
-      <!-- Mobile View -->
-      <div *ngIf="isMobile" class="mobile-transactions">
-        @for (tx of parsedTransactions; track tx._idx; let i = $index) {
-        <div 
-          class="transaction-card"
-          [class.selected]="selectedToImport.has(tx._idx)"
-          (click)="toggleSelect(tx._idx)"
-        >
-          <div class="transaction-header">
-            <mat-checkbox 
-              [checked]="selectedToImport.has(tx._idx)" 
-              (change)="toggleSelect(tx._idx)"
-              (click)="$event.stopPropagation()"
-            ></mat-checkbox>
-            <div class="transaction-info">
-              <!-- Payee - Inline Editable -->
-              <div class="payee" (click)="startEditing(i, 'payee'); $event.stopPropagation()">
-                <span *ngIf="editingTransaction !== i || editingField !== 'payee'">{{ tx.payee }}</span>
-                <input 
-                  *ngIf="editingTransaction === i && editingField === 'payee'"
-                  type="text" 
-                  [value]="tx.payee"
-                  (keydown)="onKeyDown($event, i, 'payee', getInputValue($event))"
-                  (blur)="onBlur(i, 'payee', getInputValue($event))"
-                  (click)="$event.stopPropagation()"
-                  class="edit-input"
-                  autofocus
-                />
-              </div>
+      <!-- Responsive Table -->
+      <div class="table-container">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th class="checkbox-col">
+                <mat-checkbox 
+                  [checked]="selectedToImport.size === parsedTransactions.length"
+                  [indeterminate]="selectedToImport.size > 0 && selectedToImport.size < parsedTransactions.length"
+                  (change)="toggleSelectAll()"
+                ></mat-checkbox>
+              </th>
+              <th>Payee</th>
+              <th>Amount</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tx of parsedTransactions; track tx._idx; let i = $index) {
+            <tr class="transaction-row">
+              <td class="checkbox-col">
+                <mat-checkbox 
+                  [checked]="selectedToImport.has(tx._idx)" 
+                  (change)="toggleSelect(tx._idx)"
+                ></mat-checkbox>
+              </td>
               
-              <!-- Category - Dropdown -->
-              <div class="category" (click)="startEditing(i, 'category'); $event.stopPropagation()">
-                <span *ngIf="editingTransaction !== i || editingField !== 'category'">{{ tx.category }}</span>
-                <mat-select 
-                  *ngIf="editingTransaction === i && editingField === 'category'"
-                  [value]="tx.category"
-                  (selectionChange)="updateTransaction(i, 'category', $event.value)"
-                  (click)="$event.stopPropagation()"
-                  class="edit-select"
-                >
-                  @for (cat of getCategoriesForType(tx.type); track cat.name) {
-                  <mat-option [value]="cat.name">
-                    {{ cat.name }}
-                  </mat-option>
-                  }
-                </mat-select>
-              </div>
-            </div>
-            <div class="amount-section">
-              <!-- Amount - Inline Editable -->
-              <div class="amount" [class.income]="tx.type === 'income'" [class.expense]="tx.type === 'expense'">
-                <span *ngIf="editingTransaction !== i || editingField !== 'amount'">
+              <td class="payee-cell">{{ tx.payee }}</td>
+              
+              <td class="amount-cell">
+                <span [class.income]="tx.type === 'income'" [class.expense]="tx.type === 'expense'">
                   {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.2-2' }}
                 </span>
-                <input 
-                  *ngIf="editingTransaction === i && editingField === 'amount'"
-                  type="number" 
-                  [value]="tx.amount"
-                  (keydown)="onKeyDown($event, i, 'amount', getInputValue($event))"
-                  (blur)="onBlur(i, 'amount', getInputValue($event))"
-                  (click)="$event.stopPropagation()"
-                  class="edit-input amount-input"
-                  autofocus
-                />
-              </div>
+              </td>
               
-              <!-- Type - Dropdown -->
-              <div class="type" (click)="startEditing(i, 'type'); $event.stopPropagation()">
-                <span *ngIf="editingTransaction !== i || editingField !== 'type'">{{ tx.type }}</span>
-                <mat-select 
-                  *ngIf="editingTransaction === i && editingField === 'type'"
-                  [value]="tx.type"
-                  (selectionChange)="updateTransaction(i, 'type', $event.value)"
-                  (click)="$event.stopPropagation()"
-                  class="edit-select"
-                >
-                  <mat-option value="income">Income</mat-option>
-                  <mat-option value="expense">Expense</mat-option>
-                </mat-select>
-              </div>
+              <td class="type-cell">
+                <span class="type-badge" [class.income]="tx.type === 'income'" [class.expense]="tx.type === 'expense'">
+                  {{ tx.type }}
+                </span>
+              </td>
               
-              <!-- Date - Inline Editable -->
-              <div class="date" (click)="startEditing(i, 'date'); $event.stopPropagation()">
-                <span *ngIf="editingTransaction !== i || editingField !== 'date'">{{ tx?.date }}</span>
-                <input 
-                  *ngIf="editingTransaction === i && editingField === 'date'"
-                  type="date" 
-                  [value]="tx.date"
-                  (keydown)="onKeyDown($event, i, 'date', getInputValue($event))"
-                  (blur)="onBlur(i, 'date', getInputValue($event))"
-                  (click)="$event.stopPropagation()"
-                  class="edit-input"
-                  autofocus
-                />
-              </div>
-            </div>
-          </div>
-          <div *ngIf="tx.narration" class="transaction-details">
-            <small class="text-gray-500">{{ tx.narration }}</small>
-          </div>
-        </div>
-        }
-      </div>
-
-      <!-- Desktop View -->
-      <div *ngIf="!isMobile" class="desktop-transactions">
-        <div class="table-container">
-          <table class="transactions-table">
-            <thead>
-              <tr>
-                <th class="checkbox-col">
-                  <mat-checkbox 
-                    [checked]="selectedToImport.size === parsedTransactions.length"
-                    [indeterminate]="selectedToImport.size > 0 && selectedToImport.size < parsedTransactions.length"
-                    (change)="toggleSelectAll()"
-                  ></mat-checkbox>
-                </th>
-                <th>Payee</th>
-                <th>Amount</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Date</th>
-                <th *ngIf="parsedTransactions[0]?.narration">Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (tx of parsedTransactions; track tx._idx; let i = $index) {
-              <tr class="transaction-row">
-                <td class="checkbox-col">
-                  <mat-checkbox 
-                    [checked]="selectedToImport.has(tx._idx)" 
-                    (change)="toggleSelect(tx._idx)"
-                  ></mat-checkbox>
-                </td>
-                
-                <!-- Payee - Inline Editable -->
-                <td class="payee-cell" (click)="startEditing(i, 'payee')">
-                  <span *ngIf="editingTransaction !== i || editingField !== 'payee'">{{ tx.payee }}</span>
-                  <input 
-                    *ngIf="editingTransaction === i && editingField === 'payee'"
-                    type="text" 
-                    [value]="tx.payee"
-                    (keydown)="onKeyDown($event, i, 'payee', getInputValue($event))"
-                    (blur)="onBlur(i, 'payee', getInputValue($event))"
-                    class="edit-input"
-                    autofocus
-                  />
-                </td>
-                
-                <!-- Amount - Inline Editable -->
-                <td class="amount-cell">
-                  <span *ngIf="editingTransaction !== i || editingField !== 'amount'" 
-                        [class.income]="tx.type === 'income'" 
-                        [class.expense]="tx.type === 'expense'"
-                        (click)="startEditing(i, 'amount')">
-                    {{ tx.type === 'income' ? '+' : '-' }}₹{{ tx.amount | number:'1.2-2' }}
-                  </span>
-                  <input 
-                    *ngIf="editingTransaction === i && editingField === 'amount'"
-                    type="number" 
-                    [value]="tx.amount"
-                    (keydown)="onKeyDown($event, i, 'amount', getInputValue($event))"
-                    (blur)="onBlur(i, 'amount', getInputValue($event))"
-                    class="edit-input amount-input"
-                    autofocus
-                  />
-                </td>
-                
-                <!-- Type - Dropdown -->
-                <td class="type-cell">
-                  <span *ngIf="editingTransaction !== i || editingField !== 'type'"
-                        class="type-badge" 
-                        [class.income]="tx.type === 'income'" 
-                        [class.expense]="tx.type === 'expense'"
-                        (click)="startEditing(i, 'type')">
-                    {{ tx.type }}
-                  </span>
-                  <mat-select 
-                    *ngIf="editingTransaction === i && editingField === 'type'"
-                    [value]="tx.type"
-                    (selectionChange)="updateTransaction(i, 'type', $event.value)"
-                    class="edit-select"
-                  >
-                    <mat-option value="income">Income</mat-option>
-                    <mat-option value="expense">Expense</mat-option>
-                  </mat-select>
-                </td>
-                
-                <!-- Category - Dropdown -->
-                <td class="category-cell" (click)="startEditing(i, 'category')">
-                  <span *ngIf="editingTransaction !== i || editingField !== 'category'">{{ tx.category }}</span>
-                  <mat-select 
-                    *ngIf="editingTransaction === i && editingField === 'category'"
-                    [value]="tx.category"
-                    (selectionChange)="updateTransaction(i, 'category', $event.value)"
-                    class="edit-select"
-                  >
-                    @for (cat of getCategoriesForType(tx.type); track cat.name) {
-                    <mat-option [value]="cat.name">
-                      {{ cat.name }}
-                    </mat-option>
-                    }
-                  </mat-select>
-                </td>
-                
-                <!-- Date - Inline Editable -->
-                <td class="date-cell" (click)="startEditing(i, 'date')">
-                  <span *ngIf="editingTransaction !== i || editingField !== 'date'">{{ tx.date | date:'shortDate' }}</span>
-                  <input 
-                    *ngIf="editingTransaction === i && editingField === 'date'"
-                    type="date" 
-                    [value]="tx.date"
-                    (keydown)="onKeyDown($event, i, 'date', getInputValue($event))"
-                    (blur)="onBlur(i, 'date', getInputValue($event))"
-                    class="edit-input"
-                    autofocus
-                  />
-                </td>
-                
-                <td *ngIf="tx.narration" class="details-cell">
-                  <mat-icon class="text-gray-400 cursor-pointer" 
-                           matTooltip="{{ tx.narration }}"
-                           matTooltipPosition="above">info</mat-icon>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+              <td class="category-cell">{{ tx.category }}</td>
+              
+              <td class="date-cell">{{ tx.date | date:'shortDate' }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

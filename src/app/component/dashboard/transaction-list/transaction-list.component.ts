@@ -197,8 +197,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   openImportDialog() {
     const dialogRef = this._dialog.open(ImportTransactionsComponent, {
-      width: '600px',
-      maxWidth: '95vw',
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
     dialogRef.afterClosed().subscribe((imported: any[]) => {
       if (imported && imported.length) {

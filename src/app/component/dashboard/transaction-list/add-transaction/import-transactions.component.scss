@@ -2,46 +2,20 @@ mat-dialog-content {
   min-width: 350px;
 }
 
-input[type="file"] {
-  margin-top: 8px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 6px 10px;
-  border: 1px solid #e5e7eb;
-}
-
-th {
-  background: #f3f4f6;
-  font-weight: 600;
-}
-
-.text-red-600 {
-  color: #dc2626;
-}
-
-mat-dialog-actions {
-  margin-top: 16px;
-}
-
 .import-dialog {
-  min-width: 320px;
-  max-width: 95vw;
+  padding: 0.5rem;
+  // min-width: 320px;
+  // max-width: 95vw;
   
-  @media (min-width: 768px) {
-    min-width: 600px;
-    max-width: 90vw;
-  }
+  // @media (min-width: 768px) {
+  //   min-width: 600px;
+  //   max-width: 90vw;
+  // }
   
-  @media (min-width: 1024px) {
-    min-width: 800px;
-    max-width: 80vw;
-  }
+  // @media (min-width: 1024px) {
+  //   min-width: 800px;
+  //   max-width: 80vw;
+  // }
 }
 
 // File Upload Section
@@ -134,101 +108,20 @@ mat-dialog-actions {
   }
 }
 
-// Mobile Transactions
-.mobile-transactions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.transaction-card {
+// Table Container
+.table-container {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 1rem;
-  background: white;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  
-  &:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-  }
-  
-  &.selected {
-    border-color: #3b82f6;
-    background: #f0f9ff;
-  }
-}
-
-.transaction-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.transaction-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.payee {
-  font-weight: 500;
-  color: #1f2937;
-  margin-bottom: 0.25rem;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.category {
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.amount-section {
-  text-align: right;
-  min-width: 80px;
-}
-
-.amount {
-  font-weight: 600;
-  font-size: 1rem;
-  
-  &.income {
-    color: #059669;
-  }
-  
-  &.expense {
-    color: #dc2626;
-  }
-}
-
-.date {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
-.transaction-details {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #f3f4f6;
-}
-
-// Desktop Transactions
-.desktop-transactions {
-  .table-container {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
-    background: white;
-  }
+  background: white;
+  overflow-x: auto;
 }
 
 .transactions-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
+  min-width: 600px;
   
   th, td {
     padding: 0.75rem;
@@ -304,11 +197,6 @@ mat-dialog-actions {
     white-space: nowrap;
   }
   
-  .details-cell {
-    text-align: center;
-    width: 48px;
-  }
-  
   .transaction-row {
     transition: background-color 0.2s ease;
     
@@ -357,77 +245,36 @@ mat-dialog-actions {
       max-width: 80px;
     }
   }
-}
-
-// Inline Editing Styles
-.edit-input {
-  width: 100%;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #3b82f6;
-  border-radius: 4px;
-  font-size: inherit;
-  background: white;
-  outline: none;
   
-  &:focus {
-    border-color: #1d4ed8;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-  }
-  
-  &.amount-input {
-    text-align: right;
-    font-weight: 600;
+  .file-upload-container {
+    padding: 1.5rem;
   }
 }
 
-.edit-select {
-  width: 100%;
-  min-width: 120px;
-  
-  ::ng-deep .mat-mdc-select-trigger {
-    height: 32px;
-    padding: 0 0.5rem;
-  }
-  
-  ::ng-deep .mat-mdc-select-value {
-    font-size: inherit;
-  }
-}
-
-// Mobile editing styles
-.mobile-transactions {
-  .edit-input {
-    font-size: 0.875rem;
-    padding: 0.125rem 0.25rem;
-  }
-  
-  .edit-select {
-    ::ng-deep .mat-mdc-select-trigger {
-      height: 28px;
-      padding: 0 0.25rem;
-    }
-  }
-}
-
-// Desktop editing styles
-.desktop-transactions {
-  .edit-input {
-    font-size: 0.875rem;
-  }
-  
-  .payee-cell, .amount-cell, .date-cell {
-    cursor: pointer;
+@media (max-width: 480px) {
+  .transactions-table {
+    font-size: 0.7rem;
     
-    &:hover {
-      background: #f3f4f6;
+    th, td {
+      padding: 0.375rem;
+    }
+    
+    .payee-cell {
+      max-width: 100px;
+    }
+    
+    .category-cell {
+      max-width: 60px;
     }
   }
   
-  .type-cell, .category-cell {
-    cursor: pointer;
-    
-    &:hover {
-      background: #f3f4f6;
+  .file-upload-container {
+    padding: 1rem;
+  }
+  
+  .preview-header {
+    h3 {
+      font-size: 1rem;
     }
   }
 }
