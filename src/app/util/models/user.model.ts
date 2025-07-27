@@ -41,6 +41,7 @@ export interface UserPreferences {
 	notifications: boolean;
 	emailUpdates: boolean;
 	budgetAlerts: boolean;
+	openaiApiKey?: string;
 }
 
 

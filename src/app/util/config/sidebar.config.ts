@@ -106,6 +106,13 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         icon: 'table_chart',
         order: 5,
         isPremium: true
+      },
+      {
+        label: 'OpenAI Integration',
+        route: '/dashboard/openai-interaction',
+        icon: 'smart_toy',
+        order: 6,
+        isPremium: true
       }
     ]
   },

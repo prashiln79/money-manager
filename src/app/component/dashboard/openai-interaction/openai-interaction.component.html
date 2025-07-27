@@ -1,0 +1,238 @@
+<div class="professional-container">
+  <div class="main-card">
+    <!-- Header Section -->
+    <div class="card-header">
+      <div class="header-content">
+        <div class="title-section">
+          <div class="icon-wrapper">
+            <mat-icon class="header-icon">smart_toy</mat-icon>
+          </div>
+          <div class="title-content">
+            <h1>OpenAI Integration</h1>
+            <p class="subtitle">Connect your OpenAI account to enable AI-powered financial insights</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button 
+          *ngIf="isConnected"
+          class="test-button"
+          (click)="testConnection()"
+          [disabled]="isTestingConnection"
+        >
+          <mat-icon *ngIf="!isTestingConnection">wifi</mat-icon>
+          <div *ngIf="isTestingConnection" class="spinner"></div>
+          <span>{{ isTestingConnection ? 'Testing...' : 'Test Connection' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Connection Status Section -->
+    <div class="connection-section">
+      <div class="section-header">
+        <h2>Connection Status</h2>
+      </div>
+      
+      <div class="status-card">
+        <div class="status-content">
+          <div class="status-indicator">
+            <div class="status-dot" [class.connected]="isConnected"></div>
+            <div class="status-info">
+              <span class="status-text">{{ isConnected ? 'Connected' : 'Not Connected' }}</span>
+              <span class="status-description">
+                {{ isConnected ? 'Your OpenAI API is ready to use' : 'Connect your OpenAI API key to get started' }}
+              </span>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button 
+              *ngIf="!isConfiguring && !isConnected"
+              class="connect-btn primary"
+              (click)="isConfiguring = true"
+            >
+              <mat-icon>add</mat-icon>
+              <span>Connect API Key</span>
+            </button>
+            <div *ngIf="!isConfiguring && isConnected" class="btn-group">
+              <button class="change-btn secondary" (click)="isConfiguring = true">
+                <mat-icon>edit</mat-icon>
+                <span>Change Key</span>
+              </button>
+              <button class="remove-btn danger" (click)="removeApiKey()">
+                <mat-icon>delete</mat-icon>
+                <span>Remove</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Key Configuration Form -->
+      <div *ngIf="isConfiguring" class="form-section">
+        <div class="form-header">
+          <h3>Configure OpenAI API</h3>
+          <p>Enter your OpenAI API key to enable AI-powered features</p>
+        </div>
+        
+        <form [formGroup]="apiKeyForm" (ngSubmit)="saveApiKey()">
+          <div class="input-group">
+            <label for="apiKey">API Key</label>
+            <div class="input-wrapper">
+              <input 
+                id="apiKey"
+                type="password" 
+                formControlName="apiKey"
+                placeholder="sk-..."
+                class="api-input"
+              >
+              <mat-icon class="input-icon">key</mat-icon>
+            </div>
+            <div class="input-help">
+              <mat-icon>info</mat-icon>
+              <a href="https://platform.openai.com/api-keys" target="_blank" class="help-link">
+                Get your API key from OpenAI Platform
+              </a>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="isConfiguring = false">
+              <span>Cancel</span>
+            </button>
+            <button type="button" class="test-btn primary" (click)="testAndSaveApiKey()" [disabled]="!apiKeyForm.valid || isTestingConnection">
+              <mat-icon *ngIf="!isTestingConnection">wifi</mat-icon>
+              <div *ngIf="isTestingConnection" class="spinner"></div>
+              <span>{{ isTestingConnection ? 'Testing...' : 'Test & Save' }}</span>
+            </button>
+            <button type="submit" class="save-btn success" [disabled]="!apiKeyForm.valid || isSaving">
+              <mat-icon *ngIf="!isSaving">save</mat-icon>
+              <div *ngIf="isSaving" class="spinner"></div>
+              <span>{{ isSaving ? 'Saving...' : 'Save Key' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+      <div class="section-header">
+        <h2>AI-Powered Features</h2>
+        <p>Unlock intelligent financial insights and personalized advice</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <mat-icon>pie_chart</mat-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Budget Analysis</h4>
+            <p>Get intelligent insights into your spending patterns</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Investment Advice</h4>
+            <p>Receive personalized investment recommendations</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Tax Optimization</h4>
+            <p>Discover legal tax-saving strategies</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <mat-icon>credit_card</mat-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Debt Management</h4>
+            <p>Get strategies for managing and reducing debt</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security & Privacy Section -->
+    <div class="security-section">
+      <div class="section-header">
+        <h2>Security & Privacy</h2>
+        <p>Your data security is our top priority</p>
+      </div>
+      
+      <div class="security-grid">
+        <div class="security-card">
+          <div class="security-icon">
+            <mat-icon>lock</mat-icon>
+          </div>
+          <div class="security-content">
+            <h4>Secure Storage</h4>
+            <p>Your API key is stored securely in your user profile</p>
+          </div>
+        </div>
+        <div class="security-card">
+          <div class="security-icon">
+            <mat-icon>verified_user</mat-icon>
+          </div>
+          <div class="security-content">
+            <h4>Encrypted Connection</h4>
+            <p>Direct, encrypted connection to OpenAI's secure API</p>
+          </div>
+        </div>
+        <div class="security-card">
+          <div class="security-icon">
+            <mat-icon>privacy_tip</mat-icon>
+          </div>
+          <div class="security-content">
+            <h4>No Data Sharing</h4>
+            <p>Your financial data remains private and secure</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Getting Started Section -->
+    <div class="steps-section">
+      <div class="section-header">
+        <h2>Getting Started</h2>
+        <p>Follow these simple steps to connect your OpenAI account</p>
+      </div>
+      
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Get API Key</h4>
+            <p>Visit the OpenAI Platform and create your API key</p>
+            <a href="https://platform.openai.com/api-keys" target="_blank" class="step-link">
+              <mat-icon>open_in_new</mat-icon>
+              <span>Open Platform</span>
+            </a>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>Connect Account</h4>
+            <p>Enter your API key in the configuration form above</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Test Connection</h4>
+            <p>Verify your connection is working properly</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

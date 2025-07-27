@@ -74,6 +74,7 @@ import { ProfileComponent } from './component/dashboard/profile/profile.componen
 import { FeedbackComponent } from './component/feedback/feedback.component';
 import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component';
 import { GoogleSheetsComponent } from './component/dashboard/google-sheets/google-sheets.component';
+import { OpenaiInteractionComponent } from './component/dashboard/openai-interaction/openai-interaction.component';
 
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
@@ -154,6 +155,7 @@ import { CategoryDetailsDialogComponent } from './component/dashboard/category/c
     PrivacyPolicyComponent,
     TermsConditionsComponent,
     GoogleSheetsComponent,
+    OpenaiInteractionComponent,
 
   ],
   imports: [

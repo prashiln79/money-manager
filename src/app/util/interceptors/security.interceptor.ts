@@ -18,6 +18,11 @@ export function securityInterceptor(
   const userService = inject(UserService);
   const notificationService = inject(NotificationService);
   
+  // Check if this is an OpenAI API request that should be ignored
+  if (shouldIgnoreRequest(request)) {
+    return next(request);
+  }
+  
   // Add security headers to all requests
   const secureRequest = addSecurityHeaders(request);
   
@@ -30,6 +35,25 @@ export function securityInterceptor(
       return handleSecurityError(error, request, router, userService, notificationService);
     })
   );
+}
+
+/**
+ * Check if the request should be ignored by the security interceptor
+ */
+function shouldIgnoreRequest(request: HttpRequest<unknown>): boolean {
+  const url = request.url.toLowerCase();
+  
+  // Ignore OpenAI API requests
+  if (url.includes('api.openai.com')) {
+    return true;
+  }
+  
+  // Add other external APIs here if needed
+  // if (url.includes('other-external-api.com')) {
+  //   return true;
+  // }
+  
+  return false;
 }
 
 /**
@@ -83,6 +107,9 @@ function handleSecurityError(
   notificationService: NotificationService
 ): Observable<never> {
   console.error('Security interceptor error:', error);
+
+  // Log the request URL for debugging
+  console.log('Request URL that caused error:', request.url);
 
   switch (error.status) {
     case 401: // Unauthorized
