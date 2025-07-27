@@ -3,6 +3,7 @@ export interface SidebarNavChild {
   route: string;
   icon: string;
   order: number;
+  isPremium?: boolean;
 }
 
 export interface SidebarNavParent {
@@ -89,19 +90,22 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         label: 'tax',
         route: '/dashboard/tax',
         icon: 'calculate',
-        order: 3
+        order: 3,
+        isPremium: true
       },
       {
         label: 'Splitwise',
         route: '/dashboard/splitwise',
         icon: 'group',
-        order: 4
+        order: 4,
+        isPremium: true
       },
       {
         label: 'Google Sheets',
         route: '/dashboard/google-sheets',
         icon: 'table_chart',
-        order: 5
+        order: 5,
+        isPremium: true
       }
     ]
   },
