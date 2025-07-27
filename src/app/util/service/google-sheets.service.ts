@@ -8,17 +8,14 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 export interface GoogleSheetsConfig {
   spreadsheetId: string;
   sheetName: string;
-  apiKey?: string;
-  clientId?: string;
-  clientSecret?: string;
 }
 
 export interface GoogleSheetsConnection {
   id: string;
   name: string;
+  spreadsheetUrl: string;
   spreadsheetId: string;
   sheetName: string;
-  apiKey: string;
   isActive: boolean;
   lastSync?: Date;
   createdAt: Date;
@@ -29,14 +26,41 @@ export interface GoogleSheetsConnection {
   providedIn: 'root'
 })
 export class GoogleSheetsService extends BaseService {
-  private readonly COLLECTION_NAME = 'googleSheetsConnections';
-  private readonly GOOGLE_SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
+  private readonly COLLECTION_NAME = 'googleSheets';
 
   constructor(
     protected override readonly firestore: Firestore,
     protected override readonly auth: Auth
   ) {
     super(firestore, auth);
+  }
+
+  /**
+   * Extract spreadsheet ID from Google Sheets URL
+   */
+  extractSpreadsheetId(url: string): string | null {
+    try {
+      const urlObj = new URL(url);
+      if (urlObj.hostname === 'docs.google.com' && urlObj.pathname.includes('/spreadsheets/d/')) {
+        const pathParts = urlObj.pathname.split('/');
+        const spreadsheetIndex = pathParts.findIndex(part => part === 'd');
+        if (spreadsheetIndex !== -1 && pathParts[spreadsheetIndex + 1]) {
+          return pathParts[spreadsheetIndex + 1];
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Error extracting spreadsheet ID:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Validate Google Sheets URL format
+   */
+  validateSheetUrl(url: string): boolean {
+    const spreadsheetId = this.extractSpreadsheetId(url);
+    return !!spreadsheetId;
   }
 
   /**
@@ -65,16 +89,19 @@ export class GoogleSheetsService extends BaseService {
    */
   createConnection(connection: Omit<GoogleSheetsConnection, 'id' | 'createdAt' | 'updatedAt'>): Observable<GoogleSheetsConnection> {
     try {
-      const userId = this.getCurrentUserId();
-      if (!userId) {
-        return throwError(() => new Error('User not authenticated'));
+
+      // Extract spreadsheet ID from URL
+      const spreadsheetId = this.extractSpreadsheetId(connection.spreadsheetUrl);
+      if (!spreadsheetId) {
+        return throwError(() => new Error('Invalid Google Sheets URL'));
       }
 
       const newConnection: GoogleSheetsConnection = {
         ...connection,
+        spreadsheetId,
         id: this.generateId(),
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const docRef = this.getDocumentRef(this.COLLECTION_NAME, newConnection.id);
@@ -123,25 +150,17 @@ export class GoogleSheetsService extends BaseService {
   }
 
   /**
-   * Test connection to Google Sheets
+   * Test connection to Google Sheets (read-only)
    */
   testConnection(config: GoogleSheetsConfig): Observable<boolean> {
     try {
-      const url = `${this.GOOGLE_SHEETS_API_BASE}/${config.spreadsheetId}?key=${config.apiKey}`;
+      // For read-only access, we'll use a simple fetch to check if the sheet is accessible
+      // This works for publicly shared sheets or sheets shared with "Anyone with the link can view"
+      const url = `https://docs.google.com/spreadsheets/d/${config.spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${config.sheetName}`;
       
-      return from(fetch(url)).pipe(
-        switchMap(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return from(response.json());
-        }),
-        map((data: any) => {
-          // Check if the sheet exists
-          const sheetExists = data.sheets?.some((sheet: any) => 
-            sheet.properties?.title === config.sheetName
-          );
-          return !!sheetExists;
+      return from(fetch(url, { method: 'HEAD' })).pipe(
+        map(response => {
+          return response.ok;
         }),
         catchError(error => {
           console.error('Google Sheets connection test failed:', error);
@@ -154,33 +173,40 @@ export class GoogleSheetsService extends BaseService {
   }
 
   /**
-   * Import data from Google Sheets
+   * Import data from Google Sheets (read-only)
    */
   importFromSheet(config: GoogleSheetsConfig): Observable<any[]> {
     try {
-      const range = `${config.sheetName}!A:Z`; // Import all columns
-      const url = `${this.GOOGLE_SHEETS_API_BASE}/${config.spreadsheetId}/values/${range}?key=${config.apiKey}`;
+      // Use Google Sheets CSV export for read-only access
+      const url = `https://docs.google.com/spreadsheets/d/${config.spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${config.sheetName}`;
       
       return from(fetch(url)).pipe(
         switchMap(response => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          return from(response.json());
+          return from(response.text());
         }),
-        map((data: any) => {
-          if (!data.values || data.values.length === 0) {
+        map((csvText: string) => {
+          if (!csvText || csvText.trim() === '') {
             return [];
           }
 
-          // Assume first row contains headers
-          const headers = data.values[0];
-          const rows = data.values.slice(1);
+          // Parse CSV data
+          const lines = csvText.split('\n');
+          if (lines.length < 2) {
+            return [];
+          }
 
-          return rows.map((row: any[]) => {
+          // Parse headers
+          const headers = this.parseCSVLine(lines[0]);
+          const rows = lines.slice(1).filter(line => line.trim() !== '');
+
+          return rows.map(line => {
+            const values = this.parseCSVLine(line);
             const obj: any = {};
             headers.forEach((header: string, index: number) => {
-              obj[header] = row[index] || '';
+              obj[header] = values[index] || '';
             });
             return obj;
           });
@@ -193,71 +219,60 @@ export class GoogleSheetsService extends BaseService {
   }
 
   /**
-   * Export data to Google Sheets
+   * Parse CSV line (handles quoted values)
+   */
+  private parseCSVLine(line: string): string[] {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    result.push(current.trim());
+    return result;
+  }
+
+  /**
+   * Export data to Google Sheets (read-only - this will be disabled)
    */
   exportToSheet(config: GoogleSheetsConfig, data: any[]): Observable<boolean> {
-    try {
-      if (!data || data.length === 0) {
-        return of(false);
-      }
-
-      // Convert data to 2D array format
-      const headers = Object.keys(data[0]);
-      const values = [
-        headers,
-        ...data.map(row => headers.map(header => row[header] || ''))
-      ];
-
-      const range = `${config.sheetName}!A1`;
-      const url = `${this.GOOGLE_SHEETS_API_BASE}/${config.spreadsheetId}/values/${range}?valueInputOption=RAW&key=${config.apiKey}`;
-
-      const body = {
-        values: values
-      };
-
-      return from(fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body)
-      })).pipe(
-        map(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return true;
-        }),
-        catchError(error => {
-          console.error('Export to Google Sheets failed:', error);
-          return of(false);
-        })
-      );
-    } catch (error) {
-      return of(false);
-    }
+    // Read-only mode - export is not supported
+    return throwError(() => new Error('Export is not supported in read-only mode. Please use the Google Sheets interface to edit data.'));
   }
 
   /**
-   * Get Google Sheets API documentation URL
-   */
-  getApiDocsUrl(): string {
-    return 'https://developers.google.com/sheets/api/guides/concepts';
-  }
-
-  /**
-   * Get Google Sheets API setup instructions
+   * Get Google Sheets setup instructions for read-only access
    */
   getSetupInstructions(): string[] {
     return [
-      '1. Go to Google Cloud Console (https://console.cloud.google.com/)',
-      '2. Create a new project or select an existing one',
-      '3. Enable the Google Sheets API',
-      '4. Create credentials (API Key)',
-      '5. Copy your API Key and paste it in the configuration',
-      '6. Share your Google Sheet with the service account email (if using service account)',
-      '7. Copy the Spreadsheet ID from the URL',
-      '8. Enter the Sheet name (default is usually "Sheet1")'
+      '1. Use the "Get Example Sheet" button below to open a template you can copy',
+      '2. In the example sheet, click "File" → "Make a copy" to create your own version',
+      '3. Open your copied Google Sheet in the browser',
+      '4. Click "Share" in the top right corner',
+      '5. Set sharing to "Anyone with the link can view"',
+      '6. Copy the URL from your browser address bar',
+      '7. Paste the URL in the "Sheet URL" field below',
+      '8. Enter the name of the specific sheet tab (e.g., "Sheet1", "Transactions")',
+      '9. Test the connection to verify access',
+      'Note: This is read-only access for data import only'
     ];
+  }
+
+  /**
+   * Get Google Sheets documentation URL
+   */
+  getApiDocsUrl(): string {
+    return 'https://support.google.com/docs/answer/2494822?hl=en';
   }
 } 

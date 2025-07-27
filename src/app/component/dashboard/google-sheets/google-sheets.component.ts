@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { GoogleSheetsService, GoogleSheetsConnection, GoogleSheetsConfig } from '../../../util/service/google-sheets.service';
+import { UserService } from 'src/app/util/service/user.service';
 
 @Component({
   selector: 'app-google-sheets',
@@ -15,7 +16,6 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
   isLoading = false;
   isTestingConnection = false;
   isImporting = false;
-  isExporting = false;
   
   connectionForm: FormGroup;
   testConfig: GoogleSheetsConfig | null = null;
@@ -26,13 +26,13 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     private googleSheetsService: GoogleSheetsService,
     private formBuilder: FormBuilder,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private userService: UserService
   ) {
     this.connectionForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      spreadsheetId: ['', [Validators.required]],
+      spreadsheetUrl: ['', [Validators.required, this.urlValidator.bind(this)]],
       sheetName: ['Sheet1', [Validators.required]],
-      apiKey: ['', [Validators.required]],
       isActive: [true]
     });
   }
@@ -44,6 +44,16 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // Custom validator for Google Sheets URL
+  urlValidator(control: any): { [key: string]: any } | null {
+    if (!control.value) {
+      return null;
+    }
+    
+    const isValid = this.googleSheetsService.validateSheetUrl(control.value);
+    return isValid ? null : { invalidUrl: true };
   }
 
   loadConnections(): void {
@@ -124,9 +134,22 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
   testConnection(): void {
     if (this.connectionForm.valid) {
       this.isTestingConnection = true;
-      this.testConfig = this.connectionForm.value;
+      const formValue = this.connectionForm.value;
+      
+      // Extract spreadsheet ID from URL for testing
+      const spreadsheetId = this.googleSheetsService.extractSpreadsheetId(formValue.spreadsheetUrl);
+      if (!spreadsheetId) {
+        this.isTestingConnection = false;
+        this.showSnackBar('Invalid Google Sheets URL', 'error');
+        return;
+      }
 
-      this.googleSheetsService.testConnection(this.testConfig!)
+      this.testConfig = {
+        spreadsheetId,
+        sheetName: formValue.sheetName
+      };
+
+      this.googleSheetsService.testConnection(this.testConfig)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (isValid) => {
@@ -134,7 +157,7 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
             if (isValid) {
               this.showSnackBar('Connection test successful!', 'success');
             } else {
-              this.showSnackBar('Connection test failed. Please check your configuration.', 'error');
+              this.showSnackBar('Connection test failed. Please check your URL and sheet name, and ensure the sheet is shared with "Anyone with the link can view".', 'error');
             }
           },
           error: (error) => {
@@ -152,8 +175,7 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     this.isImporting = true;
     const config: GoogleSheetsConfig = {
       spreadsheetId: connection.spreadsheetId,
-      sheetName: connection.sheetName,
-      apiKey: connection.apiKey
+      sheetName: connection.sheetName
     };
 
     this.googleSheetsService.importFromSheet(config)
@@ -177,45 +199,17 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
       });
   }
 
-  exportToSheet(connection: GoogleSheetsConnection): void {
-    this.isExporting = true;
-    const config: GoogleSheetsConfig = {
-      spreadsheetId: connection.spreadsheetId,
-      sheetName: connection.sheetName,
-      apiKey: connection.apiKey
-    };
-
-    // Sample data for export - in real implementation, this would come from your app's data
-    const sampleData = [
-      { Date: '2024-01-01', Description: 'Sample Transaction', Amount: 100, Category: 'Food' },
-      { Date: '2024-01-02', Description: 'Another Transaction', Amount: 50, Category: 'Transport' }
-    ];
-
-    this.googleSheetsService.exportToSheet(config, sampleData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (success) => {
-          this.isExporting = false;
-          if (success) {
-            this.showSnackBar('Data exported to Google Sheets successfully', 'success');
-          } else {
-            this.showSnackBar('Failed to export data to Google Sheets', 'error');
-          }
-        },
-        error: (error) => {
-          this.isExporting = false;
-          console.error('Export error:', error);
-          this.showSnackBar('Error exporting data to Google Sheets', 'error');
-        }
-      });
-  }
-
   getSetupInstructions(): string[] {
     return this.googleSheetsService.getSetupInstructions();
   }
 
   openApiDocs(): void {
     window.open(this.googleSheetsService.getApiDocsUrl(), '_blank');
+  }
+
+  openExampleSheet(): void {
+    const exampleSheetUrl = 'https://docs.google.com/spreadsheets/d/1EDhMkaFWOedDEQSn1TQsl011b-H-5_XAXSIpi31QwTM/edit?usp=sharing';
+    window.open(exampleSheetUrl, '_blank');
   }
 
   private markFormGroupTouched(): void {
@@ -242,6 +236,9 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
       }
       if (field.errors['minlength']) {
         return `Minimum length is ${field.errors['minlength'].requiredLength} characters`;
+      }
+      if (field.errors['invalidUrl']) {
+        return 'Please enter a valid Google Sheets URL';
       }
     }
     return '';

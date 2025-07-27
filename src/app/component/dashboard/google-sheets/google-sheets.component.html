@@ -7,7 +7,7 @@
       </div>
       <div>
         <h1 class="text-2xl !m-0  font-bold text-gray-900">Google Sheets</h1>
-        <p class="text-gray-600 text-sm">Sync your financial data with Google Sheets</p>
+        <p class="text-gray-600 text-sm">Import your financial data from Google Sheets </p>
       </div>
     </div>
   </div>
@@ -18,15 +18,31 @@
       <mat-icon class="text-blue-600">info</mat-icon>
       <h3 class="text-lg font-semibold text-blue-900">Setup Instructions</h3>
     </div>
+    
+    <!-- Example Sheet Info -->
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+      <div class="flex items-center gap-2 mb-2">
+        <mat-icon class="text-green-600">lightbulb</mat-icon>
+        <span class="font-medium text-green-800">Quick Start</span>
+      </div>
+      <p class="text-sm text-green-700 mb-3">
+        Not sure how to format your Google Sheet? Click "Get Example Sheet" below to open a template you can copy and use as a starting point.
+      </p>
+    </div>
+    
     <div class="space-y-2 text-sm text-blue-800">
       <ol class="list-decimal list-inside space-y-1">
         <li *ngFor="let instruction of getSetupInstructions()">{{ instruction }}</li>
       </ol>
     </div>
-    <div class="mt-4">
+    <div class="mt-4 flex gap-3">
       <button mat-stroked-button color="primary" (click)="openApiDocs()" class="text-blue-600 border-blue-600">
         <mat-icon class="mr-2">open_in_new</mat-icon>
-        View API Documentation
+        View Google Sheets Help
+      </button>
+      <button mat-raised-button color="accent" (click)="openExampleSheet()" class="bg-green-600 text-white">
+        <mat-icon class="mr-2">content_copy</mat-icon>
+        Get Example Sheet
       </button>
     </div>
   </div>
@@ -50,19 +66,6 @@
           <div *ngIf="getFieldError('name')" class="text-red-600 text-sm mt-1">{{ getFieldError('name') }}</div>
         </div>
 
-        <!-- Spreadsheet ID -->
-        <div>
-          <label for="spreadsheetId" class="block text-sm font-medium text-gray-700 mb-2">Spreadsheet ID</label>
-          <input
-            id="spreadsheetId"
-            type="text"
-            formControlName="spreadsheetId"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-          >
-          <div *ngIf="getFieldError('spreadsheetId')" class="text-red-600 text-sm mt-1">{{ getFieldError('spreadsheetId') }}</div>
-        </div>
-
         <!-- Sheet Name -->
         <div>
           <label for="sheetName" class="block text-sm font-medium text-gray-700 mb-2">Sheet Name</label>
@@ -75,19 +78,20 @@
           >
           <div *ngIf="getFieldError('sheetName')" class="text-red-600 text-sm mt-1">{{ getFieldError('sheetName') }}</div>
         </div>
+      </div>
 
-        <!-- API Key -->
-        <div>
-          <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
-          <input
-            id="apiKey"
-            type="password"
-            formControlName="apiKey"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            placeholder="AIzaSyB..."
-          >
-          <div *ngIf="getFieldError('apiKey')" class="text-red-600 text-sm mt-1">{{ getFieldError('apiKey') }}</div>
-        </div>
+      <!-- Sheet URL -->
+      <div>
+        <label for="spreadsheetUrl" class="block text-sm font-medium text-gray-700 mb-2">Google Sheets URL</label>
+        <input
+          id="spreadsheetUrl"
+          type="url"
+          formControlName="spreadsheetUrl"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit"
+        >
+        <div *ngIf="getFieldError('spreadsheetUrl')" class="text-red-600 text-sm mt-1">{{ getFieldError('spreadsheetUrl') }}</div>
+        <p class="text-gray-500 text-sm mt-1">Make sure your Google Sheet is shared with "Anyone with the link can view"</p>
       </div>
 
       <!-- Active Toggle -->
@@ -139,7 +143,7 @@
       <div *ngIf="!isLoading && connections.length === 0" class="text-center py-12">
         <mat-icon class="text-gray-400 text-6xl mb-4">table_chart</mat-icon>
         <h4 class="text-lg font-medium text-gray-900 mb-2">No connections yet</h4>
-        <p class="text-gray-600">Create your first Google Sheets connection to get started</p>
+        <p class="text-gray-600">Create your first Google Sheets connection to import data</p>
       </div>
 
       <div *ngIf="!isLoading && connections.length > 0" class="space-y-4">
@@ -205,17 +209,16 @@
               {{ isImporting ? 'Importing...' : 'Import Data' }}
             </button>
             
-            <button
+            <a
+              [href]="connection.spreadsheetUrl"
+              target="_blank"
               mat-stroked-button
               color="accent"
-              (click)="exportToSheet(connection)"
-              [disabled]="isExporting"
               class="flex items-center gap-2"
             >
-              <mat-spinner *ngIf="isExporting" diameter="16"></mat-spinner>
-              <mat-icon *ngIf="!isExporting">upload</mat-icon>
-              {{ isExporting ? 'Exporting...' : 'Export Data' }}
-            </button>
+              <mat-icon>open_in_new</mat-icon>
+              Open Sheet
+            </a>
           </div>
         </div>
       </div>
