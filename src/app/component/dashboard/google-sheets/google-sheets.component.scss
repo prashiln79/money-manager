@@ -1,0 +1,129 @@
+.google-sheets-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+// Custom snackbar styles
+::ng-deep {
+  .success-snackbar {
+    background: #10b981;
+    color: white;
+    
+    .mat-simple-snackbar-action {
+      color: white;
+    }
+  }
+  
+  .error-snackbar {
+    background: #ef4444;
+    color: white;
+    
+    .mat-simple-snackbar-action {
+      color: white;
+    }
+  }
+  
+  .warning-snackbar {
+    background: #f59e0b;
+    color: white;
+    
+    .mat-simple-snackbar-action {
+      color: white;
+    }
+  }
+}
+
+// Form field focus states
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+// Button hover effects
+button[mat-raised-button] {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+button[mat-stroked-button] {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+}
+
+// Connection card hover effects
+.connection-card {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Loading spinner container
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .google-sheets-container {
+    padding: 1rem;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+// Animation for new connections
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.connection-item {
+  animation: slideIn 0.3s ease-out;
+}
+
+// Custom scrollbar for the container
+.google-sheets-container {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+} 

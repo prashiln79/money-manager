@@ -93,6 +93,11 @@
 							
 							<mat-icon class="text-gray-400 group-hover:text-blue-600 transition-colors text-lg ml-1">{{ child.icon }}</mat-icon>
 							<span class="font-medium text-sm text-gray-700 group-hover:text-blue-700 transition-colors">{{ child.label | translate }}</span>
+							
+							<!-- Premium Badge -->
+							<div *ngIf="isPremiumRoute(child.route)" class="ml-auto">
+								<mat-icon class="text-yellow-500 text-sm">star</mat-icon>
+							</div>
 						</a>
 						}
 					</div>

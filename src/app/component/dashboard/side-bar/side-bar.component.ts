@@ -68,4 +68,18 @@ export class SideBarComponent implements AfterViewInit {
     await this.auth.signOut();
     this.router.navigate(['/sign-in'], { queryParams: { loggedOut: 'true' } });
   }
+
+  /**
+   * Check if a route is a premium feature
+   */
+  isPremiumRoute(route: string): boolean {
+    const premiumRoutes = [
+      '/dashboard/google-sheets',
+      '/dashboard/reports',
+      '/dashboard/tax',
+      '/dashboard/goals',
+      '/dashboard/budgets'
+    ];
+    return premiumRoutes.includes(route);
+  }
 }

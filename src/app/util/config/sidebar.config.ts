@@ -96,6 +96,12 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         route: '/dashboard/splitwise',
         icon: 'group',
         order: 4
+      },
+      {
+        label: 'Google Sheets',
+        route: '/dashboard/google-sheets',
+        icon: 'table_chart',
+        order: 5
       }
     ]
   },

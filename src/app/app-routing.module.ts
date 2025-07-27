@@ -14,6 +14,7 @@ import { LandingComponent } from './component/landing/landing.component';
 import { TaxComponent } from './component/dashboard/tax/tax.component';
 import { SubscriptionComponent } from './component/dashboard/subscription/subscription.component';
 import { GoalsComponent } from './component/dashboard/goals/goals.component';
+import { GoogleSheetsComponent } from './component/dashboard/google-sheets/google-sheets.component';
 
 import { BudgetsComponent } from './component/dashboard/budgets/budgets.component';
 import { NotesComponent } from './component/dashboard/notes/notes.component';
@@ -109,6 +110,14 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/splitwise/splitwise.module').then(m => m.SplitwiseModule),
         data: {
           roles: ['free', 'premium', 'admin'],
+          requireEmailVerification: true
+        }
+      },
+      { 
+        path: 'google-sheets', 
+        component: GoogleSheetsComponent,
+        data: {
+          roles: ['free','premium', 'admin'],
           requireEmailVerification: true
         }
       },

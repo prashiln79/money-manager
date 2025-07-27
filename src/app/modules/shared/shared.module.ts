@@ -30,6 +30,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Utility Components
 import { ConfirmDialogComponent } from '../../util/components/confirm-dialog/confirm-dialog.component';
@@ -79,6 +80,7 @@ import { CategorySplitDialogComponent } from '../../util/components/category-spl
     MatExpansionModule,
     MatDividerModule,
     MatChipsModule,
+    MatSnackBarModule,
   ],
   exports: [
     CommonModule,
@@ -113,6 +115,7 @@ import { CategorySplitDialogComponent } from '../../util/components/category-spl
     MatExpansionModule,
     MatDividerModule,
     MatChipsModule,
+    MatSnackBarModule,
     
     // Components
     ConfirmDialogComponent,

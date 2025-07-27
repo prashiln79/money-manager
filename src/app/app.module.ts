@@ -73,6 +73,7 @@ import { CustomDateRangeDialogComponent } from './util/components/custom-date-ra
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
 import { FeedbackComponent } from './component/feedback/feedback.component';
 import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component';
+import { GoogleSheetsComponent } from './component/dashboard/google-sheets/google-sheets.component';
 
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
@@ -152,6 +153,7 @@ import { CategoryDetailsDialogComponent } from './component/dashboard/category/c
     FeedbackComponent,
     PrivacyPolicyComponent,
     TermsConditionsComponent,
+    GoogleSheetsComponent,
 
   ],
   imports: [
