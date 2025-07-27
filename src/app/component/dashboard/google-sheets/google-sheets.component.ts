@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 import { GoogleSheetsService, GoogleSheetsConnection, GoogleSheetsConfig } from '../../../util/service/google-sheets.service';
 import { UserService } from 'src/app/util/service/user.service';
 import { ImportTransactionsComponent } from '../../../component/dashboard/transaction-list/add-transaction/import-transactions.component';
@@ -13,6 +13,8 @@ import { AppState } from '../../../store/app.state';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import { TransactionStatus, SyncStatus, TransactionType } from '../../../util/config/enums';
 import { Auth } from '@angular/fire/auth';
+import { Category } from 'src/app/util/models';
+import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 
 
 interface ImportTransaction {
@@ -41,6 +43,8 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
   testConfig: GoogleSheetsConfig | null = null;
 
   private destroy$ = new Subject<void>();
+  public selectedSpreadsheetId: string = '';
+  public allCategories: Category[] = [];
 
   constructor(
     private googleSheetsService: GoogleSheetsService,
@@ -63,6 +67,9 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadConnections();
+    this.store.select(selectAllCategories).subscribe((categories) => {
+      this.allCategories = categories;
+    });
   }
 
   ngOnDestroy(): void {
@@ -197,6 +204,7 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
 
   importFromSheet(connection: GoogleSheetsConnection): void {
     this.isImporting = true;
+    this.selectedSpreadsheetId = connection.spreadsheetId;
     const config: GoogleSheetsConfig = {
       spreadsheetId: connection.spreadsheetId,
       sheetName: connection.sheetName
@@ -212,7 +220,7 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
             const transformedData = this.transformGoogleSheetsData(data);
 
             const dialogRef = this.dialog.open(ImportTransactionsComponent, {
-              data: { transactions: transformedData },
+              data: { transactions: transformedData, categories: this.allCategories },
               panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'import-transactions-dialog',
             });
 

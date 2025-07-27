@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -19,21 +19,25 @@ import { createCategory, updateCategory } from 'src/app/store/categories/categor
 
 import { SsrService } from 'src/app/util/service/ssr.service';
 import { Category } from 'src/app/util/models';
+import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-mobile-category-add-edit-popup',
   templateUrl: './mobile-category-add-edit-popup.component.html',
   styleUrls: ['./mobile-category-add-edit-popup.component.scss'],
 })
-export class MobileCategoryAddEditPopupComponent implements OnInit {
+export class MobileCategoryAddEditPopupComponent implements OnInit, OnDestroy {
   categoryForm: FormGroup;
   public isSubmitting: boolean = false;
   public userId: string = '';
+  public allCategories: Category[] = [];
+  destroy$: Subject<void>;
 
 
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public dialogData: Category | null,
+    @Inject(MAT_DIALOG_DATA) public dialogData: { category: Category, isEdit: boolean, allCategories: Category[] } | null,
     private store: Store<AppState>,
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<MobileCategoryAddEditPopupComponent>,
@@ -52,6 +56,12 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
       icon: ['category', Validators.required],
       color: ['#46777f', Validators.required],
     });
+
+    //destroy subscription on component destroy
+    this.destroy$ = new Subject<void>();
+    this.store.select(selectAllCategories).pipe(takeUntil(this.destroy$)).subscribe((categories) => {
+      this.allCategories = categories;
+    });
   }
 
   ngOnInit(): void {
@@ -67,10 +77,10 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     if (this.dialogData) {
       // Edit mode - populate form with existing data
       this.categoryForm.patchValue({
-        name: this.dialogData.name,
-        type: this.dialogData.type,
-        icon: this.dialogData.icon || 'category',
-        color: this.dialogData.color || '#46777f',
+        name: this.dialogData.category.name,
+        type: this.dialogData.category.type,
+        icon: this.dialogData.category.icon || 'category',
+        color: this.dialogData.category.color || '#46777f',
       });
 
 
@@ -78,18 +88,20 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
-    if (this.categoryForm.valid && !this.isSubmitting) {
+
+    
+    if (this.categoryForm.valid && !this.isSubmitting && !this.isCategoryPresent()) {
       this.isSubmitting = true;
 
       try {
         const formValue = this.categoryForm.value;
 
-        if (this.dialogData?.id) {
+        if (this.dialogData?.category.id) {
           // Update existing category
           await this.store.dispatch(
             updateCategory({
               userId: this.userId,
-              categoryId: this.dialogData.id,
+              categoryId: this.dialogData.category.id,
               name: formValue.name.trim(),
               categoryType: formValue.type,
               icon: formValue.icon,
@@ -186,5 +198,16 @@ export class MobileCategoryAddEditPopupComponent implements OnInit {
     });
   }
 
+  isCategoryPresent(): boolean {
+    const existingCategory = this.allCategories.find((category: Category) => category.name.trim().toLowerCase() === this.categoryForm.get('name')?.value.trim().toLowerCase());
+    if (existingCategory) {
+      this.notificationService.error('Category already exists');
+    }
+    return existingCategory ? true : false;
+  }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

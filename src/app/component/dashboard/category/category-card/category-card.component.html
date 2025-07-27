@@ -33,6 +33,11 @@
           <span class="category-spent-label">{{ category.type === 'expense' ? 'Spent:' : 'Income:' }}</span>
           <span class="category-spent-value">{{ category.type === 'expense' ? (calculateTotalSpentPerMonth(category) | currency) : (calculateTotalIncomePerMonth(category) | currency) }}</span>
         </div>
+
+        <div class="category-spent" *ngIf="breakpointService.device.isDesktop  && subCategoryCount > 0">
+          <span class="category-spent-label">Total sub-categories:</span>
+          <span class="category-spent-value">{{ subCategoryCount }}</span>
+        </div>
       </div>
     </div>
     

@@ -159,7 +159,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
       panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
-      data: category || null,
+      data: category ? {...category} : null,
     });
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {

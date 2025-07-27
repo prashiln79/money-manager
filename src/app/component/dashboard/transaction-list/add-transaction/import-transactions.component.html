@@ -103,10 +103,10 @@
 						</tr>
 					</thead>
 					<tbody>
-						@for (tx of parsedTransactions; track tx._idx; let i = $index) {
+						@for (tx of parsedTransactions; track i; let i = $index) {
 						<tr class="transaction-row">
 							<td class="checkbox-col">
-								<mat-checkbox [checked]="selectedToImport.has(tx._idx)" (change)="toggleSelect(tx._idx)"></mat-checkbox>
+								<mat-checkbox [checked]="selectedToImport.has(i)" (change)="toggleSelect(i)"></mat-checkbox>
 							</td>
 
 							<td class="amount-cell">
@@ -127,12 +127,7 @@
 								<mat-select 
 									[value]="tx.categoryId + '-' + tx.category" 
 									class="category-select"
-									(selectionChange)="updateCategory(tx._idx, $event.value)">
-									<mat-option [value]="tx.categoryId + '-' + tx.category" class="keep-original-option">
-										<div class="option-content">
-											<span class="option-text">{{ "Existing - " + tx.category }}</span>
-										</div>
-									</mat-option>
+									(selectionChange)="updateCategory(i, $event.value)">
 									@for (category of categories$ | async; track category.id) {
 									<mat-option [value]="category.id + '-' + category.name">
 										<div class="option-content">

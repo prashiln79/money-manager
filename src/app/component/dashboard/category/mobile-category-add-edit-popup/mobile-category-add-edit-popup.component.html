@@ -1,5 +1,5 @@
 <app-common-header
-	[title]="dialogData?.id ? 'Edit' : 'Add' + ' Category'"
+	[title]="dialogData?.category?.id ? 'Edit' : 'Add' + ' Category'"
 	(addButtonClick)="onSubmit()"
 	(closeButtonClick)="onCancel()"
 	[isSubmitting]="isSubmitting"
@@ -21,7 +21,7 @@
 						<mat-icon class="field-icon">label</mat-icon>
 						Category Name *
 					</label>
-					<input type="text" formControlName="name" placeholder="e.g., Groceries" autofocus class="form-input" />
+					<input type="text" formControlName="name" autofocus placeholder="e.g., Groceries" autofocus class="form-input" />
 					<div class="field-footer">
 						@if(getNameError() && categoryForm.get('name')?.touched) {
 						<p class="error-message">{{ getNameError() }}</p>

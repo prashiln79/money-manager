@@ -17,6 +17,7 @@ import { AppState } from 'src/app/store/app.state';
 import * as CategoriesActions from 'src/app/store/categories/categories.actions';
 import * as CategoriesSelectors from 'src/app/store/categories/categories.selectors';
 import { Auth } from '@angular/fire/auth';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-category-card',
@@ -47,9 +48,11 @@ export class CategoryCardComponent {
     private categoryService: CategoryService,
     private budgetService: CategoryBudgetService,
     private store: Store<AppState>,
-    private auth: Auth
+    private auth: Auth,
+    public breakpointService: BreakpointService
   ) {
     this.initializeUserId();
+    this.subCategoryCount = this.subCategories.length || 0;
   }
 
   private async initializeUserId(): Promise<void> {
@@ -241,7 +244,7 @@ export class CategoryCardComponent {
       maxWidth: '100vw',
       maxHeight: '100vh',
       data: {
-        category: this.category,
+        category: {...this.category},
         isEdit: true
       },
       disableClose: false,
@@ -264,7 +267,7 @@ export class CategoryCardComponent {
       width: '500px',
       maxWidth: '90vw',
       data: {
-        category: this.category,
+        category: {...this.category},
         isEdit: true
       },
       disableClose: false

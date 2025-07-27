@@ -18,19 +18,18 @@ import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { SsrService } from 'src/app/util/service/ssr.service';
-import { Observable, of } from 'rxjs';
+import { Observable, of, take } from 'rxjs';
 
 @Component({
   selector: 'import-transactions',
   templateUrl: './import-transactions.component.html',
   styleUrls: ['./import-transactions.component.scss'],
 })
-export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
+export class ImportTransactionsComponent implements OnDestroy {
   @ViewChild('fileUploadContainer') fileUploadContainer!: ElementRef;
 
   selectedFile: File | null = null;
   parsedTransactions: {
-    _idx: number;
     type: string;
     category: string;
     categoryId?: string;
@@ -49,6 +48,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   // Dropdown data
   accounts: Account[] = [];
   categories$: Observable<Category[]> = of([]);
+  categories: Category[] = [];
 
   // Default values
   defaultAccountId: string = '';
@@ -57,25 +57,22 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     public dialogRef: MatDialogRef<ImportTransactionsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { transactions: any[] },
+    @Inject(MAT_DIALOG_DATA) public data: { transactions: any[], categories: Category[] },
     private notificationService: NotificationService,
     private auth: Auth,
     private store: Store<AppState>,
     private ssrService: SsrService
   ) {
+    this.categories = this.data.categories;
     this.setupDragAndDrop();
     this.loadAccountsAndCategories();
-    
     // Check if data was passed from Google Sheets
     if (data && data.transactions && Array.isArray(data.transactions)) {
-      this.parsedTransactions = data.transactions;
-      this.selectedToImport = new Set(this.parsedTransactions.map((t) => t._idx));
+      this.parsedTransactions = this.setCategory(data.transactions);
+      this.selectedToImport = new Set(this.parsedTransactions.map((_, index) => index));
       this.notificationService.success(`Loaded ${this.parsedTransactions.length} transactions from Google Sheets`);
     }
-  }
-
-  ngAfterViewInit() {
-    // Drag and drop setup is already done in constructor
+   
   }
 
   ngOnDestroy() {
@@ -103,10 +100,10 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   }
 
   updateCategory(idx: number, newCategory: string) {
-    const txIndex = this.parsedTransactions.findIndex(t => t._idx === idx);
-    if (txIndex !== -1) {
-      this.parsedTransactions[txIndex].categoryId = newCategory.split('-')[0];
-      this.parsedTransactions[txIndex].category = newCategory.split('-')[1];
+
+    if (idx !== -1) {
+      this.parsedTransactions[idx].categoryId = newCategory.split('-')[0];
+      this.parsedTransactions[idx].category = newCategory.split('-')[1];
     }
   }
 
@@ -263,13 +260,12 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
     }
 
     // Select all transactions by default
-    this.selectedToImport = new Set(this.parsedTransactions.map((t) => t._idx));
+    this.selectedToImport = new Set(this.parsedTransactions.map((_, index) => index));
   }
 
   parseStandardFormat(data: any[]) {
-    this.parsedTransactions = data.map((row, idx) => {
+    this.parsedTransactions = data.map((row) => {
       return {
-        _idx: idx,
         type: (
           row['type'] ||
           row['Type'] ||
@@ -304,7 +300,7 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
       this.selectedToImport.clear();
     } else {
       this.selectedToImport = new Set(
-        this.parsedTransactions.map((t) => t._idx)
+        this.parsedTransactions.map((_, index) => index)
       );
     }
   }
@@ -370,8 +366,8 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   
 
   importSelected() {
-    const selected = this.parsedTransactions.filter((t) =>
-      this.selectedToImport.has(t._idx)
+    const selected = this.parsedTransactions.filter((_, index) =>
+      this.selectedToImport.has(index)
     );
     if (selected.length === 0) {
       this.notificationService.warning(
@@ -381,34 +377,34 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
     }
 
     // Validate selected transactions
-    const validTransactions = selected.filter((tx) => {
+    const validTransactions = selected.filter((tx, index) => {
       if (!tx.description || !tx.description.trim()) {
         this.notificationService.warning(
-          `Transaction ${tx._idx + 1}: Description is required`
+          `Transaction ${index + 1}: Description is required`
         );
         return false;
       }
       if (!tx.amount || tx.amount <= 0) {
         this.notificationService.warning(
-          `Transaction ${tx._idx + 1}: Amount must be greater than 0`
+          `Transaction ${index + 1}: Amount must be greater than 0`
         );
         return false;
       }
       if (!tx.type || !['income', 'expense'].includes(tx.type)) {
         this.notificationService.warning(
-          `Transaction ${tx._idx + 1}: Invalid transaction type`
+          `Transaction ${index + 1}: Invalid transaction type`
         );
         return false;
       }
       if (!tx.category || !tx.category.trim()) {
         this.notificationService.warning(
-          `Transaction ${tx._idx + 1}: Category is required`
+          `Transaction ${index + 1}: Category is required`
         );
         return false;
       }
       if (!tx.date) {
         this.notificationService.warning(
-          `Transaction ${tx._idx + 1}: Date is required`
+          `Transaction ${index + 1}: Date is required`
         );
         return false;
       }
@@ -443,5 +439,20 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
 
   close() {
     this.dialogRef.close();
+  }
+
+
+  setCategory(transactions: any[]) {
+    // compair name of category in parsedTransactions and categories
+    // if name is same, then update the categoryId
+    
+    return transactions.map((tx) => {
+      const category = this.categories.find((category) => category.name.toLowerCase() === tx.category.toLowerCase());
+      if (category) {
+        tx['categoryId'] = category.id;
+        tx['category'] = category.name;
+      }
+      return tx;
+    });
   }
 }

@@ -147,7 +147,7 @@
       </div>
 
       <div *ngIf="!isLoading && connections.length > 0" class="space-y-4">
-        <div *ngFor="let connection of connections" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div *ngFor="let connection of connections; index as i" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center">
@@ -200,13 +200,13 @@
             <button
               mat-stroked-button
               color="primary"
-              (click)="importFromSheet(connection)"
-              [disabled]="isImporting"
+              (click)="importFromSheet(connection) "
+              [disabled]="isImporting && selectedSpreadsheetId === connection.spreadsheetId"
               class="flex items-center gap-2"
             >
-              <mat-spinner *ngIf="isImporting" diameter="16"></mat-spinner>
-              <mat-icon *ngIf="!isImporting">download</mat-icon>
-              {{ isImporting ? 'Importing...' : 'Import Data' }}
+              <mat-spinner *ngIf="isImporting && selectedSpreadsheetId === connection.spreadsheetId" diameter="16"></mat-spinner>
+              <mat-icon *ngIf="!isImporting && selectedSpreadsheetId === connection.spreadsheetId">download</mat-icon>
+              {{ isImporting && selectedSpreadsheetId === connection.spreadsheetId ? 'Importing...' : 'Import Data' }}
             </button>
             
             <a
