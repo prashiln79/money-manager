@@ -286,16 +286,41 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   downloadTemplate() {
     try {
       if (this.ssrService.isClientSide()) {
-        // Excel Template only
         const excelData = [
-          ['payee', 'amount', 'type', 'category', 'date'],
-          ['Sample Payee', APP_CONFIG.VALIDATION.MIN_AMOUNT * 1000, 'income', 'Salary', '2024-06-01'],
-          ['Sample Expense', APP_CONFIG.VALIDATION.MIN_AMOUNT * 500, 'expense', 'Food', '2024-06-01'],
+          ['Payee', 'Amount', 'Type', 'Category', 'Date', 'Notes'],
+          ['Salary Payment', 50000, 'income', 'Salary', '2024-01-15', 'Monthly salary'],
         ];
 
         const ws = XLSX.utils.aoa_to_sheet(excelData);
+        ws['!cols'] = [
+          { width: 20 }, { width: 12 }, { width: 10 },
+          { width: 18 }, { width: 12 }, { width: 25 },
+        ];
+
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+
+        // Simple instructions sheet
+        const instructionsData = [
+          ['Transaction Import Template - Instructions'],
+          [''],
+          ['Column Descriptions:'],
+          ['Payee', 'Name of the person, merchant, or company'],
+          ['Amount', 'Transaction amount (positive number)'],
+          ['Type', 'Must be either "income" or "expense"'],
+          ['Category', 'Transaction category (e.g., Salary, Food & Dining, etc.)'],
+          ['Date', 'Transaction date in YYYY-MM-DD format'],
+          ['Notes', 'Optional description or notes'],
+          [''],
+          ['Important Notes:'],
+          ['- Keep the header row as is (Row 1)'],
+          ['- Use YYYY-MM-DD format for dates'],
+          ['- Delete sample row (Row 2) before adding your data'],
+        ];
+
+        const instructionsWs = XLSX.utils.aoa_to_sheet(instructionsData);
+        instructionsWs['!cols'] = [{ width: 60 }];
+        XLSX.utils.book_append_sheet(wb, instructionsWs, 'Instructions');
 
         // Generate Excel file
         const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
@@ -305,19 +330,18 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
         const excelUrl = window.URL.createObjectURL(excelBlob);
         const excelLink = document.createElement('a');
         excelLink.href = excelUrl;
-        excelLink.download = 'transaction_template.xlsx';
+        excelLink.download = 'transaction_import_template.xlsx';
         excelLink.click();
         window.URL.revokeObjectURL(excelUrl);
 
-        this.notificationService.success(
-          'Excel template downloaded successfully'
-        );
+        this.notificationService.success('Excel template downloaded successfully');
       }
     } catch (error) {
       console.error('Error downloading template:', error);
       this.notificationService.error('Failed to download template');
     }
   }
+  
 
   importSelected() {
     const selected = this.parsedTransactions.filter((t) =>
