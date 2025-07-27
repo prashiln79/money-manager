@@ -2,165 +2,178 @@
 
 /* Mobile Dialog Styles */
 .mobile-dialog {
-  max-width: 100vw !important;
-  width: 100vw !important;
-  .mat-dialog-container {
-    border-radius: 0 !important;
-    padding: 0 !important;
-    max-width: 100vw !important;
-    max-height: 100vh !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    overflow: hidden;
-  }
-  
-  .mat-dialog-overlay {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
+	max-width: 100vw !important;
+	width: 100vw !important;
+	.mat-dialog-container {
+		border-radius: 0 !important;
+		padding: 0 !important;
+		max-width: 100vw !important;
+		max-height: 100vh !important;
+		width: 100vw !important;
+		height: 100vh !important;
+		overflow: hidden;
+	}
+
+	.mat-dialog-overlay {
+		background-color: rgba(0, 0, 0, 0.5);
+	}
 }
 
 .desktop-dialog {
-  .mat-mdc-dialog-container {
-    border-radius: 16px !important;
-    max-height: 90vh !important;
-    overflow: hidden !important;
-    width: 60vw !important;
-  }
-  .mat-mdc-dialog-surface{
-    overflow: hidden !important;
-  }
+	.mat-mdc-dialog-container {
+		border-radius: 16px !important;
+		max-height: 90vh !important;
+		overflow: hidden !important;
+		width: 60vw !important;
+	}
+	.mat-mdc-dialog-surface {
+		overflow: hidden !important;
+	}
+}
+
+.import-transactions-dialog {
+	width: 60vw !important;
+	max-width: 90vw !important;
+	.mat-mdc-dialog-container {
+		border-radius: 16px !important;
+		max-height: 90vh !important;
+		overflow: hidden !important;
+	}
 }
 
 /* Invitation Popup Dialog Styles */
 .invitation-popup-dialog {
-  .mat-dialog-container {
-    border-radius: 16px !important;
-    padding: 0 !important;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
-  }
-  
-  .mat-dialog-overlay {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
+	.mat-dialog-container {
+		border-radius: 16px !important;
+		padding: 0 !important;
+		overflow: hidden;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+	}
+
+	.mat-dialog-overlay {
+		background-color: rgba(0, 0, 0, 0.5);
+	}
 }
 
 /* Mobile responsive for invitation popup */
 @media (max-width: 600px) {
-  .invitation-popup-dialog {
-    .mat-dialog-container {
-      margin: 16px !important;
-      border-radius: 12px !important;
-    }
-  }
+	.invitation-popup-dialog {
+		.mat-dialog-container {
+			margin: 16px !important;
+			border-radius: 12px !important;
+		}
+	}
 }
 
 /* Material Dialog Overrides */
 .mat-drawer-container {
-  background-color: transparent !important;
+	background-color: transparent !important;
 }
 
 /* Mobile Dialog Responsive */
 @media (max-width: 768px) {
-  .mat-dialog-container {
-    margin: 0 !important;
-    border-radius: 0 !important;
-  }
-  
-  /* Improve touch targets on mobile */
-  .mat-button, .mat-raised-button, .mat-stroked-button, .mat-flat-button {
-    min-height: 44px !important;
-    min-width: 44px !important;
-  }
-  
-  .mat-icon-button {
-    min-height: 44px !important;
-    min-width: 44px !important;
-  }
-  
-  /* Improve form inputs on mobile */
-  .mat-form-field {
-    .mat-form-field-wrapper {
-      padding-bottom: 0 !important;
-    }
-    
-    .mat-form-field-infix {
-      padding: 0.75rem 0 !important;
-      min-height: 48px !important;
-    }
-    
-    input.mat-input-element {
-      font-size: 16px !important; /* Prevents zoom on iOS */
-    }
-  }
+	.mat-dialog-container {
+		margin: 0 !important;
+		border-radius: 0 !important;
+	}
+
+	/* Improve touch targets on mobile */
+	.mat-button,
+	.mat-raised-button,
+	.mat-stroked-button,
+	.mat-flat-button {
+		min-height: 44px !important;
+		min-width: 44px !important;
+	}
+
+	.mat-icon-button {
+		min-height: 44px !important;
+		min-width: 44px !important;
+	}
+
+	/* Improve form inputs on mobile */
+	.mat-form-field {
+		.mat-form-field-wrapper {
+			padding-bottom: 0 !important;
+		}
+
+		.mat-form-field-infix {
+			padding: 0.75rem 0 !important;
+			min-height: 48px !important;
+		}
+
+		input.mat-input-element {
+			font-size: 16px !important; /* Prevents zoom on iOS */
+		}
+	}
 }
 
 /* Material theme common changes */
 .mat-mdc-dialog-surface {
-  border-radius: 10px !important;
+	border-radius: 10px !important;
 }
 
 /* Category Details Dialog Styles */
 .category-details-dialog-panel {
-  .mat-mdc-dialog-container {
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-    height: 85vh !important;
-    max-height: 85vh !important;
-  }
-  
-  .mat-mdc-dialog-surface {
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
+	.mat-mdc-dialog-container {
+		border-radius: 12px !important;
+		overflow: hidden !important;
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+		height: 85vh !important;
+		max-height: 85vh !important;
+	}
 
-  .mat-mdc-dialog-content {
-    overflow: hidden !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
+	.mat-mdc-dialog-surface {
+		border-radius: 12px !important;
+		overflow: hidden !important;
+		height: 100% !important;
+		display: flex !important;
+		flex-direction: column !important;
+	}
+
+	.mat-mdc-dialog-content {
+		overflow: hidden !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		height: 100% !important;
+		display: flex !important;
+		flex-direction: column !important;
+	}
 }
 
 /* Dialog Backdrop */
 .dialog-backdrop {
-  background-color: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(4px);
+	background-color: rgba(0, 0, 0, 0.4) !important;
+	backdrop-filter: blur(4px);
 }
 
 /* Mobile responsive for category details dialog */
 @media (max-width: 768px) {
-  .category-details-dialog-panel {
-    .mat-mdc-dialog-container {
-      border-radius: 0 !important;
-      margin: 0 !important;
-      max-width: 100vw !important;
-      max-height: 100vh !important;
-      width: 100vw !important;
-      height: 100vh !important;
-    }
-    
-    .mat-mdc-dialog-surface {
-      border-radius: 0 !important;
-    }
-  }
+	.category-details-dialog-panel {
+		.mat-mdc-dialog-container {
+			border-radius: 0 !important;
+			margin: 0 !important;
+			max-width: 100vw !important;
+			max-height: 100vh !important;
+			width: 100vw !important;
+			height: 100vh !important;
+		}
+
+		.mat-mdc-dialog-surface {
+			border-radius: 0 !important;
+		}
+	}
 }
 
 /* Mobile-specific dialog improvements */
 @media (max-width: 768px) {
-  /* Improve dialog spacing */
-  .mat-dialog-content {
-    padding: 1rem !important;
-  }
-  
-  .mat-dialog-actions {
-    padding: 1rem !important;
-    gap: 0.75rem !important;
-  }
-} 
+	/* Improve dialog spacing */
+	.mat-dialog-content {
+		padding: 1rem !important;
+	}
+
+	.mat-dialog-actions {
+		padding: 1rem !important;
+		gap: 0.75rem !important;
+	}
+}

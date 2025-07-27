@@ -3,11 +3,11 @@
     <mat-icon class="mr-2">upload_file</mat-icon>
     Import Transactions
   </h2>
+ 
   
   <div mat-dialog-content class="max-h-[70vh] overflow-y-auto">
     <!-- Global Settings -->
     <div *ngIf="accounts.length > 0" class="mb-6 p-4 bg-gray-50 rounded-lg">
-      <h3 class="font-semibold mb-3 text-gray-700">Import Settings</h3>
       <div class="flex flex-col sm:flex-row gap-4">
         <div class="flex-1">
           <label class="block text-sm font-medium text-gray-600 mb-1">Default Account</label>
@@ -26,14 +26,15 @@
       </div>
     </div>
 
+    <div class="mb-2 flex justify-end">
+      <button mat-stroked-button color="primary" (click)="downloadTemplate()" class="w-full sm:w-auto">
+        <mat-icon>download</mat-icon>
+        Download Excel Template
+      </button>
+    </div>
+
     <!-- File Upload Section -->
     <div class="mb-6">
-      <div class="mb-4">
-        <button mat-stroked-button color="primary" (click)="downloadTemplate()" class="w-full sm:w-auto">
-          <mat-icon>download</mat-icon>
-          Download Excel Template
-        </button>
-      </div>
       
       <div class="file-upload-container" #fileUploadContainer [class.drag-over]="isDragOver">
         <input 
