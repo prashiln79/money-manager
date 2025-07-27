@@ -18,6 +18,7 @@ import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { SsrService } from 'src/app/util/service/ssr.service';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'import-transactions',
@@ -28,7 +29,17 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   @ViewChild('fileUploadContainer') fileUploadContainer!: ElementRef;
 
   selectedFile: File | null = null;
-  parsedTransactions: any[] = [];
+  parsedTransactions: {
+    _idx: number;
+    type: string;
+    category: string;
+    categoryId?: string;
+    accountId?: string;
+    date: string;
+    description: string;
+    amount: number;
+    notes?: string;
+  }[] = [];
   selectedToImport: Set<number> = new Set();
   error: string = '';
   isLoading: boolean = false;
@@ -37,14 +48,16 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
 
   // Dropdown data
   accounts: Account[] = [];
-  categories: Category[] = [];
+  categories$: Observable<Category[]> = of([]);
 
   // Default values
   defaultAccountId: string = '';
 
+  // Category update functionality
+
   constructor(
     public dialogRef: MatDialogRef<ImportTransactionsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: { transactions: any[] },
     private notificationService: NotificationService,
     private auth: Auth,
     private store: Store<AppState>,
@@ -52,6 +65,13 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
   ) {
     this.setupDragAndDrop();
     this.loadAccountsAndCategories();
+    
+    // Check if data was passed from Google Sheets
+    if (data && data.transactions && Array.isArray(data.transactions)) {
+      this.parsedTransactions = data.transactions;
+      this.selectedToImport = new Set(this.parsedTransactions.map((t) => t._idx));
+      this.notificationService.success(`Loaded ${this.parsedTransactions.length} transactions from Google Sheets`);
+    }
   }
 
   ngAfterViewInit() {
@@ -76,11 +96,17 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
       });
 
       // Load categories
-      this.store.select(selectAllCategories).subscribe(categories => {
-        this.categories = categories;
-      });
+      this.categories$ =  this.store.select(selectAllCategories);
     } catch (error) {
       console.error('Error loading accounts and categories:', error);
+    }
+  }
+
+  updateCategory(idx: number, newCategory: string) {
+    const txIndex = this.parsedTransactions.findIndex(t => t._idx === idx);
+    if (txIndex !== -1) {
+      this.parsedTransactions[txIndex].categoryId = newCategory.split('-')[0];
+      this.parsedTransactions[txIndex].category = newCategory.split('-')[1];
     }
   }
 
@@ -244,10 +270,6 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
     this.parsedTransactions = data.map((row, idx) => {
       return {
         _idx: idx,
-        payee: row['payee'] || row['Payee'] || row['PAYEE'] || '',
-        amount: parseFloat(
-          row['amount'] || row['Amount'] || row['AMOUNT'] || '0'
-        ),
         type: (
           row['type'] ||
           row['Type'] ||
@@ -261,6 +283,10 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
           row['Date'] ||
           row['DATE'] ||
           new Date().toISOString().split('T')[0],
+        description: row['description'] || row['Description'] || row['DESCRIPTION'] || row['payee'] || row['Payee'] || row['PAYEE'] || '',
+        amount: parseFloat(
+          row['amount'] || row['Amount'] || row['AMOUNT'] || '0'
+        ),
       };
     });
   }
@@ -356,9 +382,9 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
 
     // Validate selected transactions
     const validTransactions = selected.filter((tx) => {
-      if (!tx.payee || !tx.payee.trim()) {
+      if (!tx.description || !tx.description.trim()) {
         this.notificationService.warning(
-          `Transaction ${tx._idx + 1}: Payee is required`
+          `Transaction ${tx._idx + 1}: Description is required`
         );
         return false;
       }
@@ -404,7 +430,9 @@ export class ImportTransactionsComponent implements AfterViewInit, OnDestroy {
     // Add account ID to each transaction
     const transactionsWithAccount = validTransactions.map(tx => ({
       ...tx,
-      accountId: this.defaultAccountId || 'default'
+      accountId: this.defaultAccountId || 'default',
+      categoryId: tx.categoryId || 'default',
+      category: tx.category || 'default'
     }));
 
     this.notificationService.success(

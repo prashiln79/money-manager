@@ -5,6 +5,26 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { GoogleSheetsService, GoogleSheetsConnection, GoogleSheetsConfig } from '../../../util/service/google-sheets.service';
 import { UserService } from 'src/app/util/service/user.service';
+import { ImportTransactionsComponent } from '../../../component/dashboard/transaction-list/add-transaction/import-transactions.component';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { TransactionsService } from '../../../util/service/transactions.service';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../store/app.state';
+import * as TransactionsActions from '../../../store/transactions/transactions.actions';
+import { TransactionStatus, SyncStatus, TransactionType } from '../../../util/config/enums';
+import { Auth } from '@angular/fire/auth';
+
+
+interface ImportTransaction {
+
+  Amount: string;
+  Category: string;
+  Date: string;
+  Description: string;
+  Id: string;
+  Type: string;
+}
+
 
 @Component({
   selector: 'app-google-sheets',
@@ -16,10 +36,10 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
   isLoading = false;
   isTestingConnection = false;
   isImporting = false;
-  
+
   connectionForm: FormGroup;
   testConfig: GoogleSheetsConfig | null = null;
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -27,7 +47,11 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private userService: UserService
+    private userService: UserService,
+    public breakpointService: BreakpointService,
+    private transactionsService: TransactionsService,
+    private store: Store<AppState>,
+    private auth: Auth
   ) {
     this.connectionForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -51,7 +75,7 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     if (!control.value) {
       return null;
     }
-    
+
     const isValid = this.googleSheetsService.validateSheetUrl(control.value);
     return isValid ? null : { invalidUrl: true };
   }
@@ -76,7 +100,7 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
   createConnection(): void {
     if (this.connectionForm.valid) {
       const connectionData = this.connectionForm.value;
-      
+
       this.googleSheetsService.createConnection(connectionData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -135,7 +159,7 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     if (this.connectionForm.valid) {
       this.isTestingConnection = true;
       const formValue = this.connectionForm.value;
-      
+
       // Extract spreadsheet ID from URL for testing
       const spreadsheetId = this.googleSheetsService.extractSpreadsheetId(formValue.spreadsheetUrl);
       if (!spreadsheetId) {
@@ -181,12 +205,23 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     this.googleSheetsService.importFromSheet(config)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
+        next: (data: ImportTransaction[]) => {
           this.isImporting = false;
           if (data.length > 0) {
-            this.showSnackBar(`Successfully imported ${data.length} rows from Google Sheets`, 'success');
-            // Here you would typically process the imported data
-            console.log('Imported data:', data);
+            // Transform Google Sheets data to match import transactions format
+            const transformedData = this.transformGoogleSheetsData(data);
+
+            const dialogRef = this.dialog.open(ImportTransactionsComponent, {
+              data: { transactions: transformedData },
+              panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'import-transactions-dialog',
+            });
+
+            // Handle the result when user confirms import
+            dialogRef.afterClosed().subscribe(result => {
+              if (result && result.length > 0) {
+                this.createTransactionsFromImport(result);
+              }
+            });
           } else {
             this.showSnackBar('No data found in the specified sheet', 'warning');
           }
@@ -197,6 +232,86 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
           this.showSnackBar('Error importing data from Google Sheets', 'error');
         }
       });
+  }
+
+  private transformGoogleSheetsData(data: ImportTransaction[]): {
+    type: string;
+    category: string;
+    date: Date;
+    description: string;
+    amount: number;
+  }[] {
+    return data.map(item => ({
+      type: item.Type.toLowerCase(),
+      category: item.Category.toLowerCase(),
+      date: new Date(item.Date) || new Date(), //YYYY-MM-DD format
+      description: item.Description.toLowerCase(),
+      amount: parseFloat(item.Amount)
+    }));
+  }
+
+  private createTransactionsFromImport(importedTransactions: any[]): void {
+    const userId = this.auth.currentUser?.uid;
+    if (!userId) {
+      this.showSnackBar('User not authenticated', 'error');
+      return;
+    }
+
+    this.isImporting = true;
+    let successCount = 0;
+    let errorCount = 0;
+
+    // Process each transaction
+    const importPromises = importedTransactions.map(async (tx) => {
+      try {
+        // Create transaction data structure
+        const transactionData = {
+          userId: userId,
+          payee: tx.description || 'Imported Transaction',
+          accountId: tx.accountId || 'default',
+          amount: parseFloat(tx.amount),
+          category: tx.category || 'Uncategorized',
+          categoryId: tx.categoryId || 'default',
+          type: tx.type === 'income' ? TransactionType.INCOME : TransactionType.EXPENSE,
+          date: new Date(tx.date),
+          notes: tx.notes || `Imported from Google Sheets - ${tx.description}`,
+          status: TransactionStatus.COMPLETED,
+          isPending: false,
+          syncStatus: SyncStatus.PENDING,
+          lastSyncedAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          createdBy: userId,
+          updatedBy: userId,
+        };
+
+        // Create transaction using the service
+        await this.transactionsService.createTransaction(userId, transactionData).toPromise();
+        successCount++;
+      } catch (error) {
+        console.error('Error creating transaction:', tx, error);
+        errorCount++;
+      }
+    });
+
+    // Wait for all transactions to be processed
+    Promise.all(importPromises).then(() => {
+      this.isImporting = false;
+      
+      if (successCount > 0) {
+        this.showSnackBar(`Successfully imported ${successCount} transactions`, 'success');
+        // Refresh transactions in the store
+        this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
+      }
+      
+      if (errorCount > 0) {
+        this.showSnackBar(`${errorCount} transactions failed to import`, 'warning');
+      }
+    }).catch((error) => {
+      this.isImporting = false;
+      console.error('Error during import:', error);
+      this.showSnackBar('Error during import process', 'error');
+    });
   }
 
   getSetupInstructions(): string[] {
