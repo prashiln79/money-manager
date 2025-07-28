@@ -31,7 +31,8 @@ import { Router } from '@angular/router';
 })
 export class CategoryComponent implements OnInit, OnDestroy {
 
-  @Input() isHome: boolean = false;
+  @Input() isHomeView: boolean = false;
+  @Input() isChildView: boolean = false;
 
   public isLoading$: Observable<boolean>;
   // public error$: Observable<any>;
