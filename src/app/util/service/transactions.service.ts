@@ -197,66 +197,69 @@ export class TransactionsService extends BaseService {
      */
     deleteTransaction(userId: string, transactionId: string): Observable<void> {
         return new Observable<void>(observer => {
-            const deleteTransactionAsync = async () => {
-                try {
-                    // Get transaction data for balance update
-                    const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
-                    const transactionDoc = await getDoc(transactionRef);
-                    const transactionToDelete = transactionDoc.exists() ? { id: transactionDoc.id, ...transactionDoc.data() } as Transaction : null;
+            // Get transaction data for balance update first
+            const transactionRef = doc(this.firestore, `users/${userId}/transactions/${transactionId}`);
+            
+            getDoc(transactionRef).then(transactionDoc => {
+                const transactionToDelete = transactionDoc.exists() ? { id: transactionDoc.id, ...transactionDoc.data() } as Transaction : null;
 
-                    if (this.commonSyncService.isCurrentlyOnline()) {
-                        try {
-                            await deleteDoc(transactionRef);
+                if (this.commonSyncService.isCurrentlyOnline()) {
+                    // Delete from Firestore first
+                    deleteDoc(transactionRef).then(() => {
+                        // Update account balance to reverse the transaction effect
+                        if (transactionToDelete) {
+                            this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction({
+                                userId: userId,
+                                accountId: transactionToDelete.accountId,
+                                transactionType: 'delete',
+                                oldTransaction: transactionToDelete
+                            }));
 
-                            // Update account balance to reverse the transaction effect
-                            if (transactionToDelete) {
-                                this.store.dispatch(AccountsActions.updateAccountBalanceForTransaction({
-                                    userId: userId,
-                                    accountId: transactionToDelete.accountId,
-                                    transactionType: 'delete',
-                                    oldTransaction: transactionToDelete
-                                }));
-
-                                if (transactionToDelete.isSplitTransaction) {
-                                    await this.splitwiseService.deleteSplitTransaction(transactionToDelete.id!, userId);
-                                }
+                            // Handle split transaction deletion if needed
+                            if (transactionToDelete.isSplitTransaction) {
+                                this.splitwiseService.deleteSplitTransaction(transactionToDelete.id!, userId).catch(error => {
+                                    console.error('Failed to delete split transaction:', error);
+                                });
                             }
-
-                            // Remove from store immediately for online transactions
-                            this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
-                            
-                            // Update cache
-                            this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
-
-                            observer.next();
-                            observer.complete();
-                        } catch (error) {
-                            console.error('Failed to delete transaction online:', error);
-                            await this.addToSyncQueue('delete', { id: transactionId });
-                            // Remove from store immediately for offline transactions
-                            this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
-                            
-                            // Update cache
-                            this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
-                            observer.next();
-                            observer.complete();
                         }
-                    } else {
-                        await this.addToSyncQueue('delete', { id: transactionId });
-                        // Remove from store immediately for offline transactions
+
+                        // Remove from store immediately
                         this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
                         
                         // Update cache
                         this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
+
                         observer.next();
                         observer.complete();
-                    }
-                } catch (error) {
-                    observer.error(error);
+                    }).catch(error => {
+                        console.error('Failed to delete transaction online:', error);
+                        // Fall back to offline mode
+                        this.addToSyncQueue('delete', { id: transactionId }).then(() => {
+                            this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
+                            this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
+                            observer.next();
+                            observer.complete();
+                        }).catch(syncError => {
+                            console.error('Failed to add to sync queue:', syncError);
+                            observer.error(syncError);
+                        });
+                    });
+                } else {
+                    // Offline mode - add to sync queue
+                    this.addToSyncQueue('delete', { id: transactionId }).then(() => {
+                        this.store.dispatch(TransactionsActions.deleteTransactionSuccess({ transactionId }));
+                        this.updateTransactionCache(userId, 'delete', { id: transactionId } as Transaction);
+                        observer.next();
+                        observer.complete();
+                    }).catch(error => {
+                        console.error('Failed to add to sync queue:', error);
+                        observer.error(error);
+                    });
                 }
-            };
-
-            deleteTransactionAsync();
+            }).catch(error => {
+                console.error('Failed to get transaction for deletion:', error);
+                observer.error(error);
+            });
         });
     }
 
