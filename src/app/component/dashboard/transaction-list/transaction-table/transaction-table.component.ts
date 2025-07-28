@@ -9,7 +9,7 @@ import { DateService } from 'src/app/util/service/date.service';
 import { FilterService } from 'src/app/util/service/filter.service';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { selectAllTransactions } from 'src/app/store/transactions/transactions.selectors';
-import { Category } from 'src/app/util/models';
+import { Account, Category } from 'src/app/util/models';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { APP_CONFIG } from 'src/app/util/config/config';
@@ -19,6 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MobileAddTransactionComponent } from '../add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { ParentCategorySelectorDialogComponent } from '../../category/parent-category-selector-dialog/parent-category-selector-dialog.component';
+import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 
 @Component({
   selector: 'transaction-table',
@@ -46,6 +47,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
   selectedTransactions: Set<string> = new Set();
   isAllSelected = false;
   isIndeterminate = false;
+  accounts: Account[] = [];
 
   // Responsive breakpoints
   private readonly MOBILE_BREAKPOINT = 640; // sm
@@ -73,6 +75,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
     this.setupFilterServiceSubscriptions();
     this.setupTransactionSubscriptions();
     this.loadCategories();
+    this.loadAccounts();
     this.updateColumnVisibility();
   }
 
@@ -87,6 +90,12 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.updateColumnVisibility();
+  }
+
+  private loadAccounts(): void {
+    this.store.select(selectAllAccounts).subscribe((accounts: Account[]) => {
+      this.accounts = accounts;
+    });
   }
 
   private updateColumnVisibility() {
@@ -104,7 +113,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
         // Desktop: Show all columns (include select column only if not home)
         this.displayedColumns = this.isHome ? 
           ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'] : 
-          ['select', 'Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+          ['select', 'Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions', 'Account'];
       }
     }
   }
@@ -504,5 +513,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
         this.clearSelection();
       }
     });
+  }
+
+  getAccountName(accountId: string): string {
+    return this.accounts.find(account => account.accountId === accountId)?.name || accountId;
   }
 } 

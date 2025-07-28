@@ -98,7 +98,16 @@ describe('TransactionListComponent', () => {
     const loaderSpy = jasmine.createSpyObj('LoaderService', ['show', 'hide']);
     const filterSpy = jasmine.createSpyObj('FilterService', ['clearAllFilters', 'hasActiveFilters']);
     const dateSpy = jasmine.createSpyObj('DateService', ['toDate', 'now']);
-    const breakpointServiceSpy = jasmine.createSpyObj('BreakpointService', ['isMobile']);
+    const breakpointServiceSpy = jasmine.createSpyObj('BreakpointService', [], {
+      device: {
+        isMobile: false,
+        isTablet: false,
+        isDesktop: true
+      },
+      isMobile: false,
+      isTablet: false,
+      isDesktop: true
+    });
     const routerSpy = jasmine.createSpyObj('Router', ['navigate'], { url: '/transactions' });
     const transactionsServiceSpy = jasmine.createSpyObj('TransactionsService', ['deleteTransaction', 'updateTransaction']);
 

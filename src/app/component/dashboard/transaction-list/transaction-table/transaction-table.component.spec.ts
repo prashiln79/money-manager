@@ -6,6 +6,13 @@ import { of } from 'rxjs';
 import { Transaction } from '../../../../util/models/transaction.model';
 import { Category } from '../../../../util/models';
 import { TransactionType, TransactionStatus, SyncStatus } from '../../../../util/config/enums';
+import { Store } from '@ngrx/store';
+import { Auth } from '@angular/fire/auth';
+import { MatDialog } from '@angular/material/dialog';
+import { BreakpointService } from '../../../../util/service/breakpoint.service';
+import { DateService } from '../../../../util/service/date.service';
+import { FilterService } from '../../../../util/service/filter.service';
+import { SsrService } from '../../../../util/service/ssr.service';
 
 describe('TransactionTableComponent', () => {
   let component: TransactionTableComponent;
@@ -14,6 +21,9 @@ describe('TransactionTableComponent', () => {
   let mockAuth: any;
   let mockDialog: any;
   let mockBreakpointService: any;
+  let mockDateService: any;
+  let mockFilterService: any;
+  let mockSsrService: any;
 
   const mockTransactions: Transaction[] = [
     {
@@ -51,21 +61,29 @@ describe('TransactionTableComponent', () => {
     mockAuth = TestSetup.getMockAuth();
     mockDialog = TestSetup.getMockMatDialog();
     mockBreakpointService = TestSetup.getMockBreakpointService();
+    mockDateService = TestSetup.getMockDateService();
+    mockFilterService = TestSetup.getMockFilterService();
+    mockSsrService = jasmine.createSpyObj('SsrService', ['isClientSide'], {
+      isClientSide: () => true
+    });
 
-    // Setup store selectors
-    mockStore.select.and.returnValues(
+    // Setup store selectors with returnValues
+    mockStore.select.and.returnValues([
       of(mockTransactions), // transactions$
       of(mockCategories) // categories
-    );
+    ]);
 
     await TestSetup.configureTestingModule(
-      [], // declarations
-      [TransactionTableComponent, ...TEST_IMPORTS], // imports
+      [TransactionTableComponent], // declarations
+      TEST_IMPORTS, // imports
       [
-        { provide: 'Store', useValue: mockStore },
-        { provide: 'Auth', useValue: mockAuth },
-        { provide: 'MatDialog', useValue: mockDialog },
-        { provide: 'BreakpointService', useValue: mockBreakpointService }
+        { provide: Store, useValue: mockStore },
+        { provide: Auth, useValue: mockAuth },
+        { provide: MatDialog, useValue: mockDialog },
+        { provide: BreakpointService, useValue: mockBreakpointService },
+        { provide: DateService, useValue: mockDateService },
+        { provide: FilterService, useValue: mockFilterService },
+        { provide: SsrService, useValue: mockSsrService }
       ]
     ).compileComponents();
     

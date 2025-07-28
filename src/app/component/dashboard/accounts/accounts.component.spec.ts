@@ -95,7 +95,16 @@ describe('AccountsComponent', () => {
     const notificationSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     const storeSpy = jasmine.createSpyObj('Store', ['dispatch', 'select']);
     const dateSpy = jasmine.createSpyObj('DateService', ['toDate', 'now']);
-    const breakpointServiceSpy = jasmine.createSpyObj('BreakpointService', ['isMobile']);
+    const breakpointServiceSpy = jasmine.createSpyObj('BreakpointService', [], {
+      device: {
+        isMobile: false,
+        isTablet: false,
+        isDesktop: true
+      },
+      isMobile: false,
+      isTablet: false,
+      isDesktop: true
+    });
 
     await TestBed.configureTestingModule({
       declarations: [AccountsComponent],

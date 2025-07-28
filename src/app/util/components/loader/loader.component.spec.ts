@@ -1,16 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { LoaderComponent } from './loader.component';
+import { TestSetup } from '../../testing/test-setup';
 
 describe('LoaderComponent', () => {
   let component: LoaderComponent;
   let fixture: ComponentFixture<LoaderComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [LoaderComponent]
-    })
-    .compileComponents();
+    await TestSetup.configureTestingModule(
+      [], // declarations
+      [LoaderComponent], // imports (standalone component)
+      [] // additional providers
+    ).compileComponents();
 
     fixture = TestBed.createComponent(LoaderComponent);
     component = fixture.componentInstance;

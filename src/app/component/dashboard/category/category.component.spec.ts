@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { CategoryComponent } from './category.component';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Store } from '@ngrx/store';
 import { NotificationService } from 'src/app/util/service/notification.service';
@@ -17,6 +18,8 @@ import { Transaction } from 'src/app/util/models/transaction.model';
 import { TransactionType } from 'src/app/util/config/enums';
 import * as CategoriesActions from '../../../store/categories/categories.actions';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
+import { CommonModule } from '@angular/common';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('CategoryComponent', () => {
   let component: CategoryComponent;
@@ -129,6 +132,11 @@ describe('CategoryComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [CategoryComponent],
+      imports: [
+        CommonModule,
+        MatIconModule,
+        NoopAnimationsModule
+      ],
       providers: [
         { provide: Auth, useValue: authSpy },
         { provide: MatDialog, useValue: dialogSpy },
