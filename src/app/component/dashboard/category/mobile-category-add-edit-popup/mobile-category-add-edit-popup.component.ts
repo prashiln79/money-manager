@@ -96,7 +96,7 @@ export class MobileCategoryAddEditPopupComponent implements OnInit, OnDestroy {
       try {
         const formValue = this.categoryForm.value;
 
-        if (this.dialogData?.category.id) {
+        if (this.dialogData?.category?.id) {
           // Update existing category
           await this.store.dispatch(
             updateCategory({
@@ -199,7 +199,11 @@ export class MobileCategoryAddEditPopupComponent implements OnInit, OnDestroy {
   }
 
   isCategoryPresent(): boolean {
-    const existingCategory = this.allCategories.find((category: Category) => category.name.trim().toLowerCase() === this.categoryForm.get('name')?.value.trim().toLowerCase());
+    //check if category is present in allCategories and in edit mode check if category is present in allCategories and is not the same category
+    let existingCategory = this.allCategories.find((category: Category) => category.name.trim().toLowerCase() === this.categoryForm.get('name')?.value.trim().toLowerCase());
+    if (this.dialogData?.category?.id) {
+      existingCategory = this.allCategories.find((category: Category) => category.name.trim().toLowerCase() === this.categoryForm.get('name')?.value.trim().toLowerCase() && category.id !== this.dialogData?.category?.id);
+    }
     if (existingCategory) {
       this.notificationService.error('Category already exists');
     }
