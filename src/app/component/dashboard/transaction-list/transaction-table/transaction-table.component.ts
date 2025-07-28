@@ -92,7 +92,6 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
   private updateColumnVisibility() {
     if (this.ssrService.isClientSide()) {
       const screenWidth = window.innerWidth;
-
       if (screenWidth < this.MOBILE_BREAKPOINT) {
         // Mobile: Show only essential columns (no select column)
         this.displayedColumns = ['Date', 'Payee', 'Amount', 'Actions'];
