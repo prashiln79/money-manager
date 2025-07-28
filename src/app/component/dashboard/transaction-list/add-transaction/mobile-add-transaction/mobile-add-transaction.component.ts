@@ -41,7 +41,7 @@ import { SplitwiseGroup } from 'src/app/util/models/splitwise.model';
 import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
 import { selectGroups } from 'src/app/modules/splitwise/store/splitwise.selectors';
 import { loadGroups } from 'src/app/modules/splitwise/store/splitwise.actions';
-import { filter, map, Observable, take } from 'rxjs';
+import { filter, map, Observable, take, startWith } from 'rxjs';
 import { selectLatestTransaction } from 'src/app/store/transactions/transactions.selectors';
 import { Transaction, CategorySplit } from 'src/app/util/models/transaction.model';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
@@ -76,6 +76,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public recurringMaxDate: string;
   public categorySplits: CategorySplit[] = [];
   public isCategorySplit: boolean = false;
+  public filteredCategories$!: Observable<Category[]>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -99,7 +100,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     this.groups$ = this.store.select(selectGroups);
     this.categoryList$ = this.store.select(selectAllCategories);
     this.accountList$ = this.store.select(selectAllAccounts);
-
+    this.filteredCategories$ = this.categoryList$
 
     this.transactionForm = this.fb.group({
       payee: ['', this.validationService.getTransactionPayeeValidators()],
@@ -369,7 +370,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onCategoryChange(categoryId: string): void {
+  onCategoryChange(categoryId: any): void {
     if (!categoryId) return;
   
     this.categoryList$.pipe(
@@ -378,6 +379,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
       filter((category): category is Category => !!category)
     ).subscribe((category: Category) => {
       this.transactionForm.patchValue({
+        categoryId: category.id,
         categoryName: category.name,
         categoryType: category.type,
         payee: this.editMode ? this.dialogData.payee : category.name,
@@ -500,6 +502,13 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
 
   getTotalSplitAmount(): number {
     return this.categorySplits.reduce((sum, split) => sum + split.amount, 0);
+  }
+
+  onCategorySearch(value: any): void {
+    let inputValue = value.target.value || '';
+    this.filteredCategories$ = this.categoryList$.pipe(
+      map(categories => categories.filter(category => category.name.toLowerCase().includes(inputValue.toLowerCase())))
+    );
   }
 
 }
