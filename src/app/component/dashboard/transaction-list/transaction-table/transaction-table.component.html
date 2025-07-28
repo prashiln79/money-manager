@@ -1,7 +1,32 @@
 <!-- Table Container -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col max-h-[calc(78vh-210px)]">
+  <!-- View Toggle Header -->
+  <div class="flex justify-between items-center p-3 border-b border-gray-200 bg-gray-50" *if="hideViewToggle">
+    <div class="flex items-center space-x-2">
+      <span class="text-sm font-medium text-gray-700">View:</span>
+      <button 
+        mat-button 
+        [class]="!isListView ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'"
+        (click)="toggleView()"
+        class="text-xs px-3 py-1 rounded-md transition-colors"
+      >
+        <mat-icon class="text-sm mr-1">table_chart</mat-icon>
+        Table
+      </button>
+      <button 
+        mat-button 
+        [class]="isListView ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'"
+        (click)="toggleView()"
+        class="text-xs px-3 py-1 rounded-md transition-colors"
+      >
+        <mat-icon class="text-sm mr-1">view_list</mat-icon>
+        List
+      </button>
+    </div>
+  </div>
+
   <!-- Desktop/Tablet Table View -->
-  <div class="hidden sm:flex flex-1 overflow-auto table-container">
+  <div *ngIf="!isListView" class="hidden sm:flex flex-1 overflow-auto table-container">
     <table mat-table [dataSource]="dataSource" matSort class="w-full min-w-[800px]">
       <!-- Date Column -->
       <ng-container matColumnDef="Date">
@@ -150,6 +175,62 @@
     </table>
   </div>
 
+  <!-- Desktop/Tablet List View -->
+  <div *ngIf="isListView" class="hidden sm:flex flex-1 overflow-auto list-container">
+    <div class="w-full p-4 space-y-3">
+      @for (element of dataSource.data; track element.id) {
+      <div class="list-item bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer" (click)="onRowClick(element)">
+        <div class="flex items-center justify-between">
+          <!-- Left Section -->
+          <div class="flex items-center space-x-4 flex-1">
+            <!-- Category Icon -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100">
+              <mat-icon class="text-lg" [style.color]="getCategoryColor(element.categoryId)">{{ getCategoryIcon(element.categoryId) }}</mat-icon>
+            </div>
+            
+            <!-- Transaction Details -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-3">
+                <h4 class="font-medium text-gray-900 text-sm truncate" [matTooltip]="element.payee">{{element.payee}}</h4>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {{getCategoryName(element.categoryId)}}
+                </span>
+              </div>
+                             <div class="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                 <span>{{ getDateDisplay(element.date) }}</span>
+                <span class="inline-flex items-center" [class]="element.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                  <mat-icon class="text-xs mr-1">{{element.type === 'income' ? 'trending_up' : 'trending_down'}}</mat-icon>
+                  {{element.type}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Section -->
+          <div class="flex items-center space-x-3">
+            <!-- Amount -->
+            <div class="text-right">
+              <div class="font-bold text-sm" [class]="element.type === 'income' ? 'text-green-700' : 'text-red-800'">
+                {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex space-x-1">
+              <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onStartRowEdit(element)" matTooltip="Edit transaction">
+                <mat-icon class="text-sm">edit</mat-icon>
+              </button>
+              <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onDeleteTransaction(element)" matTooltip="Delete transaction">
+                <mat-icon class="text-sm">delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
   <!-- Fixed Footer with Totals -->
   <div class="hidden sm:flex fixed-footer">
     <div class="footer-content">
@@ -194,7 +275,7 @@
   </div>
 
   <!-- Mobile Card View -->
-  <div class="sm:hidden flex-1 overflow-auto max-h-full mobile-card-view">
+  <div *ngIf="!isListView" class="sm:hidden flex-1 overflow-auto max-h-full mobile-card-view">
     <div class="p-4 space-y-3">
       @for (element of dataSource.data; track element.id) {
       <div class="transaction-card" (click)="onRowClick(element)">
@@ -232,6 +313,48 @@
             <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onDeleteTransaction(element)" matTooltip="Delete transaction">
               <mat-icon>delete</mat-icon>
             </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Mobile List View -->
+  <div *ngIf="isListView" class="sm:hidden flex-1 overflow-auto max-h-full mobile-list-view">
+    <div class="p-3 space-y-2">
+      @for (element of dataSource.data; track element.id) {
+      <div class="list-item bg-white border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors cursor-pointer" (click)="onRowClick(element)">
+        <div class="flex items-center space-x-3">
+          <!-- Category Icon -->
+          <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 flex-shrink-0">
+            <mat-icon class="text-sm" [style.color]="getCategoryColor(element.categoryId)">{{ getCategoryIcon(element.categoryId) }}</mat-icon>
+          </div>
+          
+          <!-- Transaction Details -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="font-medium text-gray-900 text-sm truncate" [matTooltip]="element.payee">{{element.payee}}</h4>
+              <div class="font-bold text-sm ml-2" [class]="element.type === 'income' ? 'text-green-700' : 'text-red-800'">
+                {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-1">
+              <div class="flex items-center space-x-2 text-xs text-gray-500">
+                <span>{{ getDateDisplay(element.date) }}</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {{getCategoryName(element.categoryId)}}
+                </span>
+              </div>
+              <div class="flex space-x-1">
+                <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onStartRowEdit(element)" matTooltip="Edit transaction">
+                  <mat-icon class="text-sm">edit</mat-icon>
+                </button>
+                <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors" (click)="$event.stopPropagation(); onDeleteTransaction(element)" matTooltip="Delete transaction">
+                  <mat-icon class="text-sm">delete</mat-icon>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

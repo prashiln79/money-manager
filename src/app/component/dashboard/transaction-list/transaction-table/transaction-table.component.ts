@@ -36,6 +36,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   dataSource: MatTableDataSource<Transaction> = new MatTableDataSource<Transaction>();
   displayedColumns: string[] = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+  isListView: boolean = false;
+  public hideViewToggle = true;
 
   // Responsive breakpoints
   private readonly MOBILE_BREAKPOINT = 640; // sm
@@ -382,5 +384,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   getCurrentFilterState() {
     return this.filterService.getCurrentFilterState();
+  }
+
+  toggleView() {
+    this.isListView = !this.isListView;
   }
 } 
