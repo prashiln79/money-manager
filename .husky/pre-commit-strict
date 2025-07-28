@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run tests in headless mode without coverage for faster pre-commit execution
+# This version will fail the commit if any tests fail
+echo "Running pre-commit tests (strict mode)..."
+npm run test:pre-commit 

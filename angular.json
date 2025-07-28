@@ -111,7 +111,16 @@
               }
             ],
             "styles": ["@angular/material/prebuilt-themes/azure-blue.css", "src/styles/styles.scss", "src/styles/light-theme.scss", "src/styles/dark-theme.scss"],
-            "scripts": []
+            "scripts": [],
+            "codeCoverage": true,
+            "codeCoverageExclude": [
+              "src/test.ts",
+              "src/polyfills.ts",
+              "src/**/*.module.ts",
+              "src/**/*.spec.ts",
+              "src/**/*.mock.ts",
+              "src/environments/**/*"
+            ]
           }
         },
         "deploy": {
