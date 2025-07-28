@@ -249,13 +249,24 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     description: string;
     amount: number;
   }[] {
-    return data.map(item => ({
-      type: item.Type.toLowerCase(),
-      category: item.Category.toLowerCase(),
-      date: new Date(item.Date) || new Date(), //YYYY-MM-DD format
-      description: item.Description.toLowerCase(),
-      amount: parseFloat(item.Amount)
-    }));
+    return data.map(item => {
+
+      let amount = this.extractNumberFromString(item.Amount);
+      return {
+        type: item.Type.toLowerCase(),
+        category: item.Category.toLowerCase(),
+        date: new Date(item.Date) || new Date(), //YYYY-MM-DD format
+        description: item.Description.toLowerCase(),
+        amount: amount
+      }
+    });
+  }
+
+  private extractNumberFromString(str: string): number {
+    // remove all non-numeric characters
+    const number = parseFloat(str.replace(/[^0-9.]/g, ''));
+    console.log(number);
+    return isNaN(number) ? 0 : number;
   }
 
   private createTransactionsFromImport(importedTransactions: any[]): void {
@@ -305,13 +316,13 @@ export class GoogleSheetsComponent implements OnInit, OnDestroy {
     // Wait for all transactions to be processed
     Promise.all(importPromises).then(() => {
       this.isImporting = false;
-      
+
       if (successCount > 0) {
         this.showSnackBar(`Successfully imported ${successCount} transactions`, 'success');
         // Refresh transactions in the store
         this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
       }
-      
+
       if (errorCount > 0) {
         this.showSnackBar(`${errorCount} transactions failed to import`, 'warning');
       }
