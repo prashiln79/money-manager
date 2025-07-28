@@ -197,7 +197,7 @@ export class CategoryCardComponent {
   }
 
   public onDeleteCategory(): void {
-    this.openDeleteConfirmationDialog();
+    this.categoryService.performDelete(this.category, this.userId);
   }
 
   public onOpenBudgetDialog(): void {
@@ -280,39 +280,7 @@ export class CategoryCardComponent {
     });
   }
 
-  private openDeleteConfirmationDialog(): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Delete Category',
-        message: `Are you sure you want to delete "${this.category.name}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
-        confirmColor: 'warn'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.performDelete();
-      }
-    });
-  }
-
-  private performDelete(): void {
-    if (!this.category.id) {
-      this.notificationService.error('Category ID not found');
-      return;
-    }
-
-    this.store.dispatch(CategoriesActions.deleteCategory({
-      userId: this.userId,
-      categoryId: this.category.id
-    }));
-
-    this.notificationService.success('Category deleted successfully');
-    this.hapticFeedback.successVibration();
-  }
+ 
 
   private openBudgetDialog(): void {
     const dialogRef = this.dialog.open(CategoryBudgetDialogComponent, {

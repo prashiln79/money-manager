@@ -7,7 +7,7 @@
 	@if(!breakpointService.device.isTablePortrait){
 	<calendar-view class="lg:col-span-2"></calendar-view>
 	} @if (breakpointService.device.isMobile) {
-	<user-category [home]="true" class="lg:col-span-5"></user-category>
+	<user-category [isHome]="true" class="lg:col-span-5"></user-category>
 	<user-accounts [home]="true"></user-accounts>
 	}
 	<transaction-list *ngIf="!breakpointService.device.isMobile" class="lg:col-span-5"></transaction-list>

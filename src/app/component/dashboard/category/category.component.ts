@@ -21,6 +21,8 @@ import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
 import moment from 'moment';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { CategoryService } from 'src/app/util/service/category.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'user-category',
@@ -29,7 +31,7 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 })
 export class CategoryComponent implements OnInit, OnDestroy {
 
-  @Input() home: boolean = false;
+  @Input() isHome: boolean = false;
 
   public isLoading$: Observable<boolean>;
   // public error$: Observable<any>;
@@ -57,7 +59,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private budgetService: CategoryBudgetService,
     public dateService: DateService,
-    public breakpointService: BreakpointService
+    public breakpointService: BreakpointService,
+    private categoryService: CategoryService,
   ) {
 
     this.isLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
@@ -159,7 +162,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
       panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
-      data: category ? {...category} : null,
+      data: {
+        category: category ? {...category} : null,
+        isEdit: category ? true : false,
+        allCategories: this.categories
+      }
     });
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
@@ -512,5 +519,9 @@ export class CategoryComponent implements OnInit, OnDestroy {
       mostExpensiveCategory,
       leastExpensiveCategory
     };
+  }
+
+  public deleteCategory(category: Category): void {
+    this.categoryService.performDelete(category, this.userId);
   }
 }

@@ -10,7 +10,7 @@
 	<button
 		mat-fab
 		color="primary"
-		*ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !home"
+		*ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !isHome"
 		(click)="openAddMobileDialog()"
 		class="mobile-fab-btn add-category-btn"
 	>
@@ -22,10 +22,10 @@
 	</button>
 
 	<!-- Main Content -->
-	<div class="categories-grid">
+	<div class="categories-grid" [ngClass]="{'px-10': !isHome && !breakpointService.device.isMobile}">
 		<!-- Categories List Section -->
 		<section class="categories-list">
-			<div class="section-header" *ngIf="!home">
+			<div class="section-header" *ngIf="!isHome">
 				<div class="header-content">
 					<h2 class="section-title">Manage Categories</h2>
 					<span class="flex items-center gap-2">
@@ -36,7 +36,7 @@
 			</div>
 
 			<!-- Empty State -->
-			<div *ngIf="categories && categories.length === 0 && !home" class="empty-state">
+			<div *ngIf="categories && categories.length === 0 && !isHome" class="empty-state">
 				<div class="empty-icon">
 					<mat-icon>local_offer</mat-icon>
 				</div>
@@ -49,7 +49,7 @@
 			</div>
 
 			<!-- Categories List -->
-			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait}">
+			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait  || isHome,}">
 				<!-- Overall Budget Card -->
 				<div class="budget-summary-card lg:col-span-2" *ngIf="getOverallBudgetStats().categoriesWithBudget > 0" [class.expanded]="isBudgetSummaryExpanded">
 					<div class="budget-summary-header">
@@ -93,7 +93,7 @@
 					</div> -->
 
 					<!-- Expand/Collapse Button -->
-					<div class="expand-section" *ngIf="!breakpointService.device.isMobile || home">
+					<div class="expand-section" *ngIf="!breakpointService.device.isMobile || isHome">
 						<button mat-button (click)="toggleBudgetSummaryExpansion()" class="expand-btn">
 							<mat-icon>{{ isBudgetSummaryExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
 							<span>{{ isBudgetSummaryExpanded ? 'Show Less' : 'Show More' }}</span>
@@ -186,7 +186,7 @@
 				</div>
 
 				<!-- No Budget Set Card -->
-				<div class="no-budget-card" *ngIf="!home && getOverallBudgetStats().categoriesWithBudget === 0">
+				<div class="no-budget-card" *ngIf="!isHome && getOverallBudgetStats().categoriesWithBudget === 0">
 					<div class="no-budget-content">
 						<mat-icon class="no-budget-icon">info</mat-icon>
 						<div class="no-budget-text-content">
@@ -198,7 +198,7 @@
 
 				<!-- List View -->
 				<div *ngIf="isListViewMode" class="list-view-container pt-4">
-					@if(!home){ @for (category of categories; track category.id) {
+					@if(!isHome){ @for (category of categories; track category.id) {
 					<!-- Only show main categories (not sub-categories) in the main list -->
 					@if(!category.isSubCategory && !category.parentCategoryId) {
 					<div class="list-view-item" [style.border-left-color]="category.color">
@@ -210,7 +210,7 @@
 						<div class="list-view-actions">
 							<mat-menu #listMenu="matMenu">
 								<button mat-menu-item (click)="openMobileDialog(category)" class="action-button edit-button"><mat-icon>edit</mat-icon> Edit</button>
-								<button mat-menu-item (click)="openMobileDialog(category)" class="action-button delete-button"><mat-icon class="!text-red-800">delete</mat-icon> Delete</button>
+								<button mat-menu-item (click)="deleteCategory(category)" class="action-button delete-button"><mat-icon class="!text-red-800">delete</mat-icon> Delete</button>
 							</mat-menu>
 							<button matIconButton [matMenuTriggerFor]="listMenu">
 								<mat-icon>more_vert</mat-icon>
@@ -246,14 +246,14 @@
 				</div>
 
 				<!-- Detailed View -->
-				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 gap-4 lg:my-5 pt-4">
-					@if(!home){ @for (category of categories; track category.id) {
+				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-3 gap-4 lg:my-5 pt-4" [ngClass]="{'lg:grid-cols-4': !isHome}">
+					@if(!isHome){ @for (category of categories; track category.id) {
 					<!-- Only show main categories (not sub-categories) in the main list -->
 					@if(!category.isSubCategory && !category.parentCategoryId) {
 					<app-category-card
 						[category]="category"
 						[isMobile]="breakpointService.device.isMobile"
-						[home]="home"
+						[home]="isHome"
 						[recentTransactions]="getRecentTransactions(category)"
 						[categoryStats]="getCategoryStats(category)"
 						[allTransactions]="transactions"
@@ -272,7 +272,7 @@
 							<app-category-card
 								[category]="subCategory"
 								[isMobile]="breakpointService.device.isMobile"
-								[home]="home"
+								[home]="isHome"
 								[recentTransactions]="getRecentTransactions(subCategory)"
 								[categoryStats]="getCategoryStats(subCategory)"
 								[allTransactions]="transactions"

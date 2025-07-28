@@ -10,6 +10,9 @@ import * as CategoriesActions from 'src/app/store/categories/categories.actions'
 import * as CategoriesSelectors from 'src/app/store/categories/categories.selectors';
 import { MatDialog } from '@angular/material/dialog';
 import { ParentCategorySelectorDialogComponent, ParentCategorySelectorData } from 'src/app/component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
+import { NotificationService } from './notification.service';
+import { HapticFeedbackService } from './haptic-feedback.service';
 
 @Injectable({
     providedIn: 'root'
@@ -19,7 +22,9 @@ export class CategoryService {
     constructor(
         private firestore: Firestore, 
         private store: Store<AppState>,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private notificationService: NotificationService,
+        private hapticFeedback: HapticFeedbackService
     ) { 
 
         this.store.select(CategoriesSelectors.selectAllCategories).subscribe(categories => {
@@ -365,4 +370,36 @@ export class CategoryService {
     private generateCategoryId(): string {
         return 'cat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
+
+    public performDelete(category: Category, userId: string): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '400px',
+          data: {
+            title: 'Delete Category',
+            message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            confirmColor: 'warn'
+          }
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            if (!category.id) {
+          this.notificationService.error('Category ID not found');
+          return;
+        }
+    
+        this.store.dispatch(CategoriesActions.deleteCategory({
+          userId: userId,
+          categoryId: category.id
+        }));
+    
+        this.notificationService.success('Category deleted successfully');
+        this.hapticFeedback.successVibration();
+          }
+        });
+      }
+    
+    
 }
