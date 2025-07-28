@@ -8,6 +8,11 @@ export interface DateRange {
   endDate: Date;
 }
 
+export interface YearRange {
+  startYear: number;
+  endYear: number;
+}
+
 export interface CategoryFilter {
   categoryId: string;
   year: number;
@@ -21,6 +26,7 @@ export interface TransactionFilter {
   selectedType: string;
   selectedDate: Date | null;
   selectedDateRange: DateRange | null;
+  selectedYear: YearRange | null;
   categoryFilter: CategoryFilter | null;
   accountFilter: string[];
   amountRange: { min: number | null; max: number | null };
@@ -49,6 +55,7 @@ export class FilterService {
   // Core filter subjects
   private selectedDateSubject = new BehaviorSubject<Date | null>(null);
   private selectedDateRangeSubject = new BehaviorSubject<DateRange | null>(null);
+  private selectedYearSubject = new BehaviorSubject<YearRange | null>(null);
   private categoryFilterSubject = new BehaviorSubject<CategoryFilter | null>(null);
   private searchTermSubject = new BehaviorSubject<string>('');
   private selectedCategorySubject = new BehaviorSubject<string[]>(['all']);
@@ -69,6 +76,7 @@ export class FilterService {
   // Public observables
   public selectedDate$ = this.selectedDateSubject.asObservable();
   public selectedDateRange$ = this.selectedDateRangeSubject.asObservable();
+  public selectedYear$ = this.selectedYearSubject.asObservable();
   public categoryFilter$ = this.categoryFilterSubject.asObservable();
   public searchTerm$ = this.searchTermSubject.asObservable();
   public selectedCategory$ = this.selectedCategorySubject.asObservable();
@@ -117,10 +125,62 @@ export class FilterService {
     }
     this.selectedDateRangeSubject.next({ startDate, endDate });
     this.selectedDateSubject.next(null);
+    
+    // If the date range represents a full month within a specific year,
+    // keep the year filter to maintain context
+    const startMoment = moment(startDate);
+    const endMoment = moment(endDate);
+    const startYear = startMoment.year();
+    const endYear = endMoment.year();
+    
+    // Check if this is a full month range (same year, start of month to end of month)
+    if (startYear === endYear && 
+        startMoment.isSame(startMoment.clone().startOf('month')) && 
+        endMoment.isSame(endMoment.clone().endOf('month'))) {
+      // Don't clear the year filter in this case
+      return;
+    }
+    
+    // For other date ranges, clear the year filter as they might conflict
+    this.selectedYearSubject.next(null);
   }
 
   getSelectedDateRange(): DateRange | null {
     return this.selectedDateRangeSubject.value;
+  }
+
+  // ===== YEAR FILTER METHODS =====
+  setSelectedYear(startYear: number, endYear: number): void {
+    if (!startYear || !endYear || startYear > endYear) {
+      console.warn('Invalid year range provided');
+      return;
+    }
+    this.selectedYearSubject.next({ startYear, endYear });
+    this.selectedDateSubject.next(null);
+    
+    // Check if there's an existing date range that represents a month within this year
+    const currentDateRange = this.selectedDateRangeSubject.value;
+    if (currentDateRange) {
+      const startMoment = moment(currentDateRange.startDate);
+      const endMoment = moment(currentDateRange.endDate);
+      const rangeStartYear = startMoment.year();
+      const rangeEndYear = endMoment.year();
+      
+      // If the date range is within the selected year and represents a full month, keep it
+      if (rangeStartYear === rangeEndYear && 
+          rangeStartYear === startYear && 
+          startMoment.isSame(startMoment.clone().startOf('month')) && 
+          endMoment.isSame(endMoment.clone().endOf('month'))) {
+        return;
+      }
+    }
+    
+    // Clear date range for other cases
+    this.selectedDateRangeSubject.next(null);
+  }
+
+  getSelectedYear(): YearRange | null {
+    return this.selectedYearSubject.value;
   }
 
   // ===== CATEGORY FILTER METHODS =====
@@ -220,6 +280,10 @@ export class FilterService {
     this.selectedDateRangeSubject.next(null);
   }
 
+  clearSelectedYear(): void {
+    this.selectedYearSubject.next(null);
+  }
+
   clearCategoryFilter(): void {
     this.categoryFilterSubject.next(null);
   }
@@ -255,6 +319,7 @@ export class FilterService {
   // ===== CLEAR ALL FILTERS =====
   clearAllFilters(): void {
     this.clearSelectedDate();
+    this.clearSelectedYear();
     this.clearCategoryFilter();
     this.clearSearchTerm();
     this.clearSelectedCategory();
@@ -272,6 +337,7 @@ export class FilterService {
     combineLatest([
       this.selectedDate$,
       this.selectedDateRange$,
+      this.selectedYear$,
       this.categoryFilter$,
       this.searchTerm$,
       this.selectedCategory$,
@@ -280,13 +346,14 @@ export class FilterService {
       this.amountRange$,
       this.statusFilter$,
       this.tags$
-    ]).subscribe(([date, dateRange, categoryFilter, searchTerm, categories, type, accounts, amountRange, statuses, tags]) => {
+    ]).subscribe(([date, dateRange, year, categoryFilter, searchTerm, categories, type, accounts, amountRange, statuses, tags]) => {
       const filterState: TransactionFilter = {
         searchTerm,
         selectedCategory: categories,
         selectedType: type,
         selectedDate: date,
         selectedDateRange: dateRange,
+        selectedYear: year,
         categoryFilter,
         accountFilter: accounts,
         amountRange,
@@ -375,7 +442,8 @@ export class FilterService {
       state.amountRange.min !== null ||
       state.amountRange.max !== null ||
       state.statusFilter.length > 0 ||
-      state.tags.length > 0
+      state.tags.length > 0 ||
+      state.selectedYear
     );
   }
 
@@ -393,6 +461,7 @@ export class FilterService {
     if (state.amountRange.min !== null || state.amountRange.max !== null) count++;
     if (state.statusFilter.length > 0) count++;
     if (state.tags.length > 0) count++;
+    if (state.selectedYear) count++;
     
     return count;
   }
@@ -405,6 +474,7 @@ export class FilterService {
     if (filterState.selectedDateRange !== undefined && filterState.selectedDateRange) {
       this.setSelectedDateRange(filterState.selectedDateRange.startDate, filterState.selectedDateRange.endDate);
     }
+    if (filterState.selectedYear !== undefined && filterState.selectedYear) this.setSelectedYear(filterState.selectedYear.startYear, filterState.selectedYear.endYear);
     if (filterState.categoryFilter !== undefined) this.categoryFilterSubject.next(filterState.categoryFilter);
     if (filterState.accountFilter !== undefined) this.setAccountFilter(filterState.accountFilter);
     if (filterState.amountRange !== undefined) this.setAmountRange(filterState.amountRange.min, filterState.amountRange.max);
@@ -424,6 +494,7 @@ export class FilterService {
       selectedType: 'all',
       selectedDate: null,
       selectedDateRange: null,
+      selectedYear: null,
       categoryFilter: null,
       accountFilter: [],
       amountRange: { min: null, max: null },
@@ -474,6 +545,7 @@ export class FilterService {
     if (filterState.selectedDate) parts.push(`Date: ${filterState.selectedDate.toLocaleDateString()}`);
     if (filterState.selectedDateRange) parts.push(`Date Range: ${filterState.selectedDateRange.startDate.toLocaleDateString()} - ${filterState.selectedDateRange.endDate.toLocaleDateString()}`);
     if (filterState.categoryFilter) parts.push(`Category Filter: ${filterState.categoryFilter.categoryId} (${filterState.categoryFilter.monthName} ${filterState.categoryFilter.year})`);
+    if (filterState.selectedYear) parts.push(`Year Range: ${filterState.selectedYear.startYear} - ${filterState.selectedYear.endYear}`);
     
     return parts.length > 0 ? parts.join(', ') : 'No filters applied';
   }
@@ -555,6 +627,16 @@ export class FilterService {
       });
     }
 
+    // Apply year filter
+    if (state.selectedYear && state.selectedYear.startYear && state.selectedYear.endYear) {
+      filtered = filtered.filter(transaction => {
+        const transactionDate = this.getTransactionDate(transaction.date);
+        if (!transactionDate) return false;
+        const txYear = moment(transactionDate).year();
+        return txYear >= state.selectedYear!.startYear && txYear <= state.selectedYear!.endYear;
+      });
+    }
+
     // Apply account filter
     if (state.accountFilter && state.accountFilter.length > 0) {
       filtered = filtered.filter(transaction => 
@@ -612,6 +694,7 @@ export class FilterService {
       selectedType: filters.selectedType || 'all',
       selectedDate: filters.selectedDate || null,
       selectedDateRange: filters.selectedDateRange || null,
+      selectedYear: null, // Custom filters don't have a year filter
       categoryFilter: null,
       accountFilter: filters.accountFilter || [],
       amountRange: filters.amountRange || { min: null, max: null },

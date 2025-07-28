@@ -126,6 +126,14 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
         }
       })
     );
+
+    this.subscription.add(
+      this.filterService.selectedYear$.subscribe(yearRange => {
+        if (yearRange) {
+          this.selectedYear = yearRange.startYear;
+        }
+      })
+    );
   }
 
   private loadCategoriesFromStore() {
@@ -233,22 +241,24 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       const endDate = moment().year(year).month(month).endOf('month').toDate();
       this.filterService.setSelectedDateRange(startDate, endDate);
     } else {
-      const startDate = moment().year(year).startOf('year').toDate();
-      const endDate = moment().year(year).endOf('year').toDate();
-      this.filterService.setSelectedDateRange(startDate, endDate);
+      // Use the year selection method
+      this.filterService.setSelectedYear(year, year);
     }
   }
 
   onSelectedMonthChange(monthValue: string) {
     this.selectedMonthOption = monthValue;
     if (monthValue !== 'all') {
+      // When a specific month is selected, set the date range for that month
       const month = parseInt(monthValue);
       const startDate = moment().year(this.selectedYear).month(month).startOf('month').toDate();
       const endDate = moment().year(this.selectedYear).month(month).endOf('month').toDate();
       this.filterService.setSelectedDateRange(startDate, endDate);
     } else {
-      // Clear date range when "all" is selected
+      // When "all" is selected, clear date filters but keep year filter
       this.filterService.clearSelectedDate();
+      // Restore year filter when switching back to "all months"
+      this.filterService.setSelectedYear(this.selectedYear, this.selectedYear);
     }
   }
 
@@ -292,12 +302,17 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     // Reset to current year or first available year
     const resetYear = this.availableYears.length > 0 ? this.availableYears[0] : this.currentYear;
     this.selectedYear = resetYear;
-    this.filterService.clearSelectedDate();
+    this.filterService.setSelectedYear(this.selectedYear, this.selectedYear);
+    if(this.selectedMonthOption !== 'all'){
+      this.filterService.setSelectedDateRange(moment().year(this.selectedYear).startOf('year').toDate(), moment().year(this.selectedYear).endOf('year').toDate());
+    }
   }
 
   onClearMonthFilter() {
     this.selectedMonthOption = 'all';
     this.filterService.clearSelectedDate();
+    // Restore year filter when clearing month filter
+    this.filterService.setSelectedYear(this.selectedYear, this.selectedYear);
   }
 
   onClearCategoryFilter() {
@@ -310,10 +325,12 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
 
   onClearDateRangeFilter() {
     this.filterService.clearSelectedDate();
+    this.filterService.clearSelectedYear();
   }
 
   onClearDateFilter() {
     this.filterService.clearSelectedDate();
+    this.filterService.clearSelectedYear();
   }
 
   getActiveFilters() {
@@ -328,6 +345,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       });
     }
     
+    // Handle year filter
     if (this.selectedYear !== defaultYear) {
       filters.push({
         type: 'year',
@@ -336,6 +354,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       });
     }
     
+    // Handle month filter separately
     if (this.selectedMonthOption !== 'all') {
       const monthLabel = this.months.find(m => m.value === parseInt(this.selectedMonthOption))?.label;
       filters.push({
@@ -362,7 +381,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       });
     }
 
-    if(this.selectedDateRange && this.selectedMonthOption === 'all'){
+    if(this.selectedDateRange){
       filters.push({
         type: 'dateRange',
         label: `Date Range: ${this.selectedDateRange.start.toLocaleDateString()} - ${this.selectedDateRange.end.toLocaleDateString()}`,

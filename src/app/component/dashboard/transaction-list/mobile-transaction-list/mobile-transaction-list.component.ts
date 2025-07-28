@@ -159,7 +159,9 @@ export class MobileTransactionListComponent
     let filteredData: Transaction[];
 
     // Check if we have specific date filters applied
-    const hasDateFilters = this.filterService.getSelectedDate() || this.filterService.getSelectedDateRange();
+    const hasDateFilters = this.filterService.getSelectedDate() || 
+                          this.filterService.getSelectedDateRange() || 
+                          this.filterService.getSelectedYear();
     
     if (!hasDateFilters) {
       // Filter to show only current year transactions when no specific date filter is applied
