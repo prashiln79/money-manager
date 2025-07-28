@@ -1,8 +1,8 @@
 <!-- Table Container -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col" [ngClass]="{'max-h-[calc(78vh-210px)]': isHome}">
   <!-- View Toggle Header -->
-  <div class="flex justify-between items-center p-3 border-b border-gray-200 bg-gray-50" *if="!isHome">
-    <div class="flex items-center space-x-2">
+  <div class="flex justify-between items-center p-3 border-b border-gray-200 bg-gray-50" *ngIf="!isHome">
+    <!-- <div class="flex items-center space-x-2">
       <span class="text-sm font-medium text-gray-700">View:</span>
       <button 
         mat-button 
@@ -22,7 +22,7 @@
         <mat-icon class="text-sm mr-1">view_list</mat-icon>
         List
       </button>
-    </div>
+    </div> -->
 
     <!-- Bulk Operations - Only for tablet portrait and desktop, and not on home page -->
     <div class="flex items-center space-x-2" *ngIf="hasSelection() && (breakpointService.device.isTablePortrait || breakpointService.device.isDesktop) && !isHome">
