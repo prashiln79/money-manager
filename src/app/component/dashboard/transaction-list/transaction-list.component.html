@@ -6,7 +6,37 @@
   (importTransactions)="openImportDialog()">
 </mobile-transaction-list>
 
-} @else {
+} @else if (!isHome && !breakpointService.device.isMobile && !breakpointService.device.isTablePortrait) {
+
+	<div class="p-2">
+		<total-balance ></total-balance>
+		<!-- Search and Filter Section -->
+		<search-filter
+			[filteredCount]="getFilteredCount()"
+			[currentYearCount]="getCurrentYearCount()"
+			(addTransaction)="addTransactionDialog()"
+			(importTransactions)="openImportDialog()"
+			(openFilterDialog)="openFilterDialog()"
+			(viewAnalytics)="viewAnalytics()"
+			(expandTable)="expandTable()"
+		></search-filter>
+
+		<!-- Table Container -->
+		<transaction-table
+			(editTransaction)="editTransaction($event)"
+			(deleteTransaction)="deleteTransaction($event)"
+			(startRowEdit)="startRowEdit($event)"
+			(saveRowEdit)="saveRowEdit($event)"
+			(cancelRowEdit)="cancelRowEdit($event)"
+			(addTransaction)="addTransactionDialog()"
+			(bulkDeleteTransactions)="bulkDeleteTransactions($event)"
+			(bulkUpdateCategory)="bulkUpdateCategory($event)"
+			[isHome]="isHome">
+		</transaction-table>
+	</div>
+
+}
+@else {
 
 <mat-card class="p-2 shadow-lg border-0 rounded-xl transaction-list-container h-[83vh]">
 	<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs" [(selectedIndex)]="selectedTabIndex">
@@ -38,7 +68,10 @@
 					(startRowEdit)="startRowEdit($event)"
 					(saveRowEdit)="saveRowEdit($event)"
 					(cancelRowEdit)="cancelRowEdit($event)"
-					(addTransaction)="addTransactionDialog()">
+					(addTransaction)="addTransactionDialog()"
+					(bulkDeleteTransactions)="bulkDeleteTransactions($event)"
+					(bulkUpdateCategory)="bulkUpdateCategory($event)"
+					[isHome]="isHome">
 				</transaction-table>
 			</div>
 		</mat-tab>

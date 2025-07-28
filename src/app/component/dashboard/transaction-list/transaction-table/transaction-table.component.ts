@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, ViewChild, OnInit, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, OnInit, OnDestroy, AfterViewInit, HostListener, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { Transaction } from '../../../../util/models/transaction.model';
@@ -18,6 +18,7 @@ import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/c
 import { MatDialog } from '@angular/material/dialog';
 import { MobileAddTransactionComponent } from '../add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { ParentCategorySelectorDialogComponent } from '../../category/parent-category-selector-dialog/parent-category-selector-dialog.component';
 
 @Component({
   selector: 'transaction-table',
@@ -25,19 +26,26 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
   styleUrls: ['./transaction-table.component.scss']
 })
 export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewInit {
+  @Input() isHome: boolean = false;
   @Output() editTransaction = new EventEmitter<Transaction>();
   @Output() deleteTransaction = new EventEmitter<Transaction>();
   @Output() startRowEdit = new EventEmitter<Transaction>();
   @Output() saveRowEdit = new EventEmitter<Transaction>();
   @Output() cancelRowEdit = new EventEmitter<Transaction>();
   @Output() addTransaction = new EventEmitter<void>();
+  @Output() bulkDeleteTransactions = new EventEmitter<Transaction[]>();
+  @Output() bulkUpdateCategory = new EventEmitter<{transactions: Transaction[], categoryId: string}>();
 
   @ViewChild(MatSort) sort!: MatSort;
 
   dataSource: MatTableDataSource<Transaction> = new MatTableDataSource<Transaction>();
-  displayedColumns: string[] = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+  displayedColumns: string[] = ['select', 'Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
   isListView: boolean = false;
-  public hideViewToggle = true;
+
+  // Selection properties
+  selectedTransactions: Set<string> = new Set();
+  isAllSelected = false;
+  isIndeterminate = false;
 
   // Responsive breakpoints
   private readonly MOBILE_BREAKPOINT = 640; // sm
@@ -86,14 +94,18 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
       const screenWidth = window.innerWidth;
 
       if (screenWidth < this.MOBILE_BREAKPOINT) {
-        // Mobile: Show only essential columns
+        // Mobile: Show only essential columns (no select column)
         this.displayedColumns = ['Date', 'Payee', 'Amount', 'Actions'];
       } else if (screenWidth < this.TABLET_BREAKPOINT) {
-        // Small tablet: Show more columns but hide status
-        this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Actions'];
+        // Small tablet: Show more columns but hide status (include select column only if not home)
+        this.displayedColumns = this.isHome ? 
+          ['Date', 'Type', 'Payee', 'Amount', 'Actions'] : 
+          ['select', 'Date', 'Type', 'Payee', 'Amount', 'Actions'];
       } else {
-        // Desktop: Show all columns
-        this.displayedColumns = ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
+        // Desktop: Show all columns (include select column only if not home)
+        this.displayedColumns = this.isHome ? 
+          ['Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'] : 
+          ['select', 'Date', 'Type', 'Payee', 'Amount', 'Status', 'Actions'];
       }
     }
   }
@@ -388,5 +400,110 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   toggleView() {
     this.isListView = !this.isListView;
+  }
+
+  // Selection methods
+  isSelected(transaction: Transaction): boolean {
+    return this.selectedTransactions.has(transaction.id!);
+  }
+
+  toggleSelection(transaction: Transaction): void {
+    if (this.selectedTransactions.has(transaction.id!)) {
+      this.selectedTransactions.delete(transaction.id!);
+    } else {
+      this.selectedTransactions.add(transaction.id!);
+    }
+    this.updateSelectionState();
+  }
+
+  toggleAllSelection(): void {
+    if (this.isAllSelected) {
+      this.selectedTransactions.clear();
+    } else {
+      this.dataSource.data.forEach(transaction => {
+        this.selectedTransactions.add(transaction.id!);
+      });
+    }
+    this.updateSelectionState();
+  }
+
+  private updateSelectionState(): void {
+    const selectedCount = this.selectedTransactions.size;
+    const totalCount = this.dataSource.data.length;
+    
+    this.isAllSelected = selectedCount === totalCount && totalCount > 0;
+    this.isIndeterminate = selectedCount > 0 && selectedCount < totalCount;
+  }
+
+  getSelectedTransactions(): Transaction[] {
+    return this.dataSource.data.filter(transaction => 
+      this.selectedTransactions.has(transaction.id!)
+    );
+  }
+
+  getSelectedCount(): number {
+    return this.selectedTransactions.size;
+  }
+
+  hasSelection(): boolean {
+    return this.selectedTransactions.size > 0;
+  }
+
+  clearSelection(): void {
+    this.selectedTransactions.clear();
+    this.updateSelectionState();
+  }
+
+  // Bulk operations
+  onBulkDelete(): void {
+    const selectedTransactions = this.getSelectedTransactions();
+    if (selectedTransactions.length === 0) return;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Multiple Transactions',
+        message: `Are you sure you want to delete ${selectedTransactions.length} transaction(s)? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        confirmColor: 'warn'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.bulkDeleteTransactions.emit(selectedTransactions);
+        this.clearSelection();
+      }
+    });
+  }
+
+  onBulkUpdateCategory(): void {
+    const selectedTransactions = this.getSelectedTransactions();
+    if (selectedTransactions.length === 0) return;
+
+    // Get all available categories
+    const availableCategories = Object.values(this.categories).filter(category => 
+      !category.parentCategoryId // Only show parent categories
+    );
+
+    const dialogRef = this.dialog.open(ParentCategorySelectorDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Update Category for Multiple Transactions',
+        message: `Select a new category for ${selectedTransactions.length} transaction(s):`,
+        categories: availableCategories
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((selectedCategory: Category | null) => {
+      if (selectedCategory) {
+        this.bulkUpdateCategory.emit({
+          transactions: selectedTransactions,
+          categoryId: selectedCategory.id!
+        });
+        this.clearSelection();
+      }
+    });
   }
 } 

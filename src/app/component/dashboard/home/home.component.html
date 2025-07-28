@@ -10,5 +10,5 @@
 	<user-category [isHome]="true" class="lg:col-span-5"></user-category>
 	<user-accounts [home]="true"></user-accounts>
 	}
-	<transaction-list *ngIf="!breakpointService.device.isMobile" class="lg:col-span-5"></transaction-list>
+	<transaction-list *ngIf="!breakpointService.device.isMobile" [isHome]="true" class="lg:col-span-5"></transaction-list>
 </section>

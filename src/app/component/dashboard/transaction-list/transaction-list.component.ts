@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, Input } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -23,6 +23,7 @@ import { RecurringInterval, SyncStatus, TransactionStatus, TransactionType } fro
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { Router } from '@angular/router';
+import { TransactionsService } from 'src/app/util/service/transactions.service';
 
 @Component({
   selector: 'transaction-list',
@@ -30,6 +31,7 @@ import { Router } from '@angular/router';
   styleUrl: './transaction-list.component.scss'
 })
 export class TransactionListComponent implements OnInit, OnDestroy {
+  @Input() isHome: boolean = false;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild("tableSort", { static: false }) sort!: MatSort;
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
@@ -58,7 +60,8 @@ export class TransactionListComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private dateService: DateService,
     public breakpointService: BreakpointService,
-    private router: Router
+    private router: Router,
+    private transactionsService: TransactionsService
 
   ) {
     this.isTransactionsPage = this.router.url.includes('transactions') ? true : false;
@@ -415,5 +418,66 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   getCurrentFilterState() {
     return this.filterService.getCurrentFilterState();
+  }
+
+  // Bulk operations
+  async bulkDeleteTransactions(transactions: Transaction[]) {
+    if (!transactions || transactions.length === 0) return;
+
+    this.loaderService.show();
+    const userId = this.auth.currentUser?.uid;
+    
+    if (!userId) {
+      this.notificationService.error('User not authenticated');
+      this.loaderService.hide();
+      return;
+    }
+
+    try {
+      // Delete transactions one by one
+      for (const transaction of transactions) {
+        await this.transactionsService.deleteTransaction(userId, transaction.id!).toPromise();
+      }
+
+      this.notificationService.success(`Successfully deleted ${transactions.length} transaction(s)`);
+    } catch (error) {
+      console.error('Error deleting transactions:', error);
+      this.notificationService.error('Failed to delete some transactions');
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async bulkUpdateCategory(data: {transactions: Transaction[], categoryId: string}) {
+    const { transactions, categoryId } = data;
+    
+    if (!transactions || transactions.length === 0 || !categoryId) return;
+
+    this.loaderService.show();
+    const userId = this.auth.currentUser?.uid;
+    
+    if (!userId) {
+      this.notificationService.error('User not authenticated');
+      this.loaderService.hide();
+      return;
+    }
+
+    try {
+      // Update transactions one by one
+      for (const transaction of transactions) {
+        const updatedTransaction = {
+          categoryId: categoryId
+        };
+        
+        await this.transactionsService.updateTransaction(userId, transaction.id!, updatedTransaction).toPromise();
+      }
+
+      this.notificationService.success(`Successfully updated category for ${transactions.length} transaction(s)`);
+    } catch (error) {
+      console.error('Error updating transactions:', error);
+      this.notificationService.error('Failed to update some transactions');
+    } finally {
+      this.loaderService.hide();
+    }
   }
 }
