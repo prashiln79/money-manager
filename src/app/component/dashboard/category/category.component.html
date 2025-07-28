@@ -7,7 +7,13 @@
 		</button>
 	</div>
 
-	<button mat-fab color="primary" *ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !home" (click)="openAddMobileDialog()" class="mobile-fab-btn add-category-btn">
+	<button
+		mat-fab
+		color="primary"
+		*ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !home"
+		(click)="openAddMobileDialog()"
+		class="mobile-fab-btn add-category-btn"
+	>
 		<mat-icon>add</mat-icon>
 	</button>
 
@@ -22,7 +28,10 @@
 			<div class="section-header" *ngIf="!home">
 				<div class="header-content">
 					<h2 class="section-title">Manage Categories</h2>
-					<p class="section-subtitle">({{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }})</p>
+					<span class="flex items-center gap-2">
+						<p class="section-subtitle">({{ categories.length }} categor{{ categories.length !== 1 ? 'ies' : 'y' }})</p>
+						<mat-icon (click)="toggleListViewMode()" [matTooltip]="isListViewMode ? 'Switch to detailed view' : 'Switch to list view'">{{ isListViewMode ? 'view_list' : 'list' }}</mat-icon>
+					</span>
 				</div>
 			</div>
 
@@ -176,8 +185,6 @@
 					</div>
 				</div>
 
-				<hr class="my-1" *ngIf="!home && breakpointService.device.isMobile">
-
 				<!-- No Budget Set Card -->
 				<div class="no-budget-card" *ngIf="!home && getOverallBudgetStats().categoriesWithBudget === 0">
 					<div class="no-budget-content">
@@ -189,44 +196,96 @@
 					</div>
 				</div>
 
-				@if(!home){ @for (category of categories; track category.id) {
-				<!-- Only show main categories (not sub-categories) in the main list -->
-				@if(!category.isSubCategory && !category.parentCategoryId) {
-				<app-category-card
-					[category]="category"
-					[isMobile]="breakpointService.device.isMobile"
-					[home]="home"
-					[recentTransactions]="getRecentTransactions(category)"
-					[categoryStats]="getCategoryStats(category)"
-					[allTransactions]="transactions"
-					[subCategories]="getSubCategoriesForCategory(category.id!)"
-					[Math]="Math"
-				>
-				</app-category-card>
-				}
+				<!-- List View -->
+				<div *ngIf="isListViewMode" class="list-view-container pt-4">
+					@if(!home){ @for (category of categories; track category.id) {
+					<!-- Only show main categories (not sub-categories) in the main list -->
+					@if(!category.isSubCategory && !category.parentCategoryId) {
+					<div class="list-view-item" [style.border-left-color]="category.color">
+						<div class="list-view-content">
+							<mat-icon class="list-view-icon" [style.color]="category.color">{{ category.icon || 'category' }}</mat-icon>
+							<span class="list-view-name">{{ category.name }}</span>
+							<span class="list-view-type">{{ category.type | titlecase }}</span>
+						</div>
+						<div class="list-view-actions">
+							<mat-menu #listMenu="matMenu">
+								<button mat-menu-item (click)="openMobileDialog(category)" class="action-button edit-button"><mat-icon>edit</mat-icon> Edit</button>
+								<button mat-menu-item (click)="openMobileDialog(category)" class="action-button delete-button"><mat-icon class="!text-red-800">delete</mat-icon> Delete</button>
+							</mat-menu>
+							<button matIconButton [matMenuTriggerFor]="listMenu">
+								<mat-icon>more_vert</mat-icon>
+							</button>
+						</div>
+					</div>
+					}
 
-				<!-- Display sub-categories under their parent -->
-				@if(getSubCategoriesForCategory(category.id!).length > 0 && breakpointService.device.isMobile) {
-				<div class="sub-category-wrapper">
-					<div class="group-header">Sub-categories</div>
-					<div class="sub-categories-container">
+					<!-- Display sub-categories under their parent in list view -->
+					@if(getSubCategoriesForCategory(category.id!).length > 0 && breakpointService.device.isMobile) {
+					<div class="sub-category-list-wrapper">
+						<div class="group-header">Sub-categories</div>
 						@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
-						<app-category-card
-							[category]="subCategory"
-							[isMobile]="breakpointService.device.isMobile"
-							[home]="home"
-							[recentTransactions]="getRecentTransactions(subCategory)"
-							[categoryStats]="getCategoryStats(subCategory)"
-							[allTransactions]="transactions"
-							[subCategories]="getSubCategoriesForCategory(category.id!)"
-							[subCategoryCount]="0"
-							[Math]="Math"
-						>
-						</app-category-card>
+						<div class="list-view-item sub-category-item" [style.border-left-color]="subCategory.color">
+							<div class="list-view-content">
+								<mat-icon class="list-view-icon" [style.color]="subCategory.color">{{ subCategory.icon || 'category' }}</mat-icon>
+								<span class="list-view-name">{{ subCategory.name }}</span>
+								<span class="list-view-type">{{ subCategory.type | titlecase }}</span>
+							</div>
+							<div class="list-view-actions">
+								<mat-menu #subListMenu="matMenu">
+									<button mat-menu-item (click)="openMobileDialog(subCategory)" class="action-button edit-button"><mat-icon>edit</mat-icon> Edit</button>
+									<button mat-menu-item (click)="openMobileDialog(subCategory)" class="action-button delete-button"><mat-icon class="!text-red-800">delete</mat-icon> Delete</button>
+								</mat-menu>
+								<button matIconButton [matMenuTriggerFor]="subListMenu">
+									<mat-icon>more_vert</mat-icon>
+								</button>
+							</div>
+						</div>
 						}
 					</div>
+					} } }
 				</div>
-				} } }
+
+				<!-- Detailed View -->
+				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 gap-4 lg:my-5 pt-4">
+					@if(!home){ @for (category of categories; track category.id) {
+					<!-- Only show main categories (not sub-categories) in the main list -->
+					@if(!category.isSubCategory && !category.parentCategoryId) {
+					<app-category-card
+						[category]="category"
+						[isMobile]="breakpointService.device.isMobile"
+						[home]="home"
+						[recentTransactions]="getRecentTransactions(category)"
+						[categoryStats]="getCategoryStats(category)"
+						[allTransactions]="transactions"
+						[subCategories]="getSubCategoriesForCategory(category.id!)"
+						[Math]="Math"
+					>
+					</app-category-card>
+					}
+
+					<!-- Display sub-categories under their parent -->
+					@if(getSubCategoriesForCategory(category.id!).length > 0 && breakpointService.device.isMobile) {
+					<div class="sub-category-wrapper">
+						<div class="group-header">Sub-categories</div>
+						<div class="sub-categories-container">
+							@for (subCategory of getSubCategoriesForCategory(category.id!); track subCategory.id) {
+							<app-category-card
+								[category]="subCategory"
+								[isMobile]="breakpointService.device.isMobile"
+								[home]="home"
+								[recentTransactions]="getRecentTransactions(subCategory)"
+								[categoryStats]="getCategoryStats(subCategory)"
+								[allTransactions]="transactions"
+								[subCategories]="getSubCategoriesForCategory(category.id!)"
+								[subCategoryCount]="0"
+								[Math]="Math"
+							>
+							</app-category-card>
+							}
+						</div>
+					</div>
+					} } }
+				</div>
 			</div>
 		</section>
 	</div>

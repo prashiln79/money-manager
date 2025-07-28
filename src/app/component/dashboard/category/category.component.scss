@@ -123,12 +123,37 @@
   .section-header {
     margin-bottom: 1.5rem;
     position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     
     .header-content {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       flex: 1;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: 1rem;
+      
+      .view-toggle-btn {
+        color: #6b7280;
+        transition: color 0.2s ease;
+        
+        &:hover {
+          color: #374151;
+        }
+        
+        mat-icon {
+          font-size: 1.25rem;
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
     }
     
     .section-title {
@@ -208,22 +233,22 @@
   
   // Categories Grid List
   .categories-grid-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    // display: grid;
+    // grid-template-columns: 1fr;
+    // gap: 1rem;
     max-height: calc(92vh - 250px);
     overflow-y: auto;
     
-    @media (min-width: 768px) {
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-    }
+    // @media (min-width: 768px) {
+    //   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    //   gap: 1.5rem;
+    // }
     
-    @media (min-width: 1200px) {
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1rem;
-      align-items: stretch; 
-    }
+    // @media (min-width: 1200px) {
+    //   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    //   gap: 1rem;
+    //   align-items: stretch; 
+    // }
     
     @media (max-width: 640px) {
       max-height: 100vh;
@@ -917,6 +942,100 @@
     &.mat-selected {
       background: #dbeafe;
       color: #1d4ed8;
+    }
+  }
+}
+
+// =============================================================================
+// LIST VIEW STYLES
+// =============================================================================
+.list-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  
+  .list-view-item {
+    background: white;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .list-view-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+      
+      .list-view-icon {
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+      }
+      
+      .list-view-name {
+        font-weight: 500;
+        color: #1f2937;
+        font-size: 0.875rem;
+      }
+      
+      .list-view-type {
+        color: #6b7280;
+        font-size: 0.75rem;
+        background: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+      }
+    }
+    
+    .list-view-actions {
+      display: flex;
+      align-items: center;
+      
+      button {
+        color: #6b7280;
+        transition: color 0.2s ease;
+        
+        &:hover {
+          color: #374151;
+        }
+      }
+    }
+    
+    &.sub-category-item {
+      margin-left: 1rem;
+      background: #f9fafb;
+      border-left-width: 3px;
+      
+      .list-view-content .list-view-name {
+        font-size: 0.8rem;
+      }
+    }
+  }
+  
+  .sub-category-list-wrapper {
+    margin-top: 0.5rem;
+    
+    .group-header {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+      padding-left: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
     }
   }
 }

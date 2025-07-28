@@ -42,7 +42,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   public errorMessage: string = '';
 
   public isBudgetSummaryExpanded: boolean = false;
-
+  public isListViewMode: boolean = false; // Add this property for list view toggle
 
 
   public userId: string = '';
@@ -155,7 +155,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
 
 
-  private openMobileDialog(category?: Category): void {
+  public openMobileDialog(category?: Category): void {
 
     const dialogRef = this.dialog.open(MobileCategoryAddEditPopupComponent, {
       panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
@@ -209,6 +209,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
    */
   public toggleBudgetSummaryExpansion(): void {
     this.isBudgetSummaryExpanded = !this.isBudgetSummaryExpanded;
+  }
+
+  public toggleListViewMode(): void {
+    this.isListViewMode = !this.isListViewMode;
   }
 
   /**
