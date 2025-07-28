@@ -49,7 +49,7 @@
 			</div>
 
 			<!-- Categories List -->
-			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait }">
+			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait, '!max-h-[75vh]': !isChildView && !isHomeView}">
 				<!-- Overall Budget Card -->
 				<div class="budget-summary-card lg:col-span-2" *ngIf="getOverallBudgetStats().categoriesWithBudget > 0" [class.expanded]="isBudgetSummaryExpanded">
 					<div class="budget-summary-header">
@@ -246,7 +246,7 @@
 				</div>
 
 				<!-- Detailed View -->
-				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-3 gap-4 lg:my-5 pt-4" [ngClass]="{'lg:grid-cols-4': !isHomeView && !isChildView}">
+				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 xxl:grid-cols-3 gap-4 lg:my-5 pt-4" [ngClass]="{'lg:grid-cols-4': !isHomeView && !isChildView}">
 					@if(!isHomeView){ @for (category of categories; track category.id) {
 					<!-- Only show main categories (not sub-categories) in the main list -->
 					@if(!category.isSubCategory && !category.parentCategoryId) {
