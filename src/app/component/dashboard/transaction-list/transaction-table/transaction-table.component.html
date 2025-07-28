@@ -8,12 +8,12 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-3 py-4 md:px-6 sticky top-0 z-10">
           <div class="flex items-center space-x-1 md:space-x-2">
             <mat-icon class="text-gray-500 text-xs md:text-sm">schedule</mat-icon>
-            <span class="font-semibold text-gray-700 text-xs md:text-sm">Date & Time</span>
+            <span class="font-semibold text-gray-700 text-xs md:text-sm">Date</span>
           </div>
         </th>
         <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6">
           <div class="text-xs md:text-sm text-gray-600">
-            {{ element.date.seconds * 1000 | date:'MMM dd, yyyy' }}
+            {{ element.date.seconds * 1000 | date: (breakpointService.device.isTablePortrait ? 'MMM dd' :'MMM dd, yyyy' ) }}
           </div>
           <div class="text-xs text-gray-400 hidden md:block">
             {{ element.date.seconds * 1000 | date:'hh:mm a' }}
@@ -23,14 +23,14 @@
 
       <!-- Type Column -->
       <ng-container matColumnDef="Type">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-3 py-4 md:px-6 hidden sm:table-cell sticky top-0 z-10 bg-gray-50">
-          <div class="flex items-center space-x-1 md:space-x-2">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-1 py-4  hidden sm:table-cell sticky top-0 z-10 bg-gray-50">
+          <div class="flex items-center space-x-1 ">
             <mat-icon class="text-gray-500 text-xs md:text-sm">category</mat-icon>
             <span class="font-semibold text-gray-700 text-xs md:text-sm">Category</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6 hidden sm:table-cell">
-          <div class="flex items-center space-x-1 md:space-x-2">
+        <td mat-cell *matCellDef="let element" class="px-1 py-4 border-b border-gray-100  hidden sm:table-cell">
+          <div class="flex items-center ">
             <div class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center bg-gray-100">
               <mat-icon class="text-xs md:text-sm" [style.color]="getCategoryColor(element.categoryId)">{{ getCategoryIcon(element.categoryId) }}</mat-icon>
             </div>
@@ -43,14 +43,14 @@
 
       <!-- Payee Column -->
       <ng-container matColumnDef="Payee">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-3 py-4 md:px-6 sticky top-0 z-10 bg-gray-50 min-w-[200px] md:min-w-[250px]">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-3 py-4 md:px-6 sticky top-0 z-10 bg-gray-50 min-w-[200px] max-w-[200px]" [ngClass]="{'min-w-[150px] max-w-[150px]': breakpointService.device.isTablePortrait}">
           <div class="flex items-center space-x-1 md:space-x-2">
             <mat-icon class="text-gray-500 text-xs md:text-sm">description</mat-icon>
             <span class="font-semibold text-gray-700 text-xs md:text-sm">Description</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6 min-w-[200px] md:min-w-[250px]">
-          <span *ngIf="!element.isEditing" class="font-medium text-gray-900 text-xs md:text-sm break-words">{{element.payee}}</span>
+        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6 min-w-[200px] max-w-[200px]" [ngClass]="{'min-w-[150px] max-w-[150px]': breakpointService.device.isTablePortrait}">
+          <div *ngIf="!element.isEditing" class="font-medium text-gray-900 text-xs md:text-sm w-full overflow-hidden text-ellipsis whitespace-nowrap" [matTooltip]="element.payee">{{element.payee}}</div>
           <input
             *ngIf="element.isEditing"
             [(ngModel)]="element.payee"
@@ -62,13 +62,13 @@
 
       <!-- Amount Column -->
       <ng-container matColumnDef="Amount">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-3 py-4 md:px-6 sticky top-0 z-10">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50 px-1 py-4  sticky top-0 z-10">
           <div class="flex items-center space-x-1 md:space-x-2">
             <mat-icon class="text-gray-500 text-xs md:text-sm">account_balance_wallet</mat-icon>
             <span class="font-semibold text-gray-700 text-xs md:text-sm">Amount</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-3 py-4 border-b border-gray-100 md:px-6">
+        <td mat-cell *matCellDef="let element" class="px-1 py-4 border-b border-gray-100 ">
           <span *ngIf="!element.isEditing" class="font-bold text-xs md:text-sm" [class]="element.type === 'income' ? 'text-green-700' : 'text-red-800'">
             {{ (element.type == 'income' ? '+':'-' ) + ' ₹' + element.amount.toLocaleString() }}
           </span>
