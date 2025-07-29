@@ -40,6 +40,7 @@ import { CommonBodyContentComponent } from 'src/app/util/components/dialog/commo
 import { CategorySplitDialogComponent } from '../../util/components/category-split-dialog/category-split-dialog.component';
 import { BudgetCardComponent } from '../../util/components/cards/budget-card/budget-card.component';
 import { AccountSummaryCardComponent } from '../../util/components/cards/account-summary-card/account-summary-card.component';
+import { KeyMetricsSummaryCardComponent } from '../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { AccountSummaryCardComponent } from '../../util/components/cards/account
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    KeyMetricsSummaryCardComponent,
     
     // Material Modules
     MatCardModule,
@@ -128,7 +130,8 @@ import { AccountSummaryCardComponent } from '../../util/components/cards/account
     CommonBodyContentComponent,
     CategorySplitDialogComponent,
     BudgetCardComponent,
-    AccountSummaryCardComponent
+    AccountSummaryCardComponent,
+    KeyMetricsSummaryCardComponent
   ]
 })
 export class SharedModule { } 

@@ -15,6 +15,7 @@ import { DateService } from 'src/app/util/service/date.service';
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { EChartsOption } from 'echarts';
 import { SsrService } from 'src/app/util/service/ssr.service';
+import { KeyMetricsSummaryCardComponent, KeyMetric, KeyMetricsConfig } from '../../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
 
 interface CategorySpending {
   category: string;
@@ -111,6 +112,24 @@ export class ReportsComponent implements OnInit, OnDestroy {
   netSavings: number = 0;
   monthlyChange: number = 0;
   monthlyChangePercentage: number = 0;
+  
+  // Key metrics for the card component
+  keyMetricsConfig: KeyMetricsConfig = {
+    metrics: [],
+    title: 'Key Metrics Summary',
+    subtitle: 'Financial overview for this period',
+    currency: 'INR',
+    showTrends: true,
+    showIcons: true,
+    showPeriod: true,
+    cardHeight: 'medium',
+    layout: 'grid',
+    columns: 4,
+    theme: 'auto',
+    animations: true,
+    clickable: true,
+    onMetricClick: (metric: KeyMetric) => this.onMetricClick(metric)
+  };
 
   // Data arrays
   transactions: Transaction[] = [];
@@ -297,6 +316,48 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.monthlyChangePercentage = lastMonthSavings !== 0 
       ? ((this.monthlyChange / lastMonthSavings) * 100) 
       : 0;
+
+    // Populate key metrics for the card component
+    this.populateKeyMetrics();
+  }
+
+  private populateKeyMetrics(): void {
+    this.keyMetricsConfig.metrics = [
+      {
+        title: 'Total Income',
+        value: this.totalIncome,
+        period: 'This period',
+        icon: 'trending_up',
+        color: 'green',
+        trend: this.totalIncome > 0 ? 'up' : 'neutral'
+      },
+      {
+        title: 'Total Expenses',
+        value: this.totalExpenses,
+        period: 'This period',
+        icon: 'trending_down',
+        color: 'red',
+        trend: this.totalExpenses > 0 ? 'down' : 'neutral'
+      },
+      {
+        title: 'Net Savings',
+        value: this.netSavings,
+        period: 'This period',
+        icon: 'account_balance_wallet',
+        color: 'blue',
+        trend: this.netSavings >= 0 ? 'up' : 'down'
+      },
+      {
+        title: 'Monthly Change',
+        value: Math.abs(this.monthlyChange),
+        period: 'vs last month',
+        icon: this.monthlyChange >= 0 ? 'trending_up' : 'trending_down',
+        color: 'purple',
+        trend: this.monthlyChange >= 0 ? 'up' : 'down',
+        changeValue: this.monthlyChange,
+        changePercentage: this.monthlyChangePercentage
+      }
+    ];
   }
 
   private calculateTopCategories(): void {
@@ -800,6 +861,26 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   addTransaction(): void {
     this.router.navigate(['/dashboard/transaction-list/add-transaction']);
+  }
+
+  onMetricClick(metric: KeyMetric): void {
+    // Handle metric click - could navigate to detailed view or show more info
+    console.log('Metric clicked:', metric);
+    // You can add navigation logic here based on the metric type
+    switch (metric.title) {
+      case 'Total Income':
+        // Navigate to income transactions
+        break;
+      case 'Total Expenses':
+        // Navigate to expense transactions
+        break;
+      case 'Net Savings':
+        // Show savings breakdown
+        break;
+      case 'Monthly Change':
+        // Show trend analysis
+        break;
+    }
   }
 
   // Helper methods for template

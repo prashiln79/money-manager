@@ -1,0 +1,51 @@
+<mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
+  <div class="p-4 sm:p-6">
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <div class="flex-1 min-w-0">
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{{ effectiveConfig.title }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ effectiveConfig.subtitle }}</p>
+      </div>
+      <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+        <mat-icon class="text-blue-600 dark:text-blue-400">analytics</mat-icon>
+      </div>
+    </div>
+    
+    <div [ngClass]="gridColumns" class="gap-4">
+      @for (metric of effectiveConfig.metrics; track metric.title) {
+      <div 
+        class="metric-card rounded-xl p-4 sm:p-6 border shadow-sm hover:shadow-md transition-shadow"
+        [ngClass]="getMetricClasses(metric)"
+        [class.cursor-pointer]="effectiveConfig.clickable"
+        [class.cursor-default]="!effectiveConfig.clickable"
+        (click)="onMetricClick(metric)">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate" [ngClass]="getMetricColorClass(metric.color, 'text')">{{ metric.title }}</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold truncate" [ngClass]="getMetricColorClass(metric.color, 'value')">
+              {{ formatCurrency(metric.value) }}
+            </p>
+            @if (effectiveConfig.showPeriod) {
+            <p class="text-xs mt-1" [ngClass]="getMetricColorClass(metric.color, 'text')">{{ metric.period }}</p>
+            }
+            
+            @if (effectiveConfig.showTrends && metric.changeValue !== undefined) {
+            <p class="text-xs mt-1" [ngClass]="getTrendColor(metric)">
+              {{ getChangeDisplay(metric) }}
+            </p>
+            }
+          </div>
+          @if (effectiveConfig.showIcons) {
+          <div class="flex-shrink-0 ml-3" [ngClass]="getMetricColorClass(metric.color, 'bg')">
+            <div class="p-2 sm:p-3 rounded-lg">
+              <mat-icon class="text-lg sm:text-xl" [ngClass]="getMetricColorClass(metric.color, 'text')">
+                {{ metric.icon }}
+              </mat-icon>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</mat-card> 
