@@ -185,6 +185,13 @@
 						</mat-slide-toggle>
 						<p class="preference-description">Get notified when you exceed budget limits</p>
 					</div>
+
+					<div class="preference-item">
+						<mat-slide-toggle formControlName="categoryListViewMode" [disabled]="!isEditing" color="primary">
+							<span class="toggle-label">Category List View</span>
+						</mat-slide-toggle>
+						<p class="preference-description">Display categories in list view instead of grid view</p>
+					</div>
 				</div>
 			</div>
 

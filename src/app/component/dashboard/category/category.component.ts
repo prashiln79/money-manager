@@ -16,6 +16,8 @@ import * as CategoriesActions from '../../../store/categories/categories.actions
 import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
 import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
+import * as ProfileActions from '../../../store/profile/profile.actions';
+import * as ProfileSelectors from '../../../store/profile/profile.selectors';
 import { TransactionType } from 'src/app/util/config/enums';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
@@ -90,6 +92,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.userId = currentUser.uid;
     this.loadUserCategories();
     this.loadUserTransactions();
+    this.loadUserProfile();
   }
 
   private loadUserCategories(): void {
@@ -98,6 +101,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   private loadUserTransactions(): void {
     this.store.dispatch(TransactionsActions.loadTransactions({ userId: this.userId }));
+  }
+
+  private loadUserProfile(): void {
+    this.store.dispatch(ProfileActions.loadProfile({ userId: this.userId }));
   }
 
   private subscribeToStoreData(): void {
@@ -132,6 +139,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe(loading => {
       this.isLoading = loading;
+    });
+
+    // Subscribe to profile changes to get user preferences
+    this.store.select(ProfileSelectors.selectUserPreferences).pipe(takeUntil(this.destroy$)).subscribe(preferences => {
+      if (preferences) {
+        this.isListViewMode = preferences.categoryListViewMode ?? false;
+      }
     });
 
     // this.error$.pipe(takeUntil(this.destroy$)).subscribe(error => {
@@ -221,6 +235,20 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   public toggleListViewMode(): void {
     this.isListViewMode = !this.isListViewMode;
+    
+    // Save the preference to user profile
+    this.store.select(ProfileSelectors.selectUserPreferences).pipe(takeUntil(this.destroy$)).subscribe(preferences => {
+      if (preferences) {
+        const updatedPreferences = {
+          ...preferences,
+          categoryListViewMode: this.isListViewMode
+        };
+        this.store.dispatch(ProfileActions.updatePreferences({ 
+          userId: this.userId, 
+          preferences: updatedPreferences 
+        }));
+      }
+    });
   }
 
   /**

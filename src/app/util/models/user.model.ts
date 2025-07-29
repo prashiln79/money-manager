@@ -42,6 +42,7 @@ export interface UserPreferences {
 	emailUpdates: boolean;
 	budgetAlerts: boolean;
 	openaiApiKey?: string;
+	categoryListViewMode?: boolean;
 }
 
 

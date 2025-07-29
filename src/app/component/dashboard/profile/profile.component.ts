@@ -97,12 +97,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
         notifications: [true],
         emailUpdates: [true],
         budgetAlerts: [true],
+        categoryListViewMode: [false],
       }),
     });
   }
 
   ngOnInit(): void {
-    this.loadUserProfile();
     this.subscribeToStoreData();
   }
 
@@ -110,27 +110,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private async loadUserProfile(): Promise<void> {
-    try {
-      this.isLoading = true;
-      this.currentUser = this.auth.currentUser;
-
-      if (!this.currentUser) {
-        this.notificationService.error(ERROR_MESSAGES.AUTH.USER_NOT_FOUND);
-        this.router.navigate(['/sign-in']);
-        return;
-      }
-
-      // Load user profile from store
-      this.store.dispatch(ProfileActions.loadProfile({ userId: this.currentUser.uid }));
-    } catch (error) {
-      console.error('Error loading profile:', error);
-      this.notificationService.error(ERROR_MESSAGES.NETWORK.SERVER_ERROR);
-    } finally {
-      this.isLoading = false;
-    }
   }
 
   // Subscribe to store data for backward compatibility
@@ -177,6 +156,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         notifications: user.preferences?.notifications || true,
         emailUpdates: user.preferences?.emailUpdates || true,
         budgetAlerts: user.preferences?.budgetAlerts || true,
+        categoryListViewMode: user.preferences?.categoryListViewMode || false,
       },
       role: user.role,
       createdAt: user.createdAt,
@@ -202,6 +182,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         notifications: true,
         emailUpdates: true,
         budgetAlerts: true,
+        categoryListViewMode: false,
       },
       role: UserRole.FREE,
       createdAt: new Date(),
@@ -226,6 +207,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           notifications: this.userProfile.preferences?.notifications || true,
           emailUpdates: this.userProfile.preferences?.emailUpdates || true,
           budgetAlerts: this.userProfile.preferences?.budgetAlerts || true,
+          categoryListViewMode: this.userProfile.preferences?.categoryListViewMode || false,
         },
       });
     }
