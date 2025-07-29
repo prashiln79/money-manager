@@ -5,6 +5,7 @@ import {
   ElementRef,
   AfterViewInit,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 
 import { Auth } from '@angular/fire/auth';
@@ -38,21 +39,23 @@ import {
 import { Category } from 'src/app/util/models';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { SplitwiseGroup } from 'src/app/util/models/splitwise.model';
-import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
 import { selectGroups } from 'src/app/modules/splitwise/store/splitwise.selectors';
 import { loadGroups } from 'src/app/modules/splitwise/store/splitwise.actions';
-import { filter, map, Observable, take, startWith } from 'rxjs';
+import { filter, map, Observable, take } from 'rxjs';
 import { selectLatestTransaction } from 'src/app/store/transactions/transactions.selectors';
 import { Transaction, CategorySplit } from 'src/app/util/models/transaction.model';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { CategorySplitDialogComponent } from 'src/app/util/components/category-split-dialog/category-split-dialog.component';
+import { FormControl } from '@angular/forms';
+import { ReplaySubject, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-mobile-add-transaction',
   templateUrl: './mobile-add-transaction.component.html',
   styleUrl: './mobile-add-transaction.component.scss'
 })
-export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
+export class MobileAddTransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('amountInput', { static: false }) amountInput!: ElementRef;
 
   transactionForm: FormGroup;
@@ -76,7 +79,11 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
   public recurringMaxDate: string;
   public categorySplits: CategorySplit[] = [];
   public isCategorySplit: boolean = false;
-  public filteredCategories$!: Observable<Category[]>;
+  
+  // ngx-mat-select-search properties
+  public categoryFilterCtrl: FormControl = new FormControl();
+  public filteredCategories: ReplaySubject<Category[]> = new ReplaySubject<Category[]>(1);
+  protected _onDestroy = new Subject<void>();
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -100,7 +107,18 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     this.groups$ = this.store.select(selectGroups);
     this.categoryList$ = this.store.select(selectAllCategories);
     this.accountList$ = this.store.select(selectAllAccounts);
-    this.filteredCategories$ = this.categoryList$
+    
+    // Initialize filtered categories for ngx-mat-select-search
+    this.categoryList$.subscribe(categories => {
+      this.filteredCategories.next(categories.slice());
+    });
+    
+    // Listen for search input changes
+    this.categoryFilterCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterCategories();
+      });
 
     this.transactionForm = this.fb.group({
       payee: ['', this.validationService.getTransactionPayeeValidators()],
@@ -504,11 +522,36 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit {
     return this.categorySplits.reduce((sum, split) => sum + split.amount, 0);
   }
 
-  onCategorySearch(value: any): void {
-    let inputValue = value.target.value || '';
-    this.filteredCategories$ = this.categoryList$.pipe(
-      map(categories => categories.filter(category => category.name.toLowerCase().includes(inputValue.toLowerCase())))
-    );
+  /**
+   * Filter categories based on search input
+   */
+  protected filterCategories() {
+    if (!this.categoryList$) {
+      return;
+    }
+    
+    this.categoryList$.pipe(take(1)).subscribe(categories => {
+      // get the search keyword
+      let search = this.categoryFilterCtrl.value;
+      if (!search) {
+        this.filteredCategories.next(categories.slice());
+        return;
+      } else {
+        search = search.toLowerCase();
+      }
+      
+      // filter the categories
+      const filtered = categories.filter(category => 
+        category.name.toLowerCase().indexOf(search) > -1
+      );
+      
+      this.filteredCategories.next(filtered);
+    });
+  }
+
+  ngOnDestroy() {
+    this._onDestroy.next();
+    this._onDestroy.complete();
   }
 
 }

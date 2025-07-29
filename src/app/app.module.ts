@@ -101,6 +101,7 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from './modules/shared/shared.module';
 import { ParentCategorySelectorDialogComponent } from './component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
 import { CategoryDetailsDialogComponent } from './component/dashboard/category/category-details-dialog/category-details-dialog.component';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 
 @NgModule({
@@ -180,6 +181,9 @@ import { CategoryDetailsDialogComponent } from './component/dashboard/category/c
     
     // Splitwise Module
     SplitwiseModule,
+    
+    // ngx-mat-select-search
+    NgxMatSelectSearchModule,
     
     // Enhanced Service Worker with offline support
     ServiceWorkerModule.register('ngsw-worker.js', {

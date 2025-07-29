@@ -75,19 +75,18 @@
 				</div>
 				<mat-form-field appearance="fill" class="w-full">
 					<mat-label>Select a category</mat-label>
-					<input
-						type="text"
-						matInput
-						formControlName="categoryName"
-						[matAutocomplete]="auto"
-						placeholder="Search categories..."
-						[disabled]="viewMode"
-						(input)="onCategorySearch($event)"
-						class="w-full"
-					/>
-					<mat-autocomplete #auto="matAutocomplete" (optionSelected)="onCategoryChange($event.option.value)">
-						<mat-option *ngFor="let item of filteredCategories$ | async" [value]="item.id">{{ item?.name }}</mat-option>
-					</mat-autocomplete>
+					<mat-select formControlName="categoryId" [disabled]="viewMode" (selectionChange)="onCategoryChange($event.value)">
+						<mat-option>
+							<ngx-mat-select-search 
+								[formControl]="categoryFilterCtrl"
+								placeholderLabel="Search categories..."
+								noEntriesFoundLabel="No categories found">
+							</ngx-mat-select-search>
+						</mat-option>
+						<mat-option *ngFor="let category of filteredCategories | async" [value]="category.id">
+							{{ category.name }}
+						</mat-option>
+					</mat-select>
 				</mat-form-field>
 			</div>
 
