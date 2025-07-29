@@ -1,0 +1,88 @@
+.analytics-summary-card {
+  transition: all 0.3s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mat-card-content {
+    padding: 0;
+  }
+  
+  // Header styles
+  h3 {
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  
+  // Section headers
+  h4 {
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  
+  // Trend items
+  .trend-item {
+    transition: all 0.2s ease-in-out;
+    
+    &:hover {
+      transform: translateX(4px);
+    }
+  }
+  
+  // Loading animation
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 640px) {
+    .p-4 {
+      padding: 1rem;
+    }
+    
+    h3 {
+      font-size: 1.125rem;
+    }
+    
+    h4 {
+      font-size: 0.875rem;
+    }
+  }
+  
+  // Dark mode enhancements
+  &.dark {
+    background-color: #1f2937;
+    
+    .bg-gray-50 {
+      background-color: #374151;
+    }
+    
+    .hover\\:bg-gray-100:hover {
+      background-color: #4b5563;
+    }
+  }
+  
+  // Accessibility improvements
+  .cursor-pointer {
+    &:focus {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
+  }
+  
+  // Smooth transitions for all interactive elements
+  * {
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  }
+} 

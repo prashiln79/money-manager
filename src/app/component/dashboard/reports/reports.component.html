@@ -171,65 +171,9 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Analytics Summary -->
       <div class="lg:col-span-2">
-        <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden h-full">
-          <div class="p-4 sm:p-6">
-            <div class="flex items-center justify-between mb-4 sm:mb-6">
-              <div class="flex-1 min-w-0">
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Analytics Summary</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Key insights and trends</p>
-              </div>
-              <div class="bg-green-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-                <mat-icon class="text-green-600 dark:text-green-400">insights</mat-icon>
-              </div>
-            </div>
-            
-            <div class="space-y-4">
-              <!-- Category Trends -->
-              <div *ngIf="categoryTrends.length > 0" class="space-y-3">
-                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                  <mat-icon class="text-sm mr-2">category</mat-icon>
-                  Category Trends
-                </h4>
-                @for (trend of categoryTrends.slice(0, 3); track trend.category) {
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                  <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.category }}</span>
-                  <span class="text-sm font-medium" [ngClass]="trend.change >= 0 ? 'text-red-600' : 'text-green-600'">
-                    {{ trend.change >= 0 ? '+' : '' }}{{ trend.percentage.toFixed(1) }}%
-                  </span>
-                </div>
-                }
-              </div>
-
-              <!-- Spending Trends -->
-              <div *ngIf="spendingTrends.length > 0" class="space-y-3">
-                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                  <mat-icon class="text-sm mr-2">trending_up</mat-icon>
-                  Spending Trends
-                </h4>
-                @for (trend of spendingTrends.slice(0, 3); track trend.period) {
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                  <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ trend.period }}</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(trend.amount) }}</span>
-                </div>
-                }
-              </div>
-
-              <!-- Account Balances -->
-              <div *ngIf="accountBalances.length > 0" class="space-y-3">
-                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                  <mat-icon class="text-sm mr-2">account_balance</mat-icon>
-                  Account Balances
-                </h4>
-                @for (account of accountBalances.slice(0, 3); track account.account) {
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                  <span class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ account.account }}</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(account.balance) }}</span>
-                </div>
-                }
-              </div>
-            </div>
-          </div>
-        </mat-card>
+        <app-analytics-summary-card
+          [config]="analyticsSummaryConfig">
+        </app-analytics-summary-card>
       </div>
 
       <!-- Quick Actions Sidebar -->

@@ -41,6 +41,7 @@ import { CategorySplitDialogComponent } from '../../util/components/category-spl
 import { BudgetCardComponent } from '../../util/components/cards/budget-card/budget-card.component';
 import { AccountSummaryCardComponent } from '../../util/components/cards/account-summary-card/account-summary-card.component';
 import { KeyMetricsSummaryCardComponent } from '../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
+import { AnalyticsSummaryCardComponent } from '../../util/components/cards/analytics-summary-card/analytics-summary-card.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { KeyMetricsSummaryCardComponent } from '../../util/components/cards/key-
     FormsModule,
     ReactiveFormsModule,
     KeyMetricsSummaryCardComponent,
+    AnalyticsSummaryCardComponent,
     
     // Material Modules
     MatCardModule,
@@ -131,7 +133,8 @@ import { KeyMetricsSummaryCardComponent } from '../../util/components/cards/key-
     CategorySplitDialogComponent,
     BudgetCardComponent,
     AccountSummaryCardComponent,
-    KeyMetricsSummaryCardComponent
+    KeyMetricsSummaryCardComponent,
+    AnalyticsSummaryCardComponent
   ]
 })
 export class SharedModule { } 

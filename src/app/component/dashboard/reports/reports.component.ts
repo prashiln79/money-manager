@@ -16,6 +16,7 @@ import { APP_CONFIG } from 'src/app/util/config/config';
 import { EChartsOption } from 'echarts';
 import { SsrService } from 'src/app/util/service/ssr.service';
 import { KeyMetricsSummaryCardComponent, KeyMetric, KeyMetricsConfig } from '../../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
+import { AnalyticsSummaryCardComponent, AnalyticsSummaryConfig, CategoryTrend as AnalyticsCategoryTrend, SpendingTrend as AnalyticsSpendingTrend, AccountBalance as AnalyticsAccountBalance } from '../../../util/components/cards/analytics-summary-card/analytics-summary-card.component';
 
 interface CategorySpending {
   category: string;
@@ -115,20 +116,43 @@ export class ReportsComponent implements OnInit, OnDestroy {
   
   // Key metrics for the card component
   keyMetricsConfig: KeyMetricsConfig = {
-    metrics: [],
-    title: 'Key Metrics Summary',
-    subtitle: 'Financial overview for this period',
+    title: '',
+    subtitle: '',
+    showHeaderIcon: false,
     currency: 'INR',
     showTrends: true,
     showIcons: true,
     showPeriod: true,
     cardHeight: 'medium',
     layout: 'grid',
-    columns: 4,
+    columns: 2,
     theme: 'auto',
     animations: true,
     clickable: true,
     onMetricClick: (metric: KeyMetric) => this.onMetricClick(metric)
+  };
+
+  // Analytics summary for the card component
+  analyticsSummaryConfig: AnalyticsSummaryConfig = {
+    title: 'Analytics Summary',
+    subtitle: 'Key insights and trends',
+    currency: 'INR',
+    showHeaderIcon: true,
+    headerIcon: 'insights',
+    showFooter: false,
+    cardHeight: 'medium',
+    theme: 'auto',
+    animations: true,
+    clickable: true,
+    loading: false,
+    maxItems: {
+      categoryTrends: 3,
+      spendingTrends: 3,
+      accountBalances: 3
+    },
+    onCategoryClick: (trend: AnalyticsCategoryTrend) => this.onCategoryTrendClick(trend),
+    onSpendingClick: (trend: AnalyticsSpendingTrend) => this.onSpendingTrendClick(trend),
+    onAccountClick: (account: AnalyticsAccountBalance) => this.onAccountBalanceClick(account)
   };
 
   // Data arrays
@@ -317,48 +341,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
       ? ((this.monthlyChange / lastMonthSavings) * 100) 
       : 0;
 
-    // Populate key metrics for the card component
-    this.populateKeyMetrics();
   }
 
-  private populateKeyMetrics(): void {
-    this.keyMetricsConfig.metrics = [
-      {
-        title: 'Total Income',
-        value: this.totalIncome,
-        period: 'This period',
-        icon: 'trending_up',
-        color: 'green',
-        trend: this.totalIncome > 0 ? 'up' : 'neutral'
-      },
-      {
-        title: 'Total Expenses',
-        value: this.totalExpenses,
-        period: 'This period',
-        icon: 'trending_down',
-        color: 'red',
-        trend: this.totalExpenses > 0 ? 'down' : 'neutral'
-      },
-      {
-        title: 'Net Savings',
-        value: this.netSavings,
-        period: 'This period',
-        icon: 'account_balance_wallet',
-        color: 'blue',
-        trend: this.netSavings >= 0 ? 'up' : 'down'
-      },
-      {
-        title: 'Monthly Change',
-        value: Math.abs(this.monthlyChange),
-        period: 'vs last month',
-        icon: this.monthlyChange >= 0 ? 'trending_up' : 'trending_down',
-        color: 'purple',
-        trend: this.monthlyChange >= 0 ? 'up' : 'down',
-        changeValue: this.monthlyChange,
-        changePercentage: this.monthlyChangePercentage
-      }
-    ];
-  }
 
   private calculateTopCategories(): void {
     const currentMonth = new Date().getMonth();
@@ -444,6 +428,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.calculateSpendingTrends();
     this.calculateCategoryTrends();
     this.calculateGrowthRates();
+    this.populateAnalyticsSummary();
   }
 
   private calculateDailyData(): void {
@@ -705,6 +690,39 @@ export class ReportsComponent implements OnInit, OnDestroy {
       ((currentMonthIncome - lastMonthIncome) / lastMonthIncome) * 100 : 0;
   }
 
+  private populateAnalyticsSummary(): void {
+    // Convert category trends to analytics format
+    const analyticsCategoryTrends: AnalyticsCategoryTrend[] = this.categoryTrends.map(trend => ({
+      category: trend.category,
+      change: trend.change,
+      percentage: trend.percentage,
+      color: trend.color,
+      icon: 'category'
+    }));
+
+    // Convert spending trends to analytics format
+    const analyticsSpendingTrends: AnalyticsSpendingTrend[] = this.spendingTrends.map(trend => ({
+      period: trend.period,
+      amount: trend.amount,
+      change: trend.change,
+      percentage: trend.percentage
+    }));
+
+    // Convert account balances to analytics format
+    const analyticsAccountBalances: AnalyticsAccountBalance[] = this.accountBalances.map(account => ({
+      account: account.account,
+      balance: account.balance,
+      color: account.color,
+      icon: 'account_balance'
+    }));
+
+    // Update the analytics summary config
+    this.analyticsSummaryConfig = {
+      ...this.analyticsSummaryConfig,
+      loading: false
+    };
+  }
+
   onPeriodChange(period: 'daily' | 'weekly' | 'monthly' | 'yearly'): void {
     this.selectedPeriod = period;
     this.notificationService.info(`Report period changed to ${period}`);
@@ -881,6 +899,24 @@ export class ReportsComponent implements OnInit, OnDestroy {
         // Show trend analysis
         break;
     }
+  }
+
+  onCategoryTrendClick(trend: AnalyticsCategoryTrend): void {
+    console.log('Category trend clicked:', trend);
+    // Navigate to category details or show more information
+    this.notificationService.info(`Category: ${trend.category} - ${trend.change >= 0 ? '+' : ''}${trend.percentage.toFixed(1)}%`);
+  }
+
+  onSpendingTrendClick(trend: AnalyticsSpendingTrend): void {
+    console.log('Spending trend clicked:', trend);
+    // Navigate to spending details or show more information
+    this.notificationService.info(`Period: ${trend.period} - ${this.formatCurrency(trend.amount)}`);
+  }
+
+  onAccountBalanceClick(account: AnalyticsAccountBalance): void {
+    console.log('Account balance clicked:', account);
+    // Navigate to account details or show more information
+    this.notificationService.info(`Account: ${account.account} - ${this.formatCurrency(account.balance)}`);
   }
 
   // Helper methods for template
