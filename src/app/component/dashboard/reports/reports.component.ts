@@ -17,6 +17,7 @@ import { EChartsOption } from 'echarts';
 import { SsrService } from 'src/app/util/service/ssr.service';
 import { KeyMetricsSummaryCardComponent, KeyMetric, KeyMetricsConfig } from '../../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
 import { AnalyticsSummaryCardComponent, AnalyticsSummaryConfig, CategoryTrend as AnalyticsCategoryTrend, SpendingTrend as AnalyticsSpendingTrend, AccountBalance as AnalyticsAccountBalance } from '../../../util/components/cards/analytics-summary-card/analytics-summary-card.component';
+import { TopCategoriesCardComponent, TopCategoriesConfig, TopCategory } from '../../../util/components/cards/top-categories-card/top-categories-card.component';
 
 interface CategorySpending {
   category: string;
@@ -153,6 +154,32 @@ export class ReportsComponent implements OnInit, OnDestroy {
     onCategoryClick: (trend: AnalyticsCategoryTrend) => this.onCategoryTrendClick(trend),
     onSpendingClick: (trend: AnalyticsSpendingTrend) => this.onSpendingTrendClick(trend),
     onAccountClick: (account: AnalyticsAccountBalance) => this.onAccountBalanceClick(account)
+  };
+
+  // Top categories for the card component
+  topCategoriesConfig: TopCategoriesConfig = {
+    title: 'Top Spending Categories',
+    subtitle: 'Your highest expense areas',
+    currency: 'INR',
+    showHeaderIcon: true,
+    headerIcon: 'category',
+    headerIconColor: 'purple',
+    showFooter: false,
+    cardHeight: 'medium',
+    theme: 'auto',
+    animations: true,
+    clickable: true,
+    loading: false,
+    maxItems: 5,
+    period: 'monthly',
+    transactionType: 'expense',
+    onCategoryClick: (category: TopCategory) => {
+      console.log('Top category clicked:', category);
+      // Navigate to category details or show more info
+    },
+    onRefresh: () => {
+      this.refreshData();
+    }
   };
 
   // Data arrays

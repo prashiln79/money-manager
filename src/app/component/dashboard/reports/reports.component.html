@@ -454,46 +454,9 @@
       </mat-card>
 
       <!-- Top Categories Card -->
-      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-4 sm:mb-6">
-            <div class="flex-1 min-w-0">
-              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Top Spending Categories</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your highest expense areas</p>
-            </div>
-            <div class="bg-purple-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-              <mat-icon class="text-purple-600 dark:text-purple-400">category</mat-icon>
-            </div>
-          </div>
-          
-          <!-- Categories List -->
-          <div *ngIf="topCategories.length > 0" class="space-y-3">
-            @for (category of topCategories; track category.category) {
-            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center space-x-3 min-w-0 flex-1">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 dark:bg-gray-600">
-                  <mat-icon class="text-sm" [style.color]="category.color">{{ category.icon }}</mat-icon>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <span class="text-gray-700 dark:text-gray-300 font-medium truncate block">{{ category.category }}</span>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ category.percentage.toFixed(1) }}% of total</div>
-                </div>
-              </div>
-              <span class="font-semibold text-gray-900 dark:text-white ml-3 text-right">{{ formatCurrency(category.amount) }}</span>
-            </div>
-            }
-          </div>
-
-          <!-- No Data State -->
-          <div *ngIf="topCategories.length === 0" class="text-center py-8 sm:py-12">
-            <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <mat-icon class="text-gray-400 text-2xl sm:text-3xl">bar_chart</mat-icon>
-            </div>
-            <h4 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Available</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Add transactions to see category breakdown</p>
-          </div>
-        </div>
-      </mat-card>
+      <app-top-categories-card
+        [config]="topCategoriesConfig">
+      </app-top-categories-card>
 
       <!-- Recent Activity Card -->
       <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">

@@ -9,6 +9,10 @@
 	} @if (breakpointService.device.isMobile) {
 	<user-category [isHomeView]="true" class="lg:col-span-5"></user-category>
 	<user-accounts [home]="true"></user-accounts>
+	<!-- Top Categories Card -->
+	<app-top-categories-card
+	[config]="topCategoriesConfig">
+  </app-top-categories-card>
 	}
 	<transaction-list *ngIf="!breakpointService.device.isMobile" [isHome]="true" class="lg:col-span-5"></transaction-list>
 </section>

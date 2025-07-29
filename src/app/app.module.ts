@@ -76,6 +76,11 @@ import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-polic
 import { GoogleSheetsComponent } from './component/dashboard/google-sheets/google-sheets.component';
 import { OpenaiInteractionComponent } from './component/dashboard/openai-interaction/openai-interaction.component';
 
+// Card Components
+import { TopCategoriesCardComponent } from './util/components/cards/top-categories-card/top-categories-card.component';
+import { KeyMetricsSummaryCardComponent } from './util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
+import { AnalyticsSummaryCardComponent } from './util/components/cards/analytics-summary-card/analytics-summary-card.component';
+
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
 
@@ -181,6 +186,11 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     
     // Splitwise Module
     SplitwiseModule,
+    
+    // Card Components
+    TopCategoriesCardComponent,
+    KeyMetricsSummaryCardComponent,
+    AnalyticsSummaryCardComponent,
     
     // ngx-mat-select-search
     NgxMatSelectSearchModule,
