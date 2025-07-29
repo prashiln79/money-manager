@@ -9,11 +9,9 @@
 } @else if (!isHome && !breakpointService.device.isMobile && !breakpointService.device.isTablePortrait) {
 
 	<div class="p-2">
-		<total-balance ></total-balance>
+		<!-- <total-balance ></total-balance> -->
 		<!-- Search and Filter Section -->
 		<search-filter
-			[filteredCount]="getFilteredCount()"
-			[currentYearCount]="getCurrentYearCount()"
 			(addTransaction)="addTransactionDialog()"
 			(importTransactions)="openImportDialog()"
 			(openFilterDialog)="openFilterDialog()"
@@ -38,22 +36,21 @@
 }
 @else {
 
-<mat-card class="p-2 shadow-lg border-0 rounded-xl transaction-list-container h-[83vh]">
+<mat-card class="p-2 shadow-lg border-0 rounded-xl transaction-list-container ">
 	<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="custom-tabs" [(selectedIndex)]="selectedTabIndex">
 		<mat-tab class="max-h-full">
+			
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
 					<mat-icon class="text-primary">compare_arrows</mat-icon>
 					<span class="font-semibold text-gray-700 text-xs">Transactions</span>
 				</div>
 			</ng-template>
-
+			@if(selectedTabIndex === 0) {
 			<div class="p-2 overflow-hidden">
 
 				<!-- Search and Filter Section -->
 				<search-filter
-					[filteredCount]="getFilteredCount()"
-					[currentYearCount]="getCurrentYearCount()"
 					(addTransaction)="addTransactionDialog()"
 					(importTransactions)="openImportDialog()"
 					(openFilterDialog)="openFilterDialog()"
@@ -74,59 +71,75 @@
 					[isHome]="isHome">
 				</transaction-table>
 			</div>
+		}
 		</mat-tab>
 		<mat-tab>
+			
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
 					<mat-icon class="text-primary">attach_money</mat-icon>
 					<span class="font-semibold text-gray-700 text-xs">Accounts</span>
 				</div>
 			</ng-template>
+			@if(selectedTabIndex === 1) {
 			<div class="p-6">
 				<user-accounts></user-accounts>
 			</div>
+			}
 		</mat-tab>
 
 		<mat-tab>
+			
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
 					<mat-icon class="text-primary">local_offer</mat-icon>
 					<span class="font-semibold text-gray-700 text-xs">Categories</span>
 				</div>
 			</ng-template>
+			@if(selectedTabIndex === 2) {
 			<div class="p-6">
 				<user-category [isChildView]="true"></user-category>
 			</div>
+			}
 		</mat-tab>
 
 		<mat-tab>
+			
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
 					<mat-icon class="text-primary">analytics</mat-icon>
 					<span class="font-semibold text-gray-700 text-xs">Reports</span>
 				</div>
 			</ng-template>
+			@if(selectedTabIndex === 3) {
 			<app-reports></app-reports>
+			}
 		</mat-tab>
 
 		<mat-tab>
+			
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
 					<mat-icon class="text-primary">receipt_long</mat-icon>
 					<span class="font-semibold text-gray-700 text-xs">Tax</span>
 				</div>
 			</ng-template>
+			@if(selectedTabIndex === 4) {
 			<app-tax></app-tax>
+			}
 		</mat-tab>
 
 		<mat-tab>
+			
 			<ng-template mat-tab-label>
 				<div class="flex items-center space-x-2 px-4 py-2">
 					<mat-icon class="text-yellow-600">note</mat-icon>
 					<span class="font-semibold text-gray-700 text-xs">Notes</span>
 				</div>
 			</ng-template>
+			@if(selectedTabIndex === 4) {
 			<app-notes></app-notes>
+			}
 		</mat-tab>
 	</mat-tab-group>
 </mat-card>

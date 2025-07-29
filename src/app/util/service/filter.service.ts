@@ -819,4 +819,26 @@ export class FilterService {
     
     return this.filterTransactions(yearFiltered, filterState);
   }
+
+  /**
+   * Get the count of filtered transactions
+   * @param transactions Array of transactions to filter
+   * @param filterState Optional filter state (uses current state if not provided)
+   * @returns Count of filtered transactions
+   */
+  getFilteredCount(transactions: any[], filterState?: TransactionFilter): number {
+    const filtered = this.filterTransactions(transactions, filterState);
+    return filtered.length;
+  }
+
+  /**
+   * Get the count of filtered transactions for current year
+   * @param transactions Array of transactions to filter
+   * @param filterState Optional filter state (uses current state if not provided)
+   * @returns Count of filtered transactions for current year
+   */
+  getCurrentYearFilteredCount(transactions: any[], filterState?: TransactionFilter): number {
+    const filtered = this.filterCurrentYearTransactions(transactions, filterState);
+    return filtered.length;
+  }
 } 

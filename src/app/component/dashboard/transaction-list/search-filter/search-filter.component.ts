@@ -17,8 +17,8 @@ import { FilterService } from '../../../../util/service/filter.service';
   styleUrls: ['./search-filter.component.scss']
 })
 export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() filteredCount: number = 0;
-  @Input() currentYearCount: number = 0;
+  // Remove the @Input() filteredCount property
+  // @Input() filteredCount: number = 0;
 
   @Output() addTransaction = new EventEmitter<void>();
   @Output() importTransactions = new EventEmitter<void>();
@@ -45,6 +45,9 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
   // Store observables
   transactions$: Observable<Transaction[]> = this.store.select(selectAllTransactions);
   allTransactions: Transaction[] = [];
+
+  // Computed filtered count from FilterService
+  filteredCount: number = 0;
 
   constructor(
     private notificationService: NotificationService,
@@ -82,6 +85,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
         this.allTransactions = transactions;
         this.updateAvailableYears();
         this.updateCategoriesFromTransactions();
+        this.updateFilteredCount();
       })
     );
   }
@@ -91,18 +95,21 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
     this.subscription.add(
       this.filterService.searchTerm$.subscribe(searchTerm => {
         this.searchTerm = searchTerm;
+        this.updateFilteredCount();
       })
     );
 
     this.subscription.add(
       this.filterService.selectedCategory$.subscribe(categories => {
         this.selectedCategory = categories.includes('all') ? 'all' : categories[0] || 'all';
+        this.updateFilteredCount();
       })
     );
 
     this.subscription.add(
       this.filterService.selectedType$.subscribe(type => {
         this.selectedType = type;
+        this.updateFilteredCount();
       })
     );
 
@@ -112,6 +119,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
         if (date) {
           this.selectedDateRange = null;
         }
+        this.updateFilteredCount();
       })
     );
 
@@ -124,6 +132,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
         if (dateRange) {
           this.selectedDate = null;
         }
+        this.updateFilteredCount();
       })
     );
 
@@ -132,6 +141,7 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
         if (yearRange) {
           this.selectedYear = yearRange.startYear;
         }
+        this.updateFilteredCount();
       })
     );
   }
@@ -213,6 +223,27 @@ export class SearchFilterComponent implements OnInit, OnChanges, OnDestroy {
       { value: 10, label: 'November' },
       { value: 11, label: 'December' }
     ];
+  }
+
+  private updateFilteredCount() {
+    // Check if we have specific date filters applied
+    const hasDateFilters = this.filterService.getSelectedDate() || 
+                          this.filterService.getSelectedDateRange() || 
+                          this.filterService.getSelectedYear();
+
+    if (!hasDateFilters) {
+      // Filter to show only current year transactions when no specific date filter is applied
+      this.filteredCount = this.filterService.getCurrentYearFilteredCount(
+        this.allTransactions,
+        this.filterService.getCurrentFilterState()
+      );
+    } else {
+      // Use all filters including date filters
+      this.filteredCount = this.filterService.getFilteredCount(
+        this.allTransactions,
+        this.filterService.getCurrentFilterState()
+      );
+    }
   }
 
   onSearchChange(value: any) {

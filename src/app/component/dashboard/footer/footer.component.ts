@@ -15,6 +15,10 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 })
 export class FooterComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
+  public hideFooter: boolean = false;
+  private hideFooterForRoutes: string[] = [
+    '/dashboard/transactions',
+  ];
 
   constructor(
     private commonSyncService: CommonSyncService,
@@ -23,7 +27,9 @@ export class FooterComponent implements OnInit, OnDestroy {
     private hapticFeedback: HapticFeedbackService,
     private cdr: ChangeDetectorRef,
     public breakpointService: BreakpointService,
-  ) { }
+  ) { 
+   this.hideFooter = this.hideFooterForRoutes.includes(this.router.url);
+  }
 
   ngOnInit() {
     // Listen to route changes for highlighting
@@ -81,6 +87,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   home() {
     this.router.navigate(['/dashboard/home']);
+    this.hapticFeedback.buttonClick();
   }
 
   quickExpense() {

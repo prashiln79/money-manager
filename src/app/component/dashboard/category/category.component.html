@@ -17,7 +17,7 @@
 		<mat-icon>add</mat-icon>
 	</button>
 
-	<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn" *ngIf="!breakpointService.device.isMobile">
+	<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn" *ngIf="!breakpointService.device.isMobile && !breakpointService.device.isTablePortrait">
 		<mat-icon>add</mat-icon>
 	</button>
 

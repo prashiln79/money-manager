@@ -608,6 +608,10 @@ table {
     padding: 16px 24px;
   }
   
+  @media (min-width: 1024px) {
+    padding: 20px 32px;
+  }
+  
   .footer-content {
     display: flex;
     justify-content: space-between;
@@ -615,10 +619,18 @@ table {
     width: 100%;
     min-width: 800px;
     
+    @media (max-width: 1200px) {
+      min-width: 600px;
+    }
+    
     @media (max-width: 768px) {
       min-width: auto;
       flex-direction: column;
       gap: 12px;
+    }
+    
+    @media (max-width: 640px) {
+      gap: 8px;
     }
   }
   
@@ -627,17 +639,41 @@ table {
     align-items: center;
     gap: 8px;
     
+    @media (max-width: 640px) {
+      gap: 6px;
+    }
+    
     mat-icon {
       color: #6b7280;
       font-size: 16px;
       width: 16px;
       height: 16px;
+      
+      @media (max-width: 1024px) {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+      
+      @media (max-width: 640px) {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+      }
     }
     
-    span {
+    .count-text {
       font-size: 14px;
       font-weight: 500;
       color: #374151;
+      
+      @media (max-width: 1024px) {
+        font-size: 13px;
+      }
+      
+      @media (max-width: 640px) {
+        font-size: 12px;
+      }
     }
   }
   
@@ -646,10 +682,22 @@ table {
     align-items: center;
     gap: 24px;
     
+    @media (max-width: 1200px) {
+      gap: 20px;
+    }
+    
+    @media (max-width: 1024px) {
+      gap: 16px;
+    }
+    
     @media (max-width: 768px) {
       gap: 16px;
       width: 100%;
       justify-content: space-between;
+    }
+    
+    @media (max-width: 640px) {
+      gap: 12px;
     }
     
     .total-item {
@@ -657,29 +705,39 @@ table {
       align-items: center;
       gap: 8px;
       
-      @media (max-width: 768px) {
+      @media (max-width: 1024px) {
+        gap: 6px;
+      }
+      
+      @media (max-width: 640px) {
         gap: 4px;
       }
       
-             mat-icon {
-         font-size: 16px;
-         width: 16px;
-         height: 16px;
-         
-         @media (max-width: 768px) {
-           font-size: 14px;
-           width: 14px;
-           height: 14px;
-         }
-         
-         &.income {
-           color: #059669;
-         }
-         
-         &.expense {
-           color: #dc2626;
-         }
-       }
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        
+        @media (max-width: 1024px) {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+        
+        @media (max-width: 640px) {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+        }
+        
+        &.income {
+          color: #059669;
+        }
+        
+        &.expense {
+          color: #dc2626;
+        }
+      }
       
       .total-content {
         text-align: right;
@@ -689,8 +747,12 @@ table {
           color: #6b7280;
           margin-bottom: 2px;
           
-          @media (max-width: 768px) {
+          @media (max-width: 1024px) {
             font-size: 11px;
+          }
+          
+          @media (max-width: 640px) {
+            font-size: 10px;
           }
         }
         
@@ -698,8 +760,12 @@ table {
           font-size: 14px;
           font-weight: 600;
           
-          @media (max-width: 768px) {
-            font-size: 12px;
+          @media (max-width: 1024px) {
+            font-size: 13px;
+          }
+          
+          @media (max-width: 640px) {
+            font-size: 11px;
           }
           
           &.income {
@@ -726,9 +792,24 @@ table {
       padding-left: 24px;
       margin-left: 8px;
       
+      @media (max-width: 1200px) {
+        padding-left: 20px;
+        margin-left: 6px;
+      }
+      
+      @media (max-width: 1024px) {
+        padding-left: 16px;
+        margin-left: 4px;
+      }
+      
       @media (max-width: 768px) {
         padding-left: 12px;
         margin-left: 4px;
+      }
+      
+      @media (max-width: 640px) {
+        padding-left: 8px;
+        margin-left: 2px;
       }
     }
   }
