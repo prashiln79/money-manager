@@ -29,29 +29,8 @@
 			</div>
 
 			<!-- Total Balance Summary Card -->
-			<div class="balance-summary-card" [ngClass]="{'mt-[-12px] m-1': home}" *ngIf="((accounts$ | async)?.length ?? 0) > 0">
-				<div class="balance-summary-header">
-					<mat-icon class="balance-icon">account_balance</mat-icon>
-					<h3 class="balance-summary-title flex justify-between w-full">Total Balance
-
-						<span class="balance-stat-value pr-2" [class]="((totalBalance$ | async) ?? 0) >= 0 ? 'positive' : 'negative'">
-							{{ (totalBalance$ | async) ?? 0 | currency }}
-						</span>
-					</h3>
-				</div>
-				
-				<!-- Balance Breakdown -->
-				<div class="balance-breakdown">
-					<div class="breakdown-item positive" *ngIf="getPositiveAccounts()?.length">
-						<span class="breakdown-label">Assets:</span>
-						<span class="breakdown-value">{{ getTotalPositiveBalance() | currency }}</span>
-					</div>
-					<div class="breakdown-item negative" *ngIf="getNegativeAccounts()?.length">
-						<span class="breakdown-label">Liabilities:</span>
-						<span class="breakdown-value">{{ getTotalNegativeBalance() | currency }}</span>
-					</div>
-				</div>
-			</div>
+			<app-account-summary-card [home]="home">
+			</app-account-summary-card>
 
 			<!-- Empty State -->
 			<div *ngIf="(accounts$ | async)?.length === 0 && !home" class="empty-state">

@@ -1,0 +1,79 @@
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { Account, LoanDetails } from 'src/app/util/models/account.model';
+import { AccountType } from 'src/app/util/config/enums';
+import { AppState } from 'src/app/store/app.state';
+import * as AccountsSelectors from 'src/app/store/accounts/accounts.selectors';
+
+@Component({
+  selector: 'app-account-summary-card',
+  templateUrl: './account-summary-card.component.html',
+  styleUrls: ['./account-summary-card.component.scss']
+})
+export class AccountSummaryCardComponent implements OnInit, OnDestroy {
+  
+  @Input() home: boolean = false;
+  
+  // Observables from store
+  public accounts$: Observable<Account[]>;
+  public totalBalance$: Observable<number>;
+  public isLoading$: Observable<boolean>;
+  
+  public accounts: Account[] = [];
+  private destroy$ = new Subject<void>();
+
+  constructor(private store: Store<AppState>) {
+    // Initialize selectors
+    this.accounts$ = this.store.select(AccountsSelectors.selectAllAccounts);
+    this.totalBalance$ = this.store.select(AccountsSelectors.selectTotalBalance);
+    this.isLoading$ = this.store.select(AccountsSelectors.selectAccountsLoading);
+  }
+
+  ngOnInit(): void {
+    this.accounts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(accounts => {
+        this.accounts = accounts;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Get positive balance accounts
+   */
+  public getPositiveAccounts(): Account[] {
+    return this.accounts.filter(account => account.balance > 0);
+  }
+
+  /**
+   * Get negative balance accounts
+   */
+  public getNegativeAccounts(): Account[] {
+    return this.accounts.filter(account => account.balance < 0);
+  }
+
+  /**
+   * Get total positive balance
+   */
+  public getTotalPositiveBalance(): number {
+    return this.getPositiveAccounts().reduce((total, account) => total + account.balance, 0);
+  }
+
+  /**
+   * Get total negative balance
+   */
+  public getTotalNegativeBalance(): number {
+    return this.getNegativeAccounts().reduce((total, account) => {
+      if (account.type === AccountType.LOAN) {
+        const loanDetails = account.loanDetails as LoanDetails;
+        return total - loanDetails.remainingBalance;
+      }
+      return total + account.balance;
+    }, 0);
+  }
+} 

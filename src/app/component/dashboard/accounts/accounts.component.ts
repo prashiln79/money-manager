@@ -334,39 +334,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
     return [];
   }
 
-  /**
-   * Get positive balance accounts
-   */
-  public getPositiveAccounts(): Account[] {
-    return this.accounts.filter(account => account.balance > 0);
-  }
 
-  /**
-   * Get negative balance accounts
-   */
-  public getNegativeAccounts(): Account[] {
-    return this.accounts.filter(account => account.balance < 0);
-  }
-
-  /**
-   * Get total positive balance
-   */
-  public getTotalPositiveBalance(): number {
-    return this.getPositiveAccounts().reduce((total, account) => total + account.balance, 0);
-  }
-
-  /**
-   * Get total negative balance
-   */
-  public getTotalNegativeBalance(): number {
-    return this.getNegativeAccounts().reduce((total, account) => {
-      if (account.type === AccountType.LOAN) {
-        const loanDetails = account.loanDetails as LoanDetails;
-        return total - loanDetails.remainingBalance;
-      }
-      return total + account.balance;
-    }, 0);
-  }
 
   /**
    * Get account statistics (placeholder implementation)
