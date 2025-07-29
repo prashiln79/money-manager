@@ -11,6 +11,7 @@ export interface CurrencyPipeOptions {
   compact?: boolean;
   signDisplay?: 'auto' | 'never' | 'always' | 'exceptZero';
   notation?: 'standard' | 'scientific' | 'engineering' | 'compact';
+  round?: boolean;
 }
 
 @Pipe({
@@ -37,7 +38,10 @@ export class CurrencyPipe implements PipeTransform {
       return 'Invalid amount';
     }
 
-    return this.formatCurrency(numericValue, options);
+    // Apply rounding if specified
+    const roundedValue = options?.round ? Math.round(numericValue) : numericValue;
+
+    return this.formatCurrency(roundedValue, options);
   }
 
   /**
@@ -52,7 +56,8 @@ export class CurrencyPipe implements PipeTransform {
       decimalPlaces,
       compact = false,
       signDisplay = 'auto',
-      notation = 'standard'
+      notation = 'standard',
+      round = false
     } = options || {};
 
     const currencyConfig = this.getCurrencyConfig(currency);
@@ -60,13 +65,16 @@ export class CurrencyPipe implements PipeTransform {
     // Determine if value has a decimal part
     const hasDecimal = value % 1 !== 0;
 
-    const minFractionDigits = decimalPlaces !== undefined
-      ? (hasDecimal ? decimalPlaces : 0)
-      : (hasDecimal ? currencyConfig.decimalPlaces : 0);
+    // If rounding is enabled, force decimal places to 0
+    const effectiveDecimalPlaces = round ? 0 : decimalPlaces;
 
-    const maxFractionDigits = decimalPlaces !== undefined
-      ? decimalPlaces
-      : currencyConfig.decimalPlaces;
+    const minFractionDigits = effectiveDecimalPlaces !== undefined
+      ? (hasDecimal && !round ? effectiveDecimalPlaces : 0)
+      : (hasDecimal && !round ? currencyConfig.decimalPlaces : 0);
+
+    const maxFractionDigits = effectiveDecimalPlaces !== undefined
+      ? effectiveDecimalPlaces
+      : (round ? 0 : currencyConfig.decimalPlaces);
 
     const formatOptions: Intl.NumberFormatOptions = {
       style: 'currency',

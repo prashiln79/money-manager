@@ -30,7 +30,7 @@ import { IconModule } from './util/icon.module';
 import { ClickOutsideDirective } from './util/directives/click-outside.directive';
 
 // Components
-import { TotalBalanceComponent } from './component/dashboard/total-balance/total-balance.component';
+import { TotalBalanceComponent } from './util/components/cards/total-balance/total-balance.component';
 import { CalendarViewComponent } from './component/dashboard/calendar-view/calendar-view.component';
 import { TransactionListComponent } from './component/dashboard/transaction-list/transaction-list.component';
 import { HeaderComponent } from './component/dashboard/header/header.component';

@@ -128,7 +128,14 @@
 									[value]="tx.categoryId + '-' + tx.category" 
 									class="category-select"
 									(selectionChange)="updateCategory(i, $event.value)">
-									@for (category of categories$ | async; track category.id) {
+									<mat-option>
+										<ngx-mat-select-search 
+											[formControl]="categoryFilterCtrl"
+											placeholderLabel="Search categories..."
+											noEntriesFoundLabel="No categories found">
+										</ngx-mat-select-search>
+									</mat-option>
+									@for (category of filteredCategories | async; track category.id) {
 									<mat-option [value]="category.id + '-' + category.name">
 										<div class="option-content">
 											<span class="option-text">{{ category.name }}</span>

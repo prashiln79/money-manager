@@ -4,10 +4,10 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 import { CurrencyService } from 'src/app/util/service/currency.service';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { AppState } from '../../../store/app.state';
-import * as TransactionsActions from '../../../store/transactions/transactions.actions';
-import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import moment from 'moment';
+import { AppState } from 'src/app/store/app.state';
+import * as TransactionsActions from 'src/app/store/transactions/transactions.actions';
+import * as TransactionsSelectors from 'src/app/store/transactions/transactions.selectors';
 
 @Component({
   selector: 'total-balance',

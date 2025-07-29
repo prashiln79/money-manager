@@ -3,7 +3,6 @@ import {
   Inject,
   ElementRef,
   ViewChild,
-  AfterViewInit,
   OnDestroy,
 } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -18,7 +17,9 @@ import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { SsrService } from 'src/app/util/service/ssr.service';
-import { Observable, of, take } from 'rxjs';
+import { Observable, of, take, ReplaySubject, Subject } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'import-transactions',
@@ -53,6 +54,11 @@ export class ImportTransactionsComponent implements OnDestroy {
   // Default values
   defaultAccountId: string = '';
 
+  // ngx-mat-select-search properties
+  public categoryFilterCtrl: FormControl = new FormControl();
+  public filteredCategories: ReplaySubject<Category[]> = new ReplaySubject<Category[]>(1);
+  protected _onDestroy = new Subject<void>();
+
   // Category update functionality
 
   constructor(
@@ -66,6 +72,19 @@ export class ImportTransactionsComponent implements OnDestroy {
     this.categories = this.data.categories;
     this.setupDragAndDrop();
     this.loadAccountsAndCategories();
+    
+    // Initialize filtered categories for ngx-mat-select-search
+    this.categories$.subscribe(categories => {
+      this.filteredCategories.next(categories.slice());
+    });
+    
+    // Listen for search input changes
+    this.categoryFilterCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterCategories();
+      });
+    
     // Check if data was passed from Google Sheets
     if (data && data.transactions && Array.isArray(data.transactions)) {
       this.parsedTransactions = this.setCategory(data.transactions);
@@ -76,7 +95,35 @@ export class ImportTransactionsComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    // Cleanup if needed
+    this._onDestroy.next();
+    this._onDestroy.complete();
+  }
+
+  /**
+   * Filter categories based on search input
+   */
+  protected filterCategories() {
+    if (!this.categories$) {
+      return;
+    }
+    
+    this.categories$.pipe(take(1)).subscribe(categories => {
+      // get the search keyword
+      let search = this.categoryFilterCtrl.value;
+      if (!search) {
+        this.filteredCategories.next(categories.slice());
+        return;
+      } else {
+        search = search.toLowerCase();
+      }
+      
+      // filter the categories
+      const filtered = categories.filter(category => 
+        category.name.toLowerCase().indexOf(search) > -1
+      );
+      
+      this.filteredCategories.next(filtered);
+    });
   }
 
   private async loadAccountsAndCategories() {
