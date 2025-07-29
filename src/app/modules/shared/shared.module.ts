@@ -38,6 +38,7 @@ import { RecurringTransactionConfirmationDialogComponent } from '../../util/comp
 import { CommonHeaderComponent } from '../../util/components/dialog/common-header/common-header.component';
 import { CommonBodyContentComponent } from 'src/app/util/components/dialog/common-body-content/common-body-content.component';
 import { CategorySplitDialogComponent } from '../../util/components/category-split-dialog/category-split-dialog.component';
+import { BudgetCardComponent } from '../../util/components/cards/budget-card/budget-card.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { CategorySplitDialogComponent } from '../../util/components/category-spl
     RecurringTransactionConfirmationDialogComponent,
     CommonHeaderComponent,
     CommonBodyContentComponent,
-    CategorySplitDialogComponent
+    CategorySplitDialogComponent,
+    BudgetCardComponent,
   ],
   imports: [
     CommonModule,
@@ -122,7 +124,8 @@ import { CategorySplitDialogComponent } from '../../util/components/category-spl
     RecurringTransactionConfirmationDialogComponent,
     CommonHeaderComponent,
     CommonBodyContentComponent,
-    CategorySplitDialogComponent
+    CategorySplitDialogComponent,
+    BudgetCardComponent
   ]
 })
 export class SharedModule { } 
