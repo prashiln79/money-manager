@@ -47,12 +47,12 @@ export const SIDEBAR_NAVIGATION_CONFIG: SidebarNavParent[] = [
         icon: 'category',
         order: 4
       },
-      // {
-      //   label: 'budgets',
-      //   route: '/dashboard/budgets',
-      //   icon: 'pie_chart',
-      //   order: 5
-      // },
+      {
+        label: 'budgets',
+        route: '/dashboard/budgets',
+        icon: 'pie_chart',
+        order: 5
+      },
       // {
       //   label: 'goals',
       //   route: '/dashboard/goals',

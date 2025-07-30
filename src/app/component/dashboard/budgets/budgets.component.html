@@ -1,36 +1,436 @@
-<div>
-	<h2>User Budgets</h2>
+<div class="yearly-budget-container">
+  <!-- Welcome/Introduction Section -->
+  <div class="welcome-section">
+    <mat-card class="welcome-card">
+      <mat-card-content>
+        <div class="welcome-header">
+          <h1 class="main-headline">Plan Your Yearly Budget</h1>
+          <p class="subtext">Set your income, allocate expenses, track savings and debt all in one place.</p>
+        </div>
+        
+        <div class="progress-section">
+          <div class="progress-info">
+            <span class="progress-text">Step {{ currentStep }} of {{ totalSteps }}</span>
+            <span class="progress-percentage">{{ (currentStep / totalSteps) * 100 | number:'1.0-0' }}% Complete</span>
+          </div>
+          <mat-progress-bar 
+            [value]="(currentStep / totalSteps) * 100" 
+            color="primary" 
+            class="setup-progress">
+          </mat-progress-bar>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-	<!-- List of Budgets -->
-	@for (budget of budgets; track budget.budgetId) {
-	<div>
-		<div>
-			<p>Category: {{ budget.category }}</p>
-			<p>Limit: {{ budget.limit | currency }}</p>
-			<p>Spent: {{ budget.spent | currency }}</p>
-			<p>Start Date: {{ dateService.toDate(budget.startDate) | date: 'short' }}</p>
-			<p>End Date: {{ dateService.toDate(budget.endDate) | date: 'short' }}</p>
-			<button (click)="deleteBudget(budget.budgetId)">Delete</button>
-			<button (click)="updateSpent(budget.budgetId, 50)">Add 50 to spent</button>
-			<!-- Example button -->
-		</div>
-	</div>
-	}
+  <!-- Income Section -->
+  <div class="income-section" *ngIf="currentStep >= 1">
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>account_balance</mat-icon>
+          Income Planning
+        </mat-card-title>
+        <mat-card-subtitle>Set your total expected yearly income</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="income-form">
+          <div class="total-income-section">
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Total Expected Yearly Income</mat-label>
+              <input matInput 
+                     type="number" 
+                     [(ngModel)]="yearlyBudget.totalIncome" 
+                     name="totalIncome" 
+                     required 
+                     min="0"
+                     (input)="calculateMonthlyIncome(); updateYearlyIncome()">
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+            
+            <div class="monthly-breakdown" *ngIf="yearlyBudget.totalIncome > 0">
+              <p class="breakdown-text">Monthly average: {{ yearlyBudget.totalIncome / 12 | currency }}</p>
+            </div>
+          </div>
 
-	<!-- Add New Budget Form -->
-	<form (submit)="createBudget()">
-		<label for="category">Category:</label>
-		<input type="text" id="category" [(ngModel)]="newBudget.category" name="category" required />
+          <mat-checkbox [(ngModel)]="yearlyBudget.splitByMonth" name="splitByMonth">
+            Split income by month (for irregular income)
+          </mat-checkbox>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-		<label for="limit">Limit:</label>
-		<input type="number" id="limit" [(ngModel)]="newBudget.limit" name="limit" required />
+  <!-- Expense Planning Section -->
+  <div class="expense-planning-section" *ngIf="currentStep >= 2">
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>category</mat-icon>
+          Expense Planning
+        </mat-card-title>
+        <mat-card-subtitle>Allocate your budget across different expense categories using the sliders below</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="categories-container">
+          <div class="category-row" *ngFor="let category of categories; trackBy: trackByCategoryId">
+            <div class="category-info">
+              <mat-icon [style.color]="category.color" class="category-icon">{{ category.icon }}</mat-icon>
+              <span class="category-name">{{ category.name }}</span>
+            </div>
+            
+            <div class="category-slider-container">
+              <mat-slider
+                [max]="yearlyBudget.totalIncome"
+                [min]="0"
+                [step]="100"
+                class="budget-slider">
+                <input matSliderThumb 
+                       [value]="getCategoryBudget(category.id || '')"
+                       (valueChange)="onCategoryBudgetChange(category.id || '', $event)">
+              </mat-slider>
+            </div>
+            
+            <div class="category-budget-info">
+              <span class="budget-amount">{{ getCategoryBudget(category.id || '') | currency }}</span>
+              <div class="budget-details">
+                <span class="budget-percentage">{{ getCategoryPercentage(category.id || '') | number:'1.0-1' }}%</span>
+                <span class="budget-monthly">{{ getCategoryMonthly(category.id || '') | currency }}/month</span>
+              </div>
+            </div>
+            
 
-		<label for="startDate">Start Date:</label>
-		<input type="date" id="startDate" [(ngModel)]="newBudget.startDate" name="startDate" required />
+          </div>
+        </div>
+        
+        <div class="budget-summary" [class.over-budget]="getTotalAllocated() > yearlyBudget.totalIncome">
+          <div class="summary-row">
+            <span class="label">Total Allocated:</span>
+            <span class="amount" [class.over-budget]="getTotalAllocated() > yearlyBudget.totalIncome">
+              {{ getTotalAllocated() | currency }}
+            </span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Remaining:</span>
+            <span class="amount" [class.negative]="getRemainingBudget() < 0">{{ getRemainingBudget() | currency }}</span>
+          </div>
+          <div class="budget-warning" *ngIf="getTotalAllocated() > yearlyBudget.totalIncome">
+            <mat-icon>warning</mat-icon>
+            <span>Budget exceeded! Other categories will be adjusted automatically.</span>
+          </div>
+        </div>
+        
 
-		<label for="endDate">End Date:</label>
-		<input type="date" id="endDate" [(ngModel)]="newBudget.endDate" name="endDate" required />
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-		<button type="submit">Add Budget</button>
-	</form>
+  <!-- Savings & Investment Goals Section -->
+  <div class="savings-section" *ngIf="currentStep >= 3">
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>savings</mat-icon>
+          Savings & Investment Goals
+        </mat-card-title>
+        <mat-card-subtitle>Set aside money for your financial goals</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="savings-goals">
+          <div class="savings-goal-item" *ngFor="let goal of yearlyBudget.savingsGoals; let i = index">
+            <mat-form-field appearance="outline">
+              <mat-label>Goal Name</mat-label>
+              <input matInput 
+                     [(ngModel)]="goal.name" 
+                     [name]="'goalName' + i" 
+                     placeholder="e.g., Emergency Fund, Vacation, Down Payment">
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Target Amount</mat-label>
+              <input matInput 
+                     type="number" 
+                     [(ngModel)]="goal.targetAmount" 
+                     [name]="'goalAmount' + i" 
+                     min="0">
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Monthly Contribution</mat-label>
+              <input matInput 
+                     type="number" 
+                     [(ngModel)]="goal.monthlyContribution" 
+                     [name]="'goalContribution' + i" 
+                     min="0">
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+            
+            <button mat-icon-button color="warn" (click)="removeSavingsGoal(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          
+          <button mat-stroked-button color="primary" (click)="addSavingsGoal()">
+            <mat-icon>add</mat-icon>
+            Add Savings Goal
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Debt Section -->
+  <div class="debt-section" *ngIf="currentStep >= 4">
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>credit_card</mat-icon>
+          Debt Management
+        </mat-card-title>
+        <mat-card-subtitle>Plan your debt payments for the year</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="debt-items">
+          <div class="debt-item" *ngFor="let debt of yearlyBudget.debts; let i = index">
+            <mat-form-field appearance="outline">
+              <mat-label>Debt Name</mat-label>
+              <input matInput 
+                     [(ngModel)]="debt.name" 
+                     [name]="'debtName' + i" 
+                     placeholder="e.g., Credit Card, Student Loan, Car Loan">
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Current Balance</mat-label>
+              <input matInput 
+                     type="number" 
+                     [(ngModel)]="debt.currentBalance" 
+                     [name]="'debtBalance' + i" 
+                     min="0">
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Monthly Payment</mat-label>
+              <input matInput 
+                     type="number" 
+                     [(ngModel)]="debt.monthlyPayment" 
+                     [name]="'debtPayment' + i" 
+                     min="0">
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Interest Rate (%)</mat-label>
+              <input matInput 
+                     type="number" 
+                     [(ngModel)]="debt.interestRate" 
+                     [name]="'debtInterest' + i" 
+                     min="0" 
+                     max="100" 
+                     step="0.1">
+              <mat-icon matSuffix>percent</mat-icon>
+            </mat-form-field>
+            
+            <button mat-icon-button color="warn" (click)="removeDebt(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          
+          <button mat-stroked-button color="primary" (click)="addDebt()">
+            <mat-icon>add</mat-icon>
+            Add Debt
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Budget Summary Section -->
+  <div class="budget-summary-section" *ngIf="currentStep >= 5">
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>assessment</mat-icon>
+          Budget Summary
+        </mat-card-title>
+        <mat-card-subtitle>Review your complete yearly budget breakdown</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="summary-grid">
+          <div class="summary-card income-summary">
+            <h3>Income</h3>
+            <div class="summary-amount">{{ yearlyBudget.totalIncome | currency }}</div>
+            <div class="summary-breakdown">
+              <div class="breakdown-item">
+                <span>Total Yearly Income:</span>
+                <span>{{ yearlyBudget.totalIncome | currency }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="summary-card expenses-summary">
+            <h3>Expenses</h3>
+            <div class="summary-amount">{{ getTotalAllocated() | currency }}</div>
+            <div class="summary-breakdown">
+              <div class="breakdown-item" *ngFor="let category of categories">
+                <span>{{ category.name }}:</span>
+                <span>{{ getCategoryBudget(category.id || '') | currency }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="summary-card savings-summary">
+            <h3>Savings</h3>
+            <div class="summary-amount">{{ getTotalSavings() | currency }}</div>
+            <div class="summary-breakdown">
+              <div class="breakdown-item" *ngFor="let goal of yearlyBudget.savingsGoals">
+                <span>{{ goal.name }}:</span>
+                <span>{{ goal.monthlyContribution * 12 | currency }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="summary-card debt-summary">
+            <h3>Debt Payments</h3>
+            <div class="summary-amount">{{ getTotalDebtPayments() | currency }}</div>
+            <div class="summary-breakdown">
+              <div class="breakdown-item" *ngFor="let debt of yearlyBudget.debts">
+                <span>{{ debt.name }}:</span>
+                <span>{{ debt.monthlyPayment * 12 | currency }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="final-summary">
+          <div class="summary-row total-row">
+            <span class="label">Total Income:</span>
+            <span class="amount income">{{ yearlyBudget.totalIncome | currency }}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span class="label">Total Expenses:</span>
+            <span class="amount expenses">{{ getTotalAllocated() | currency }}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span class="label">Total Savings:</span>
+            <span class="amount savings">{{ getTotalSavings() | currency }}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span class="label">Total Debt Payments:</span>
+            <span class="amount debt">{{ getTotalDebtPayments() | currency }}</span>
+          </div>
+          <div class="summary-row total-row final-balance">
+            <span class="label">Net Balance:</span>
+            <span class="amount" [class.positive]="getNetBalance() >= 0" [class.negative]="getNetBalance() < 0">
+              {{ getNetBalance() | currency }}
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Review & Save Section -->
+  <div class="review-section" *ngIf="currentStep >= 6">
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>check_circle</mat-icon>
+          Review & Save
+        </mat-card-title>
+        <mat-card-subtitle>Review your budget and save it for the year</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="review-content">
+          <div class="review-message" *ngIf="getNetBalance() >= 0; else negativeBalance">
+            <mat-icon class="success-icon">check_circle</mat-icon>
+            <p>Great! Your budget is balanced. You have {{ getNetBalance() | currency }} remaining for additional savings or expenses.</p>
+          </div>
+          
+          <ng-template #negativeBalance>
+            <div class="review-message warning">
+              <mat-icon class="warning-icon">warning</mat-icon>
+              <p>Your expenses exceed your income by {{ Math.abs(getNetBalance()) | currency }}. Consider adjusting your budget.</p>
+            </div>
+          </ng-template>
+          
+          <div class="monthly-view-toggle">
+            <mat-checkbox [(ngModel)]="showMonthlyView" name="showMonthlyView">
+              Show monthly breakdown view
+            </mat-checkbox>
+          </div>
+          
+          <div class="monthly-breakdown" *ngIf="showMonthlyView">
+            <h3>Monthly Breakdown</h3>
+            <div class="monthly-grid">
+              <div class="month-item" *ngFor="let month of getMonthlyBreakdown(); let i = index">
+                <h4>{{ getMonthName(i) }}</h4>
+                <div class="month-details">
+                  <div class="month-row">
+                    <span>Income:</span>
+                    <span>{{ month.income | currency }}</span>
+                  </div>
+                  <div class="month-row">
+                    <span>Expenses:</span>
+                    <span>{{ month.expenses | currency }}</span>
+                  </div>
+                  <div class="month-row">
+                    <span>Savings:</span>
+                    <span>{{ month.savings | currency }}</span>
+                  </div>
+                  <div class="month-row">
+                    <span>Debt:</span>
+                    <span>{{ month.debt | currency }}</span>
+                  </div>
+                  <div class="month-row balance">
+                    <span>Balance:</span>
+                    <span [class.positive]="month.balance >= 0" [class.negative]="month.balance < 0">
+                      {{ month.balance | currency }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="navigation-section">
+    <div class="nav-buttons">
+      <button mat-stroked-button 
+              (click)="previousStep()" 
+              [disabled]="currentStep <= 1">
+        <mat-icon>arrow_back</mat-icon>
+        Previous
+      </button>
+      
+      <button mat-raised-button 
+              color="primary" 
+              (click)="nextStep()" 
+              [disabled]="currentStep >= totalSteps">
+        <mat-icon>arrow_forward</mat-icon>
+        {{ currentStep >= totalSteps ? 'Complete' : 'Next' }}
+      </button>
+      
+      <button mat-raised-button 
+              color="accent" 
+              (click)="saveYearlyBudget()" 
+              *ngIf="currentStep >= totalSteps"
+              [disabled]="getNetBalance() < 0 || getTotalAllocated() === 0">
+        <mat-icon>save</mat-icon>
+        Save Complete Yearly Budget
+      </button>
+    </div>
+  </div>
 </div>
