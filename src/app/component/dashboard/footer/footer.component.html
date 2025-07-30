@@ -1,5 +1,5 @@
 <!-- Footer for all devices -->
-@if(!hideFooter && !breakpointService.device.isMobile){
+@if(!hideFooter || (breakpointService.device.isMobile || breakpointService.device.isTablePortrait)){
 <footer class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
 	<!-- Professional Action Bar -->
 	<div class="px-2 py-3" [ngClass]="{'pb-0': breakpointService.device.isDesktop}">
