@@ -16,7 +16,6 @@ export interface CurrencyPipeOptions {
 
 @Pipe({
   name: 'currency',
-  standalone: true,
   pure: true
 })
 export class CurrencyPipe implements PipeTransform {

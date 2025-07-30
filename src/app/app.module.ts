@@ -98,7 +98,6 @@ import { CommonSyncService } from './util/service/common-sync.service';
 
 // NgRx Store
 import { AppStoreModule } from './store';
-import { CurrencyPipe } from './util/pipes';
 
 // Security
 import { securityInterceptor } from './util/interceptors/security.interceptor';
@@ -174,7 +173,6 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     // Utility
     IconModule,
     TranslatePipe,
-    CurrencyPipe,
     
     // Charts
     NgxEchartsModule.forRoot({

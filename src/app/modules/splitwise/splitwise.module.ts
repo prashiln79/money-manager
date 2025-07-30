@@ -48,7 +48,6 @@ import { SplitwiseService } from './services/splitwise.service';
 // Utility Components
 import { LoaderComponent } from '../../util/components/loader/loader.component';
 import { TranslatePipe } from '../../util/pipes/translate.pipe';
-import { CurrencyPipe } from '../../util/pipes/currency.pipe';
 import { MembersComponent } from './members/members.component';
 import { SharedModule } from '../shared/shared.module';
 
@@ -97,7 +96,6 @@ import { SharedModule } from '../shared/shared.module';
     // Standalone Components
     LoaderComponent,
     TranslatePipe,
-    CurrencyPipe
   ],
   providers: [
     SplitwiseService
