@@ -1,38 +1,15 @@
-@if(!breakpointService.device.isTablePortrait && !breakpointService.device.isMobile && breakpointService.device.isDesktop && !hideFooter){
-
-<!-- <footer class="hidden md:flex flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm" >
-	<div class="flex items-center justify-between px-6 py-4 w-full">
-
-		<div class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-			<mat-icon class="text-gray-400 dark:text-gray-500">account_balance_wallet</mat-icon>
-			<span class="font-medium">Money Manager</span>
-			<span class="text-xs text-gray-400 dark:text-gray-500">v{{ getAppVersion() }}</span>
-		</div>
-
-		<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-			<span>© 2024 Money Manager</span>
-			<span class="hidden lg:inline">•</span>
-			<span class="hidden lg:inline">All rights reserved</span>
-			<span class="hidden lg:inline">•</span>
-		</div>
-
-	
-	</div>
-</footer> -->
-}
-
-<!-- Mobile Footer -->
-@if(true ){
-<footer class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+<!-- Footer for all devices -->
+@if(!hideFooter){
+<footer class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
 	<!-- Professional Action Bar -->
-	<div class="px-2 py-3">
+	<div class="px-2 py-3" [ngClass]="{'pb-0': breakpointService.device.isDesktop}">
 		<!-- Quick Actions Grid -->
 		<div class="grid grid-cols-5 gap-2">
 			<!-- Home -->
 			<button (click)="home()" class="group flex flex-col items-center gap-2">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200"
-					[class]="isHomeActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					[class]="isHomeActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="home()"
 				>
 					<mat-icon class="text-lg relative bottom-1" [class]="isHomeActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">home</mat-icon>
@@ -43,8 +20,8 @@
 			<!-- Expense -->
 			<button (click)="quickExpense()" class="group flex flex-col items-center gap-2">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200"
-					[class]="isExpenseActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					[class]="isExpenseActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="quickExpense()"
 				>
 					<mat-icon class="text-lg relative bottom-1" [class]="isExpenseActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">trending_down</mat-icon>
@@ -54,7 +31,7 @@
 
 			<!-- Add Transaction -->
 			<button (click)="addTransaction()" class="group flex flex-col items-center gap-2">
-				<div class="w-12 h-12 bg-gray-500 rounded-xl flex items-center justify-center shadow-md hover:scale-105 transition-all duration-200">
+				<div class="w-12 h-12 bg-gray-500 rounded-xl flex items-center justify-center shadow-md hover:scale-105 hover:shadow-lg hover:bg-gray-600 transition-all duration-200">
 					<mat-icon class="text-white text-lg relative bottom-1">add_circle</mat-icon>
 				</div>
 				<span class="text-xs font-medium text-gray-700 dark:text-gray-300">Add</span>
@@ -76,8 +53,8 @@
 
 			<button (click)="navigateTo('/dashboard/category')" class="group flex flex-col items-center gap-2">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200"
-					[class]="isCategoryActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					[class]="isCategoryActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="navigateTo('/dashboard/category')"
 				>
 					<mat-icon class="text-lg relative bottom-1" [class]="isCategoryActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">layers</mat-icon>
@@ -87,8 +64,8 @@
 
 			<button (click)="navigateTo('/dashboard/accounts')" class="group flex flex-col items-center gap-2">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200"
-					[class]="isAccountsActive() ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					[class]="isAccountsActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="navigateTo('/dashboard/accounts')"
 				>
 					<mat-icon class="text-lg relative bottom-1" [class]="isAccountsActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">account_balance</mat-icon>
