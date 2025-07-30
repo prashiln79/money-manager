@@ -2,39 +2,39 @@
 @if(!hideFooter || (breakpointService.device.isMobile || breakpointService.device.isTablePortrait)){
 <footer class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
 	<!-- Professional Action Bar -->
-	<div class="px-2 py-3" [ngClass]="{'pb-0': breakpointService.device.isDesktop}">
+	<div class="px-2 py-3 lg:px-4 lg:py-2" [ngClass]="{'lg:pb-0': breakpointService.device.isDesktop}">
 		<!-- Quick Actions Grid -->
-		<div class="grid grid-cols-5 gap-2">
+		<div class="grid grid-cols-5 gap-2 lg:max-w-md lg:mx-auto lg:gap-1">
 			<!-- Home -->
-			<button (click)="home()" class="group flex flex-col items-center gap-2">
+			<button (click)="home()" class="group flex flex-col items-center gap-2 lg:gap-1">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					class="w-10 h-10 lg:w-8 lg:h-8 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
 					[class]="isHomeActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="home()"
 				>
-					<mat-icon class="text-lg relative bottom-1" [class]="isHomeActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">home</mat-icon>
+					<mat-icon class="text-lg lg:text-base relative bottom-1" [class]="isHomeActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">home</mat-icon>
 				</div>
-				<span class="text-xs font-medium transition-colors duration-200" [class]="isHomeActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Home</span>
+				<span class="text-xs lg:text-[10px] font-medium transition-colors duration-200" [class]="isHomeActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Home</span>
 			</button>
 
 			<!-- Expense -->
-			<button (click)="quickExpense()" class="group flex flex-col items-center gap-2">
+			<button (click)="quickExpense()" class="group flex flex-col items-center gap-2 lg:gap-1">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					class="w-10 h-10 lg:w-8 lg:h-8 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
 					[class]="isExpenseActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="quickExpense()"
 				>
-					<mat-icon class="text-lg relative bottom-1" [class]="isExpenseActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">trending_down</mat-icon>
+					<mat-icon class="text-lg lg:text-base relative bottom-1" [class]="isExpenseActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">trending_down</mat-icon>
 				</div>
-				<span class="text-xs font-medium transition-colors duration-200" [class]="isExpenseActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Expense</span>
+				<span class="text-xs lg:text-[10px] font-medium transition-colors duration-200" [class]="isExpenseActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Expense</span>
 			</button>
 
 			<!-- Add Transaction -->
-			<button (click)="addTransaction()" class="group flex flex-col items-center gap-2">
-				<div class="w-12 h-12 bg-gray-500 rounded-xl flex items-center justify-center shadow-md hover:scale-105 hover:shadow-lg hover:bg-gray-600 transition-all duration-200">
-					<mat-icon class="text-white text-lg relative bottom-1">add_circle</mat-icon>
+			<button (click)="addTransaction()" class="group flex flex-col items-center gap-2 lg:gap-1">
+				<div class="w-12 h-12 lg:w-10 lg:h-10 bg-gray-500 rounded-xl flex items-center justify-center shadow-md hover:scale-105 hover:shadow-lg hover:bg-gray-600 transition-all duration-200">
+					<mat-icon class="text-white text-lg lg:text-base relative bottom-1">add_circle</mat-icon>
 				</div>
-				<span class="text-xs font-medium text-gray-700 dark:text-gray-300">Add</span>
+				<span class="text-xs lg:text-[10px] font-medium text-gray-700 dark:text-gray-300">Add</span>
 			</button>
 
 			<!-- Reports -->
@@ -51,26 +51,26 @@
               [class]="isReportsActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Report</span>
       </button> -->
 
-			<button (click)="navigateTo('/dashboard/category')" class="group flex flex-col items-center gap-2">
+			<button (click)="navigateTo('/dashboard/category')" class="group flex flex-col items-center gap-2 lg:gap-1">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					class="w-10 h-10 lg:w-8 lg:h-8 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
 					[class]="isCategoryActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="navigateTo('/dashboard/category')"
 				>
-					<mat-icon class="text-lg relative bottom-1" [class]="isCategoryActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">layers</mat-icon>
+					<mat-icon class="text-lg lg:text-base relative bottom-1" [class]="isCategoryActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">layers</mat-icon>
 				</div>
-				<span class="text-xs font-medium transition-colors duration-200" [class]="isCategoryActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Category</span>
+				<span class="text-xs lg:text-[10px] font-medium transition-colors duration-200" [class]="isCategoryActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Category</span>
 			</button>
 
-			<button (click)="navigateTo('/dashboard/accounts')" class="group flex flex-col items-center gap-2">
+			<button (click)="navigateTo('/dashboard/accounts')" class="group flex flex-col items-center gap-2 lg:gap-1">
 				<div
-					class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+					class="w-10 h-10 lg:w-8 lg:h-8 rounded-xl flex items-center justify-center shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
 					[class]="isAccountsActive() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
 					(click)="navigateTo('/dashboard/accounts')"
 				>
-					<mat-icon class="text-lg relative bottom-1" [class]="isAccountsActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">account_balance</mat-icon>
+					<mat-icon class="text-lg lg:text-base relative bottom-1" [class]="isAccountsActive() ? 'text-white' : 'text-gray-600 dark:text-gray-400'">account_balance</mat-icon>
 				</div>
-				<span class="text-xs font-medium transition-colors duration-200" [class]="isAccountsActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Accounts</span>
+				<span class="text-xs lg:text-[10px] font-medium transition-colors duration-200" [class]="isAccountsActive() ? 'text-primary dark:text-primary' : 'text-gray-700 dark:text-gray-300'">Accounts</span>
 			</button>
 
 			<!-- More -->

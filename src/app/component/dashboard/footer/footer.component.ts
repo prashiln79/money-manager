@@ -16,9 +16,7 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 export class FooterComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
   public hideFooter: boolean = false;
-  private hideFooterForRoutes: string[] = [
-    '/dashboard/transactions',
-  ];
+  private hideFooterForRoutes: string[] = [ ];
 
   constructor(
     private commonSyncService: CommonSyncService,
