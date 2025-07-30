@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CommonSyncService } from '../../../util/service/common-sync.service';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
@@ -25,19 +25,16 @@ export class FooterComponent implements OnInit, OnDestroy {
     private router: Router,
     private _dialog: MatDialog,
     private hapticFeedback: HapticFeedbackService,
-    private cdr: ChangeDetectorRef,
     public breakpointService: BreakpointService,
-  ) { 
-   this.hideFooter = this.hideFooterForRoutes.includes(this.router.url);
+  ) {
+
   }
 
   ngOnInit() {
-    // Listen to route changes for highlighting
     this.routeSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        // Trigger change detection
-        this.cdr.detectChanges();
+        this.hideFooter = this.hideFooterForRoutes.includes(this.router.url);
       });
   }
 
@@ -80,8 +77,8 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   // Toolbar Action Methods
   addTransaction() {
-   this._dialog.open(MobileAddTransactionComponent, {
-    panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
+    this._dialog.open(MobileAddTransactionComponent, {
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
     });
   }
 

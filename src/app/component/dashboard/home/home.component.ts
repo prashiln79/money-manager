@@ -46,6 +46,7 @@ export class HomeComponent {
     showHeaderIcon: true,
     headerIcon: 'category',
     headerIconColor: 'blue',
+    maxItems: 5,
   };
   quickActionsFabConfig: QuickActionsFabConfig = {
     title: 'Quick Actions',
@@ -102,6 +103,14 @@ export class HomeComponent {
     subtitle: '',
     currency: 'INR',
     showHeaderIcon: false ,
+    columns: 3,
+    cardsPerRow: {
+      xs: 1,
+      sm: 2,
+      md: 3,
+      lg: 4,
+      xl: 4,
+    }
   };
 
 

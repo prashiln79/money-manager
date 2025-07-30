@@ -13,7 +13,7 @@ import * as AccountsSelectors from 'src/app/store/accounts/accounts.selectors';
 })
 export class AccountSummaryCardComponent implements OnInit, OnDestroy {
   
-  @Input() home: boolean = false;
+
   
   // Observables from store
   public accounts$: Observable<Account[]>;
