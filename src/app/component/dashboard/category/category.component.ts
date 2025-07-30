@@ -25,6 +25,7 @@ import moment from 'moment';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { CategoryService } from 'src/app/util/service/category.service';
 import { Router } from '@angular/router';
+import { QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 
 @Component({
   selector: 'user-category',
@@ -32,6 +33,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./category.component.scss']
 })
 export class CategoryComponent implements OnInit, OnDestroy {
+
+  public quickActionsFabConfig: QuickActionsFabConfig = {
+    title: 'Quick Actions',
+    mainButtonIcon: 'add',
+    mainButtonColor: 'primary',
+    mainButtonTooltip: 'Add Category',
+    actions: [ ]
+  };
 
   @Input() isChildView: boolean = false;
 

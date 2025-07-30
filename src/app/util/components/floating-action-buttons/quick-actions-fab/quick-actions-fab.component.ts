@@ -142,6 +142,14 @@ export class QuickActionsFabComponent implements OnInit, OnDestroy {
     this.actionClick.emit(action);
   }
 
+  onMainButtonClick(): void {
+    if (this.effectiveConfig.onMainButtonClick) {
+      this.effectiveConfig.onMainButtonClick();
+    }
+    
+    this.mainButtonClick.emit();
+  }
+
   getActionButtonClass(action: QuickAction): string {
     const baseClass = 'shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out';
     const disabledClass = action.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110';

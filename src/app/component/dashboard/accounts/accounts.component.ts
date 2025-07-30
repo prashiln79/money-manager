@@ -15,6 +15,7 @@ import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
 import { DateService } from 'src/app/util/service/date.service';
 import { AccountType } from 'src/app/util/config/enums';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 
 @Component({
   selector: 'user-accounts',
@@ -22,6 +23,15 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
   styleUrls: ['./accounts.component.scss']
 })
 export class AccountsComponent implements OnInit, OnDestroy {
+  
+  quickActionsFabConfig: QuickActionsFabConfig = {
+    title: 'Quick Actions',
+    mainButtonIcon: 'add',
+    mainButtonColor: 'primary',
+    mainButtonTooltip: 'Add Account',
+    actions:[]
+  };
+
 
   // Observables from store
   public accounts$: Observable<Account[]> = of([]);

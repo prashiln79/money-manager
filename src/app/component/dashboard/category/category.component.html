@@ -1,3 +1,4 @@
+<app-quick-actions-fab [config]="quickActionsFabConfig" (mainButtonClick)="openAddMobileDialog()"></app-quick-actions-fab>
 <div class="categories-container">
 	<!-- Error Message Display -->
 	<div *ngIf="errorMessage" class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
@@ -6,21 +7,7 @@
 			<mat-icon>close</mat-icon>
 		</button>
 	</div>
-
-	<button
-		mat-fab
-		color="primary"
-		*ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait)"
-		(click)="openAddMobileDialog()"
-		class="mobile-fab-btn add-category-btn"
-	>
-		<mat-icon>add</mat-icon>
-	</button>
-
-	<button mat-fab color="primary" (click)="openAddMobileDialog()" class="desktop-fab-btn" *ngIf="!breakpointService.device.isMobile && !breakpointService.device.isTablePortrait">
-		<mat-icon>add</mat-icon>
-	</button>
-
+	
 	<!-- Main Content -->
 	<div class="categories-grid" [ngClass]="{'px-10': !breakpointService.device.isMobile}">
 		<!-- Categories List Section -->

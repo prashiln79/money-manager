@@ -1,19 +1,10 @@
+<app-quick-actions-fab [config]="quickActionsFabConfig" (mainButtonClick)="addAccount()"></app-quick-actions-fab>
 <div class="accounts-container">
 	<!-- Error Message Display -->
 	<div *ngIf="errorMessage" class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
 		<p class="text-red-700 text-sm">{{ errorMessage }}</p>
 		<button mat-icon-button (click)="clearError()" class="error-close-button">
 			<mat-icon>close</mat-icon>
-		</button>
-	</div>
-
-	<button mat-fab color="primary" *ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait)" (click)="addAccount()" class="add-account-btn z-[100]">
-		<mat-icon>add</mat-icon>
-	</button>
-
-	<div class="fab-button" *ngIf="!breakpointService.device.isMobile">
-		<button mat-fab color="primary" (click)="addAccount()" class="desktop-fab-btn">
-			<mat-icon>add</mat-icon>
 		</button>
 	</div>
 

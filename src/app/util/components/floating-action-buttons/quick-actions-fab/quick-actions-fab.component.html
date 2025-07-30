@@ -1,5 +1,20 @@
-<div class="quick-actions-fab fixed z-50 bottom-28 right-4 md:bottom-6 md:right-6 lg:bottom-16 lg:right-10">
+<div class="quick-actions-fab fixed z-50 bottom-28 right-4 md:bottom-6 md:right-6 lg:bottom-32 lg:right-10">
   <div class="flex flex-col space-y-2 md:space-y-3" [ngClass]="animationClass">
+    <!-- Single Button Mode (when no actions) -->
+    @if (effectiveConfig.actions.length === 0) {
+    <button 
+      mat-fab 
+      [color]="effectiveConfig.mainButtonColor"
+      [ngClass]="getMainButtonClass()"
+      [matTooltip]="effectiveConfig.mainButtonTooltip"
+      (click)="onMainButtonClick()"
+      class="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
+      <mat-icon>{{ effectiveConfig.mainButtonIcon }}</mat-icon>
+    </button>
+    }
+    
+    <!-- Expandable Menu Mode (when actions exist) -->
+    @if (effectiveConfig.actions.length > 0) {
     <!-- Main FAB Button -->
     <button 
       mat-fab 
@@ -34,5 +49,6 @@
       </div>
       }
     </div>
+    }
   </div>
 </div> 
