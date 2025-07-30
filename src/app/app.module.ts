@@ -83,6 +83,7 @@ import { AnalyticsSummaryCardComponent } from './util/components/cards/analytics
 import { RecentActivityCardComponent } from './util/components/cards/recent-activity-card/recent-activity-card.component';
 import { MonthlyTrendsCardComponent } from './util/components/cards/monthly-trends-card/monthly-trends-card.component';
 import { CategoryBreakdownCardComponent } from './util/components/cards/category-breakdown-card/category-breakdown-card.component';
+import { QuickActionsFabComponent } from './util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 
 // Notification Components
 import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
@@ -195,6 +196,9 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     RecentActivityCardComponent,
     MonthlyTrendsCardComponent,
     CategoryBreakdownCardComponent,
+    
+    // Floating Action Button Components
+    QuickActionsFabComponent,
     
     // ngx-mat-select-search
     NgxMatSelectSearchModule,

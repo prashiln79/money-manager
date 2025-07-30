@@ -1,19 +1,44 @@
-<section
-	class="grid grid-cols-1 gap-2 lg:grid-cols-7 lg:px-5 lg:gap-4 xl"
-	[ngClass]="{  'md:grid-cols-2 ':!breakpointService.device.isTablePortrait,
-'md:gap-5':!breakpointService.device.isTablePortrait
-}"
->
-	@if(!breakpointService.device.isTablePortrait){
-	<calendar-view class="lg:col-span-2"></calendar-view>
-	} @if (breakpointService.device.isMobile) {
-	<app-budget-card [isHomeView]="true"></app-budget-card>
-	<app-account-summary-card [home]="true"> </app-account-summary-card>
-	<app-top-categories-card [config]="topCategoriesConfig"> </app-top-categories-card>
-	<app-recent-activity-card [config]="recentActivityConfig"></app-recent-activity-card>
-	<app-monthly-trends-card [config]="monthlyTrendsConfig"> </app-monthly-trends-card>
-    <app-category-breakdown-card [config]="categoryBreakdownConfig"></app-category-breakdown-card>
+<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8 xl:grid-cols-5 2xl:grid-cols-6">
+	<!-- Calendar View - Spans 2 columns on larger screens, full width on mobile -->
+	<div class="col-span-2">
+		<calendar-view></calendar-view>
+	</div>
 
-	}
-	<transaction-list *ngIf="!breakpointService.device.isMobile" [isHome]="true" class="lg:col-span-5"></transaction-list>
+	<!-- Monthly Trends Card - Full width on mobile, single column on larger screens -->
+	<div class="col-span-2">
+		<app-monthly-trends-card [config]="monthlyTrendsConfig"></app-monthly-trends-card>
+	</div>
+	<!-- Top Categories Card - Full width on mobile, spans 2 columns on medium+ screens -->
+	<div class="col-span-2">
+		<app-top-categories-card [config]="topCategoriesConfig"></app-top-categories-card>
+	</div>
+
+
+	<!-- Recent Activity Card - Full width on mobile, single column on larger screens -->
+	<div class="col-span-2">
+		<app-recent-activity-card [config]="recentActivityConfig"></app-recent-activity-card>
+	</div>
+
+	<!-- Category Breakdown Card - Full width on mobile, spans 2 columns on medium+ screens -->
+	<div class="sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2">
+		<app-category-breakdown-card [config]="categoryBreakdownConfig"></app-category-breakdown-card>
+	</div>
+
+	<div class="col-span-2">
+		<app-key-metrics-summary-card [config]="keyMetricsConfig"></app-key-metrics-summary-card>
+	</div>
+
+
+	<!-- Budget Card - Full width on mobile, single column on larger screens -->
+	<div class="col-span-2 md:col-span-1 lg:col-span-1 xl:col-span-1">
+		<app-budget-card [isHomeView]="true"></app-budget-card>
+	</div>
+
+	<!-- Account Summary Card - Full width on mobile, single column on larger screens -->
+	<div class="col-span-2 md:col-span-1 lg:col-span-1 xl:col-span-1">
+		<app-account-summary-card [home]="true"></app-account-summary-card>
+	</div>
+
+	<!-- Quick Actions FAB - Fixed position, not part of grid -->
+	<!-- <app-quick-actions-fab [config]="quickActionsFabConfig"></app-quick-actions-fab> -->
 </section>

@@ -1,0 +1,38 @@
+<div class="quick-actions-fab fixed z-50 bottom-28 right-4 md:bottom-6 md:right-6 lg:bottom-16 lg:right-10">
+  <div class="flex flex-col space-y-2 md:space-y-3" [ngClass]="animationClass">
+    <!-- Main FAB Button -->
+    <button 
+      mat-fab 
+      [color]="effectiveConfig.mainButtonColor"
+      [ngClass]="getMainButtonClass()"
+      [matTooltip]="effectiveConfig.mainButtonTooltip"
+      (click)="toggleExpanded()"
+      class="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
+      <mat-icon>{{ mainButtonIcon }}</mat-icon>
+    </button>
+    
+    <!-- Quick Actions Menu -->
+    <div *ngIf="isExpanded" class="flex flex-col space-y-2 md:space-y-3">
+      @for (action of effectiveConfig.actions; track action.id) {
+      <div class="flex items-center space-x-2 md:space-x-3">
+        @if (effectiveConfig.showLabels) {
+        <div class="hidden sm:block bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-lg text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap backdrop-blur-sm border border-gray-200 dark:border-gray-700">
+          {{ action.label }}
+        </div>
+        }
+        
+        <button 
+          mat-mini-fab 
+          [color]="action.color"
+          [ngClass]="getActionButtonClass(action)"
+          [matTooltip]="action.tooltip"
+          [disabled]="action.disabled"
+          (click)="onActionClick(action)"
+          class="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
+          <mat-icon [class.animate-spin]="action.loading" class="text-sm md:text-base">{{ action.icon }}</mat-icon>
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+</div> 

@@ -1,15 +1,14 @@
 @if(!breakpointService.device.isTablePortrait && !breakpointService.device.isMobile && breakpointService.device.isDesktop && !hideFooter){
-<!-- Desktop Footer -->
-<footer class="hidden md:flex flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm" >
+
+<!-- <footer class="hidden md:flex flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-sm" >
 	<div class="flex items-center justify-between px-6 py-4 w-full">
-		<!-- App Info -->
+
 		<div class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
 			<mat-icon class="text-gray-400 dark:text-gray-500">account_balance_wallet</mat-icon>
 			<span class="font-medium">Money Manager</span>
 			<span class="text-xs text-gray-400 dark:text-gray-500">v{{ getAppVersion() }}</span>
 		</div>
 
-		<!-- Center Content -->
 		<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
 			<span>© 2024 Money Manager</span>
 			<span class="hidden lg:inline">•</span>
@@ -17,17 +16,13 @@
 			<span class="hidden lg:inline">•</span>
 		</div>
 
-		<!-- Controls Later -->
-		<!-- <div class="flex items-center gap-3">
-      <app-theme-toggle></app-theme-toggle>
-      <app-language-switcher></app-language-switcher>
-    </div> -->
+	
 	</div>
-</footer>
+</footer> -->
 }
 
 <!-- Mobile Footer -->
-@if(breakpointService.device.isMobile || breakpointService.device.isTablePortrait ){
+@if(true ){
 <footer class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
 	<!-- Professional Action Bar -->
 	<div class="px-2 py-3">

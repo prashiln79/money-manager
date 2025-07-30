@@ -1,0 +1,108 @@
+// Minimal SCSS - using Tailwind CSS for most styling
+.quick-actions-fab {
+  // Ensure proper stacking context
+  isolation: isolate;
+  
+  // Prevent text selection
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  
+  // Animation classes for dynamic behavior
+  .fab-animated {
+    .mat-fab {
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+    
+    .mat-mini-fab {
+      animation: slideInUp 0.3s ease-out;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  // Action labels animation
+  .action-label {
+    animation: slideInRight 0.3s ease-out;
+    
+    &:hover {
+      transform: translateX(-4px);
+    }
+  }
+  
+  // Loading animation
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  // Disabled state
+  .opacity-50 {
+    opacity: 0.5;
+  }
+  
+  .cursor-not-allowed {
+    cursor: not-allowed;
+  }
+  
+  // Responsive button sizes using Tailwind
+  @media (max-width: 640px) {
+    .mat-fab {
+      width: 56px !important;
+      height: 56px !important;
+    }
+    
+    .mat-mini-fab {
+      width: 40px !important;
+      height: 40px !important;
+    }
+  }
+  
+  @media (min-width: 641px) {
+    .mat-fab {
+      width: 64px !important;
+      height: 64px !important;
+    }
+    
+    .mat-mini-fab {
+      width: 48px !important;
+      height: 48px !important;
+    }
+  }
+}
+
+// Keyframe animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

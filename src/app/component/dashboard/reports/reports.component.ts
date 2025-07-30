@@ -21,6 +21,7 @@ import { TopCategoriesConfig, TopCategory } from '../../../util/components/cards
 import { RecentActivityConfig, RecentTransaction } from '../../../util/components/cards/recent-activity-card/recent-activity-card.component';
 import { MonthlyTrendsConfig, MonthlyTrend } from '../../../util/components/cards/monthly-trends-card/monthly-trends-card.component';
 import { CategoryBreakdownConfig, CategoryBreakdown } from '../../../util/components/cards/category-breakdown-card/category-breakdown-card.component';
+import { QuickActionsFabConfig, QuickAction } from '../../../util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 
 interface CategorySpending {
   category: string;
@@ -270,6 +271,61 @@ export class ReportsComponent implements OnInit, OnDestroy {
       this.refreshData();
     }
   };
+
+  quickActionsFabConfig: QuickActionsFabConfig = {
+    title: 'Quick Actions',
+    mainButtonIcon: 'add',
+    mainButtonColor: 'primary',
+    mainButtonTooltip: 'Quick Actions',
+    showLabels: false,
+    animations: true,
+    autoHide: false,
+    autoHideDelay: 3000,
+    theme: 'auto',
+    actions: [
+      {
+        id: 'add-transaction',
+        label: 'Add Transaction',
+        icon: 'receipt',
+        color: 'accent',
+        tooltip: 'Add Transaction'
+      },
+      {
+        id: 'export-report',
+        label: 'Export Report',
+        icon: 'file_download',
+        color: 'warn',
+        tooltip: 'Export Report'
+      },
+      {
+        id: 'refresh-data',
+        label: 'Refresh Data',
+        icon: 'refresh',
+        color: 'primary',
+        tooltip: 'Refresh Data',
+        loading: false
+      }
+    ],
+    onActionClick: (action: QuickAction) => {
+      console.log('Quick action clicked:', action);
+      switch (action.id) {
+        case 'add-transaction':
+          this.addTransaction();
+          break;
+        case 'export-report':
+          this.exportReport();
+          break;
+        case 'refresh-data':
+          this.refreshData();
+          break;
+      }
+    },
+    onMainButtonClick: () => {
+      console.log('Main FAB clicked');
+    }
+  };
+
+
 
   // Data arrays
   transactions: Transaction[] = [];
