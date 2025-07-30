@@ -10,7 +10,7 @@
 	<button
 		mat-fab
 		color="primary"
-		*ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !isHomeView"
+		*ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait)"
 		(click)="openAddMobileDialog()"
 		class="mobile-fab-btn add-category-btn"
 	>
@@ -22,10 +22,10 @@
 	</button>
 
 	<!-- Main Content -->
-	<div class="categories-grid" [ngClass]="{'px-10': !isHomeView && !breakpointService.device.isMobile}">
+	<div class="categories-grid" [ngClass]="{'px-10': !breakpointService.device.isMobile}">
 		<!-- Categories List Section -->
 		<section class="categories-list">
-			<div class="section-header" *ngIf="!isHomeView">
+			<div class="section-header" >
 				<div class="header-content">
 					<h2 class="section-title">Manage Categories</h2>
 					<span class="flex items-center gap-2">
@@ -36,7 +36,7 @@
 			</div>
 
 			<!-- Empty State -->
-			<div *ngIf="categories && categories.length === 0 && !isHomeView" class="empty-state">
+			<div *ngIf="categories && categories.length === 0" class="empty-state">
 				<div class="empty-icon">
 					<mat-icon>local_offer</mat-icon>
 				</div>
@@ -49,14 +49,14 @@
 			</div>
 
 			<!-- Categories List -->
-			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait, '!max-h-[75vh]': !isChildView && !isHomeView}">
+			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait, '!max-h-[75vh]': !isChildView}">
 				<!-- Overall Budget Card -->
-				<app-budget-card [isHomeView]="isHomeView" [isChildView]="isChildView"></app-budget-card>
+				<app-budget-card [isHomeView]="false" [isChildView]="isChildView"></app-budget-card>
 
 
 				<!-- List View -->
 				<div *ngIf="isListViewMode" class="list-view-container pt-4">
-					@if(!isHomeView){ @for (category of categories; track category.id) {
+					@for (category of categories; track category.id) {
 					<!-- Only show main categories (not sub-categories) in the main list -->
 					@if(!category.isSubCategory && !category.parentCategoryId) {
 					<div class="list-view-item" [style.border-left-color]="category.color">
@@ -100,18 +100,17 @@
 						</div>
 						}
 					</div>
-					} } }
+					} } 
 				</div>
 
 				<!-- Detailed View -->
-				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 xxl:grid-cols-3 gap-4 lg:my-5 pt-4" [ngClass]="{'lg:grid-cols-4': !isHomeView && !isChildView}">
-					@if(!isHomeView){ @for (category of categories; track category.id) {
+				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 xxl:grid-cols-3 gap-4 lg:my-5 pt-4" [ngClass]="{'lg:grid-cols-4': !isChildView}">
+					@for (category of categories; track category.id) {
 					<!-- Only show main categories (not sub-categories) in the main list -->
 					@if(!category.isSubCategory && !category.parentCategoryId) {
 					<app-category-card
 						[category]="category"
 						[isMobile]="breakpointService.device.isMobile"
-						[home]="isHomeView"
 						[recentTransactions]="getRecentTransactions(category)"
 						[categoryStats]="getCategoryStats(category)"
 						[allTransactions]="transactions"
@@ -130,7 +129,6 @@
 							<app-category-card
 								[category]="subCategory"
 								[isMobile]="breakpointService.device.isMobile"
-								[home]="isHomeView"
 								[recentTransactions]="getRecentTransactions(subCategory)"
 								[categoryStats]="getCategoryStats(subCategory)"
 								[allTransactions]="transactions"
@@ -142,7 +140,7 @@
 							}
 						</div>
 					</div>
-					} } }
+					} } 
 				</div>
 			</div>
 		</section>

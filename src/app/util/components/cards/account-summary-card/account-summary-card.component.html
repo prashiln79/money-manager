@@ -1,5 +1,5 @@
 <!-- Loading State -->
-<div *ngIf="isLoading$ | async" class="balance-summary-card loading">
+<!-- <div  class="balance-summary-card loading">
 	<div class="balance-summary-header">
 		<mat-icon class="balance-icon">account_balance</mat-icon>
 		<h3 class="balance-summary-title">Total Balance</h3>
@@ -8,10 +8,10 @@
 		<mat-spinner diameter="20"></mat-spinner>
 		<span>Loading account data...</span>
 	</div>
-</div>
+</div> -->
 
 <!-- Total Balance Summary Card -->
-<div class="balance-summary-card" [ngClass]="{'mt-[-12px] m-1': home}" *ngIf="(isLoading$ | async) === false && ((accounts$ | async)?.length ?? 0) > 0">
+<div class="balance-summary-card" [ngClass]="{'mt-[-12px] m-1': home}" >
 	<div class="balance-summary-header">
 		<mat-icon class="balance-icon">account_balance</mat-icon>
 		<h3 class="balance-summary-title flex justify-between w-full">Total Balance

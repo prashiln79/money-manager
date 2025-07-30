@@ -7,7 +7,7 @@
 		</button>
 	</div>
 
-	<button mat-fab color="primary" *ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait) && !home" (click)="addAccount()" class="add-account-btn z-[100]">
+	<button mat-fab color="primary" *ngIf="(breakpointService.device.isMobile || breakpointService.device.isTablePortrait)" (click)="addAccount()" class="add-account-btn z-[100]">
 		<mat-icon>add</mat-icon>
 	</button>
 
@@ -21,7 +21,7 @@
 	<div class="accounts-grid">
 		<!-- Accounts List Section -->
 		<section class="accounts-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait}">
-			<div class="section-header" *ngIf="!home">
+			<div class="section-header" >
 				<div class="header-content">
 					<h2 class="section-title">Manage Accounts</h2>
 					<p class="section-subtitle">({{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }})</p>
@@ -29,11 +29,11 @@
 			</div>
 
 			<!-- Total Balance Summary Card -->
-			<app-account-summary-card [home]="home">
+			<app-account-summary-card [home]="false">
 			</app-account-summary-card>
 
 			<!-- Empty State -->
-			<div *ngIf="(accounts$ | async)?.length === 0 && !home" class="empty-state">
+			<div *ngIf="(accounts$ | async)?.length === 0" class="empty-state">
 				<div class="empty-icon">
 					<mat-icon>account_balance</mat-icon>
 				</div>
@@ -46,7 +46,7 @@
 			</div>
 
 			<!-- Accounts List -->
-			<div *ngIf="!home && (accounts$ | async) as accounts" class="accounts-grid-list">
+			<div *ngIf="(accounts$ | async) as accounts" class="accounts-grid-list">
 				@for (account of accounts; track account.accountId) {
 				<div class="account-item" [class]="getBalanceClass(account)" [class.expanded]="expandedAccount?.accountId === account.accountId">
 					<div class="account-content">

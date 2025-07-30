@@ -28,7 +28,6 @@ export class CategoryCardComponent {
   @Input() category!: Category;
 
   @Input() isMobile: boolean = false;
-  @Input() home: boolean = false;
   @Input() recentTransactions: Transaction[] = [];
   @Input() categoryStats: any;
   @Input() subCategoryCount: number = 0;

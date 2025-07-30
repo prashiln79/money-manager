@@ -3,7 +3,7 @@ import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { MobileCategoryAddEditPopupComponent } from './mobile-category-add-edit-popup/mobile-category-add-edit-popup.component';
@@ -33,7 +33,6 @@ import { Router } from '@angular/router';
 })
 export class CategoryComponent implements OnInit, OnDestroy {
 
-  @Input() isHomeView: boolean = false;
   @Input() isChildView: boolean = false;
 
   public isLoading$: Observable<boolean>;
@@ -142,8 +141,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
     });
 
     // Subscribe to profile changes to get user preferences
-    this.store.select(ProfileSelectors.selectUserPreferences).pipe(takeUntil(this.destroy$)).subscribe(preferences => {
-      if (preferences) {
+    this.store.select(ProfileSelectors.selectUserPreferences).pipe(take(1)).subscribe(preferences => {
+      if (preferences && this.isListViewMode != preferences.categoryListViewMode) {
         this.isListViewMode = preferences.categoryListViewMode ?? false;
       }
     });
@@ -300,7 +299,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         };
         this.store.dispatch(ProfileActions.updatePreferences({ 
           userId: this.userId, 
-          preferences: updatedPreferences 
+          preferences: updatedPreferences
         }));
       }
     });

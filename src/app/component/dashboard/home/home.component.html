@@ -7,12 +7,9 @@
 	@if(!breakpointService.device.isTablePortrait){
 	<calendar-view class="lg:col-span-2"></calendar-view>
 	} @if (breakpointService.device.isMobile) {
-	<user-category [isHomeView]="true" class="lg:col-span-5"></user-category>
-	<user-accounts [home]="true"></user-accounts>
-	<!-- Top Categories Card -->
-	<app-top-categories-card
-	[config]="topCategoriesConfig">
-  </app-top-categories-card>
+	<app-budget-card [isHomeView]="true"></app-budget-card>
+	<app-account-summary-card [home]="true"> </app-account-summary-card>
+	<app-top-categories-card [config]="topCategoriesConfig"> </app-top-categories-card>
 	}
 	<transaction-list *ngIf="!breakpointService.device.isMobile" [isHome]="true" class="lg:col-span-5"></transaction-list>
 </section>

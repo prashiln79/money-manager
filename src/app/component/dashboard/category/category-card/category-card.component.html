@@ -48,7 +48,7 @@
           (click)="onOpenBudgetDialog()"
           class="action-button budget-button"
           [matTooltip]="category.budget?.hasBudget ? 'Edit budget' : 'Set budget'"
-          *ngIf="!home && category.type === 'expense'"
+          *ngIf="category.type === 'expense'"
         >
           <mat-icon>account_balance_wallet</mat-icon> {{ category.budget?.hasBudget ? 'Edit Budget' : 'Set Budget' }}
         </button>

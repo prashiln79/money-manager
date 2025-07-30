@@ -23,8 +23,6 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 })
 export class AccountsComponent implements OnInit, OnDestroy {
 
-  @Input() home: boolean = false;
-  
   // Observables from store
   public accounts$: Observable<Account[]> = of([]);
   public isLoading$: Observable<boolean>;

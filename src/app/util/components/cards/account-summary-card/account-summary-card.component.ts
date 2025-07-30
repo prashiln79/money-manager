@@ -18,7 +18,6 @@ export class AccountSummaryCardComponent implements OnInit, OnDestroy {
   // Observables from store
   public accounts$: Observable<Account[]>;
   public totalBalance$: Observable<number>;
-  public isLoading$: Observable<boolean>;
   
   public accounts: Account[] = [];
   private destroy$ = new Subject<void>();
@@ -27,7 +26,6 @@ export class AccountSummaryCardComponent implements OnInit, OnDestroy {
     // Initialize selectors
     this.accounts$ = this.store.select(AccountsSelectors.selectAllAccounts);
     this.totalBalance$ = this.store.select(AccountsSelectors.selectTotalBalance);
-    this.isLoading$ = this.store.select(AccountsSelectors.selectAccountsLoading);
   }
 
   ngOnInit(): void {
