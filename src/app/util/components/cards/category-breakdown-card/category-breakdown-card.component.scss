@@ -1,0 +1,95 @@
+.category-breakdown-card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mat-card {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  // Animation for category items
+  .category-item {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateX(4px);
+    }
+  }
+  
+  // Progress bar animations
+  .progress-bar {
+    transition: width 0.6s ease-in-out;
+    
+    &.bg-red-500 {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+    
+    &.bg-yellow-500 {
+      background: linear-gradient(90deg, #eab308, #ca8a04);
+    }
+    
+    &.bg-blue-500 {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+    }
+  }
+  
+  // Category icon styling
+  .category-icon {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 640px) {
+    .category-item {
+      padding: 0.75rem;
+    }
+    
+    .progress-bar-container {
+      width: 4rem;
+    }
+  }
+  
+  // Dark mode enhancements
+  .dark & {
+    .category-item {
+      &:hover {
+        background-color: rgba(75, 85, 99, 0.8);
+      }
+    }
+    
+    .progress-bar {
+      &.bg-red-500 {
+        background: linear-gradient(90deg, #f87171, #ef4444);
+      }
+      
+      &.bg-yellow-500 {
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+      }
+      
+      &.bg-blue-500 {
+        background: linear-gradient(90deg, #60a5fa, #3b82f6);
+      }
+    }
+  }
+  
+  // Percentage display
+  .percentage-display {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  
+  // Amount formatting
+  .amount-display {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    font-weight: 600;
+  }
+} 

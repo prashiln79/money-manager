@@ -15,9 +15,12 @@ import { DateService } from 'src/app/util/service/date.service';
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { EChartsOption } from 'echarts';
 import { SsrService } from 'src/app/util/service/ssr.service';
-import { KeyMetricsSummaryCardComponent, KeyMetric, KeyMetricsConfig } from '../../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
-import { AnalyticsSummaryCardComponent, AnalyticsSummaryConfig, CategoryTrend as AnalyticsCategoryTrend, SpendingTrend as AnalyticsSpendingTrend, AccountBalance as AnalyticsAccountBalance } from '../../../util/components/cards/analytics-summary-card/analytics-summary-card.component';
-import { TopCategoriesCardComponent, TopCategoriesConfig, TopCategory } from '../../../util/components/cards/top-categories-card/top-categories-card.component';
+import { KeyMetric, KeyMetricsConfig } from '../../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
+import { AnalyticsSummaryConfig, CategoryTrend as AnalyticsCategoryTrend, SpendingTrend as AnalyticsSpendingTrend, AccountBalance as AnalyticsAccountBalance } from '../../../util/components/cards/analytics-summary-card/analytics-summary-card.component';
+import { TopCategoriesConfig, TopCategory } from '../../../util/components/cards/top-categories-card/top-categories-card.component';
+import { RecentActivityConfig, RecentTransaction } from '../../../util/components/cards/recent-activity-card/recent-activity-card.component';
+import { MonthlyTrendsConfig, MonthlyTrend } from '../../../util/components/cards/monthly-trends-card/monthly-trends-card.component';
+import { CategoryBreakdownConfig, CategoryBreakdown } from '../../../util/components/cards/category-breakdown-card/category-breakdown-card.component';
 
 interface CategorySpending {
   category: string;
@@ -176,6 +179,92 @@ export class ReportsComponent implements OnInit, OnDestroy {
     onCategoryClick: (category: TopCategory) => {
       console.log('Top category clicked:', category);
       // Navigate to category details or show more info
+    },
+    onRefresh: () => {
+      this.refreshData();
+    }
+  };
+
+  // Recent activity for the card component
+  recentActivityConfig: RecentActivityConfig = {
+    title: 'Recent Activity',
+    subtitle: 'Latest transactions',
+    currency: 'INR',
+    showHeaderIcon: true,
+    headerIcon: 'schedule',
+    headerIconColor: 'orange',
+    showFooter: false,
+    cardHeight: 'medium',
+    theme: 'auto',
+    animations: true,
+    clickable: true,
+    loading: false,
+    maxItems: 5,
+    period: 'monthly',
+    transactionType: 'all',
+    onTransactionClick: (transaction: RecentTransaction) => {
+      console.log('Transaction clicked:', transaction);
+      // Handle transaction click - could open edit dialog or details view
+    },
+    onRefresh: () => {
+      this.refreshData();
+    }
+  };
+
+  monthlyTrendsConfig: MonthlyTrendsConfig = {
+    title: 'Monthly Trends',
+    subtitle: 'Compare monthly performance',
+    currency: 'INR',
+    showHeaderIcon: true,
+    headerIcon: 'trending_up',
+    headerIconColor: 'green',
+    showFooter: false,
+    cardHeight: 'medium',
+    theme: 'auto',
+    animations: true,
+    clickable: true,
+    loading: false,
+    maxItems: 6,
+    period: 'monthly',
+    transactionType: 'all',
+    showIncome: true,
+    showExpenses: true,
+    showSavings: true,
+    showChange: true,
+    layout: 'grid',
+    onMonthClick: (month: MonthlyTrend) => {
+      console.log('Month clicked:', month);
+      // Handle month click - could show detailed view or filter
+    },
+    onRefresh: () => {
+      this.refreshData();
+    }
+  };
+
+  categoryBreakdownConfig: CategoryBreakdownConfig = {
+    title: 'Category Breakdown',
+    subtitle: 'Spending by category',
+    currency: 'INR',
+    showHeaderIcon: true,
+    headerIcon: 'category',
+    headerIconColor: 'blue',
+    showFooter: false,
+    cardHeight: 'medium',
+    theme: 'auto',
+    animations: true,
+    clickable: true,
+    loading: false,
+    maxItems: 8,
+    period: 'monthly',
+    transactionType: 'expense',
+    showProgressBar: true,
+    showPercentage: true,
+    showCount: false,
+    showAverage: false,
+    layout: 'list',
+    onCategoryClick: (category: CategoryBreakdown) => {
+      console.log('Category clicked:', category);
+      // Handle category click - could show detailed view or filter
     },
     onRefresh: () => {
       this.refreshData();

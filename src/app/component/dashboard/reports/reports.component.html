@@ -459,51 +459,9 @@
       </app-top-categories-card>
 
       <!-- Recent Activity Card -->
-      <mat-card class="bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden">
-        <div class="p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-4 sm:mb-6">
-            <div class="flex-1 min-w-0">
-              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">Recent Activity</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Latest transactions</p>
-            </div>
-            <div class="bg-orange-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-              <mat-icon class="text-orange-600 dark:text-orange-400">schedule</mat-icon>
-            </div>
-          </div>
-          
-          <!-- Recent Transactions List -->
-          <div *ngIf="recentTransactions.length > 0" class="space-y-3">
-            @for (transaction of recentTransactions; track transaction.id) {
-            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center space-x-3 min-w-0 flex-1">
-                <mat-icon [ngClass]="getTransactionColor(transaction)" class="flex-shrink-0">{{ getTransactionIcon(transaction) }}</mat-icon>
-                <div class="min-w-0 flex-1">
-                  <span class="text-gray-700 dark:text-gray-300 font-medium truncate block">{{ transaction.payee }}</span>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ transaction.category }}</div>
-                </div>
-              </div>
-              <div class="text-right ml-3 flex-shrink-0">
-                <span class="font-semibold block" [ngClass]="getTransactionColor(transaction)">
-                  {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
-                </span>
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ dateService.toDate(transaction.date) | date:'MMM dd' }}
-                </div>
-              </div>
-            </div>
-            }
-          </div>
-
-          <!-- No Data State -->
-          <div *ngIf="recentTransactions.length === 0" class="text-center py-8 sm:py-12">
-            <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <mat-icon class="text-gray-400 text-2xl sm:text-3xl">receipt_long</mat-icon>
-            </div>
-            <h4 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">No Recent Transactions</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Your recent activity will appear here</p>
-          </div>
-        </div>
-      </mat-card>
+      <app-recent-activity-card
+        [config]="recentActivityConfig">
+      </app-recent-activity-card>
     </div>
 
     <!-- Enhanced Export Options -->
@@ -635,46 +593,14 @@
         <!-- Data Available State -->
         <div *ngIf="hasData" class="space-y-6">
           <!-- Monthly Trends Chart -->
-          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 sm:p-6">
-            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Trends</h4>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-              @for (month of monthlyTrends; track month.month) {
-              <div class="text-center p-3 bg-white dark:bg-gray-600 rounded-lg">
-                <div class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 truncate">{{ month.month }}</div>
-                <div class="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400 truncate">{{ formatCurrency(month.income) }}</div>
-                <div class="text-xs sm:text-sm text-red-600 dark:text-red-400 truncate">{{ formatCurrency(month.expenses) }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
-                  {{ month.savings >= 0 ? '+' : '' }}{{ formatCurrency(month.savings) }}
-                </div>
-              </div>
-              }
-            </div>
-          </div>
+          <app-monthly-trends-card
+            [config]="monthlyTrendsConfig">
+          </app-monthly-trends-card>
 
           <!-- Category Breakdown -->
-          <div *ngIf="topCategories.length > 0" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 sm:p-6">
-            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Category Breakdown</h4>
-            <div class="space-y-3">
-              @for (category of topCategories; track category.category) {
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3 min-w-0 flex-1">
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 dark:bg-gray-600">
-                    <mat-icon class="text-xs" [style.color]="category.color">{{ category.icon }}</mat-icon>
-                  </div>
-                  <span class="text-gray-700 dark:text-gray-300 truncate">{{ category.category }}</span>
-                </div>
-                <div class="flex items-center space-x-3 sm:space-x-4 ml-3">
-                  <div class="w-20 sm:w-32 bg-gray-200 dark:bg-gray-600 rounded-full h-2 flex-shrink-0">
-                    <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="category.percentage"></div>
-                  </div>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white w-16 sm:w-20 text-right truncate">
-                    {{ formatCurrency(category.amount) }}
-                  </span>
-                </div>
-              </div>
-              }
-            </div>
-          </div>
+          <app-category-breakdown-card
+            [config]="categoryBreakdownConfig">
+          </app-category-breakdown-card>
         </div>
 
         <!-- No Data State -->
