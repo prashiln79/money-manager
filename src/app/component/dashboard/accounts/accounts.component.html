@@ -15,7 +15,10 @@
 			<div class="section-header">
 				<div class="header-content">
 					<h2 class="section-title">Manage Accounts</h2>
-					<p class="section-subtitle">({{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }})</p>
+					<span class="flex items-center gap-2">
+						<p class="section-subtitle">({{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }})</p>
+						<mat-icon (click)="toggleListViewMode()" *ngIf="!breakpointService.device.isMobile" [matTooltip]="isListViewMode ? 'Switch to detailed view' : 'Switch to list view'">{{ isListViewMode ? 'view_list' : 'list' }}</mat-icon>
+					</span>
 				</div>
 			</div>
 
@@ -33,7 +36,46 @@
 			</div>
 
 			<!-- Accounts List -->
-			<div *ngIf="(accounts$ | async) as accounts" class="accounts-grid-list">
+			<div *ngIf="(accounts$ | async) as accounts" class="accounts-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait}">
+				
+				<!-- List View -->
+				<div *ngIf="isListViewMode" class="list-view-container pt-4">
+					@for (groupData of getGroupedAccounts(accounts); track groupData.group.id) {
+					<div class="group-header" [style.color]="groupData.group.color">
+						<span class="group-emoji">{{ groupData.group.emoji }}</span>
+						{{ groupData.group.name }}
+						<span class="group-balance" *ngIf="!breakpointService.device.isMobile">
+							({{ groupData.totalBalance | currency }})
+						</span>
+					</div>
+					@for (account of groupData.accounts; track account.accountId) {
+					<div class="list-view-item" [style.border-left-color]="groupData.group.color">
+						<div class="list-view-content">
+							<mat-icon class="list-view-icon" [style.color]="groupData.group.color">{{ getAccountIcon(account.type) }}</mat-icon>
+							<div class="list-view-details">
+								<span class="list-view-name">{{ account.name | titlecase }}</span>
+								<span class="list-view-type">{{ account.type | titlecase }}</span>
+								<span class="list-view-balance" [class]="isLoanAccount(account) ? 'negative' : (account.balance >= 0 ? 'positive' : 'negative')">
+									{{ isLoanAccount(account) ? (-(getLoanDetails(account)?.remainingBalance || 0) | currency) : account.balance | currency }}
+								</span>
+							</div>
+						</div>
+						<div class="list-view-actions">
+							<mat-menu #listMenu="matMenu">
+								<button mat-menu-item (click)="editAccount(account)" class="action-button edit-button"><mat-icon>edit</mat-icon> Edit</button>
+								<button mat-menu-item (click)="deleteAccount(account)" class="action-button delete-button"><mat-icon class="!text-red-800">delete</mat-icon> Delete</button>
+							</mat-menu>
+							<button matIconButton [matMenuTriggerFor]="listMenu">
+								<mat-icon>more_vert</mat-icon>
+							</button>
+						</div>
+					</div>
+					}
+					}
+				</div>
+
+				<!-- Detailed View -->
+				<div *ngIf="!isListViewMode">
 				@for (groupData of getGroupedAccounts(accounts); track groupData.group.id) {
 				<div class="account-group-container" [style.--group-color]="groupData.group.color">
 					<!-- Account Group Header -->
@@ -269,6 +311,7 @@
 					</div>
 				</div>
 				}
+				</div>
 			</div>
 			<div class="mt-5">
 				<!-- Total Balance Summary Card -->

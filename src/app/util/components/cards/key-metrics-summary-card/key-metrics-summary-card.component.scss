@@ -173,7 +173,6 @@
 // Responsive design
 @media (max-width: 640px) {
   .metric-card {
-    padding: 0.75rem;
     
     .text-base {
       font-size: 0.875rem;
@@ -191,45 +190,15 @@
   }
 }
 
-@media (min-width: 641px) and (max-width: 768px) {
-  .metric-card {
-    padding: 1rem;
-  }
-}
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .metric-card {
-    padding: 1.25rem;
-  }
-}
-
-@media (min-width: 1025px) {
-  .metric-card {
-    padding: 1.5rem;
-  }
-}
 
 // Dark mode optimizations
 @media (prefers-color-scheme: dark) {
-  .metric-card {
-    backdrop-filter: blur(10px);
-  }
-  
   .key-metrics-card {
     backdrop-filter: blur(10px);
   }
 }
 
-// High contrast mode support
-@media (prefers-contrast: high) {
-  .metric-card {
-    border-width: 2px;
-    
-    &:hover {
-      border-width: 3px;
-    }
-  }
-}
 
 // Reduced motion support
 @media (prefers-reduced-motion: reduce) {

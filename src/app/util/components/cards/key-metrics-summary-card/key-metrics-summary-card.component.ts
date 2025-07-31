@@ -12,7 +12,7 @@ import * as AccountsSelectors from '../../../../store/accounts/accounts.selector
 import { Transaction } from '../../../../util/models/transaction.model';
 import { Category } from '../../../../util/models/category.model';
 import { Account } from '../../../../util/models/account.model';
-import { TransactionType } from '../../../../util/config/enums';
+import { TransactionType, AccountType } from '../../../../util/config/enums';
 
 export interface KeyMetric {
   id?: string;
@@ -221,11 +221,28 @@ export class KeyMetricsSummaryCardComponent implements OnInit, OnDestroy {
 
         // Calculate total account balance
         const totalBalance = accounts.reduce((sum, account) => {
-          if (account.type === 'loan') {
+          if (account.type === AccountType.LOAN) {
             const loanDetails = account.loanDetails as any;
             return sum - (loanDetails?.remainingBalance || 0);
           }
           return sum + account.balance;
+        }, 0);
+
+        // Calculate total loan amount
+        const totalLoanAmount = accounts.reduce((sum, account) => {
+          if (account.type === AccountType.LOAN) {
+            const loanDetails = account.loanDetails as any;
+            return sum + (loanDetails?.remainingBalance || 0);
+          }
+          return sum;
+        }, 0);
+
+        // Calculate total credit card balance
+        const totalCreditCardBalance = accounts.reduce((sum, account) => {
+          if (account.type === AccountType.CREDIT) {
+            return sum + Math.abs(account.balance);
+          }
+          return sum;
         }, 0);
 
         const metrics: KeyMetric[] = [
@@ -274,6 +291,26 @@ export class KeyMetricsSummaryCardComponent implements OnInit, OnDestroy {
             color: totalBalance >= 0 ? 'green' : 'red',
             trend: totalBalance >= 0 ? 'up' : 'down',
             description: 'Total balance across all accounts'
+          },
+          {
+            id: 'total-loan-amount',
+            title: 'Total Loan Amount',
+            value: totalLoanAmount,
+            period: 'All loans',
+            icon: 'credit_score',
+            color: totalLoanAmount > 0 ? 'red' : 'gray',
+            trend: totalLoanAmount > 0 ? 'down' : 'neutral',
+            description: 'Total outstanding loan amount across all loan accounts'
+          },
+          {
+            id: 'credit-card-balance',
+            title: 'Credit Card Balance',
+            value: totalCreditCardBalance,
+            period: 'All cards',
+            icon: 'credit_card',
+            color: totalCreditCardBalance > 0 ? 'red' : 'gray',
+            trend: totalCreditCardBalance > 0 ? 'down' : 'neutral',
+            description: 'Total outstanding balance across all credit cards'
           }
         ];
 

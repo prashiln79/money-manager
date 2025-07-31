@@ -46,6 +46,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   public errorMessage: string = '';
   public selectedAccount: Account | null = null;
   public expandedAccount: Account | null = null;
+  public isListViewMode: boolean = false; // Add this property for list view toggle
   
   // Private properties
   private userId: string = '';
@@ -61,6 +62,11 @@ export class AccountsComponent implements OnInit, OnDestroy {
     public readonly dateService: DateService,
     public readonly breakpointService: BreakpointService
   ) {
+
+    if(this.breakpointService.device.isMobile){
+      this.isListViewMode = true;
+    }
+
     // Initialize selectors
     this.accounts$ = this.store.select(AccountsSelectors.selectAllAccounts) || of([]);
     this.isLoading$ = this.store.select(AccountsSelectors.selectAccountsLoading);
@@ -130,6 +136,13 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   public clearError(): void {
     this.errorMessage = '';
+  }
+
+  /**
+   * Toggle between list view and detailed view modes
+   */
+  public toggleListViewMode(): void {
+    this.isListViewMode = !this.isListViewMode;
   }
 
   /**
