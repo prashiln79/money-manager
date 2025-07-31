@@ -708,13 +708,18 @@ export class ReportsComponent implements OnInit, OnDestroy {
     
     this.accountBalances = this.accounts.map((account, index) => {
       const accountTransactions = this.transactions.filter(t => t.accountId === account.accountId);
-      const balance = accountTransactions.reduce((sum, t) => {
+      let balance = accountTransactions.reduce((sum, t) => {
         return sum + (t.type === 'income' ? t.amount : -t.amount);
       }, account.balance || 0);
 
+      // Handle loan accounts specially - use negative remaining balance
+      if (account.type === 'loan' && account.loanDetails) {
+        balance = -(account.loanDetails.remainingBalance || 0);
+      }
+
       return {
         account: account.name,
-        balance: Math.max(0, balance),
+        balance: balance,
         color: colors[index % colors.length]
       };
     });

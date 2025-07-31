@@ -349,15 +349,23 @@ export class ExportService implements IExportService {
    * Process account data for export
    */
   private processAccountData(accounts: any[], options: ExportOptions): any[] {
-    return accounts.map(account => ({
-      Name: account.name,
-      Type: account.type,
-      Balance: this.formatCurrency(account.balance, options.currencyFormat),
-      Currency: account.currency,
-      Institution: account.institution || '',
-      Description: account.description || '',
-      Status: account.isActive ? 'Active' : 'Inactive'
-    }));
+    return accounts.map(account => {
+      // Handle loan accounts specially - use negative remaining balance
+      let balance = account.balance;
+      if (account.type === 'loan' && account.loanDetails) {
+        balance = -(account.loanDetails.remainingBalance || 0);
+      }
+      
+      return {
+        Name: account.name,
+        Type: account.type,
+        Balance: this.formatCurrency(balance, options.currencyFormat),
+        Currency: account.currency,
+        Institution: account.institution || '',
+        Description: account.description || '',
+        Status: account.isActive ? 'Active' : 'Inactive'
+      };
+    });
   }
 
   /**

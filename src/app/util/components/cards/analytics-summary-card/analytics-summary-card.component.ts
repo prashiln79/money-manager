@@ -259,14 +259,22 @@ export class AnalyticsSummaryCardComponent implements OnInit, OnDestroy {
       map(accounts => {
         return accounts
           .filter(account => account.isActive !== false)
-          .map(account => ({
-            account: account.name,
-            balance: account.balance,
-            change: 0, // Could be calculated from transaction history
-            percentage: 0,
-            color: account.balance >= 0 ? '#10B981' : '#EF4444',
-            icon: this.getAccountIcon(account)
-          }))
+          .map(account => {
+            // Handle loan accounts specially - use negative remaining balance
+            let balance = account.balance;
+            if (account.type === 'loan' && account.loanDetails) {
+              balance = -(account.loanDetails.remainingBalance || 0);
+            }
+            
+            return {
+              account: account.name,
+              balance: balance,
+              change: 0, // Could be calculated from transaction history
+              percentage: 0,
+              color: balance >= 0 ? '#10B981' : '#EF4444',
+              icon: this.getAccountIcon(account)
+            };
+          })
           .sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance))
           .slice(0, this.config.maxItems?.accountBalances || 3);
       })

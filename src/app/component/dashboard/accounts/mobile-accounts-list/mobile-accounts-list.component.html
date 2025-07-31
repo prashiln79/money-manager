@@ -69,7 +69,7 @@
 				</div>
 
 				<div class="account-balance" [class.loan-account-balance]="isLoanAccount(account)">
-					<span class="balance-amount">{{ account.balance | currency }}</span>
+					<span class="balance-amount">{{ isLoanAccount(account) ? (-(getLoanDetails(account)?.remainingBalance || 0) | currency) : account.balance | currency }}</span>
 				</div>
 			</div>
 

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Account } from 'src/app/util/models/account.model';
+import { AccountType } from 'src/app/util/config/enums';
 
 @Component({
 	selector: "mobile-accounts-list",
@@ -67,7 +68,7 @@ export class MobileAccountsListComponent implements OnInit, OnDestroy {
 	}
 
 	getBalanceClass(account: Account): string {
-		if (account.type === 'loan') {
+		if (account.type === AccountType.LOAN) {
 			return 'loan-account';
 		}
 		return account.balance >= 0 ? 'positive-balance' : 'negative-balance';

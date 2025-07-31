@@ -45,21 +45,38 @@ export class AccountSummaryCardComponent implements OnInit, OnDestroy {
    * Get positive balance accounts
    */
   public getPositiveAccounts(): Account[] {
-    return this.accounts.filter(account => account.balance > 0);
+    return this.accounts.filter(account => {
+      if (account.type === AccountType.LOAN && account.loanDetails) {
+        // For loan accounts, check if remaining balance is negative (meaning it's paid off)
+        return -(account.loanDetails.remainingBalance || 0) > 0;
+      }
+      return account.balance > 0;
+    });
   }
 
   /**
    * Get negative balance accounts
    */
   public getNegativeAccounts(): Account[] {
-    return this.accounts.filter(account => account.balance < 0);
+    return this.accounts.filter(account => {
+      if (account.type === AccountType.LOAN && account.loanDetails) {
+        // For loan accounts, check if remaining balance is positive (meaning money is owed)
+        return -(account.loanDetails.remainingBalance || 0) < 0;
+      }
+      return account.balance < 0;
+    });
   }
 
   /**
    * Get total positive balance
    */
   public getTotalPositiveBalance(): number {
-    return this.getPositiveAccounts().reduce((total, account) => total + account.balance, 0);
+    return this.getPositiveAccounts().reduce((total, account) => {
+      if (account.type === AccountType.LOAN && account.loanDetails) {
+        return total + (-(account.loanDetails.remainingBalance || 0));
+      }
+      return total + account.balance;
+    }, 0);
   }
 
   /**

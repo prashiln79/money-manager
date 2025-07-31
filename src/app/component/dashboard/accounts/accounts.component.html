@@ -66,8 +66,8 @@
 									<!-- Balance Information -->
 									<div class="account-balance-info">
 										<span class="balance-label">Balance:</span>
-										<span class="balance-value" [class]="account.balance >= 0 ? 'positive' : 'negative'">
-											{{ isLoanAccount(account) ? (getLoanDetails(account)?.remainingBalance | currency) : account.balance | currency }}
+										<span class="balance-value" [class]="isLoanAccount(account) ? 'negative' : (account.balance >= 0 ? 'positive' : 'negative')">
+											{{ isLoanAccount(account) ? (-(getLoanDetails(account)?.remainingBalance || 0) | currency) : account.balance | currency }}
 										</span>
 									</div>
 								</div>
@@ -112,8 +112,8 @@
 									</div>
 									<div class="detail-row">
 										<span class="detail-label">Current Balance:</span>
-										<span class="detail-value" [class]="account.balance >= 0 ? 'positive' : 'negative'">
-											{{ account.balance | currency }}
+										<span class="detail-value" [class]="isLoanAccount(account) ? 'negative' : (account.balance >= 0 ? 'positive' : 'negative')">
+											{{ isLoanAccount(account) ? (-(getLoanDetails(account)?.remainingBalance || 0) | currency) : account.balance | currency }}
 										</span>
 									</div>
 									<div class="detail-row" *ngIf="account.description">
@@ -148,7 +148,7 @@
 									</div>
 									<div class="detail-row">
 										<span class="detail-label">Remaining Balance:</span>
-										<span class="detail-value">{{ getLoanDetails(account)?.remainingBalance | currency }}</span>
+										<span class="detail-value negative">{{ -(getLoanDetails(account)?.remainingBalance || 0) | currency }}</span>
 									</div>
 									<div class="detail-row">
 										<span class="detail-label">Monthly Payment:</span>
