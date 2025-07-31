@@ -420,4 +420,119 @@
       }
     }
   }
+}
+
+// =============================================================================
+// NO BUDGET CARD
+// =============================================================================
+.no-budget-card {
+  width: 100%;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 2px dashed #d1d5db;
+  text-align: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #9ca3af;
+    background: #f1f5f9;
+  }
+
+  .no-budget-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    .no-budget-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .no-budget-text-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+
+      .no-budget-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+      }
+
+      .no-budget-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0;
+        max-width: 400px;
+        line-height: 1.5;
+      }
+
+      .no-budget-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        .setup-budget-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.5rem;
+          font-weight: 500;
+        }
+
+        .manage-categories-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.5rem;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design for no-budget-card
+@media (max-width: 640px) {
+  .no-budget-card {
+    padding: 1.5rem;
+
+    .no-budget-content {
+      .no-budget-icon {
+        font-size: 2.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+
+      .no-budget-text-content {
+        .no-budget-title {
+          font-size: 1.125rem;
+        }
+
+        .no-budget-text {
+          font-size: 0.8rem;
+        }
+
+        .no-budget-actions {
+          flex-direction: column;
+          gap: 0.75rem;
+
+          .setup-budget-btn,
+          .manage-categories-btn {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
 } 

@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable, Subject, combineLatest } from 'rxjs';
+import { takeUntil, map, distinctUntilChanged } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { AppState } from '../../../../store/app.state';
 import * as CategoriesSelectors from '../../../../store/categories/categories.selectors';
 import * as TransactionsSelectors from '../../../../store/transactions/transactions.selectors';
@@ -14,7 +15,8 @@ import { BreakpointService } from '../../../service/breakpoint.service';
 @Component({
   selector: 'app-budget-card',
   templateUrl: './budget-card.component.html',
-  styleUrls: ['./budget-card.component.scss']
+  styleUrls: ['./budget-card.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BudgetCardComponent implements OnInit, OnDestroy {
 
@@ -25,9 +27,12 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
   categories$: Observable<Category[]>;
   transactions$: Observable<Transaction[]>;
 
+  // Computed observables for dynamic calculations
+  overallBudgetStats$!: Observable<any>;
+  detailedBudgetStats$!: Observable<any>;
+  overallBudgetProgressColor$!: Observable<string>;
+
   // Local properties
-  categories: Category[] = [];
-  transactions: Transaction[] = [];
   isBudgetSummaryExpanded: boolean = false;
   Math = Math; // Make Math available in template
 
@@ -36,15 +41,20 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
   constructor(
     private store: Store<AppState>,
     public dateService: DateService,
-    public breakpointService: BreakpointService
+    public breakpointService: BreakpointService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     // Initialize selectors
     this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
+
+    // Create computed observables for dynamic calculations
+    this.setupComputedObservables();
   }
 
   ngOnInit(): void {
-    this.subscribeToStoreData();
+    // No need for manual subscription since we're using computed observables
   }
 
   ngOnDestroy(): void {
@@ -52,88 +62,139 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private subscribeToStoreData(): void {
-    this.categories$.pipe(takeUntil(this.destroy$)).subscribe(categories => {
-      this.categories = categories;
-    });
-
-    this.transactions$.pipe(takeUntil(this.destroy$)).subscribe(transactions => {
-      this.transactions = transactions;
-    });
-  }
-
-  /**
-   * Toggle budget summary expansion
-   */
-  public toggleBudgetSummaryExpansion(): void {
-    this.isBudgetSummaryExpanded = !this.isBudgetSummaryExpanded;
-  }
-
-  /**
-   * Calculate budget spent for a category based on transactions
-   */
-  public calculateBudgetSpent(category: Category): number {
-    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
-      return 0;
-    }
-
-    const categoryTransactions = this.transactions.filter(t => 
-      t.categoryId === category.id && 
-      t.type === TransactionType.EXPENSE
+  private setupComputedObservables(): void {
+    // Combine categories and transactions for dynamic calculations
+    const data$ = combineLatest([
+      this.categories$,
+      this.transactions$
+    ]).pipe(
+      map(([categories, transactions]) => ({ categories, transactions })),
+      distinctUntilChanged((prev, curr) => 
+        JSON.stringify(prev) === JSON.stringify(curr)
+      )
     );
 
-    // Filter transactions within the budget period
-    const budgetStartDate = category.budget.budgetStartDate;
-    const budgetEndDate = category.budget.budgetEndDate;
+    // Overall budget stats observable
+    this.overallBudgetStats$ = data$.pipe(
+      map(({ categories, transactions }) => {
+        return this.calculateOverallBudgetStats(categories, transactions);
+      })
+    );
+
+    // Detailed budget stats observable
+    this.detailedBudgetStats$ = data$.pipe(
+      map(({ categories, transactions }) => {
+        return this.calculateDetailedBudgetStats(categories, transactions);
+      })
+    );
+
+    // Overall budget progress color observable
+    this.overallBudgetProgressColor$ = this.overallBudgetStats$.pipe(
+      map(stats => {
+        const progress = stats?.overallProgress || 0;
+        
+        if (progress >= 100) {
+          return '#ef4444'; // red - over budget
+        } else if (progress >= 80) {
+          return '#f59e0b'; // amber - warning
+        } else if (progress >= 60) {
+          return '#3b82f6'; // blue - good progress
+        } else {
+          return '#10b981'; // green - safe
+        }
+      })
+    );
+  }
+
+  /**
+   * Get current budget period dates dynamically
+   */
+  private getCurrentBudgetPeriod(): { startDate: Date, endDate: Date } {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
     
-    let filteredTransactions = categoryTransactions;
+    // Start of current month
+    const startDate = new Date(currentYear, currentMonth, 1);
+    
+    // End of current month
+    const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+    
+    return { startDate, endDate };
+  }
+
+  /**
+   * Check if a transaction falls within the current budget period
+   */
+  private isTransactionInBudgetPeriod(transaction: Transaction, budgetStartDate?: Date | any, budgetEndDate?: Date | any): boolean {
+    const txDate = this.dateService.toDate(transaction.date);
+    if (!txDate) return false;
+
+    const { startDate, endDate } = this.getCurrentBudgetPeriod();
+    
+    // Use custom budget period if provided, otherwise use current month
+    let periodStart: Date | null;
+    let periodEnd: Date | null;
     
     if (budgetStartDate) {
-      const startDate = this.dateService.toDate(budgetStartDate);
-      if (!startDate) {
-        return 0;
-      }
-      filteredTransactions = filteredTransactions.filter(t => {
-        const txDate = this.dateService.toDate(t.date);
-        return txDate && txDate >= startDate;
-      });
+      periodStart = this.dateService.toDate(budgetStartDate);
+    } else {
+      periodStart = startDate;
     }
     
     if (budgetEndDate) {
-      const endDate = this.dateService.toDate(budgetEndDate);
-      if (!endDate) {
-        return 0;
-      }
-      filteredTransactions = filteredTransactions.filter(t => {
-        const txDate = this.dateService.toDate(t.date);
-        return txDate && txDate <= endDate;
-      });
+      periodEnd = this.dateService.toDate(budgetEndDate);
+    } else {
+      periodEnd = endDate;
     }
-
-    return filteredTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    
+    if (!periodStart || !periodEnd) return false;
+    
+    const isInPeriod = txDate >= periodStart && txDate <= periodEnd;
+    
+    return isInPeriod;
   }
 
   /**
-   * Calculate budget remaining for a category
+   * Calculate budget spent for a category based on transactions (dynamic version)
    */
-  public calculateBudgetRemaining(category: Category): number {
+  private calculateBudgetSpent(category: Category, transactions: Transaction[]): number {
+    if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
+      return 0;
+    }
+
+    const categoryTransactions = transactions.filter(t => 
+      t.categoryId === category.id && 
+      t.type === TransactionType.EXPENSE &&
+      this.isTransactionInBudgetPeriod(t, category.budget?.budgetStartDate, category.budget?.budgetEndDate)
+    );
+
+    const totalSpent = categoryTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    
+    return totalSpent;
+  }
+
+  /**
+   * Calculate budget remaining for a category (dynamic version)
+   */
+  private calculateBudgetRemaining(category: Category, transactions: Transaction[]): number {
     if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
       return 0;
     }
     
-    const spent = this.calculateBudgetSpent(category);
+    const spent = this.calculateBudgetSpent(category, transactions);
     return Math.max(0, (category.budget.budgetAmount || 0) - spent);
   }
 
   /**
-   * Calculate budget progress percentage for a category
+   * Calculate budget progress percentage for a category (dynamic version)
    */
-  public calculateBudgetProgressPercentage(category: Category): number {
+  private calculateBudgetProgressPercentage(category: Category, transactions: Transaction[]): number {
     if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
       return 0;
     }
     
-    const spent = this.calculateBudgetSpent(category);
+    const spent = this.calculateBudgetSpent(category, transactions);
     const budgetAmount = category.budget.budgetAmount || 0;
     
     if (budgetAmount === 0) return 0;
@@ -142,11 +203,17 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Calculate overall budget statistics for all categories
+   * Calculate overall budget statistics for all categories (dynamic version)
    */
-  public getOverallBudgetStats(): any {
-    const categoriesWithBudget = this.categories.filter(cat =>
+  private calculateOverallBudgetStats(categories: Category[], transactions: Transaction[]): any {
+    // Check for categories with budgets
+    const categoriesWithBudget = categories.filter(cat =>
       cat.budget?.hasBudget && cat.type === TransactionType.EXPENSE
+    );
+
+    // Also check for categories with budget amounts but no hasBudget flag
+    const categoriesWithBudgetAmount = categories.filter(cat =>
+      cat.budget?.budgetAmount && cat.type === TransactionType.EXPENSE
     );
 
     if (categoriesWithBudget.length === 0) {
@@ -165,7 +232,7 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
     );
 
     const totalSpent = categoriesWithBudget.reduce((sum, cat) =>
-      sum + this.calculateBudgetSpent(cat), 0
+      sum + this.calculateBudgetSpent(cat, transactions), 0
     );
 
     const totalRemaining = totalBudget - totalSpent;
@@ -186,33 +253,24 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
    * Get overall budget status class for styling
    */
   public getOverallBudgetStatusClass(): string {
-    const stats = this.getOverallBudgetStats();
-    if (stats.overallProgress >= 90) return 'danger';
-    if (stats.overallProgress >= 75) return 'warning';
+    // This will be called from template, so we need to get current stats
+    let currentStats: any = {};
+    this.overallBudgetStats$.pipe(takeUntil(this.destroy$)).subscribe(stats => {
+      currentStats = stats;
+    });
+    
+    if (currentStats.overallProgress >= 90) return 'danger';
+    if (currentStats.overallProgress >= 75) return 'warning';
     return 'safe';
   }
 
-  /**
-   * Get overall budget progress color
-   */
-  public getOverallBudgetProgressColor(): string {
-    const stats = this.getOverallBudgetStats();
-    if (stats.overallProgress >= 100) {
-      return '#ef4444'; // red - over budget
-    } else if (stats.overallProgress >= 80) {
-      return '#f59e0b'; // amber - warning
-    } else if (stats.overallProgress >= 60) {
-      return '#3b82f6'; // blue - good progress
-    } else {
-      return '#10b981'; // green - safe
-    }
-  }
+
 
   /**
-   * Get detailed budget statistics for expanded view
+   * Calculate detailed budget statistics for expanded view (dynamic version)
    */
-  public getDetailedBudgetStats(): any {
-    const categoriesWithBudget = this.categories.filter(cat =>
+  private calculateDetailedBudgetStats(categories: Category[], transactions: Transaction[]): any {
+    const categoriesWithBudget = categories.filter(cat =>
       cat.budget?.hasBudget && cat.type === TransactionType.EXPENSE
     );
 
@@ -230,9 +288,9 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
       id: cat.id,
       name: cat.name,
       budget: cat.budget?.budgetAmount || 0,
-      spent: this.calculateBudgetSpent(cat),
-      remaining: this.calculateBudgetRemaining(cat),
-      progress: this.calculateBudgetProgressPercentage(cat),
+      spent: this.calculateBudgetSpent(cat, transactions),
+      remaining: this.calculateBudgetRemaining(cat, transactions),
+      progress: this.calculateBudgetProgressPercentage(cat, transactions),
       color: cat.color,
       icon: cat.icon
     }));
@@ -253,5 +311,40 @@ export class BudgetCardComponent implements OnInit, OnDestroy {
       mostExpensiveCategory,
       leastExpensiveCategory
     };
+  }
+
+  /**
+   * Toggle budget summary expansion
+   */
+  public toggleBudgetSummaryExpansion(): void {
+    this.isBudgetSummaryExpanded = !this.isBudgetSummaryExpanded;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Navigate to budgets page
+   */
+  public navigateToBudgets(): void {
+    this.router.navigate(['/dashboard/budgets']);
+  }
+
+  /**
+   * Navigate to categories page
+   */
+  public navigateToCategories(): void {
+    this.router.navigate(['/dashboard/category']);
+  }
+
+  // Legacy methods for backward compatibility with template
+  public getOverallBudgetStats(): any {
+    let stats: any = {};
+    this.overallBudgetStats$.pipe(takeUntil(this.destroy$)).subscribe(s => stats = s);
+    return stats;
+  }
+
+  public getDetailedBudgetStats(): any {
+    let stats: any = {};
+    this.detailedBudgetStats$.pipe(takeUntil(this.destroy$)).subscribe(s => stats = s);
+    return stats;
   }
 } 

@@ -1,5 +1,5 @@
 <!-- Overall Budget Card -->
-<div class="budget-summary-card lg:col-span-2" *ngIf="getOverallBudgetStats().categoriesWithBudget > 0" [class.expanded]="isBudgetSummaryExpanded">
+<div class="budget-summary-card lg:col-span-2" *ngIf="(overallBudgetStats$ | async)?.categoriesWithBudget > 0" [class.expanded]="isBudgetSummaryExpanded">
 	<div class="budget-summary-header">
 		<mat-icon class="budget-icon">account_balance_wallet</mat-icon>
 		<h3 class="budget-summary-title">Overall Monthly Budget</h3>
@@ -8,17 +8,17 @@
 	<div class="budget-summary-stats">
 		<div class="budget-stat-item">
 			<span class="budget-stat-label">Total Budget:</span>
-			<span class="budget-stat-value">{{ getOverallBudgetStats().totalBudget | currency }}</span>
+			<span class="budget-stat-value">{{ (overallBudgetStats$ | async)?.totalBudget | currency }}</span>
 		</div>
 	</div>
 
 	<!-- Overall Budget Progress Bar -->
 	<div class="overall-budget-progress">
 		<div class="progress-bar">
-			<div class="progress-fill" [style.width.%]="Math.min(getOverallBudgetStats().overallProgress, 100)" [style.background-color]="getOverallBudgetProgressColor()"></div>
+			<div class="progress-fill" [style.width.%]="Math.min((overallBudgetStats$ | async)?.overallProgress || 0, 100)" [style.background-color]="overallBudgetProgressColor$ | async"></div>
 		</div>
 		<div class="progress-text">
-			{{ getOverallBudgetStats().totalSpent | currency }} / {{ getOverallBudgetStats().totalBudget | currency }} ({{ getOverallBudgetStats().overallProgress.toFixed(1) }}%)
+			{{ (overallBudgetStats$ | async)?.totalSpent | currency }} / {{ (overallBudgetStats$ | async)?.totalBudget | currency }} ({{ (overallBudgetStats$ | async)?.overallProgress?.toFixed(1) }}%)
 		</div>
 	</div>
 
@@ -38,28 +38,28 @@
 				<div class="tab-content">
 					<div class="detail-row">
 						<span class="detail-label">Total Categories with Budget:</span>
-						<span class="detail-value">{{ getDetailedBudgetStats().totalCategories }}</span>
+						<span class="detail-value">{{ (detailedBudgetStats$ | async)?.totalCategories }}</span>
 					</div>
 					<div class="detail-row">
 						<span class="detail-label">Average Budget per Category:</span>
-						<span class="detail-value">{{ getOverallBudgetStats().averageBudget | currency }}</span>
+						<span class="detail-value">{{ (overallBudgetStats$ | async)?.averageBudget | currency }}</span>
 					</div>
 					<div class="detail-row">
 						<span class="detail-label">Average Spent per Category:</span>
-						<span class="detail-value">{{ getDetailedBudgetStats().averageSpentPerCategory | currency }}</span>
+						<span class="detail-value">{{ (detailedBudgetStats$ | async)?.averageSpentPerCategory | currency }}</span>
 					</div>
-					<div class="detail-row" *ngIf="getDetailedBudgetStats().mostExpensiveCategory">
+					<div class="detail-row" *ngIf="(detailedBudgetStats$ | async)?.mostExpensiveCategory">
 						<span class="detail-label">Highest Spending Category:</span>
 						<span class="detail-value">
-							<mat-icon [style.color]="getDetailedBudgetStats().mostExpensiveCategory.color">{{ getDetailedBudgetStats().mostExpensiveCategory.icon }}</mat-icon>
-							{{ getDetailedBudgetStats().mostExpensiveCategory.name }} ({{ getDetailedBudgetStats().mostExpensiveCategory.spent | currency }})
+							<mat-icon [style.color]="(detailedBudgetStats$ | async)?.mostExpensiveCategory?.color">{{ (detailedBudgetStats$ | async)?.mostExpensiveCategory?.icon }}</mat-icon>
+							{{ (detailedBudgetStats$ | async)?.mostExpensiveCategory?.name }} ({{ (detailedBudgetStats$ | async)?.mostExpensiveCategory?.spent | currency }})
 						</span>
 					</div>
-					<div class="detail-row" *ngIf="getDetailedBudgetStats().leastExpensiveCategory">
+					<div class="detail-row" *ngIf="(detailedBudgetStats$ | async)?.leastExpensiveCategory">
 						<span class="detail-label">Lowest Spending Category:</span>
 						<span class="detail-value">
-							<mat-icon [style.color]="getDetailedBudgetStats().leastExpensiveCategory.color">{{ getDetailedBudgetStats().leastExpensiveCategory.icon }}</mat-icon>
-							{{ getDetailedBudgetStats().leastExpensiveCategory.name }} ({{ getDetailedBudgetStats().leastExpensiveCategory.spent | currency }})
+							<mat-icon [style.color]="(detailedBudgetStats$ | async)?.leastExpensiveCategory?.color">{{ (detailedBudgetStats$ | async)?.leastExpensiveCategory?.icon }}</mat-icon>
+							{{ (detailedBudgetStats$ | async)?.leastExpensiveCategory?.name }} ({{ (detailedBudgetStats$ | async)?.leastExpensiveCategory?.spent | currency }})
 						</span>
 					</div>
 				</div>
@@ -69,7 +69,7 @@
 			<mat-tab label="Category Breakdown">
 				<div class="tab-content">
 					<div class="category-breakdown-list">
-						@for (cat of getDetailedBudgetStats().categories; track cat.id) {
+						@for (cat of (detailedBudgetStats$ | async)?.categories; track cat.id) {
 						<div class="category-breakdown-item">
 							<div class="category-breakdown-header">
 								<mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
@@ -116,12 +116,22 @@
 </div> 
 
 <!-- No Budget Set Card -->
-<div class="no-budget-card" *ngIf="getOverallBudgetStats().categoriesWithBudget === 0" >
+<div class="no-budget-card" *ngIf="(overallBudgetStats$ | async)?.categoriesWithBudget === 0" >
 	<div class="no-budget-content">
-		<mat-icon class="no-budget-icon">info</mat-icon>
+		<mat-icon class="no-budget-icon">account_balance_wallet</mat-icon>
 		<div class="no-budget-text-content">
 			<h4 class="no-budget-title">No Budgets Set</h4>
-			<p class="no-budget-text">Set budgets for your expense categories to track your spending goals.</p>
+			<p class="no-budget-text">Set budgets for your expense categories to track your spending goals and get insights into your financial habits.</p>
+			<div class="no-budget-actions">
+				<button mat-raised-button color="primary" (click)="navigateToBudgets()" class="setup-budget-btn">
+					<mat-icon>add</mat-icon>
+					Set Up Budgets
+				</button>
+				<button mat-button (click)="navigateToCategories()" class="manage-categories-btn">
+					<mat-icon>category</mat-icon>
+					Manage Categories
+				</button>
+			</div>
 		</div>
 	</div>
 </div>
