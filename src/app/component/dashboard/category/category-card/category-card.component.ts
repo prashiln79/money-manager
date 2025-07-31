@@ -69,14 +69,14 @@ export class CategoryCardComponent {
       return 0;
     }
 
-    const categoryTransactions = this.allTransactions.filter(t => 
-      t.categoryId === category.id && 
+    const categoryTransactions = this.allTransactions.filter(t =>
+      t.categoryId === category.id &&
       t.type === TransactionType.EXPENSE
     );
 
     // Get the dynamic budget period dates based on budgetPeriod
     const { startDate, endDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
-    
+
     if (!startDate || !endDate) {
       return 0;
     }
@@ -146,14 +146,14 @@ export class CategoryCardComponent {
     }
 
     const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
-    
+
     if (!startDate || !endDate) {
       return this.formatBudgetPeriod(budgetPeriod);
     }
 
     const formatDate = (date: Date): string => {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
         year: startDate.getFullYear() !== endDate.getFullYear() ? 'numeric' : undefined
       });
@@ -182,7 +182,7 @@ export class CategoryCardComponent {
     }
 
     const { endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
-    
+
     if (!endDate) {
       return 0;
     }
@@ -190,7 +190,7 @@ export class CategoryCardComponent {
     const now = new Date();
     const timeDiff = endDate.getTime() - now.getTime();
     const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
+
     return Math.max(0, daysDiff);
   }
 
@@ -203,14 +203,14 @@ export class CategoryCardComponent {
     }
 
     const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
-    
+
     if (!startDate || !endDate) {
       return 0;
     }
 
     const timeDiff = endDate.getTime() - startDate.getTime();
     const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
+
     return Math.max(1, daysDiff + 1); // +1 to include both start and end dates
   }
 
@@ -224,7 +224,7 @@ export class CategoryCardComponent {
 
     const spent = this.calculateBudgetSpent(category);
     const { startDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
-    
+
     if (!startDate) {
       return 0;
     }
@@ -232,7 +232,7 @@ export class CategoryCardComponent {
     const now = new Date();
     const timeDiff = now.getTime() - startDate.getTime();
     const daysElapsed = Math.max(1, Math.ceil(timeDiff / (1000 * 3600 * 24)));
-    
+
     return spent / daysElapsed;
   }
 
@@ -246,7 +246,7 @@ export class CategoryCardComponent {
 
     const dailyAverage = this.getDailyAverageSpending(category);
     const totalDays = this.getTotalDaysInBudgetPeriod(category.budget.budgetPeriod);
-    
+
     return dailyAverage * totalDays;
   }
 
@@ -260,7 +260,7 @@ export class CategoryCardComponent {
 
     const projectedSpending = this.getProjectedSpending(category);
     const budgetAmount = category.budget.budgetAmount;
-    
+
     return projectedSpending <= budgetAmount;
   }
 
@@ -273,7 +273,7 @@ export class CategoryCardComponent {
     }
 
     const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
-    
+
     if (!startDate || !endDate) {
       return 0;
     }
@@ -281,7 +281,7 @@ export class CategoryCardComponent {
     const now = new Date();
     const totalDuration = endDate.getTime() - startDate.getTime();
     const elapsedDuration = now.getTime() - startDate.getTime();
-    
+
     if (totalDuration <= 0) {
       return 0;
     }
@@ -299,7 +299,7 @@ export class CategoryCardComponent {
     }
 
     const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
-    
+
     if (!startDate || !endDate) {
       return '';
     }
@@ -310,8 +310,8 @@ export class CategoryCardComponent {
     const elapsedDays = totalDays - remainingDays;
 
     const formatDate = (date: Date): string => {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
         year: startDate.getFullYear() !== endDate.getFullYear() ? 'numeric' : undefined
       });
@@ -339,21 +339,21 @@ Remaining: ${remainingDays} days`;
 
     let status = '';
     if (spendingProgress > timeProgress) {
-      status = '⚠️ Spending ahead of schedule';
+      status = '⚠️ Spending  crossed';
     } else if (spendingProgress < timeProgress) {
       status = '✅ Spending on track';
     } else {
       status = '⚖️ Spending matches time';
     }
 
-    return `Budget Progress Comparison
+    return status;
 
-${status}
+// ${status}
 
-Spending: ${spendingProgress.toFixed(1)}% ($${spent.toFixed(2)} / $${budgetAmount.toFixed(2)})
-Time: ${timeProgress.toFixed(1)}% (${remainingDays} days remaining)
+// Spending: ${spendingProgress.toFixed(1)}% ($${spent.toFixed(2)} / $${budgetAmount.toFixed(2)})
+// Time: ${timeProgress.toFixed(1)}% (${remainingDays} days remaining)
 
-${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
+// ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
   }
 
   /**
@@ -363,7 +363,7 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
     if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
       return 0;
     }
-    
+
     const spent = this.calculateBudgetSpent(category);
     return Math.max(0, (category.budget.budgetAmount || 0) - spent);
   }
@@ -375,12 +375,12 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
     if (!category.budget?.hasBudget || !category.budget?.budgetAmount) {
       return 0;
     }
-    
+
     const spent = this.calculateBudgetSpent(category);
     const budgetAmount = category.budget.budgetAmount || 0;
-    
+
     if (budgetAmount === 0) return 0;
-    
+
     return Math.min(100, (spent / budgetAmount) * 100);
   }
 
@@ -389,15 +389,15 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
       return 0;
     }
 
-    const categoryTransactions = this.allTransactions.filter(t => 
-      t.categoryId === category.id && 
+    const categoryTransactions = this.allTransactions.filter(t =>
+      t.categoryId === category.id &&
       t.type === TransactionType.EXPENSE
     );
 
     // If category has a budget period, use dynamic calculation
     if (category.budget?.budgetPeriod) {
       const { startDate, endDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
-      
+
       if (startDate && endDate) {
         const filteredTransactions = categoryTransactions.filter(t => {
           const txDate = this.dateService.toDate(t.date);
@@ -426,15 +426,15 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
       return 0;
     }
 
-    const categoryTransactions = this.allTransactions.filter(t => 
-      t.categoryId === category.id && 
+    const categoryTransactions = this.allTransactions.filter(t =>
+      t.categoryId === category.id &&
       t.type === TransactionType.INCOME
     );
 
     // If category has a budget period, use dynamic calculation
     if (category.budget?.budgetPeriod) {
       const { startDate, endDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
-      
+
       if (startDate && endDate) {
         const filteredTransactions = categoryTransactions.filter(t => {
           const txDate = this.dateService.toDate(t.date);
@@ -540,7 +540,7 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
       maxWidth: '100vw',
       maxHeight: '100vh',
       data: {
-        category: {...this.category},
+        category: { ...this.category },
         isEdit: true
       },
       disableClose: false,
@@ -550,12 +550,12 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
       panelClass: 'mobile-category-dialog-panel'
     });
 
-          dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.notificationService.success('Category updated successfully');
-          this.hapticFeedback.successVibration();
-        }
-      });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.notificationService.success('Category updated successfully');
+        this.hapticFeedback.successVibration();
+      }
+    });
   }
 
   private openEditDialog(): void {
@@ -563,7 +563,7 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
       width: '500px',
       maxWidth: '90vw',
       data: {
-        category: {...this.category},
+        category: { ...this.category },
         isEdit: true
       },
       disableClose: false
@@ -576,7 +576,7 @@ ${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
     });
   }
 
- 
+
 
   private openBudgetDialog(): void {
     const dialogRef = this.dialog.open(CategoryBudgetDialogComponent, {
