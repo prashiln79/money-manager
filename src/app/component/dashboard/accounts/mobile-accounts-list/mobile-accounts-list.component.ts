@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angu
 import { Subject, takeUntil } from 'rxjs';
 import { Account } from 'src/app/util/models/account.model';
 import { AccountType } from 'src/app/util/config/enums';
+import { ACCOUNT_GROUPS, AccountGroup, getAccountGroup } from 'src/app/util/config/account.config';
 
 @Component({
 	selector: "mobile-accounts-list",
@@ -99,5 +100,32 @@ export class MobileAccountsListComponent implements OnInit, OnDestroy {
 	 */
 	getLoanDetails(account: Account) {
 		return account.loanDetails || null;
+	}
+
+	// Account Grouping Methods
+	public getAccountGroups(): AccountGroup[] {
+		return ACCOUNT_GROUPS;
+	}
+
+	public getAccountGroup(account: Account): AccountGroup | undefined {
+		return getAccountGroup(account.type);
+	}
+
+	public getAccountsByGroup(accounts: Account[], groupId: string): Account[] {
+		const group = ACCOUNT_GROUPS.find(g => g.id === groupId);
+		if (!group) return [];
+		
+		return accounts.filter(account => group.accountTypes.includes(account.type));
+	}
+
+	public getGroupedAccounts(accounts: Account[]): { group: AccountGroup; accounts: Account[] }[] {
+		return ACCOUNT_GROUPS.map(group => {
+			const groupAccounts = this.getAccountsByGroup(accounts, group.id);
+			
+			return {
+				group,
+				accounts: groupAccounts
+			};
+		}).filter(groupData => groupData.accounts.length > 0); // Only show groups with accounts
 	}
 } 

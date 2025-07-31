@@ -16,6 +16,7 @@ import { DateService } from 'src/app/util/service/date.service';
 import { AccountType } from 'src/app/util/config/enums';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
+import { ACCOUNT_GROUPS, AccountGroup, getAccountGroup } from 'src/app/util/config/account.config';
 
 @Component({
   selector: 'user-accounts',
@@ -358,5 +359,45 @@ export class AccountsComponent implements OnInit, OnDestroy {
       thisMonth: 0,
       lastMonth: 0
     };
+  }
+
+  // Account Grouping Methods
+  public getAccountGroups(): AccountGroup[] {
+    return ACCOUNT_GROUPS;
+  }
+
+  public getAccountGroup(account: Account): AccountGroup | undefined {
+    return getAccountGroup(account.type);
+  }
+
+  public getAccountsByGroup(accounts: Account[], groupId: string): Account[] {
+    const group = ACCOUNT_GROUPS.find(g => g.id === groupId);
+    if (!group) return [];
+    
+    return accounts.filter(account => group.accountTypes.includes(account.type));
+  }
+
+  public getGroupTotalBalance(accounts: Account[], groupId: string): number {
+    const groupAccounts = this.getAccountsByGroup(accounts, groupId);
+    return groupAccounts.reduce((total, account) => {
+      let balance = account.balance;
+      if (account.type === AccountType.LOAN && account.loanDetails) {
+        balance = -(account.loanDetails.remainingBalance || 0);
+      }
+      return total + balance;
+    }, 0);
+  }
+
+  public getGroupedAccounts(accounts: Account[]): { group: AccountGroup; accounts: Account[]; totalBalance: number }[] {
+    return ACCOUNT_GROUPS.map(group => {
+      const groupAccounts = this.getAccountsByGroup(accounts, group.id);
+      const totalBalance = this.getGroupTotalBalance(accounts, group.id);
+      
+      return {
+        group,
+        accounts: groupAccounts,
+        totalBalance
+      };
+    }).filter(groupData => groupData.accounts.length > 0); // Only show groups with accounts
   }
 }

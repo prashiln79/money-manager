@@ -31,7 +31,18 @@
 
 	<!-- Accounts List -->
 	<div *ngIf="accounts.length > 0" class="accounts-list">
-		@for (account of accounts; track account.accountId) {
+		@for (groupData of getGroupedAccounts(accounts); track groupData.group.id) {
+		<!-- Account Group Header -->
+		<div class="account-group-header">
+			<div class="group-info">
+				<span class="group-emoji">{{ groupData.group.emoji }}</span>
+				<h4 class="group-name">{{ groupData.group.name }}</h4>
+				<span class="group-description">{{ groupData.group.description }}</span>
+			</div>
+		</div>
+
+		<!-- Accounts in this group -->
+		@for (account of groupData.accounts; track account.accountId) {
 		<div class="account-item" [class.selected]="selectedAccount?.accountId === account.accountId" [class]="getBalanceClass(account)" (click)="onAccountClick(account)">
 			<div class="account-content">
 				<div class="account-info">
@@ -85,6 +96,7 @@
 				</div>
 			</div>
 		</div>
+		}
 		}
 	</div>
 </div>

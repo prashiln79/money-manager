@@ -12,16 +12,12 @@
 	<div class="accounts-grid">
 		<!-- Accounts List Section -->
 		<section class="accounts-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait}">
-			<div class="section-header" >
+			<div class="section-header">
 				<div class="header-content">
 					<h2 class="section-title">Manage Accounts</h2>
 					<p class="section-subtitle">({{ (accounts$ | async)?.length || 0 }} account{{ ((accounts$ | async)?.length || 0) !== 1 ? 's' : '' }})</p>
 				</div>
 			</div>
-
-			<!-- Total Balance Summary Card -->
-			<app-account-summary-card>
-			</app-account-summary-card>
 
 			<!-- Empty State -->
 			<div *ngIf="(accounts$ | async)?.length === 0" class="empty-state">
@@ -38,8 +34,31 @@
 
 			<!-- Accounts List -->
 			<div *ngIf="(accounts$ | async) as accounts" class="accounts-grid-list">
-				@for (account of accounts; track account.accountId) {
-				<div class="account-item" [class]="getBalanceClass(account)" [class.expanded]="expandedAccount?.accountId === account.accountId">
+				@for (groupData of getGroupedAccounts(accounts); track groupData.group.id) {
+				<div class="account-group-container" [style.--group-color]="groupData.group.color">
+					<!-- Account Group Header -->
+					<div class="account-group-header" [style.--group-color]="groupData.group.color" [style.--group-color-secondary]="groupData.group.color + '80'">
+						<div class="group-info">
+							<span class="group-emoji">{{ groupData.group.emoji }}</span>
+							<h3 class="group-name">{{ groupData.group.name }}</h3>
+							<span class="group-description"  *ngIf="!breakpointService.device.isMobile">{{ groupData.group.description }}</span>
+						</div>
+						<div class="group-balance" *ngIf="!breakpointService.device.isMobile">
+							<span class="group-balance-label">Total:</span>
+							<span class="group-balance-value" [class]="groupData.totalBalance >= 0 ? 'positive' : 'negative'">
+								{{ groupData.totalBalance | currency }}
+							</span>
+						</div>
+					</div>
+
+					<!-- Accounts in this group -->
+					<div class="group-accounts-grid">
+						@for (account of groupData.accounts; track account.accountId) {
+				<div class="account-item" 
+					 [class]="getBalanceClass(account)" 
+					 [class.expanded]="expandedAccount?.accountId === account.accountId"
+					 [style.--account-color]="getAccountGroup(account)?.color"
+					 [style.--account-color-secondary]="getAccountGroup(account)?.color + '80'">
 					<div class="account-content">
 						<div class="account-info">
 							<div class="account-icon-name">
@@ -54,12 +73,12 @@
 									<!-- Account Type Information -->
 									<div class="account-type-info">
 										@if(isLoanAccount(account)){
-											<div class="loan-info">
-												<span class="loan-label">Loan Interest Rate:</span>
-												<span class="loan-value">{{ getLoanDetails(account)?.interestRate }}%</span>
-											</div>
+										<div class="loan-info">
+											<span class="loan-label">Loan Interest Rate:</span>
+											<span class="loan-value">{{ getLoanDetails(account)?.interestRate }}%</span>
+										</div>
 										}@else{
-											<span class="account-type">{{ account.type | titlecase }}</span>
+										<span class="account-type">{{ account.type | titlecase }}</span>
 										}
 									</div>
 
@@ -75,12 +94,8 @@
 						</div>
 						<div class="account-actions">
 							<mat-menu #menu="matMenu">
-								<button mat-menu-item (click)="editAccount(account)" class="action-button edit-button" matTooltip="Edit account">
-									<mat-icon>edit</mat-icon> Edit
-								</button>
-								<button mat-menu-item (click)="deleteAccount(account)" class="action-button delete-button" matTooltip="Delete account">
-									<mat-icon>delete</mat-icon> Delete
-								</button>
+								<button mat-menu-item (click)="editAccount(account)" class="action-button edit-button" matTooltip="Edit account"><mat-icon>edit</mat-icon> Edit</button>
+								<button mat-menu-item (click)="deleteAccount(account)" class="action-button delete-button" matTooltip="Delete account"><mat-icon>delete</mat-icon> Delete</button>
 							</mat-menu>
 							<button matIconButton [matMenuTriggerFor]="menu">
 								<mat-icon>more_vert</mat-icon>
@@ -89,7 +104,7 @@
 					</div>
 
 					<!-- Expand/Collapse Button -->
-					<div class="expand-section">
+					<div class="expand-section" *ngIf="!breakpointService.device.isMobile">
 						<button mat-button (click)="toggleAccountExpansion(account)" class="expand-btn">
 							<mat-icon>{{ expandedAccount?.accountId === account.accountId ? 'expand_less' : 'expand_more' }}</mat-icon>
 							<span>{{ expandedAccount?.accountId === account.accountId ? 'Show Less' : 'Show More' }}</span>
@@ -251,7 +266,16 @@
 					</div>
 				</div>
 				}
+					</div>
+				</div>
+				}
+			</div>
+			<div class="mt-5">
+				<!-- Total Balance Summary Card -->
+				<app-account-summary-card> </app-account-summary-card>
 			</div>
 		</section>
+		
 	</div>
+	
 </div>
