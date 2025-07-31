@@ -46,7 +46,6 @@
                      required 
                      min="0"
                      (input)="calculateMonthlyIncome(); updateYearlyIncome()">
-              <mat-icon matSuffix>attach_money</mat-icon>
             </mat-form-field>
             
             <div class="monthly-breakdown" *ngIf="yearlyBudget.totalIncome > 0">

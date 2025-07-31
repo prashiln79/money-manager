@@ -28,6 +28,7 @@ import {
   LanguageCode 
 } from 'src/app/util/config/enums';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 
 @Component({
   selector: 'app-profile',
@@ -57,6 +58,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
     name
   }));
 
+  fabConfig: QuickActionsFabConfig = {
+      title: 'Profile',
+      mainButtonIcon: 'edit',
+      mainButtonColor: 'primary',
+      mainButtonTooltip: 'Edit Profile',
+      showLabels: false,
+      animations: true,
+      autoHide: false,
+      autoHideDelay: 3000,
+      theme: 'auto',
+      actions: [],
+      onMainButtonClick: () => this.toggleEdit(),
+
+  };
+
   // Validation constants from config
   validation = APP_CONFIG.VALIDATION;
   timezones = TIMEZONES;
@@ -76,6 +92,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private breakpointObserver: BreakpointObserver
   ) {
+    this.currentUser = this.auth.currentUser;
     this.isMobile = this.breakpointObserver.isMatched('(max-width: 600px)');
     // Initialize selectors
     this.profile$ = this.store.select(ProfileSelectors.selectProfile);
@@ -164,31 +181,31 @@ export class ProfileComponent implements OnInit, OnDestroy {
     };
   }
 
-  private createDefaultProfile(): User {
-    return {
-      uid: this.currentUser.uid,
-      firstName: this.currentUser.displayName?.split(' ')[0] || '',
-      lastName:
-        this.currentUser.displayName?.split(' ').slice(1).join(' ') || '',
-      email: this.currentUser.email || '',
-      phone: '',
-      dateOfBirth: undefined,
-      occupation: '',
-      monthlyIncome: 0,
-      preferences: {
-        defaultCurrency: this.defaultCurrency,
-        timezone: 'UTC',
-        language: APP_CONFIG.LANGUAGE.DEFAULT,
-        notifications: true,
-        emailUpdates: true,
-        budgetAlerts: true,
-        categoryListViewMode: false,
-      },
-      role: UserRole.FREE,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  }
+  // private createDefaultProfile(): User {
+  //   return {
+  //     uid: this.currentUser.uid,
+  //     firstName: this.currentUser.displayName?.split(' ')[0] || '',
+  //     lastName:
+  //       this.currentUser.displayName?.split(' ').slice(1).join(' ') || '',
+  //     email: this.currentUser.email || '',
+  //     phone: '',
+  //     dateOfBirth: undefined,
+  //     occupation: '',
+  //     monthlyIncome: 0,
+  //     preferences: {
+  //       defaultCurrency: this.defaultCurrency,
+  //       timezone: 'UTC',
+  //       language: APP_CONFIG.LANGUAGE.DEFAULT,
+  //       notifications: true,
+  //       emailUpdates: true,
+  //       budgetAlerts: true,
+  //       categoryListViewMode: false,
+  //     },
+  //     role: UserRole.FREE,
+  //     createdAt: new Date(),
+  //     updatedAt: new Date(),
+  //   };
+  // }
 
   private populateForm(): void {
     if (this.userProfile) {
@@ -216,9 +233,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
     if (this.isEditing) {
-      this.notificationService.info('Edit mode enabled');
+      this.fabConfig.mainButtonIcon = 'save';
+      this.fabConfig.mainButtonTooltip = 'Save Profile';
     } else {
-      this.notificationService.info('Edit mode disabled');
       this.saveProfile();
     }
   }

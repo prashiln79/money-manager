@@ -131,6 +131,41 @@
           font-weight: 500;
         }
       }
+
+      .profile-income-info {
+        margin-top: 12px;
+
+        .info-text {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 0;
+          padding: 12px;
+          background: #e3f2fd;
+          border-radius: 6px;
+          border-left: 3px solid #1976d2;
+          font-size: 14px;
+          color: #1565c0;
+          font-weight: 500;
+          flex-wrap: wrap;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: #1976d2;
+          }
+
+          button {
+            margin-left: auto;
+            font-size: 12px;
+            padding: 4px 12px;
+            min-width: auto;
+            height: 28px;
+            line-height: 20px;
+          }
+        }
+      }
     }
   }
 }

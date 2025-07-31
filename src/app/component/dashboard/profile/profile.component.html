@@ -1,9 +1,4 @@
-<!-- fab button to open the profile edit form -->
-<button mat-fab color="primary" class=" mobile-fab-btn" (click)="toggleEdit()" *ngIf="isMobile">
-	<mat-icon *ngIf="!isEditing">edit</mat-icon>
-	<mat-icon *ngIf="isEditing">save</mat-icon>
-</button>
-
+<app-quick-actions-fab [config]="fabConfig"></app-quick-actions-fab>
 
 
 <div class="profile-container">
@@ -27,12 +22,12 @@
 					<p class="user-role">Member since {{ getFormattedDate(userProfile?.createdAt) }}</p>
 				</div>
 			</div>
-			<div class="header-actions">
+			<!-- <div class="header-actions">
 				<button mat-raised-button color="primary" (click)="toggleEdit()" [disabled]="isLoading" class="edit-btn" *ngIf="!isMobile">
 					<mat-icon>{{ isEditing ? 'close' : 'edit' }}</mat-icon>
 					{{ isEditing ? 'Cancel Edit' : 'Edit Profile' }}
 				</button>
-			</div>
+			</div> -->
 		</div>
 	</div>
 

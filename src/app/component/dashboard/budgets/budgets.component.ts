@@ -10,6 +10,7 @@ import * as BudgetsActions from '../../../store/budgets/budgets.actions';
 import * as BudgetsSelectors from '../../../store/budgets/budgets.selectors';
 import * as CategoriesActions from '../../../store/categories/categories.actions';
 import * as CategoriesSelectors from '../../../store/categories/categories.selectors';
+import * as ProfileSelectors from '../../../store/profile/profile.selectors';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DateService } from 'src/app/util/service/date.service';
@@ -56,6 +57,7 @@ export class BudgetsComponent implements OnInit, OnDestroy {
   budgetsError$: Observable<any>;
   categories$: Observable<Category[]>;
   categoriesLoading$: Observable<boolean>;
+  monthlyIncome$: Observable<number>;
   
   userId: string = '';
   budgets: Budget[] = [];
@@ -109,12 +111,14 @@ export class BudgetsComponent implements OnInit, OnDestroy {
     this.budgetsError$ = this.store.select(BudgetsSelectors.selectBudgetsError);
     this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
     this.categoriesLoading$ = this.store.select(CategoriesSelectors.selectCategoriesLoading);
+    this.monthlyIncome$ = this.store.select(ProfileSelectors.selectUserMonthlyIncome);
   }
 
   ngOnInit(): void {
     this.loadBudgets();
     this.loadCategories();
     this.subscribeToStoreData();
+    this.loadProfileIncome();
   }
 
   ngOnDestroy(): void {
@@ -313,6 +317,22 @@ export class BudgetsComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  loadProfileIncome() {
+    // Subscribe to monthly income from profile and set as yearly income if available
+    this.subscriptions.add(
+      this.monthlyIncome$.pipe(takeUntil(this.destroy$)).subscribe(monthlyIncome => {
+        if (monthlyIncome > 0 && this.yearlyBudget.totalIncome === 0) {
+          this.yearlyBudget.totalIncome = monthlyIncome * 12;
+        }
+      })
+    );
+  }
+
+  useProfileIncome(monthlyIncome: number) {
+    this.yearlyBudget.totalIncome = monthlyIncome * 12;
+    this.notificationService.success('Profile income applied to yearly budget');
   }
 
   // Initialize category budgets from existing budgets
