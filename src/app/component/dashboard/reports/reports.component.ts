@@ -263,6 +263,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     showCount: false,
     showAverage: false,
     layout: 'list',
+    chartType: 'bar',
     onCategoryClick: (category: CategoryBreakdown) => {
       console.log('Category clicked:', category);
       // Handle category click - could show detailed view or filter

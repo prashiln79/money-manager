@@ -92,4 +92,74 @@
     font-feature-settings: "tnum";
     font-weight: 600;
   }
+  
+  // AmCharts container styling - Full View
+  .amcharts-container {
+    width: 100%;
+    min-height: 24rem; // Increased for full view
+    max-height: 32rem; // Maximum height for large cards
+    
+    // Ensure chart is responsive
+    ::ng-deep canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    // AmCharts specific styling
+    ::ng-deep .am5-root {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    ::ng-deep .am5-chart-root {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    // Pie chart specific styling
+    ::ng-deep .am5-pie-chart {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    // Legend styling
+    ::ng-deep .am5-legend {
+      font-size: 12px;
+      
+      .am5-legend-item {
+        margin: 4px 0;
+      }
+    }
+    
+    // Tooltip styling
+    ::ng-deep .am5-tooltip {
+      background: rgba(0, 0, 0, 0.9) !important;
+      color: white !important;
+      border-radius: 8px !important;
+      padding: 8px 12px !important;
+      font-size: 12px !important;
+    }
+  }
+  
+  // Chart hover effects
+  .amcharts-container:hover {
+    cursor: pointer;
+  }
+  
+  // Large card height for full view
+  .min-h-32 {
+    min-height: 24rem;
+  }
 } 
+
+.category-breakdown-chart-pie {
+  width: fit-content;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.category-breakdown-chart-bar {
+  height: 100%;
+}

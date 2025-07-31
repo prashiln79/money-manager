@@ -47,6 +47,17 @@ export class HomeComponent {
     headerIcon: 'category',
     headerIconColor: 'blue',
     maxItems: 5,
+    chartType: 'bar',
+  };
+  categoryPieBreakdownConfig: CategoryBreakdownConfig = {
+    title: 'Category Breakdown',
+    subtitle: 'Spending by category',
+    currency: 'INR',
+    showHeaderIcon: true,
+    headerIcon: 'category',
+    headerIconColor: 'blue',
+    maxItems: 5,
+    chartType: 'pie',
   };
   quickActionsFabConfig: QuickActionsFabConfig = {
     title: 'Quick Actions',

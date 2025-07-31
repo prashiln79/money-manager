@@ -1,10 +1,16 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, Inject, NgZone, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil, map, startWith, filter } from 'rxjs/operators';
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import * as am5percent from "@amcharts/amcharts5/percent";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import { AppState } from '../../../../store/app.state';
 import * as TransactionsSelectors from '../../../../store/transactions/transactions.selectors';
 import * as CategoriesSelectors from '../../../../store/categories/categories.selectors';
@@ -47,6 +53,7 @@ export interface CategoryBreakdownConfig {
   showCount?: boolean;
   showAverage?: boolean;
   layout?: 'list' | 'grid' | 'compact';
+  chartType?: 'bar' | 'pie';
   onCategoryClick?: (category: CategoryBreakdown) => void;
   onRefresh?: () => void;
 }
@@ -54,7 +61,7 @@ export interface CategoryBreakdownConfig {
 @Component({
   selector: 'app-category-breakdown-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, MatTooltipModule],
   templateUrl: './category-breakdown-card.component.html',
   styleUrl: './category-breakdown-card.component.scss'
 })
@@ -68,7 +75,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     headerIconColor: 'blue',
     showFooter: false,
     footerText: 'Last updated',
-    cardHeight: 'medium',
+    cardHeight: 'large',
     theme: 'auto',
     animations: true,
     clickable: true,
@@ -83,7 +90,8 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     showPercentage: true,
     showCount: false,
     showAverage: false,
-    layout: 'list'
+    layout: 'list',
+    chartType: 'pie'
   };
 
   // Store observables
@@ -95,10 +103,45 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   // Computed data
   categoryBreakdown$: Observable<CategoryBreakdown[]>;
   isLoading$: Observable<boolean>;
+  
+  // AmCharts
+  private root: am5.Root | undefined;
+  private chart: am5xy.XYChart | am5percent.PieChart | undefined;
+  currentChartType: 'bar' | 'pie' = 'pie';
+  
+  // Generate unique chart container ID
+  chartContainerId: string;
+  
+  // Premium color palette
+  private premiumColors: string[] = [
+    '#6366F1', // Indigo
+    '#8B5CF6', // Violet
+    '#EC4899', // Pink
+    '#EF4444', // Red
+    '#F97316', // Orange
+    '#EAB308', // Yellow
+    '#22C55E', // Green
+    '#06B6D4', // Cyan
+    '#3B82F6', // Blue
+    '#84CC16', // Lime
+    '#F59E0B', // Amber
+    '#10B981', // Emerald
+    '#8B5A2B', // Brown
+    '#6B7280', // Gray
+    '#1F2937', // Dark Gray
+    '#DC2626'  // Dark Red
+  ];
 
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>) {
+  constructor(
+    private store: Store<AppState>,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private zone: NgZone
+  ) {
+    // Generate unique chart container ID with chart type
+    this.chartContainerId = `category-breakdown-chart-${this.currentChartType}`;
+    
     // Initialize store selectors
     this.transactions$ = this.store.select(TransactionsSelectors.selectAllTransactions);
     this.categories$ = this.store.select(CategoriesSelectors.selectAllCategories);
@@ -120,12 +163,298 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Component initialization if needed
+    // Chart type is controlled by config only
+    this.currentChartType = this.effectiveConfig.chartType || 'pie';
+    
+    // Update chart container ID if chart type changes
+    this.updateChartContainerId();
+  }
+
+  private updateChartContainerId(): void {
+    const newId = `category-breakdown-chart-${this.currentChartType}`;
+    this.chartContainerId = newId;
+  }
+
+  ngAfterViewInit(): void {
+    this.browserOnly(() => {
+      this.initializeChart();
+      this.subscribeToData();
+    });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    
+    this.browserOnly(() => {
+      if (this.root) {
+        this.root.dispose();
+      }
+    });
+  }
+
+  // Run the function only in the browser
+  private browserOnly(f: () => void) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.zone.runOutsideAngular(() => {
+        f();
+      });
+    }
+  }
+
+  private initializeChart(): void {
+    try {
+      this.root = am5.Root.new(this.chartContainerId);
+      this.root.setThemes([am5themes_Animated.new(this.root)]);
+
+      // Create chart based on current type
+      if (this.currentChartType === 'pie') {
+        this.createPieChart();
+      } else {
+        this.createBarChart();
+      }
+    } catch (error) {
+      console.error('Error initializing chart:', error);
+    }
+  }
+
+  private createBarChart(): void {
+    if (!this.root) return;
+
+    console.log('Creating bar chart...');
+
+    // Dispose existing chart if any
+    if (this.chart) {
+      this.chart.dispose();
+      this.chart = undefined;
+    }
+
+    // Create XY chart for bar chart
+    this.chart = this.root.container.children.push(
+      am5xy.XYChart.new(this.root, {
+        layout: this.root.verticalLayout,
+        paddingTop: 20,
+        paddingRight: 20,
+        paddingBottom: 20,
+        paddingLeft: 20
+      })
+    );
+
+    // Create X axis (categories)
+    const xAxis = this.chart.xAxes.push(
+      am5xy.CategoryAxis.new(this.root, {
+        categoryField: "category",
+        renderer: am5xy.AxisRendererX.new(this.root, { 
+          minGridDistance: 30,
+          cellStartLocation: 0.1,
+          cellEndLocation: 0.9
+        })
+      })
+    );
+
+    // Create Y axis (values)
+    const yAxis = this.chart.yAxes.push(
+      am5xy.ValueAxis.new(this.root, {
+        renderer: am5xy.AxisRendererY.new(this.root, {})
+      })
+    );
+
+    // Create series
+    const series = this.chart.series.push(
+      am5xy.ColumnSeries.new(this.root, {
+        name: 'Amount',
+        xAxis,
+        yAxis,
+        valueYField: 'amount',
+        categoryXField: 'category',
+        tooltip: am5.Tooltip.new(this.root, {
+          labelText: '{categoryX}: {valueY}'
+        })
+      })
+    );
+
+    // Configure series appearance
+    series.columns.template.setAll({
+      cornerRadiusTL: 5,
+      cornerRadiusTR: 5,
+      strokeOpacity: 0,
+      fillOpacity: 0.8
+    });
+
+    // Add color set
+    const colorSet = am5.ColorSet.new(this.root, {});
+    colorSet.set("colors", this.premiumColors.map(color => am5.color(color)));
+    series.columns.template.set("fill", colorSet.next());
+
+    // Add hover effects
+    series.columns.template.states.create("hover", {
+      fillOpacity: 1,
+      scale: 1.05
+    });
+
+    // Store references for data updates
+    this.xAxis = xAxis;
+    this.yAxis = yAxis;
+    this.series = series;
+
+    console.log('Bar chart created successfully');
+    series.appear(1000);
+    this.chart.appear(1000, 100);
+  }
+
+  private createPieChart(): void {
+    if (!this.root) return;
+
+    console.log('Creating pie chart...');
+
+    // Dispose existing chart if any
+    if (this.chart) {
+      this.chart.dispose();
+      this.chart = undefined;
+    }
+
+    // Create pie chart with centered layout
+    this.chart = this.root.container.children.push(
+      am5percent.PieChart.new(this.root, {
+        layout: this.root.verticalLayout,
+        radius: am5.percent(60),
+      })
+    );
+
+    // Create series with proper configuration and centering
+    const series = this.chart.series.push(
+      am5percent.PieSeries.new(this.root, {
+        name: "Category Breakdown",
+        valueField: "amount",
+        categoryField: "category",
+      
+      })
+    );
+
+    // Configure series appearance
+    // series.labels.template.set("forceHidden", true);
+    // series.ticks.template.set("forceHidden", true);
+    series.labels.template.set("forceHidden", false);
+    series.labels.template.set("fill", am5.color(0x000000));
+    series.labels.template.set("fontSize", 12);
+    series.labels.template.set("fontWeight", "bold");
+    series.labels.template.set("textAlign", "center");
+    series.labels.template.set("textBaseline", "middle");
+    series.labels.template.set("text", "{category}");
+
+    // Add color set
+    const colorSet = am5.ColorSet.new(this.root, {});
+    colorSet.set("colors", this.premiumColors.map(color => am5.color(color)));
+    series.set("colors", colorSet);
+
+    // Add legend with proper positioning below the chart
+    const legend = this.chart.children.push(
+      am5.Legend.new(this.root, {
+        centerX: am5.percent(10),
+        x: am5.percent(20),
+        y: am5.percent(95), // Position legend below the pie chart
+        layout: this.root.horizontalLayout,
+      })
+    );
+
+    // Set legend data
+    legend.data.setAll(series.dataItems);
+
+    // Add tooltip with better formatting
+    series.slices.template.set("tooltipText", "[bold]{category}[/]\nAmount: {value}\nPercentage: {valuePercentTotal.formatNumber('#.0')}%");
+
+    // Add hover effects
+    series.slices.template.states.create("hover", {
+      scale: 1.05,
+      fillOpacity: 1
+    });
+
+    // Store references for data updates
+    this.pieSeries = series;
+    this.legend = legend;
+
+    console.log('Pie chart created successfully');
+    series.appear(1000, 100);
+  }
+
+  // Store chart components for data updates
+  private xAxis: am5xy.CategoryAxis<am5xy.AxisRenderer> | undefined;
+  private yAxis: am5xy.ValueAxis<am5xy.AxisRenderer> | undefined;
+  private series: am5xy.ColumnSeries | undefined;
+  private pieSeries: am5percent.PieSeries | undefined;
+  private legend: am5.Legend | undefined;
+
+  private subscribeToData(): void {
+    this.categoryBreakdown$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(breakdown => {
+      console.log('Category breakdown data received:', breakdown);
+      this.browserOnly(() => {
+        if (breakdown && breakdown.length > 0) {
+          console.log('Setting real chart data:', breakdown);
+          this.updateChartData(breakdown);
+        } else {
+          console.log('No real data available, clearing chart');
+          this.clearChartData();
+        }
+      });
+    });
+  }
+
+
+
+  private updateChartData(breakdown: CategoryBreakdown[]): void {
+    if (!this.root) {
+      console.error('Root not available for data update');
+      return;
+    }
+
+    const data = breakdown.map(item => ({
+      category: item.category,
+      amount: item.amount,
+      percentage: item.percentage,
+      color: item.color
+    }));
+
+    console.log('Updating chart data:', data);
+
+    if (this.currentChartType === 'pie') {
+      if (this.pieSeries) {
+        console.log('Setting pie chart data');
+        this.pieSeries.data.setAll(data);
+        this.pieSeries.appear(1000, 100);
+        // Update legend if available
+        if (this.legend) {
+          this.legend.data.setAll(this.pieSeries.dataItems);
+
+        }
+      } else {
+        console.error('Pie series not available');
+      }
+    } else {
+      if (this.series && this.xAxis) {
+        console.log('Setting bar chart data');
+        this.xAxis.data.setAll(data);
+        this.series.data.setAll(data);
+      } else {
+        console.error('Bar series or axis not available');
+      }
+    }
+  }
+
+  private clearChartData(): void {
+    if (!this.root) return;
+
+    if (this.currentChartType === 'pie') {
+      if (this.pieSeries) {
+        this.pieSeries.data.clear();
+      }
+    } else {
+      if (this.series && this.xAxis) {
+        this.xAxis.data.clear();
+        this.series.data.clear();
+      }
+    }
   }
 
   private calculateCategoryBreakdown(): Observable<CategoryBreakdown[]> {
@@ -229,6 +558,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
       showCount: this.config.showCount ?? false,
       showAverage: this.config.showAverage ?? false,
       layout: this.config.layout ?? 'list',
+      chartType: this.config.chartType ?? 'pie',
       onCategoryClick: this.config.onCategoryClick,
       onRefresh: this.config.onRefresh
     };
@@ -237,7 +567,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   get cardHeightClass(): string {
     switch (this.effectiveConfig.cardHeight) {
       case 'small': return 'min-h-20';
-      case 'large': return 'min-h-32';
+      case 'large': return 'min-h-32'; // Full view for pie charts
       case 'auto': return 'min-h-0';
       default: return 'min-h-24';
     }
@@ -269,6 +599,10 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     }
   }
 
+
+
+
+
   getLastUpdatedTime(): string {
     return new Date().toLocaleString('en-IN', {
       month: 'short',
@@ -292,5 +626,38 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
 
   get hasError(): boolean {
     return !!(this.effectiveConfig.error && this.effectiveConfig.error.trim());
+  }
+
+  get chartOptions(): Observable<any> {
+    return new Observable(observer => {
+      if (this.chart) {
+        observer.next(this.chart);
+        observer.complete();
+      } else {
+        observer.next(null);
+        observer.complete();
+      }
+    });
+  }
+
+
+
+
+
+  // Method to refresh chart data
+  private refreshChartData(): void {
+    this.categoryBreakdown$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(breakdown => {
+      this.browserOnly(() => {
+        if (breakdown && breakdown.length > 0) {
+          console.log('Refreshing chart data:', breakdown);
+          this.updateChartData(breakdown);
+        } else {
+          console.log('No data to refresh');
+          this.clearChartData();
+        }
+      });
+    });
   }
 } 

@@ -12,13 +12,15 @@
         </p>
         }
       </div>
-      @if (effectiveConfig.showHeaderIcon !== false) {
-      <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-        <mat-icon class="text-blue-600 dark:text-blue-400">
-          {{ effectiveConfig.headerIcon || 'category' }}
-        </mat-icon>
+      <div class="flex items-center space-x-2">
+        @if (effectiveConfig.showHeaderIcon !== false) {
+        <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0">
+          <mat-icon class="text-blue-600 dark:text-blue-400">
+            {{ effectiveConfig.headerIcon || 'category' }}
+          </mat-icon>
+        </div>
+        }
       </div>
-      }
     </div>
     
     <!-- Loading State -->
@@ -41,62 +43,19 @@
     </div>
     }
     
-    <!-- Content -->
-    @if (!(isLoading$ | async) && !hasError) {
-    <div class="space-y-4">
-      <!-- Categories List -->
-      @if ((categoryBreakdown$ | async)?.length) {
-      <div class="space-y-3">
-        @for (category of categoryBreakdown$ | async; track category.category) {
-        <div 
-          class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-          [class.cursor-pointer]="effectiveConfig.clickable"
-          [class.cursor-default]="!effectiveConfig.clickable"
-          (click)="onCategoryClick(category)">
-          <div class="flex items-center space-x-3 min-w-0 flex-1">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 dark:bg-gray-600">
-              <mat-icon class="text-sm" [style.color]="category.color">{{ category.icon }}</mat-icon>
-            </div>
-            <div class="min-w-0 flex-1">
-              <span class="text-gray-700 dark:text-gray-300 font-medium truncate block">{{ category.category }}</span>
-              @if (effectiveConfig.showPercentage) {
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ category.percentage.toFixed(1) }}% of total</div>
-              }
-              @if (effectiveConfig.showCount) {
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ category.count }} transactions</div>
-              }
-              @if (effectiveConfig.showAverage) {
-              <div class="text-xs text-gray-500 dark:text-gray-400">Avg: {{ formatCurrency(category.averageAmount) }}</div>
-              }
-            </div>
-          </div>
-          <div class="flex items-center space-x-3 sm:space-x-4 ml-3">
-            @if (effectiveConfig.showProgressBar) {
-            <div class="w-20 sm:w-32 bg-gray-200 dark:bg-gray-600 rounded-full h-2 flex-shrink-0">
-              <div class="h-2 rounded-full transition-all duration-300" 
-                   [ngClass]="getProgressBarColor(category.percentage)"
-                   [style.width.%]="category.percentage"></div>
-            </div>
-            }
-            <span class="text-sm font-medium text-gray-900 dark:text-white w-16 sm:w-20 text-right truncate">
-              {{ formatCurrency(category.amount) }}
-            </span>
-          </div>
-        </div>
-        }
+    <!-- Chart Container - Always Present -->
+    <div class="w-full" [ngClass]="cardHeightClass">
+      <div [id]="chartContainerId" class="amcharts-container" [ngClass]="chartContainerId"></div>
+    </div>
+    
+    <!-- Empty State - Only show when no data and not loading/error -->
+    @if (!(isLoading$ | async) && !hasError && (isEmpty | async)) {
+    <div class="text-center py-8 sm:py-12">
+      <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+        <mat-icon class="text-gray-400 text-2xl sm:text-3xl">category</mat-icon>
       </div>
-      }
-
-      <!-- Empty State -->
-      @if (isEmpty | async) {
-      <div class="text-center py-8 sm:py-12">
-        <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <mat-icon class="text-gray-400 text-2xl sm:text-3xl">category</mat-icon>
-        </div>
-        <h4 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">No Categories Found</h4>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ effectiveConfig.emptyStateMessage }}</p>
-      </div>
-      }
+      <h4 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">No Categories Found</h4>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{{ effectiveConfig.emptyStateMessage }}</p>
     </div>
     }
     
