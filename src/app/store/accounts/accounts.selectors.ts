@@ -48,13 +48,16 @@ export const selectActiveAccounts = createSelector(
 
 export const selectTotalBalance = createSelector(
   selectAllAccounts,
-  (accounts) => accounts.reduce((sum, account) => {
-    if (account.type === AccountType.LOAN) {
-      const loanDetails = account.loanDetails as LoanDetails;
-      return sum - loanDetails.remainingBalance;
-    }
-    return sum + account.balance;
-  }, 0)
+  (accounts) => {
+    const totalBalance = accounts.reduce((sum, account) => {
+      if (account.type === AccountType.LOAN) {
+        const loanDetails = account.loanDetails as LoanDetails;
+        return sum - loanDetails.remainingBalance;
+      }
+      return sum + account.balance;
+    }, 0);
+    return totalBalance;
+  }
 );
 
 export const selectTotalBalanceByType = (type: 'bank' | 'cash' | 'credit' | 'loan') => createSelector(

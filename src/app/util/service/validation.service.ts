@@ -559,8 +559,11 @@ export class ValidationService implements IValidationService {
       return false;
     }
     
-    return amount >= APP_CONFIG.VALIDATION.MIN_AMOUNT && 
+    const isValid = amount >= APP_CONFIG.VALIDATION.MIN_AMOUNT && 
            amount <= APP_CONFIG.VALIDATION.MAX_AMOUNT;
+    
+    console.log('Amount validation result:', isValid);
+    return isValid;
   }
 
   /**

@@ -120,7 +120,17 @@ export class AccountsService {
                     switch (transactionType) {
                         case 'create':
                             if (newTransaction) {
-                                balanceChange = newTransaction.type === 'income' ? newTransaction.amount : -newTransaction.amount;
+                                console.log('Creating transaction:', newTransaction);
+                                // For income transactions, add to balance
+                                // For expense transactions, subtract from balance
+                                if (newTransaction.type === 'income') {
+                                    balanceChange = newTransaction.amount;
+                                    console.log('Income transaction - adding to balance:', newTransaction.amount);
+                                } else if (newTransaction.type === 'expense') {
+                                    balanceChange = -newTransaction.amount;
+                                    console.log('Expense transaction - subtracting from balance:', newTransaction.amount);
+                                }
+                                
                                 // For loan accounts, if it's an expense transaction, it reduces the remaining balance
                                 if (account.type === 'loan' && newTransaction.type === 'expense') {
                                     loanRemainingBalanceChange = -newTransaction.amount;
@@ -147,7 +157,12 @@ export class AccountsService {
                         case 'delete':
                             if (oldTransaction) {
                                 // Reverse the transaction effect
-                                balanceChange = oldTransaction.type === 'income' ? -oldTransaction.amount : oldTransaction.amount;
+                                if (oldTransaction.type === 'income') {
+                                    balanceChange = -oldTransaction.amount;
+                                } else if (oldTransaction.type === 'expense') {
+                                    balanceChange = oldTransaction.amount;
+                                }
+                                
                                 // For loan accounts, reverse the remaining balance change
                                 if (account.type === 'loan' && oldTransaction.type === 'expense') {
                                     loanRemainingBalanceChange = oldTransaction.amount;
@@ -156,9 +171,15 @@ export class AccountsService {
                             break;
                     }
 
+                    // Calculate new balance
+                    const currentBalance = account.balance || 0;
+                    const newBalance = currentBalance + balanceChange;
+                    
+                    console.log('Balance calculation:', { currentBalance, balanceChange, newBalance });
+
                     // Prepare update data
                     const updateData: any = {
-                        balance: (account.balance || 0) + balanceChange,
+                        balance: newBalance,
                         updatedAt: new Date() as any
                     };
 
@@ -172,7 +193,7 @@ export class AccountsService {
 
                     await updateDoc(accountRef, updateData);
 
-                    observer.next(updateData.balance);
+                    observer.next(newBalance);
                     observer.complete();
                 } catch (error) {
                     observer.error(error);

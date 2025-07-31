@@ -125,9 +125,9 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit, OnD
       amount: ['', this.validationService.getTransactionAmountValidators()],
       date: [moment().format('YYYY-MM-DD'), Validators.required],
       description: [''],
-      categoryId: [''],
-      categoryName: [''],
-      categoryType: [''],
+      categoryId: ['', Validators.required],
+      categoryName: ['', Validators.required],
+      categoryType: ['', Validators.required],
       accountId: ['', Validators.required],
       taxAmount: [0, [Validators.min(0)]],
       taxPercentage: [0, [Validators.min(0), Validators.max(100)]],
@@ -149,6 +149,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit, OnD
       // Category split fields
       isCategorySplit: [false],
     });
+    
     this.isMobile = this.breakpointObserver.isMatched('(max-width: 640px)');
   }
 
@@ -274,6 +275,7 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit, OnD
         this.loaderService.show();
 
         const formData = this.transactionForm.value;
+        
         const transactionData = {
           payee: formData.payee,
           accountId: formData.accountId,
@@ -344,6 +346,19 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit, OnD
         this.isSubmitting = false;
         this.loaderService.hide();
       }
+    } else {
+      
+      // Show specific validation errors
+      if (this.transactionForm.get('payee')?.errors) {
+      }
+      if (this.transactionForm.get('amount')?.errors) {
+      }
+      if (this.transactionForm.get('categoryId')?.errors) {
+      }
+      if (this.transactionForm.get('categoryType')?.errors) {
+      }
+      if (this.transactionForm.get('accountId')?.errors) {
+      }
     }
   }
 
@@ -396,12 +411,14 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit, OnD
       map((categories: Category[]) => categories.find(c => c.id === categoryId)),
       filter((category): category is Category => !!category)
     ).subscribe((category: Category) => {
+      
       this.transactionForm.patchValue({
         categoryId: category.id,
         categoryName: category.name,
         categoryType: category.type,
         payee: this.editMode ? this.dialogData.payee : category.name,
       });
+      
     });
   }
 
