@@ -1,8 +1,8 @@
 <!-- Table Container -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col" 
-[ngClass]="{'max-h-[calc(78vh-210px)]': isHome && !breakpointService.device.isTablePortrait,'max-h-[65vh]':isHome && breakpointService.device.isTablePortrait,'max-h-[69vh]': !isHome}">
+[ngClass]="{'max-h-[calc(75vh-210px)]': isHome && !breakpointService.device.isTablePortrait,'max-h-[65vh]':isHome && breakpointService.device.isTablePortrait,'max-h-[66vh]': !isHome}">
   <!-- View Toggle Header -->
-  <div class="flex justify-between items-center p-3 border-b border-gray-200 bg-gray-50" *ngIf="!isHome">
+  <div class="flex justify-between items-center p-3 border-b border-gray-200 bg-gray-50" *ngIf="hasSelection() && (breakpointService.device.isTablePortrait || breakpointService.device.isDesktop) && !isHome">
     <!-- <div class="flex items-center space-x-2">
       <span class="text-sm font-medium text-gray-700">View:</span>
       <button 
@@ -26,7 +26,7 @@
     </div> -->
 
     <!-- Bulk Operations - Only for tablet portrait and desktop, and not on home page -->
-    <div class="flex items-center space-x-2" *ngIf="hasSelection() && (breakpointService.device.isTablePortrait || breakpointService.device.isDesktop) && !isHome">
+    <div class="flex items-center space-x-2" >
       <span class="text-sm text-gray-600">{{ getSelectedCount() }} selected</span>
       <button 
         mat-button 
@@ -327,30 +327,24 @@
         <!-- Income Total -->
         <div class="total-item">
           <mat-icon class="income">trending_up</mat-icon>
-          <div class="total-content">
-            <div class="total-label">Income</div>
-            <div class="total-value income">₹{{ getTotalIncome().toLocaleString() }}</div>
-          </div>
+          <span class="total-label">Income:</span>
+          <span class="total-value income">₹{{ getTotalIncome().toLocaleString() }}</span>
         </div>
 
         <!-- Expense Total -->
         <div class="total-item">
           <mat-icon class="expense">trending_down</mat-icon>
-          <div class="total-content">
-            <div class="total-label">Expense</div>
-            <div class="total-value expense">₹{{ getTotalExpense().toLocaleString() }}</div>
-          </div>
+          <span class="total-label">Expense:</span>
+          <span class="total-value expense">₹{{ getTotalExpense().toLocaleString() }}</span>
         </div>
 
         <!-- Net Amount -->
         <div class="total-item net-separator">
           <mat-icon>account_balance_wallet</mat-icon>
-          <div class="total-content">
-            <div class="total-label">Net</div>
-            <div class="total-value" [class]="getNetAmount() >= 0 ? 'net-positive' : 'net-negative'">
-              {{ getNetAmount() >= 0 ? '+' : '' }}₹{{ getNetAmount().toLocaleString() }}
-            </div>
-          </div>
+          <span class="total-label">Net:</span>
+          <span class="total-value" [class]="getNetAmount() >= 0 ? 'net-positive' : 'net-negative'">
+            {{ getNetAmount() >= 0 ? '+' : '' }}₹{{ getNetAmount().toLocaleString() }}
+          </span>
         </div>
       </div>
     </div>
@@ -458,30 +452,24 @@
         <!-- Income Total -->
         <div class="total-item">
           <mat-icon class="income">trending_up</mat-icon>
-          <div class="total-content">
-            <div class="total-label">Income</div>
-            <div class="total-value income">₹{{ getTotalIncome().toLocaleString() }}</div>
-          </div>
+          <span class="total-label">Income:</span>
+          <span class="total-value income">₹{{ getTotalIncome().toLocaleString() }}</span>
         </div>
 
         <!-- Expense Total -->
         <div class="total-item">
           <mat-icon class="expense">trending_down</mat-icon>
-          <div class="total-content">
-            <div class="total-label">Expense</div>
-            <div class="total-value expense">₹{{ getTotalExpense().toLocaleString() }}</div>
-          </div>
+          <span class="total-label">Expense:</span>
+          <span class="total-value expense">₹{{ getTotalExpense().toLocaleString() }}</span>
         </div>
 
         <!-- Net Amount -->
         <div class="total-item net-separator">
           <mat-icon>account_balance_wallet</mat-icon>
-          <div class="total-content">
-            <div class="total-label">Net</div>
-            <div class="total-value" [class]="getNetAmount() >= 0 ? 'net-positive' : 'net-negative'">
-              {{ getNetAmount() >= 0 ? '+' : '' }}₹{{ getNetAmount().toLocaleString() }}
-            </div>
-          </div>
+          <span class="total-label">Net:</span>
+          <span class="total-value" [class]="getNetAmount() >= 0 ? 'net-positive' : 'net-negative'">
+            {{ getNetAmount() >= 0 ? '+' : '' }}₹{{ getNetAmount().toLocaleString() }}
+          </span>
         </div>
       </div>
     </div>

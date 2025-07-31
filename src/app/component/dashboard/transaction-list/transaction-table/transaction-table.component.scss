@@ -598,19 +598,14 @@ table {
 .fixed-footer {
   background: #f9fafb;
   border-top: 1px solid #e5e7eb;
-  padding: 12px 16px;
+  padding: 4px 16px;
   position: sticky;
   bottom: 0;
   z-index: 10;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
   
-  @media (min-width: 768px) {
-    padding: 16px 24px;
-  }
   
-  @media (min-width: 1024px) {
-    padding: 20px 32px;
-  }
+ 
   
   .footer-content {
     display: flex;
@@ -637,42 +632,42 @@ table {
   .transaction-count {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     
     @media (max-width: 640px) {
-      gap: 6px;
+      gap: 4px;
     }
     
     mat-icon {
       color: #6b7280;
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
       
       @media (max-width: 1024px) {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
-      }
-      
-      @media (max-width: 640px) {
         font-size: 12px;
         width: 12px;
         height: 12px;
       }
+      
+      @media (max-width: 640px) {
+        font-size: 10px;
+        width: 10px;
+        height: 10px;
+      }
     }
     
     .count-text {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
       color: #374151;
       
       @media (max-width: 1024px) {
-        font-size: 13px;
+        font-size: 12px;
       }
       
       @media (max-width: 640px) {
-        font-size: 12px;
+        font-size: 11px;
       }
     }
   }
@@ -680,54 +675,54 @@ table {
   .totals-section {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
     
     @media (max-width: 1200px) {
-      gap: 20px;
+      gap: 16px;
     }
     
     @media (max-width: 1024px) {
-      gap: 16px;
+      gap: 12px;
     }
     
     @media (max-width: 768px) {
-      gap: 16px;
+      gap: 12px;
       width: 100%;
       justify-content: space-between;
     }
     
     @media (max-width: 640px) {
-      gap: 12px;
+      gap: 8px;
     }
     
     .total-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       
       @media (max-width: 1024px) {
-        gap: 6px;
-      }
-      
-      @media (max-width: 640px) {
         gap: 4px;
       }
       
+      @media (max-width: 640px) {
+        gap: 3px;
+      }
+      
       mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
         
         @media (max-width: 1024px) {
-          font-size: 14px;
-          width: 14px;
-          height: 14px;
-        }
-        
-        @media (max-width: 640px) {
           font-size: 12px;
           width: 12px;
           height: 12px;
+        }
+        
+        @media (max-width: 640px) {
+          font-size: 10px;
+          width: 10px;
+          height: 10px;
         }
         
         &.income {
@@ -739,76 +734,72 @@ table {
         }
       }
       
-      .total-content {
-        text-align: right;
+      .total-label {
+        font-size: 11px;
+        color: #6b7280;
         
-        .total-label {
-          font-size: 12px;
-          color: #6b7280;
-          margin-bottom: 2px;
-          
-          @media (max-width: 1024px) {
-            font-size: 11px;
-          }
-          
-          @media (max-width: 640px) {
-            font-size: 10px;
-          }
+        @media (max-width: 1024px) {
+          font-size: 10px;
         }
         
-        .total-value {
-          font-size: 14px;
-          font-weight: 600;
-          
-          @media (max-width: 1024px) {
-            font-size: 13px;
-          }
-          
-          @media (max-width: 640px) {
-            font-size: 11px;
-          }
-          
-          &.income {
-            color: #059669;
-          }
-          
-          &.expense {
-            color: #dc2626;
-          }
-          
-          &.net-positive {
-            color: #059669;
-          }
-          
-          &.net-negative {
-            color: #dc2626;
-          }
+        @media (max-width: 640px) {
+          font-size: 9px;
+        }
+      }
+      
+      .total-value {
+        font-size: 0.92rem;
+        font-weight: 600;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        
+        @media (max-width: 1024px) {
+          font-size: 12px;
+        }
+        
+        @media (max-width: 640px) {
+          font-size: 10px;
+        }
+        
+        &.income {
+          color: #059669;
+        }
+        
+        &.expense {
+          color: #dc2626;
+        }
+        
+        &.net-positive {
+          color: #059669;
+        }
+        
+        &.net-negative {
+          color: #dc2626;
         }
       }
     }
     
     .net-separator {
       border-left: 1px solid #d1d5db;
-      padding-left: 24px;
-      margin-left: 8px;
+      padding-left: 16px;
+      margin-left: 6px;
       
       @media (max-width: 1200px) {
-        padding-left: 20px;
-        margin-left: 6px;
-      }
-      
-      @media (max-width: 1024px) {
-        padding-left: 16px;
-        margin-left: 4px;
-      }
-      
-      @media (max-width: 768px) {
         padding-left: 12px;
         margin-left: 4px;
       }
       
-      @media (max-width: 640px) {
+      @media (max-width: 1024px) {
+        padding-left: 10px;
+        margin-left: 3px;
+      }
+      
+      @media (max-width: 768px) {
         padding-left: 8px;
+        margin-left: 3px;
+      }
+      
+      @media (max-width: 640px) {
+        padding-left: 6px;
         margin-left: 2px;
       }
     }

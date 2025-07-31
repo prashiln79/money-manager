@@ -1,6 +1,7 @@
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 pb-0 ">
   <!-- Header Section -->
-  <div class="flex items-center justify-between mb-2">
+  <div class="flex items-center justify-between mb-2" >
+
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
         <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -35,12 +36,12 @@
   </div>
 
   <!-- Active Filters Indicator -->
-  <div *ngIf="hasActiveFilters()" class="mb-3 pb-2 border-b border-gray-100">
+  <div *ngIf="hasActiveFilters()" class="mb-3 pb-2 border-b border-gray-100 absolute top-10">
 
     <div class="flex flex-wrap gap-1">
       <div class="flex items-center space-x-1 ml-2">
-        <mat-icon class="text-blue-500 text-xs">filter_alt</mat-icon>
-        <span class="text-xs text-gray-600 font-medium">Active Filters</span>
+        <!-- <mat-icon class="text-blue-500 text-xs">filter_alt</mat-icon>
+        <span class="text-xs text-gray-600 font-medium">Active Filters</span> -->
       </div>
       @for (filter of getActiveFilters(); track filter.type) {
       <mat-chip 
