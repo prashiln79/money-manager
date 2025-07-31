@@ -15,6 +15,7 @@ import { Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DateService } from 'src/app/util/service/date.service';
 import { Category } from 'src/app/util/models';
+import { TransactionType } from 'src/app/util/config/enums';
 
 // Interfaces for yearly budget structure
 interface SavingsGoal {
@@ -84,6 +85,7 @@ export class BudgetsComponent implements OnInit, OnDestroy {
   currentStep: number = 1;
   totalSteps: number = 6;
   showMonthlyView: boolean = false;
+  inputMode: 'slider' | 'input' = 'slider';
   
   yearlyBudget: YearlyBudget = {
     totalIncome: 0,
@@ -192,15 +194,18 @@ export class BudgetsComponent implements OnInit, OnDestroy {
 
   getCategoryPercentage(categoryId: string): number {
     if (this.yearlyBudget.totalIncome === 0) return 0;
-    return (this.getCategoryBudget(categoryId) / this.yearlyBudget.totalIncome) * 100;
+    // Since categoryBudgets now stores monthly amounts, multiply by 12 for yearly comparison
+    return (this.getCategoryBudget(categoryId) * 12 / this.yearlyBudget.totalIncome) * 100;
   }
 
   getCategoryMonthly(categoryId: string): number {
-    return this.getCategoryBudget(categoryId) / 12;
+    // categoryBudgets now stores monthly amounts directly
+    return this.getCategoryBudget(categoryId);
   }
 
   getTotalAllocated(): number {
-    return Object.values(this.categoryBudgets).reduce((sum, budget) => sum + budget, 0);
+    // Since categoryBudgets stores monthly amounts, multiply by 12 to get yearly total
+    return Object.values(this.categoryBudgets).reduce((sum, budget) => sum + budget, 0) * 12;
   }
 
   // Ensure total allocated never exceeds yearly budget
@@ -219,8 +224,8 @@ export class BudgetsComponent implements OnInit, OnDestroy {
     
     Object.keys(this.categoryBudgets).forEach(categoryId => {
       const currentBudget = this.categoryBudgets[categoryId] || 0;
-      const reductionRatio = currentBudget / totalAllocated;
-      const reduction = excessAmount * reductionRatio;
+      const reductionRatio = (currentBudget * 12) / totalAllocated; // Convert monthly to yearly for ratio calculation
+      const reduction = (excessAmount * reductionRatio) / 12; // Convert yearly excess to monthly reduction
       
       this.categoryBudgets[categoryId] = Math.max(0, currentBudget - reduction);
     });
@@ -237,7 +242,7 @@ export class BudgetsComponent implements OnInit, OnDestroy {
   // Monthly breakdown methods
   getMonthlyBreakdown(): MonthlyBreakdown[] {
     const monthlyIncome = this.yearlyBudget.totalIncome / 12;
-    const monthlyExpenses = this.getTotalAllocated() / 12;
+    const monthlyExpenses = this.getTotalAllocated() / 12; // getTotalAllocated() returns yearly, so divide by 12
     const monthlySavings = this.getTotalSavings() / 12;
     const monthlyDebt = this.getTotalDebtPayments() / 12;
     const monthlyBalance = monthlyIncome - monthlyExpenses - monthlySavings - monthlyDebt;
@@ -261,11 +266,13 @@ export class BudgetsComponent implements OnInit, OnDestroy {
 
   // Save yearly budget
   saveYearlyBudget(): void {
-    // Create budgets for each category
-    this.categories.forEach(category => {
-      const budget = this.getCategoryBudget(category.id || '');
-      if (budget > 0) {
-        this.createBudgetForCategory(category.name, budget);
+    // Create budgets for each expense category only
+    this.getExpenseCategories().forEach(category => {
+      const monthlyBudget = this.getCategoryBudget(category.id || '');
+      if (monthlyBudget > 0) {
+        // Convert monthly budget to yearly budget for storage
+        const yearlyBudget = monthlyBudget * 12;
+        this.createBudgetForCategory(category.name, yearlyBudget,category);
       }
     });
 
@@ -337,27 +344,30 @@ export class BudgetsComponent implements OnInit, OnDestroy {
 
   // Initialize category budgets from existing budgets
   initializeCategoryBudgets() {
-    this.categories.forEach(category => {
+    this.getExpenseCategories().forEach(category => {
       const existingBudget = this.budgets.find(budget => budget.category === category.name);
-      this.categoryBudgets[category.id || ''] = existingBudget?.limit || 0;
+      // Convert yearly budget to monthly for slider
+      this.categoryBudgets[category.id || ''] = existingBudget ? existingBudget.limit / 12 : 0;
     });
   }
 
   // Update category budgets when budgets change
   updateCategoryBudgets() {
-    this.categories.forEach(category => {
+    this.getExpenseCategories().forEach(category => {
       const existingBudget = this.budgets.find(budget => budget.category === category.name);
       if (existingBudget) {
-        this.categoryBudgets[category.id || ''] = existingBudget.limit;
+        // Convert yearly budget to monthly for slider
+        this.categoryBudgets[category.id || ''] = existingBudget.limit / 12;
       }
     });
   }
 
   // Handle slider change for category budget with smart allocation
   onCategoryBudgetChange(categoryId: string, newLimit: number) {
+    // newLimit is now a monthly amount
     const currentTotal = this.getTotalAllocated();
     const currentCategoryBudget = this.categoryBudgets[categoryId] || 0;
-    const difference = newLimit - currentCategoryBudget;
+    const difference = (newLimit - currentCategoryBudget) * 12; // Convert to yearly difference
     
     // If the new total would exceed yearly budget, adjust other categories
     if (currentTotal + difference > this.yearlyBudget.totalIncome) {
@@ -372,6 +382,22 @@ export class BudgetsComponent implements OnInit, OnDestroy {
       // Simple case: just update the category budget
       this.categoryBudgets[categoryId] = newLimit;
     }
+    
+    // Auto-save the category budget
+    this.saveCategoryBudget(categoryId);
+  }
+
+  // Handle input field change for category budget
+  onCategoryBudgetInputChange(categoryId: string, event: any) {
+    const newLimit = Number(event.target.value) || 0;
+    this.onCategoryBudgetChange(categoryId, newLimit);
+    // Note: onCategoryBudgetChange already calls saveCategoryBudget, so no need to call it again here
+  }
+
+  // Handle input mode change
+  onInputModeChange() {
+    // This method can be used for any additional logic when switching between modes
+    console.log('Input mode changed to:', this.inputMode);
   }
 
   // Adjust other categories when total exceeds budget
@@ -381,7 +407,8 @@ export class BudgetsComponent implements OnInit, OnDestroy {
     
     if (otherCategoriesTotal === 0) {
       // If no other categories have budgets, reduce the current category
-      this.categoryBudgets[excludedCategoryId] = Math.max(0, this.categoryBudgets[excludedCategoryId] - excessAmount);
+      // excessAmount is yearly, so divide by 12 to get monthly reduction
+      this.categoryBudgets[excludedCategoryId] = Math.max(0, this.categoryBudgets[excludedCategoryId] - (excessAmount / 12));
       return;
     }
     
@@ -389,7 +416,7 @@ export class BudgetsComponent implements OnInit, OnDestroy {
     otherCategories.forEach(categoryId => {
       const currentBudget = this.categoryBudgets[categoryId] || 0;
       const reductionRatio = currentBudget / otherCategoriesTotal;
-      const reduction = excessAmount * reductionRatio;
+      const reduction = (excessAmount * reductionRatio) / 12; // Convert yearly excess to monthly reduction
       
       this.categoryBudgets[categoryId] = Math.max(0, currentBudget - reduction);
     });
@@ -402,27 +429,28 @@ export class BudgetsComponent implements OnInit, OnDestroy {
     const category = this.categories.find(cat => cat.id === categoryId);
     if (!category) return;
 
-    const newLimit = this.categoryBudgets[categoryId];
+    const monthlyLimit = this.categoryBudgets[categoryId];
+    const yearlyLimit = monthlyLimit * 12; // Convert to yearly for storage
     const existingBudget = this.budgets.find(budget => budget.category === category.name);
 
     if (existingBudget) {
       // Update existing budget
-      this.updateBudgetLimit(existingBudget.budgetId, newLimit);
+      this.updateBudgetLimit(existingBudget.budgetId, yearlyLimit);
     } else {
       // Create new budget for this category
-      this.createBudgetForCategory(category.name, newLimit);
+      this.createBudgetForCategory(category.name, yearlyLimit,category);
     }
   }
 
   // Create budget for a specific category
-  createBudgetForCategory(categoryName: string, limit: number) {
+  createBudgetForCategory(categoryName: string, yearlyLimit: number,category: Category) {
     const user = this.auth.currentUser;
-    if (user && limit > 0) {
+    if (user && yearlyLimit > 0) {
       const newBudget: Budget = {
         budgetId: `${user.uid}-${categoryName}-${new Date().getTime()}`,
         userId: user.uid,
         category: categoryName,
-        limit: limit,
+        limit: yearlyLimit,
         spent: 0,
         startDate: Timestamp.fromDate(new Date()),
         endDate: Timestamp.fromDate(new Date(new Date().getFullYear(), 11, 31)), // End of year
@@ -432,6 +460,27 @@ export class BudgetsComponent implements OnInit, OnDestroy {
         userId: user.uid, 
         budget: newBudget 
       }));
+
+      if(category.id && category.type === TransactionType.EXPENSE){
+        this.store.dispatch(CategoriesActions.updateCategory({
+          userId: this.userId,
+          categoryId: category.id,
+          name: category.name,
+          categoryType: category.type,
+          icon: category.icon,
+          color: category.color,
+          budgetData: {
+            hasBudget: true,
+            budgetAmount: yearlyLimit / 12,
+            budgetPeriod: 'monthly',
+            budgetStartDate: Timestamp.fromDate(new Date()),
+            budgetEndDate: Timestamp.fromDate(new Date(new Date().getFullYear(), 11, 31)),
+            budgetAlertThreshold: 80,
+            budgetAlertEnabled: true
+          }
+        }));
+    
+      }
       
       this.notificationService.success(`Budget created for ${categoryName}`);
     }
@@ -555,5 +604,54 @@ export class BudgetsComponent implements OnInit, OnDestroy {
 
   trackByBudgetId(index: number, budget: Budget): string {
     return budget.budgetId;
+  }
+
+  // Get only expense categories (exclude income categories)
+  getExpenseCategories(): Category[] {
+    return this.categories.filter(category => category.type === TransactionType.EXPENSE);
+  }
+
+  // Update all category budgets at once
+  updateAllCategoryBudgets(): void {
+    this.getExpenseCategories().forEach(category => {
+      const categoryId = category.id || '';
+      const monthlyBudget = this.categoryBudgets[categoryId];
+      if (monthlyBudget !== undefined && monthlyBudget > 0) {
+        this.saveCategoryBudget(categoryId);
+      }
+    });
+    this.notificationService.success('All category budgets updated successfully!');
+  }
+
+  // Reset all category budgets to zero
+  resetAllCategoryBudgets(): void {
+    this.getExpenseCategories().forEach(category => {
+      const categoryId = category.id || '';
+      this.categoryBudgets[categoryId] = 0;
+    });
+    this.updateAllCategoryBudgets();
+    this.notificationService.info('All category budgets reset to zero');
+  }
+
+  // Distribute remaining budget equally among all categories
+  distributeRemainingBudget(): void {
+    const remainingBudget = this.getRemainingBudget();
+    const expenseCategories = this.getExpenseCategories();
+    
+    if (remainingBudget <= 0 || expenseCategories.length === 0) {
+      this.notificationService.warning('No remaining budget to distribute or no expense categories available');
+      return;
+    }
+
+    const monthlyRemaining = remainingBudget / 12; // Convert to monthly
+    const monthlyPerCategory = monthlyRemaining / expenseCategories.length;
+
+    expenseCategories.forEach(category => {
+      const categoryId = category.id || '';
+      this.categoryBudgets[categoryId] = monthlyPerCategory;
+    });
+
+    this.updateAllCategoryBudgets();
+    this.notificationService.success(`Distributed ${monthlyRemaining.toFixed(2)} monthly budget equally among ${expenseCategories.length} categories`);
   }
 }

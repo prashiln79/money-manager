@@ -69,34 +69,65 @@
           <mat-icon>category</mat-icon>
           Expense Planning
         </mat-card-title>
-        <mat-card-subtitle>Allocate your budget across different expense categories using the sliders below</mat-card-subtitle>
+                <mat-card-subtitle>Allocate your budget across different expense categories using the sliders or input fields below</mat-card-subtitle>
       </mat-card-header>
       
       <mat-card-content>
+        <div class="input-mode-toggle">
+          <mat-button-toggle-group [(value)]="inputMode" (change)="onInputModeChange()">
+            <mat-button-toggle value="slider">
+              <mat-icon>linear_scale</mat-icon>
+              Slider Mode
+            </mat-button-toggle>
+            <mat-button-toggle value="input">
+              <mat-icon>edit</mat-icon>
+              Input Mode
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+          <div class="mode-info">
+            <p class="mode-description">
+              <mat-icon>{{ inputMode === 'slider' ? 'linear_scale' : 'edit' }}</mat-icon>
+              {{ inputMode === 'slider' ? 'Use sliders for quick budget allocation' : 'Enter exact amounts for precise control' }}
+            </p>
+          </div>
+        </div>
+        
         <div class="categories-container">
-          <div class="category-row" *ngFor="let category of categories; trackBy: trackByCategoryId">
+          <div class="category-row" *ngFor="let category of getExpenseCategories(); trackBy: trackByCategoryId">
             <div class="category-info">
               <mat-icon [style.color]="category.color" class="category-icon">{{ category.icon }}</mat-icon>
               <span class="category-name">{{ category.name }}</span>
             </div>
             
-            <div class="category-slider-container">
+
+            
+            <div class="category-slider-container" *ngIf="inputMode === 'slider'">
               <mat-slider
-                [max]="yearlyBudget.totalIncome"
+                [max]="yearlyBudget.totalIncome / 12"
                 [min]="0"
-                [step]="100"
+                [step]="50"
                 class="budget-slider">
                 <input matSliderThumb 
-                       [value]="getCategoryBudget(category.id || '')"
-                       (valueChange)="onCategoryBudgetChange(category.id || '', $event)">
+                       [(ngModel)]="categoryBudgets[category.id || '']"
+                       (input)="onCategoryBudgetChange(category.id || '', categoryBudgets[category.id || ''] || 0)">
               </mat-slider>
             </div>
             
             <div class="category-budget-info">
-              <span class="budget-amount">{{ getCategoryBudget(category.id || '') | currency }}</span>
+              <div class="budget-input-container" *ngIf="inputMode === 'input'">
+                <mat-form-field appearance="fill" class="budget-input">
+                  <input matInput 
+                         type="number" 
+                         [value]="getCategoryBudget(category.id || '')"
+                         (input)="onCategoryBudgetInputChange(category.id || '', $event)"
+                         min="0"
+                         [max]="yearlyBudget.totalIncome / 12"
+                         step="50">
+                </mat-form-field>
+              </div>
               <div class="budget-details">
-                <span class="budget-percentage">{{ getCategoryPercentage(category.id || '') | number:'1.0-1' }}%</span>
-                <span class="budget-monthly">{{ getCategoryMonthly(category.id || '') | currency }}/month</span>
+                <span class="budget-percentage">{{ getCategoryPercentage(category.id || '') | number:'1.0-0' }}%</span>
+                <span class="budget-monthly">{{ getCategoryMonthly(category.id || '') | currency : {round: true} }}/month</span>
               </div>
             </div>
             
@@ -118,6 +149,32 @@
           <div class="budget-warning" *ngIf="getTotalAllocated() > yearlyBudget.totalIncome">
             <mat-icon>warning</mat-icon>
             <span>Budget exceeded! Other categories will be adjusted automatically.</span>
+          </div>
+          
+          <!-- Budget Management Actions -->
+          <div class="budget-actions">
+            <button mat-stroked-button 
+                    color="primary" 
+                    (click)="updateAllCategoryBudgets()"
+                    [disabled]="getTotalAllocated() === 0">
+              <mat-icon>save</mat-icon>
+              Update All Budgets
+            </button>
+            
+            <button mat-stroked-button 
+                    color="accent" 
+                    (click)="distributeRemainingBudget()"
+                    [disabled]="getRemainingBudget() <= 0">
+              <mat-icon>shuffle</mat-icon>
+              Distribute Remaining
+            </button>
+            
+            <button mat-stroked-button 
+                    color="warn" 
+                    (click)="resetAllCategoryBudgets()">
+              <mat-icon>refresh</mat-icon>
+              Reset All
+            </button>
           </div>
         </div>
         
@@ -278,7 +335,7 @@
             <h3>Expenses</h3>
             <div class="summary-amount">{{ getTotalAllocated() | currency }}</div>
             <div class="summary-breakdown">
-              <div class="breakdown-item" *ngFor="let category of categories">
+              <div class="breakdown-item" *ngFor="let category of getExpenseCategories()">
                 <span>{{ category.name }}:</span>
                 <span>{{ getCategoryBudget(category.id || '') | currency }}</span>
               </div>

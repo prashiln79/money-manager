@@ -172,6 +172,41 @@
 
 // Expense Planning Section
 .expense-planning-section {
+  .input-mode-toggle {
+    margin-bottom: 24px;
+    text-align: center;
+
+    mat-button-toggle-group {
+      .mat-button-toggle {
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+
+    .mode-info {
+      margin-top: 16px;
+
+      .mode-description {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 0;
+        font-size: 14px;
+        color: #666;
+        font-style: italic;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+          color: #2196f3;
+        }
+      }
+    }
+  }
+
   .categories-container {
     margin-bottom: 24px;
 
@@ -226,12 +261,31 @@
       .category-budget-info {
         text-align: right;
 
-        .budget-amount {
-          display: block;
-          font-size: 16px;
-          font-weight: 700;
-          color: #2196f3;
-          margin-bottom: 4px;
+        .budget-input-container {
+          margin-bottom: 8px;
+
+          .budget-input {
+            width: 120px;
+            
+            ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+              display: none;
+            }
+
+            ::ng-deep .mat-mdc-text-field-wrapper {
+              padding: 0 8px;
+            }
+
+            ::ng-deep .mat-mdc-form-field-infix {
+              padding: 8px 0;
+              min-height: auto;
+            }
+
+            input {
+              text-align: right;
+              font-weight: 600;
+              color: #2196f3;
+            }
+          }
         }
 
         .budget-details {
@@ -326,6 +380,43 @@
       span {
         font-size: 14px;
         font-weight: 500;
+      }
+    }
+
+    .budget-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      flex-wrap: wrap;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
       }
     }
   }

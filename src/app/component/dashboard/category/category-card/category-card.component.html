@@ -16,16 +16,45 @@
           <div class="budget-amount">
             <span class="budget-label">Budget:</span>
             <span class="budget-value">{{ category.budget?.budgetAmount | currency }}</span>
-            <span class="budget-period">/ {{ formatBudgetPeriod(category.budget?.budgetPeriod) }}</span>
+            <span class="budget-period">/ {{ getCurrentBudgetPeriodText(category.budget?.budgetPeriod) }}</span>
           </div>
 
           <div class="budget-progress" *ngIf="category.budget?.hasBudget">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="Math.min(calculateBudgetProgressPercentage(category), 100)" [style.background-color]="getBudgetProgressColor(category)"></div>
+            <div class="progress-bar" 
+                 [matTooltip]="getProgressComparisonTooltip(category)"
+                 matTooltipPosition="above">
+              <!-- Time progress background -->
+              <div class="time-progress-bg" 
+                   [style.width.%]="getTimeProgressPercentage(category.budget?.budgetPeriod)" 
+                   *ngIf="category.budget?.budgetPeriod">
+              </div>
+              <!-- Spending progress overlay -->
+              <div class="spending-progress-fill" 
+                   [style.width.%]="Math.min(calculateBudgetProgressPercentage(category), 100)" 
+                   [style.background-color]="getBudgetProgressColor(category)">
+              </div>
             </div>
             <span class="progress-text">
               {{ calculateBudgetSpent(category) | currency }} ({{ calculateBudgetProgressPercentage(category).toFixed(1) }}%)
             </span>
+            <!-- <div class="progress-legend" *ngIf="category.budget?.budgetPeriod">
+              <span class="legend-item">
+                <span class="legend-color spending"></span>
+                <span class="legend-text">Spending</span>
+              </span>
+              <span class="legend-item">
+                <span class="legend-color time"></span>
+                <span class="legend-text">Time</span>
+              </span>
+            </div> -->
+            <div class="budget-details" *ngIf="category.budget?.budgetPeriod">
+              <!-- <span class="budget-detail-item">
+                {{ getRemainingDaysInBudgetPeriod(category.budget?.budgetPeriod) }} days left
+              </span> -->
+              <span class="budget-detail-item text-red-600" *ngIf="!isSpendingOnTrack(category)">
+                 Spent: {{ calculateBudgetSpent(category) | currency : {round: true} }}
+              </span>
+            </div>
           </div>
         </div>
         

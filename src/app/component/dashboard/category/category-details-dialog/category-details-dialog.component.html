@@ -25,7 +25,28 @@
   <!-- Dialog Content -->
   <div class="dialog-content">
     <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="details-tabs">
-      
+        <!-- Transactions Tab -->
+        <mat-tab label="Transactions">
+          <div class="tab-content">
+            <div class="transactions-section">
+              <div class="no-transactions" *ngIf="!data.recentTransactions?.length">
+                <mat-icon>receipt_long</mat-icon>
+                <p>No recent transactions</p>
+              </div>
+              <div class="transaction-list" *ngIf="data.recentTransactions?.length">
+                <div class="transaction-item" *ngFor="let transaction of data.recentTransactions">
+                  <div class="transaction-info">
+                    <span class="description">{{ transaction.payee }}</span>
+                    <span class="date">{{ dateService.toDate(transaction.date) | date:'shortDate' }}</span>
+                  </div>
+                  <span class="amount" [class]="transaction.amount >= 0 ? 'positive' : 'negative'">
+                    {{ transaction.amount | currency }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
       <!-- Overview Tab -->
       <mat-tab label="Overview">
         <div class="tab-content">
@@ -180,28 +201,7 @@
         </div>
       </mat-tab>
 
-      <!-- Transactions Tab -->
-      <mat-tab label="Transactions">
-        <div class="tab-content">
-          <div class="transactions-section">
-            <div class="no-transactions" *ngIf="!data.recentTransactions?.length">
-              <mat-icon>receipt_long</mat-icon>
-              <p>No recent transactions</p>
-            </div>
-            <div class="transaction-list" *ngIf="data.recentTransactions?.length">
-              <div class="transaction-item" *ngFor="let transaction of data.recentTransactions">
-                <div class="transaction-info">
-                  <span class="description">{{ transaction.payee }}</span>
-                  <span class="date">{{ dateService.toDate(transaction.date) | date:'shortDate' }}</span>
-                </div>
-                <span class="amount" [class]="transaction.amount >= 0 ? 'positive' : 'negative'">
-                  {{ transaction.amount | currency }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </mat-tab>
+    
 
       <!-- Statistics Tab -->
       <mat-tab label="Statistics">

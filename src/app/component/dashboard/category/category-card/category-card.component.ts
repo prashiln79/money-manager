@@ -74,35 +74,286 @@ export class CategoryCardComponent {
       t.type === TransactionType.EXPENSE
     );
 
-    // Filter transactions within the budget period
-    const budgetStartDate = category.budget.budgetStartDate;
-    const budgetEndDate = category.budget.budgetEndDate;
+    // Get the dynamic budget period dates based on budgetPeriod
+    const { startDate, endDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
     
-    let filteredTransactions = categoryTransactions;
-    
-    if (budgetStartDate) {
-      const startDate = this.dateService.toDate(budgetStartDate);
-      if (!startDate) {
-        return 0;
-      }
-      filteredTransactions = filteredTransactions.filter(t => {
-        const txDate = this.dateService.toDate(t.date);
-        return txDate && txDate >= startDate;
-      });
-    }
-    
-    if (budgetEndDate) {
-      const endDate = this.dateService.toDate(budgetEndDate);
-      if (!endDate) {
-        return 0;
-      }
-      filteredTransactions = filteredTransactions.filter(t => {
-        const txDate = this.dateService.toDate(t.date);
-        return txDate && txDate <= endDate;
-      });
+    if (!startDate || !endDate) {
+      return 0;
     }
 
+    // Filter transactions within the dynamic budget period
+    const filteredTransactions = categoryTransactions.filter(t => {
+      const txDate = this.dateService.toDate(t.date);
+      return txDate && txDate >= startDate && txDate <= endDate;
+    });
+
     return filteredTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  }
+
+  /**
+   * Get dynamic budget period dates based on budget period type
+   */
+  private getDynamicBudgetPeriodDates(budgetPeriod?: string): { startDate: Date | null, endDate: Date | null } {
+    if (!budgetPeriod) {
+      return { startDate: null, endDate: null };
+    }
+
+    const now = new Date();
+    let startDate: Date;
+    let endDate: Date;
+
+    switch (budgetPeriod) {
+      case 'daily':
+        // Today's budget
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        break;
+
+      case 'weekly':
+        // Current week (Monday to Sunday)
+        const dayOfWeek = now.getDay();
+        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Sunday is 0, so we treat it as 7
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysFromMonday);
+        endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000); // Add 6 days
+        endDate.setHours(23, 59, 59, 999);
+        break;
+
+      case 'monthly':
+        // Current month
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // Last day of current month
+        break;
+
+      case 'yearly':
+        // Current year
+        startDate = new Date(now.getFullYear(), 0, 1); // January 1st
+        endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999); // December 31st
+        break;
+
+      default:
+        return { startDate: null, endDate: null };
+    }
+
+    return { startDate, endDate };
+  }
+
+  /**
+   * Get current budget period display text
+   */
+  public getCurrentBudgetPeriodText(budgetPeriod?: string): string {
+    if (!budgetPeriod) {
+      return '';
+    }
+
+    const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
+    
+    if (!startDate || !endDate) {
+      return this.formatBudgetPeriod(budgetPeriod);
+    }
+
+    const formatDate = (date: Date): string => {
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: startDate.getFullYear() !== endDate.getFullYear() ? 'numeric' : undefined
+      });
+    };
+
+    switch (budgetPeriod) {
+      case 'daily':
+        return `Day`;
+      case 'weekly':
+        return `Week`;
+      case 'monthly':
+        return `Month`;
+      case 'yearly':
+        return `Year`;
+      default:
+        return this.formatBudgetPeriod(budgetPeriod);
+    }
+  }
+
+  /**
+   * Calculate remaining days in current budget period
+   */
+  public getRemainingDaysInBudgetPeriod(budgetPeriod?: string): number {
+    if (!budgetPeriod) {
+      return 0;
+    }
+
+    const { endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
+    
+    if (!endDate) {
+      return 0;
+    }
+
+    const now = new Date();
+    const timeDiff = endDate.getTime() - now.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    return Math.max(0, daysDiff);
+  }
+
+  /**
+   * Calculate total days in current budget period
+   */
+  public getTotalDaysInBudgetPeriod(budgetPeriod?: string): number {
+    if (!budgetPeriod) {
+      return 0;
+    }
+
+    const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
+    
+    if (!startDate || !endDate) {
+      return 0;
+    }
+
+    const timeDiff = endDate.getTime() - startDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    return Math.max(1, daysDiff + 1); // +1 to include both start and end dates
+  }
+
+  /**
+   * Calculate daily average spending rate for current budget period
+   */
+  public getDailyAverageSpending(category: Category): number {
+    if (!category.budget?.budgetPeriod) {
+      return 0;
+    }
+
+    const spent = this.calculateBudgetSpent(category);
+    const { startDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
+    
+    if (!startDate) {
+      return 0;
+    }
+
+    const now = new Date();
+    const timeDiff = now.getTime() - startDate.getTime();
+    const daysElapsed = Math.max(1, Math.ceil(timeDiff / (1000 * 3600 * 24)));
+    
+    return spent / daysElapsed;
+  }
+
+  /**
+   * Calculate projected spending for the entire budget period
+   */
+  public getProjectedSpending(category: Category): number {
+    if (!category.budget?.budgetPeriod) {
+      return 0;
+    }
+
+    const dailyAverage = this.getDailyAverageSpending(category);
+    const totalDays = this.getTotalDaysInBudgetPeriod(category.budget.budgetPeriod);
+    
+    return dailyAverage * totalDays;
+  }
+
+  /**
+   * Calculate if spending is on track for the budget period
+   */
+  public isSpendingOnTrack(category: Category): boolean {
+    if (!category.budget?.budgetAmount || !category.budget?.budgetPeriod) {
+      return true;
+    }
+
+    const projectedSpending = this.getProjectedSpending(category);
+    const budgetAmount = category.budget.budgetAmount;
+    
+    return projectedSpending <= budgetAmount;
+  }
+
+  /**
+   * Calculate time progress percentage for the current budget period
+   */
+  public getTimeProgressPercentage(budgetPeriod?: string): number {
+    if (!budgetPeriod) {
+      return 0;
+    }
+
+    const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
+    
+    if (!startDate || !endDate) {
+      return 0;
+    }
+
+    const now = new Date();
+    const totalDuration = endDate.getTime() - startDate.getTime();
+    const elapsedDuration = now.getTime() - startDate.getTime();
+    
+    if (totalDuration <= 0) {
+      return 0;
+    }
+
+    const percentage = (elapsedDuration / totalDuration) * 100;
+    return Math.min(100, Math.max(0, percentage));
+  }
+
+  /**
+   * Get detailed tooltip text for time progress
+   */
+  public getTimeProgressTooltip(budgetPeriod?: string): string {
+    if (!budgetPeriod) {
+      return '';
+    }
+
+    const { startDate, endDate } = this.getDynamicBudgetPeriodDates(budgetPeriod);
+    
+    if (!startDate || !endDate) {
+      return '';
+    }
+
+    const timeProgress = this.getTimeProgressPercentage(budgetPeriod);
+    const remainingDays = this.getRemainingDaysInBudgetPeriod(budgetPeriod);
+    const totalDays = this.getTotalDaysInBudgetPeriod(budgetPeriod);
+    const elapsedDays = totalDays - remainingDays;
+
+    const formatDate = (date: Date): string => {
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: startDate.getFullYear() !== endDate.getFullYear() ? 'numeric' : undefined
+      });
+    };
+
+    return `Time Progress: ${timeProgress.toFixed(1)}%
+Period: ${formatDate(startDate)} - ${formatDate(endDate)}
+Elapsed: ${elapsedDays} days
+Remaining: ${remainingDays} days`;
+  }
+
+  /**
+   * Get comprehensive progress comparison tooltip
+   */
+  public getProgressComparisonTooltip(category: Category): string {
+    if (!category.budget?.budgetPeriod) {
+      return '';
+    }
+
+    const spendingProgress = this.calculateBudgetProgressPercentage(category);
+    const timeProgress = this.getTimeProgressPercentage(category.budget.budgetPeriod);
+    const spent = this.calculateBudgetSpent(category);
+    const budgetAmount = category.budget.budgetAmount || 0;
+    const remainingDays = this.getRemainingDaysInBudgetPeriod(category.budget.budgetPeriod);
+
+    let status = '';
+    if (spendingProgress > timeProgress) {
+      status = '⚠️ Spending ahead of schedule';
+    } else if (spendingProgress < timeProgress) {
+      status = '✅ Spending on track';
+    } else {
+      status = '⚖️ Spending matches time';
+    }
+
+    return `Budget Progress Comparison
+
+${status}
+
+Spending: ${spendingProgress.toFixed(1)}% ($${spent.toFixed(2)} / $${budgetAmount.toFixed(2)})
+Time: ${timeProgress.toFixed(1)}% (${remainingDays} days remaining)
+
+${this.getTimeProgressTooltip(category.budget.budgetPeriod)}`;
   }
 
   /**
@@ -134,28 +385,74 @@ export class CategoryCardComponent {
   }
 
   public calculateTotalSpentPerMonth(category: Category): number {
-    if (!this.recentTransactions || this.recentTransactions.length === 0) {
+    if (!this.allTransactions || this.allTransactions.length === 0) {
       return 0;
     }
 
-    return this.recentTransactions
+    const categoryTransactions = this.allTransactions.filter(t => 
+      t.categoryId === category.id && 
+      t.type === TransactionType.EXPENSE
+    );
+
+    // If category has a budget period, use dynamic calculation
+    if (category.budget?.budgetPeriod) {
+      const { startDate, endDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
+      
+      if (startDate && endDate) {
+        const filteredTransactions = categoryTransactions.filter(t => {
+          const txDate = this.dateService.toDate(t.date);
+          return txDate && txDate >= startDate && txDate <= endDate;
+        });
+        return filteredTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      }
+    }
+
+    // Fallback to current month calculation
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    return categoryTransactions
+      .filter(transaction => {
+        const transactionDate = this.dateService.toDate(transaction.date);
+        if (!transactionDate) return false;
+        return transactionDate.getMonth() === currentMonth &&
+          transactionDate.getFullYear() === currentYear;
+      })
       .reduce((total, transaction) => total + Math.abs(transaction.amount), 0);
   }
 
   public calculateTotalIncomePerMonth(category: Category): number {
-    if (!this.recentTransactions || this.recentTransactions.length === 0) {
+    if (!this.allTransactions || this.allTransactions.length === 0) {
       return 0;
     }
 
+    const categoryTransactions = this.allTransactions.filter(t => 
+      t.categoryId === category.id && 
+      t.type === TransactionType.INCOME
+    );
+
+    // If category has a budget period, use dynamic calculation
+    if (category.budget?.budgetPeriod) {
+      const { startDate, endDate } = this.getDynamicBudgetPeriodDates(category.budget.budgetPeriod);
+      
+      if (startDate && endDate) {
+        const filteredTransactions = categoryTransactions.filter(t => {
+          const txDate = this.dateService.toDate(t.date);
+          return txDate && txDate >= startDate && txDate <= endDate;
+        });
+        return filteredTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      }
+    }
+
+    // Fallback to current month calculation
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
-    return this.recentTransactions
+    return categoryTransactions
       .filter(transaction => {
         const transactionDate = this.dateService.toDate(transaction.date);
         if (!transactionDate) return false;
-        return transaction.categoryId === category.id &&
-          transaction.amount > 0 &&
+        return transaction.amount > 0 &&
           transactionDate.getMonth() === currentMonth &&
           transactionDate.getFullYear() === currentYear;
       })
