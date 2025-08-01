@@ -110,6 +110,7 @@ import { SharedModule } from './modules/shared/shared.module';
 import { ParentCategorySelectorDialogComponent } from './component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
 import { CategoryDetailsDialogComponent } from './component/dashboard/category/category-details-dialog/category-details-dialog.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { UpcomingTransactionsCardComponent } from './util/components/cards/upcoming-transactions-card/upcoming-transactions-card.component';
 
 
 @NgModule({
@@ -196,6 +197,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     RecentActivityCardComponent,
     MonthlyTrendsCardComponent,
     CategoryBreakdownCardComponent,
+    UpcomingTransactionsCardComponent,
     
     // Floating Action Button Components
     QuickActionsFabComponent,

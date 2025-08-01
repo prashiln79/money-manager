@@ -742,16 +742,73 @@
           }
         }
         
+        .transaction-amount-container {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        
         .transaction-amount {
           font-weight: 600;
           font-size: 0.875rem;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 8px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+          
+          .amount-icon {
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
+          }
+          
+          .amount-sign {
+            font-weight: 700;
+            font-size: 0.75rem;
+          }
           
           &.positive {
             color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            
+            .amount-icon {
+              color: #059669;
+            }
+            
+            .amount-sign {
+              color: #059669;
+            }
+            
+            &:hover {
+              background: rgba(16, 185, 129, 0.15);
+              box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+            }
           }
           
           &.negative {
             color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            
+            .amount-icon {
+              color: #dc2626;
+            }
+            
+            .amount-sign {
+              color: #dc2626;
+            }
+            
+            &:hover {
+              background: rgba(239, 68, 68, 0.15);
+              box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+            }
           }
         }
       }

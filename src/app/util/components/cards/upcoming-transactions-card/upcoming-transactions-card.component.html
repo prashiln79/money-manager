@@ -1,0 +1,155 @@
+<mat-card class="upcoming-transactions-card bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden h-full">
+  <div class="p-4 sm:p-6">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <div class="flex-1 min-w-0">
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">
+          {{ effectiveConfig.title }}
+        </h3>
+        @if (effectiveConfig.subtitle) {
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          {{ effectiveConfig.subtitle }}
+        </p>
+        }
+      </div>
+      @if (effectiveConfig.showHeaderIcon !== false) {
+      <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
+        <mat-icon class="text-blue-600 dark:text-blue-400">
+          {{ effectiveConfig.headerIcon || 'schedule' }}
+        </mat-icon>
+      </div>
+      }
+    </div>
+    
+    <!-- Loading State -->
+    @if (isLoading$ | async) {
+    <div class="text-center py-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full mb-4">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Loading transaction data...</p>
+    </div>
+    }
+    
+    <!-- Error State -->
+    @if (hasError) {
+    <div class="text-center py-8">
+      <div class="bg-red-100 dark:bg-red-900/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+        <mat-icon class="text-red-600 dark:text-red-400">error</mat-icon>
+      </div>
+      <p class="text-sm text-red-600 dark:text-red-400">{{ effectiveConfig.error }}</p>
+    </div>
+    }
+    
+    <!-- Content -->
+    @if (!(isLoading$ | async) && !hasError) {
+    <div class="space-y-6">
+      <!-- Monthly Summary Section -->
+      @if (effectiveConfig.showMonthlySummary) {
+      <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">This Month</h4>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-center">
+            <div class="text-lg font-semibold text-green-600 dark:text-green-400">
+              {{ formatCurrency((monthlySummary$ | async)?.totalIncome || 0) }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">Income</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg font-semibold text-red-600 dark:text-red-400">
+              {{ formatCurrency((monthlySummary$ | async)?.totalExpense || 0) }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">Expense</div>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600 dark:text-gray-400">Net</span>
+            <span class="text-sm font-medium" 
+                  [class.text-green-600]="(monthlySummary$ | async)?.netAmount || 0 >= 0"
+                  [class.text-red-600]="(monthlySummary$ | async)?.netAmount || 0 < 0">
+              {{ formatCurrency((monthlySummary$ | async)?.netAmount || 0) }}
+            </span>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {{ (monthlySummary$ | async)?.transactionCount || 0 }} transactions
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Upcoming Transactions Section -->
+      <div>
+        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Upcoming (Next {{ effectiveConfig.daysAhead }} days)</h4>
+        
+        <!-- Upcoming Transactions List -->
+        @if ((upcomingTransactions$ | async)?.length) {
+        <div class="space-y-3">
+          @for (transaction of upcomingTransactions$ | async; track transaction.id) {
+          <div 
+            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+            [class.cursor-pointer]="effectiveConfig.clickable"
+            [class.cursor-default]="!effectiveConfig.clickable"
+            (click)="onTransactionClick(transaction)">
+            <div class="flex items-center space-x-3 min-w-0 flex-1">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 dark:bg-gray-600">
+                <mat-icon class="text-sm" [style.color]="transaction.categoryColor">{{ transaction.categoryIcon }}</mat-icon>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-gray-700 dark:text-gray-300 font-medium truncate">{{ transaction.payee }}</span>
+                  @if (transaction.isRecurring) {
+                  <mat-icon class="text-xs text-blue-500">repeat</mat-icon>
+                  }
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ transaction.category }}</div>
+              </div>
+            </div>
+            <div class="text-right ml-3">
+              <div class="font-semibold" 
+                   [class.text-green-600]="transaction.type === 'income'"
+                   [class.text-red-600]="transaction.type === 'expense'">
+                {{ formatCurrency(transaction.amount) }}
+              </div>
+              <div class="text-xs" [class]="getDaysUntilColor(transaction.daysUntil)">
+                {{ getDaysUntilText(transaction.daysUntil) }}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                {{ formatDate(transaction.date) }}
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+        }
+
+        <!-- Empty State for Upcoming Transactions -->
+        @if (isEmpty | async) {
+        <div class="text-center py-8">
+          <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <mat-icon class="text-gray-400 text-2xl">schedule</mat-icon>
+          </div>
+          <h4 class="text-base font-medium text-gray-900 dark:text-white mb-2">No Upcoming Transactions</h4>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ effectiveConfig.emptyStateMessage }}</p>
+        </div>
+        }
+      </div>
+    </div>
+    }
+    
+    <!-- Footer Section -->
+    @if (effectiveConfig.showFooter) {
+    <div class="mt-4 sm:mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+        <span>{{ effectiveConfig.footerText || 'Last updated' }}</span>
+        <div class="flex items-center gap-4">
+          @if (effectiveConfig.showDebugInfo) {
+          <span class="text-xs opacity-75">Upcoming Transactions</span>
+          }
+          <span>{{ getLastUpdatedTime() }}</span>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</mat-card> 

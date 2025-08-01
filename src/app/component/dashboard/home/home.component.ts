@@ -4,6 +4,7 @@ import { KeyMetricsConfig } from 'src/app/util/components/cards/key-metrics-summ
 import { MonthlyTrendsConfig } from 'src/app/util/components/cards/monthly-trends-card/monthly-trends-card.component';
 import { RecentActivityConfig } from 'src/app/util/components/cards/recent-activity-card/recent-activity-card.component';
 import { TopCategoriesConfig } from 'src/app/util/components/cards/top-categories-card/top-categories-card.component';
+import { UpcomingTransactionsConfig } from 'src/app/util/components/cards/upcoming-transactions-card/upcoming-transactions-card.component';
 
 import { QuickAction, QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 
@@ -123,6 +124,13 @@ export class HomeComponent {
       xl: 6,
     },
     showPeriod: false,
+  };
+
+  upcomingTransactionsConfig: UpcomingTransactionsConfig = {
+    title: 'Upcoming Transactions',
+    subtitle: 'Upcoming transactions',
+    currency: 'INR',
+    showHeaderIcon: true,
   };
 
 

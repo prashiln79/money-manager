@@ -259,12 +259,16 @@
 										@for (transaction of getRecentTransactions(account); track transaction.id) {
 										<div class="transaction-item">
 											<div class="transaction-info">
-												<span class="transaction-description">{{ transaction.description }}</span>
-												<span class="transaction-date">{{ transaction.date | date:'shortDate' }}</span>
+												<span class="transaction-description">{{ transaction?.payee }}</span>
+												<span class="transaction-date">{{ dateService.toDate(transaction?.date) | date:'shortDate' }}</span>
 											</div>
-											<span class="transaction-amount" [class]="transaction.amount >= 0 ? 'positive' : 'negative'">
-												{{ transaction.amount | currency }}
-											</span>
+											<div class="transaction-amount-container">
+												<span class="transaction-amount" [class]="transaction.type === 'income' ? 'positive' : 'negative'">
+													<mat-icon class="amount-icon">{{ transaction.type === 'income' ? 'trending_up' : 'trending_down' }}</mat-icon>
+													<span class="amount-sign">{{ transaction.type === 'income' ? '+' : '-' }}</span>
+													{{ transaction.amount >= 0 ? transaction.amount : -transaction.amount | currency }}
+												</span>
+											</div>
 										</div>
 										}
 									</div>

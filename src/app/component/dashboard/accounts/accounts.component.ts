@@ -12,11 +12,14 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import * as AccountsActions from '../../../store/accounts/accounts.actions';
 import * as AccountsSelectors from '../../../store/accounts/accounts.selectors';
+import * as TransactionsActions from '../../../store/transactions/transactions.actions';
+import * as TransactionsSelectors from '../../../store/transactions/transactions.selectors';
 import { DateService } from 'src/app/util/service/date.service';
 import { AccountType } from 'src/app/util/config/enums';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 import { ACCOUNT_GROUPS, AccountGroup, getAccountGroup } from 'src/app/util/config/account.config';
+import { Transaction } from 'src/app/util/models/transaction.model';
 
 @Component({
   selector: 'user-accounts',
@@ -47,6 +50,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   public selectedAccount: Account | null = null;
   public expandedAccount: Account | null = null;
   public isListViewMode: boolean = false; // Add this property for list view toggle
+  public transactions: Transaction[] = []; // Store transactions for access in template
   
   // Private properties
   private userId: string = '';
@@ -103,6 +107,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   private loadUserAccounts(): void {
     this.store.dispatch(AccountsActions.loadAccounts({ userId: this.userId }));
+    this.store.dispatch(TransactionsActions.loadTransactions({ userId: this.userId }));
     
     // Subscribe to store data for backward compatibility
     this.accounts$
@@ -124,6 +129,13 @@ export class AccountsComponent implements OnInit, OnDestroy {
           this.errorMessage = 'Failed to load accounts';
           console.error('Error loading accounts:', error);
         }
+      });
+
+    // Subscribe to transactions
+    this.store.select(TransactionsSelectors.selectAllTransactions)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(transactions => {
+        this.transactions = transactions || [];
       });
   }
 
@@ -348,29 +360,90 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get recent transactions for an account (placeholder implementation)
+   * Get recent transactions for an account
    */
-  public getRecentTransactions(account: Account): any[] {
-    // This is a placeholder - in a real app, you would fetch transactions from a service
-    // For now, return an empty array
-    return [];
+  public getRecentTransactions(account: Account): Transaction[] {
+    // Filter transactions for this specific account
+    const accountTransactions = this.transactions.filter(t => t.accountId === account.accountId);
+    
+    // Sort by date (most recent first) and return the last 10 transactions
+    return accountTransactions
+      .filter(t => t.date)
+      .sort((a, b) => {
+        if (!a.date || !b.date) return 0;
+        const dateA = this.dateService.toDate(a.date);
+        const dateB = this.dateService.toDate(b.date);
+        if (!dateA || !dateB) return 0;
+        return dateB.getTime() - dateA.getTime();
+      })
+      .slice(0, 10);
   }
 
 
 
   /**
-   * Get account statistics (placeholder implementation)
+   * Get account statistics from actual transaction data
    */
   public getAccountStats(account: Account): any {
-    // This is a placeholder - in a real app, you would calculate these from actual transaction data
+    const accountTransactions = this.transactions.filter(t => t.accountId === account.accountId);
+    
+    if (accountTransactions.length === 0) {
+      return {
+        totalTransactions: 0,
+        totalDeposits: 0,
+        totalWithdrawals: 0,
+        averageTransaction: 0,
+        largestTransaction: 0,
+        thisMonth: 0,
+        lastMonth: 0
+      };
+    }
+
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+    const lastYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+    const totalDeposits = accountTransactions
+      .filter(t => t.amount > 0)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const totalWithdrawals = accountTransactions
+      .filter(t => t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const averageTransaction = accountTransactions.length > 0 
+      ? accountTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0) / accountTransactions.length 
+      : 0;
+
+    const largestTransaction = accountTransactions.length > 0
+      ? Math.max(...accountTransactions.map(t => Math.abs(t.amount)))
+      : 0;
+
+    const thisMonthTransactions = accountTransactions.filter(t => {
+      if (!t.date) return false;
+      const txDate = this.dateService.toDate(t.date);
+      return txDate && txDate.getMonth() === thisMonth && txDate.getFullYear() === thisYear;
+    });
+
+    const lastMonthTransactions = accountTransactions.filter(t => {
+      if (!t.date) return false;
+      const txDate = this.dateService.toDate(t.date);
+      return txDate && txDate.getMonth() === lastMonth && txDate.getFullYear() === lastYear;
+    });
+
+    const thisMonthTotal = thisMonthTransactions.reduce((sum, t) => sum + t.amount, 0);
+    const lastMonthTotal = lastMonthTransactions.reduce((sum, t) => sum + t.amount, 0);
+
     return {
-      totalTransactions: 0,
-      totalDeposits: 0,
-      totalWithdrawals: 0,
-      averageTransaction: 0,
-      largestTransaction: 0,
-      thisMonth: 0,
-      lastMonth: 0
+      totalTransactions: accountTransactions.length,
+      totalDeposits,
+      totalWithdrawals,
+      averageTransaction,
+      largestTransaction,
+      thisMonth: thisMonthTotal,
+      lastMonth: lastMonthTotal
     };
   }
 
