@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, doc, updateDoc, deleteDoc, getDoc, addDoc, onSnapshot, setDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { orderBy, query, Timestamp } from '@angular/fire/firestore';
 import { DateService } from './date.service';
 import { Transaction } from '../models/transaction.model';
@@ -405,21 +405,92 @@ export class TransactionsService extends BaseService {
      */
     getDueRecurringTransactions(userId: string): Observable<Transaction[]> {
         return this.getRecurringTransactions(userId).pipe(
-            map(transactions => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+            switchMap(recurringTransactions => {
+                console.log(`Checking ${recurringTransactions.length} recurring transactions for due status`);
                 
-                return transactions.filter(transaction => {
-                    if (!transaction.nextOccurrence) return false;
-                    
-                    const nextOccurrence = transaction.nextOccurrence instanceof Date 
-                        ? transaction.nextOccurrence 
-                        : this.dateService.toDate(transaction.nextOccurrence);
-                    
-                    nextOccurrence?.setHours(0, 0, 0, 0);
-                    
-                    return nextOccurrence && nextOccurrence <= today;
-                });
+                // Get all transactions to check for existing ones in current period
+                return this.getTransactions(userId).pipe(
+                    map(allTransactions => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        return recurringTransactions.filter(transaction => {
+                            // Additional check to ensure transaction is still recurring
+                            if (!transaction.isRecurring) {
+                                console.log(`Transaction ${transaction.id} (${transaction.payee}) is no longer recurring, skipping`);
+                                return false;
+                            }
+                            
+                            if (!transaction.nextOccurrence) {
+                                console.log(`Transaction ${transaction.id} (${transaction.payee}) has no next occurrence, skipping`);
+                                return false;
+                            }
+                            
+                            const nextOccurrence = transaction.nextOccurrence instanceof Date 
+                                ? transaction.nextOccurrence 
+                                : this.dateService.toDate(transaction.nextOccurrence);
+                            
+                            if (!nextOccurrence) {
+                                console.log(`Transaction ${transaction.id} (${transaction.payee}) has invalid next occurrence, skipping`);
+                                return false;
+                            }
+                            
+                            // Create a new Date object to avoid modifying the original
+                            const normalizedNextOccurrence = new Date(nextOccurrence);
+                            normalizedNextOccurrence.setHours(0, 0, 0, 0);
+                            
+                            const isDue = normalizedNextOccurrence <= today;
+                            
+                            if (!isDue) {
+                                console.log(`Transaction ${transaction.id} (${transaction.payee}) is not due yet, next occurrence: ${normalizedNextOccurrence}`);
+                                return false;
+                            }
+                            
+                            // Check if a transaction for this period already exists
+                            const hasExistingTransaction = this.checkExistingTransactionInPeriod(
+                                allTransactions, 
+                                transaction, 
+                                today
+                            );
+                            
+                            if (hasExistingTransaction) {
+                                console.log(`Transaction ${transaction.id} (${transaction.payee}) already has an entry for current period, skipping`);
+                                return false;
+                            }
+                            
+                            // For monthly recurring transactions, check if next occurrence is in current month
+                            if (transaction.recurringInterval === RecurringInterval.MONTHLY) {
+                                const nextOccurrence = transaction.nextOccurrence instanceof Date 
+                                    ? transaction.nextOccurrence 
+                                    : this.dateService.toDate(transaction.nextOccurrence);
+                                
+                                if (nextOccurrence) {
+                                    const isNextOccurrenceInCurrentMonth = this.isInSamePeriod(nextOccurrence, this.dateService.toDate(transaction.date), RecurringInterval.MONTHLY);
+                                    console.log(`Monthly transaction ${transaction.id} (${transaction.payee}) next occurrence check:`, {
+                                        nextOccurrence: nextOccurrence,
+                                        currentMonth: today,
+                                        isNextOccurrenceInCurrentMonth: isNextOccurrenceInCurrentMonth
+                                    });
+                                    
+                                    if (isNextOccurrenceInCurrentMonth) {
+                                         return false;
+                                    }
+                                }
+                            }
+                            
+                            // Debug logging
+                            console.log(`Transaction ${transaction.id} (${transaction.payee}):`, {
+                                isRecurring: transaction.isRecurring,
+                                nextOccurrence: normalizedNextOccurrence,
+                                today: today,
+                                isDue: isDue,
+                                hasExistingTransaction: hasExistingTransaction
+                            });
+                            
+                            return true;
+                        });
+                    })
+                );
             })
         );
     }
@@ -435,10 +506,10 @@ export class TransactionsService extends BaseService {
                     const newTransaction: Omit<Transaction, 'id'> = {
                         ...transaction,
                         date: new Date(),
-                        nextOccurrence: undefined, // Remove recurring info for the new transaction
+                        nextOccurrence: null, // Remove recurring info for the new transaction
                         isRecurring: false,
-                        recurringInterval: undefined,
-                        recurringEndDate: undefined,
+                        recurringInterval: null,
+                        recurringEndDate: null,
                         createdAt: new Date(),
                         updatedAt: new Date(),
                         createdBy: userId,
@@ -452,11 +523,19 @@ export class TransactionsService extends BaseService {
                     await this.createTransaction(userId, newTransaction).toPromise();
 
                     // Update the original recurring transaction with next occurrence
-                    if (transaction.recurringInterval && transaction.nextOccurrence) {
+                    if (transaction.recurringInterval) {
+                        // Use today's date as the base for calculating next occurrence
+                        const today = new Date();
                         const nextOccurrence = this.calculateNextOccurrence(
                             transaction.recurringInterval,
-                            transaction.nextOccurrence
+                            today
                         );
+
+                        console.log(`Processing recurring transaction ${transaction.id} (${transaction.payee}):`, {
+                            interval: transaction.recurringInterval,
+                            today: today,
+                            calculatedNextOccurrence: nextOccurrence
+                        });
 
                         const updatedRecurringTransaction: Partial<Transaction> = {
                             nextOccurrence: nextOccurrence,
@@ -466,6 +545,7 @@ export class TransactionsService extends BaseService {
 
                         // Check if we've reached the end date
                         if (transaction.recurringEndDate && nextOccurrence > transaction.recurringEndDate) {
+                            console.log(`Recurring transaction ${transaction.id} has reached end date, marking as non-recurring`);
                             // Mark as non-recurring since we've reached the end
                             updatedRecurringTransaction.isRecurring = false;
                             updatedRecurringTransaction.recurringInterval = undefined;
@@ -473,6 +553,10 @@ export class TransactionsService extends BaseService {
                         }
 
                         await this.updateTransaction(userId, transaction.id!, updatedRecurringTransaction).toPromise();
+                        console.log(`Successfully updated recurring transaction ${transaction.id} with next occurrence: ${nextOccurrence}`);
+                        
+                        // Add a small delay to ensure Firestore update is reflected
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                     }
 
                     observer.next();
@@ -488,11 +572,104 @@ export class TransactionsService extends BaseService {
     }
 
     /**
+     * Check if a transaction for the current period already exists
+     */
+    private checkExistingTransactionInPeriod(allTransactions: Transaction[], recurringTransaction: Transaction, today: Date): boolean {
+        // Find transactions that match the recurring transaction criteria
+        const matchingTransactions = allTransactions.filter(transaction => {
+            // Skip the recurring transaction itself
+            if (transaction.id === recurringTransaction.id) {
+                return false;
+            }
+            
+            // Check if it's the same type of transaction (same payee, amount, category, account)
+            const isSameTransaction = 
+                transaction.payee === recurringTransaction.payee &&
+                transaction.amount === recurringTransaction.amount &&
+                transaction.categoryId === recurringTransaction.categoryId &&
+                transaction.accountId === recurringTransaction.accountId &&
+                transaction.type === recurringTransaction.type;
+            
+            if (!isSameTransaction) {
+                return false;
+            }
+            
+            // Check if the transaction date falls within the current period
+            const transactionDate = transaction.date instanceof Date 
+                ? transaction.date 
+                : this.dateService.toDate(transaction.date);
+            
+            if (!transactionDate) {
+                return false;
+            }
+            
+            return this.isInSamePeriod(transactionDate, today, recurringTransaction.recurringInterval!);
+        });
+        
+        console.log(`Found ${matchingTransactions.length} existing transactions for ${recurringTransaction.payee} in current period:`, 
+            matchingTransactions.map(t => ({ id: t.id, date: t.date, amount: t.amount })));
+        
+        return matchingTransactions.length > 0;
+    }
+    
+    /**
+     * Check if two dates are in the same period based on recurring interval
+     */
+    private isInSamePeriod(date1: Date, date2: Date | null, interval: RecurringInterval): boolean {
+        const d1 = new Date(date1);
+        const d2 = date2 ? new Date(date2) : new Date();
+        
+        // Normalize both dates to start of day
+        d1.setHours(0, 0, 0, 0);
+        d2.setHours(0, 0, 0, 0);
+        
+        switch (interval) {
+            case RecurringInterval.DAILY:
+                // Same day
+                return d1.getTime() === d2.getTime();
+                
+            case RecurringInterval.WEEKLY:
+                // Same week (Monday to Sunday)
+                const week1 = this.getWeekStart(d1);
+                const week2 = this.getWeekStart(d2);
+                return week1.getTime() === week2.getTime();
+                
+            case RecurringInterval.MONTHLY:
+                // Same month and year
+                return d1.getFullYear() === d2.getFullYear() && 
+                       d1.getMonth() === d2.getMonth();
+                
+            case RecurringInterval.YEARLY:
+                // Same year
+                return d1.getFullYear() === d2.getFullYear();
+                
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Get the start of the week (Monday) for a given date
+     */
+    private getWeekStart(date: Date): Date {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        d.setDate(diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
+    
+
+
+    /**
      * Calculate next occurrence for recurring transactions
      */
     private calculateNextOccurrence(interval: RecurringInterval, currentDate: Date | Timestamp): Date {
         const date = currentDate instanceof Date ? currentDate : currentDate.toDate();
         const nextDate = new Date(date);
+
+        console.log(`Calculating next occurrence for interval ${interval} from date ${date}`);
 
         switch (interval) {
             case RecurringInterval.DAILY:
@@ -511,6 +688,7 @@ export class TransactionsService extends BaseService {
                 nextDate.setDate(nextDate.getDate() + 1);
         }
 
+        console.log(`Calculated next occurrence: ${nextDate}`);
         return nextDate;
     }
 

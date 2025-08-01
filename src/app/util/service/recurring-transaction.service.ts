@@ -29,9 +29,14 @@ export class RecurringTransactionService {
       return of(void 0);
     }
 
+    console.log('Checking for due recurring transactions...');
+
     return this.transactionsService.getDueRecurringTransactions(userId).pipe(
       switchMap(dueTransactions => {
+        console.log(`Found ${dueTransactions.length} due recurring transactions:`, dueTransactions.map(t => ({ id: t.id, payee: t.payee, nextOccurrence: t.nextOccurrence })));
+        
         if (dueTransactions.length === 0) {
+          console.log('No due recurring transactions found');
           return of(void 0);
         }
 
@@ -53,20 +58,26 @@ export class RecurringTransactionService {
       });
 
       dialogRef.afterClosed().subscribe(result => {
+        console.log('Recurring transaction confirmation dialog result:', result);
+        
         if (result && result.action === 'confirm') {
+          console.log(`User confirmed processing of ${result.transactions.length} transactions`);
           // Process confirmed transactions
           this.processConfirmedTransactions(result.transactions).subscribe({
             next: () => {
+              console.log('All recurring transactions processed successfully');
               this.notificationService.success('Recurring transactions processed successfully');
               observer.next();
               observer.complete();
             },
             error: (error) => {
+              console.error('Failed to process recurring transactions:', error);
               this.notificationService.error('Failed to process recurring transactions');
               observer.error(error);
             }
           });
         } else {
+          console.log('User cancelled or skipped recurring transaction processing');
           // User cancelled or skipped
           observer.next();
           observer.complete();
@@ -97,8 +108,11 @@ export class RecurringTransactionService {
         }
 
         const transaction = transactions[processedCount];
+        console.log(`Processing transaction ${processedCount + 1}/${totalCount}: ${transaction.id} (${transaction.payee})`);
+        
         this.transactionsService.processRecurringTransaction(userId, transaction).subscribe({
           next: () => {
+            console.log(`Successfully processed transaction ${transaction.id}`);
             processedCount++;
             processNext();
           },
@@ -135,21 +149,27 @@ export class RecurringTransactionService {
         today.setHours(0, 0, 0, 0);
 
         const due = transactions.filter(t => {
-          if (!t.nextOccurrence) return false;
+          if (!t.isRecurring || !t.nextOccurrence) return false;
           const nextOccurrence = t.nextOccurrence instanceof Date 
             ? t.nextOccurrence 
             : t.nextOccurrence.toDate();
-          nextOccurrence.setHours(0, 0, 0, 0);
-          return nextOccurrence <= today;
+          if (!nextOccurrence) return false;
+          
+          const normalizedNextOccurrence = new Date(nextOccurrence);
+          normalizedNextOccurrence.setHours(0, 0, 0, 0);
+          return normalizedNextOccurrence <= today;
         }).length;
 
         const upcoming = transactions.filter(t => {
-          if (!t.nextOccurrence) return false;
+          if (!t.isRecurring || !t.nextOccurrence) return false;
           const nextOccurrence = t.nextOccurrence instanceof Date 
             ? t.nextOccurrence 
             : t.nextOccurrence.toDate();
-          nextOccurrence.setHours(0, 0, 0, 0);
-          return nextOccurrence > today;
+          if (!nextOccurrence) return false;
+          
+          const normalizedNextOccurrence = new Date(nextOccurrence);
+          normalizedNextOccurrence.setHours(0, 0, 0, 0);
+          return normalizedNextOccurrence > today;
         }).length;
 
         return {

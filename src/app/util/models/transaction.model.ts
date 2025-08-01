@@ -27,7 +27,7 @@ export interface Timestamped {
  */
 export interface RecurrenceInfo {
   isRecurring?: boolean;
-  recurringInterval?: RecurringInterval;
+  recurringInterval?: RecurringInterval | null;
   recurringEndDate?: Date | Timestamp | null;
   nextOccurrence?: Date | Timestamp | null;
 }
