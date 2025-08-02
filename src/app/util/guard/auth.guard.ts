@@ -170,6 +170,12 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
   private async checkRoutePermissions(route: ActivatedRouteSnapshot, userData: AppUser, firebaseUser: User): Promise<boolean> {
     const routeData = route.data as RoutePermission;
+    const idTokenResult = await firebaseUser.getIdTokenResult();
+    const isAdmin = !!idTokenResult.claims['admin'];
+
+    if (isAdmin) {
+      return true;
+    }
 
     if (routeData?.requireEmailVerification && !firebaseUser.emailVerified) {
       console.warn('[AuthGuard] Email not verified');
