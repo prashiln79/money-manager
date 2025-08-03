@@ -44,6 +44,7 @@ import { AccountSummaryCardComponent } from '../../util/components/cards/account
 import { KeyMetricsSummaryCardComponent } from '../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
 import { AnalyticsSummaryCardComponent } from '../../util/components/cards/analytics-summary-card/analytics-summary-card.component';
 import { CurrencyPipe } from 'src/app/util/pipes';
+import { FinancialMetricsCardComponent } from 'src/app/util/components/cards/financial-metrics-card/financial-metrics-card.component';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { CurrencyPipe } from 'src/app/util/pipes';
     ReactiveFormsModule,
     KeyMetricsSummaryCardComponent,
     AnalyticsSummaryCardComponent,
+    FinancialMetricsCardComponent,
     
     // Material Modules
     MatCardModule,
@@ -140,6 +142,7 @@ import { CurrencyPipe } from 'src/app/util/pipes';
     AccountSummaryCardComponent,
     KeyMetricsSummaryCardComponent,
     AnalyticsSummaryCardComponent,
+    FinancialMetricsCardComponent,
 
     // Pipes
     CurrencyPipe

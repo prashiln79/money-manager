@@ -1,0 +1,48 @@
+<div class="financial-metrics-card">
+  <!-- Loading State -->
+  <div *ngIf="isLoading$ | async" class="loading-container">
+    <div class="loading-spinner">
+      <mat-icon class="animate-spin">refresh</mat-icon>
+      <span>Loading financial data...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="hasError" class="error-container">
+    <mat-icon class="error-icon">error</mat-icon>
+    <span class="error-message">{{ effectiveConfig.error }}</span>
+    <button *ngIf="effectiveConfig.onRefresh" 
+            (click)="onRefreshClick()" 
+            class="retry-button">
+      <mat-icon>refresh</mat-icon>
+      Retry
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="(isEmpty | async) && !hasError && !(isLoading$ | async)" class="empty-container">
+    <mat-icon class="empty-icon">pie_chart</mat-icon>
+    <span class="empty-message">{{ effectiveConfig.emptyStateMessage }}</span>
+  </div>
+
+
+  <!-- Two-Level Pie Chart Container - Always Present -->
+  <div class="pie-chart-container">
+    <div class="pie-chart-header">
+      <h4 class="pie-chart-title">Financial Distribution</h4>
+      <p class="pie-chart-subtitle">Income, Expenses & Savings breakdown</p>
+    </div>
+    <div 
+      [id]="chartContainerId" 
+      class="pie-chart"
+      [style.height]="effectiveConfig.pieChartHeight">
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <!-- <div *ngIf="effectiveConfig.showFooter" class="card-footer">
+    <span class="footer-text">
+      {{ effectiveConfig.footerText }}: {{ getLastUpdatedTime() }}
+    </span>
+  </div> -->
+</div> 

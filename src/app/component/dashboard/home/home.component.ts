@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CategoryBreakdownConfig } from 'src/app/util/components/cards/category-breakdown-card/category-breakdown-card.component';
+import { FinancialMetricsConfig } from 'src/app/util/components/cards/financial-metrics-card/financial-metrics-card.component';
 import { KeyMetricsConfig } from 'src/app/util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
 import { MonthlyTrendsConfig } from 'src/app/util/components/cards/monthly-trends-card/monthly-trends-card.component';
 import { RecentActivityConfig } from 'src/app/util/components/cards/recent-activity-card/recent-activity-card.component';
@@ -133,7 +134,23 @@ export class HomeComponent {
     showHeaderIcon: true,
   };
 
-
+  financialMetricsConfig:FinancialMetricsConfig = {
+    title: 'Monthly Financial Summary',
+    subtitle: 'Your financial performance this month',
+    currency: 'INR',
+    showHeaderIcon: true,
+    headerIcon: 'pie_chart',
+    showFooter: true,
+    footerText: 'Last updated',
+    cardHeight: 'medium',
+    theme: 'auto',
+    animations: true,
+    loading: false,
+    error: '',
+    onRefresh: () => {
+      console.log('Refreshing financial data...');
+    }
+  };
 
   constructor() { }
 }
