@@ -124,9 +124,9 @@
   </div>
 
   <!-- Pie Chart Section -->
-  <div class="pie-chart-section" *ngIf="showPieChart">
+  <div class="pie-chart-section" [style.display]="showPieChart ? 'block' : 'none'">
     <div class="chart-container">
-      <div echarts [options]="pieChartOption" class="pie-chart" (chartClick)="onChartClick($event)"></div>
+      <div [id]="chartContainerId" class="amcharts-container"></div>
     </div>
   </div>
 

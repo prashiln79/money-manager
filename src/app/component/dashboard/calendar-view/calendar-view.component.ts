@@ -1,9 +1,10 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, Inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { MatCalendar, MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { UserService } from '../../../util/service/user.service';
 import { FilterService } from '../../../util/service/filter.service';
 import { NotificationService } from '../../../util/service/notification.service';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import { Subscription } from 'rxjs';
 import moment from 'moment';
@@ -15,7 +16,10 @@ import * as CategoriesSelectors from '../../../store/categories/categories.selec
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { Category } from 'src/app/util/models/category.model';
 import { TransactionType } from 'src/app/util/config/enums';
-import { EChartsOption } from 'echarts';
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import * as am5percent from "@amcharts/amcharts5/percent";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 
 @Component({
   selector: 'calendar-view',
@@ -42,8 +46,11 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   // Collapsible controls
   isControlsExpanded = false;
 
-  // Pie chart properties
-  pieChartOption: EChartsOption = {};
+  // AM Charts properties
+  private root: am5.Root | undefined;
+  private chart: am5percent.PieChart | undefined;
+  private pieSeries: am5percent.PieSeries | undefined;
+  chartContainerId = 'calendar-pie-chart';
   showPieChart = false;
   showCalendar = true;
   chartViewMode: 'income-expense' | 'category' = 'category';
@@ -69,6 +76,26 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     { value: 10, label: 'November' },
     { value: 11, label: 'December' }
   ];
+
+  // Premium color palette
+  private premiumColors: string[] = [
+    '#6366F1', // Indigo
+    '#8B5CF6', // Violet
+    '#EC4899', // Pink
+    '#EF4444', // Red
+    '#F97316', // Orange
+    '#EAB308', // Yellow
+    '#22C55E', // Green
+    '#06B6D4', // Cyan
+    '#3B82F6', // Blue
+    '#84CC16', // Lime
+    '#F59E0B', // Amber
+    '#10B981', // Emerald
+    '#8B5A2B', // Brown
+    '#6B7280', // Gray
+    '#1F2937', // Dark Gray
+    '#DC2626'  // Dark Red
+  ];
   
   private subscription = new Subscription();
 
@@ -77,7 +104,9 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     private filterService: FilterService,
     private notificationService: NotificationService,
     private dateService: DateService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private zone: NgZone
   ) {
     this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
       this.isMobile = result.matches;
@@ -87,13 +116,84 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadTransactions();
     this.loadCategories();
-    this.initializePieChart();
     this.generateAvailableYears();
     this.subscribeToFilterService();
   }
 
+  ngAfterViewInit() {
+    this.browserOnly(() => {
+      this.initializeChart();
+    });
+  }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.browserOnly(() => {
+      if (this.root) {
+        this.root.dispose();
+      }
+    });
+  }
+
+  // Run the function only in the browser
+  private browserOnly(f: () => void) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.zone.runOutsideAngular(() => {
+        f();
+      });
+    }
+  }
+
+  private initializeChart(): void {
+    try {
+      this.root = am5.Root.new(this.chartContainerId);
+      this.root.setThemes([am5themes_Animated.new(this.root)]);
+
+      // Create simple pie chart
+      this.chart = this.root.container.children.push(
+        am5percent.PieChart.new(this.root, {})
+      );
+
+      // Create pie series
+      this.pieSeries = this.chart.series.push(
+        am5percent.PieSeries.new(this.root, {
+          valueField: "value",
+          categoryField: "name",
+          radius: am5.percent(80)
+        })
+      );
+
+      // Create color set
+      const colorSet = am5.ColorSet.new(this.root, {
+        colors: this.premiumColors.map(color => am5.color(color))
+      });
+      this.pieSeries.set("colors", colorSet);
+
+      // Add labels
+      this.pieSeries.labels.template.set("text", "{name}\n{valuePercentTotal.formatNumber('#.0')}%");
+
+      // Add tooltip
+      this.pieSeries.slices.template.set("tooltipText", "[bold]{name}[/]\nAmount: ₹{value}\nPercentage: {valuePercentTotal.formatNumber('#.0')}%");
+
+      // Add hover effects
+      this.pieSeries.slices.template.states.create("hover", {
+        scale: 1.05,
+        fillOpacity: 1
+      });
+
+      // Add click handler
+      this.pieSeries.slices.template.events.on("click", (ev) => {
+        const dataItem = ev.target.dataItem;
+        if (dataItem && this.chartViewMode === 'category' && !this.isMobile) {
+          const data = dataItem.dataContext as any;
+          this.applyCategoryFilter(data.categoryId || data.name);
+        }
+      });
+
+      console.log('Simple AM Charts pie chart initialized successfully');
+    } catch (error) {
+      console.error('Error initializing AM Charts:', error);
+    }
   }
 
   loadTransactions() {
@@ -134,46 +234,6 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Initialize pie chart
-  initializePieChart() {
-    this.pieChartOption = {
-      title: {
-        text: 'Category-wise Spending',
-        left: 'center',
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold'
-        }
-        
-      },
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}<br> ₹{c} ({d}%)'
-      },
-      legend: {
-        orient: 'horizontal',
-        left: 'center',
-        bottom: '10%',
-        type: 'scroll'
-      },
-      series: [
-        {
-          name: 'Categories',
-          type: 'pie',
-          radius: '50%',
-          data: [],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      ]
-    };
-  }
-
   // Update pie chart data
   updatePieChart() {
     if (this.chartViewMode === 'category') {
@@ -187,47 +247,14 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   updateCategoryChart() {
     const filteredTransactions = this.getFilteredTransactions();
     const categoryData = this.getCategorySpendingData(filteredTransactions);
-    const totalSpending = filteredTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
     
-    this.pieChartOption = {
-      ...this.pieChartOption,
-      title: {
-        text: `${this.availableMonths[this.selectedMonth].label} ${this.selectedYear} - ₹${totalSpending.toLocaleString()}`,
-        left: 'center',
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold'
-        }
-      },
-      series: [
-        {
-          name: 'Categories',
-          type: 'pie',
-          radius: '50%',
-          label: {
-            show: true,
-            position: 'outside',
-            formatter: '{b} ({d}%)',
-            
-          },
-          data: categoryData,
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      ]
-    };
-  }
-
-  // Handle chart click events
-  onChartClick(event: any) {
-    if (this.chartViewMode === 'category' && event.data && !this.isMobile) {
-      this.applyCategoryFilter(event.data.categoryId || event.data.name);
-    }
+    this.browserOnly(() => {
+      if (this.pieSeries) {
+        // Set data for pie series
+        this.pieSeries.data.setAll(categoryData);
+        this.pieSeries.appear(1000, 100);
+      }
+    });
   }
 
   // Apply category filter to transaction list
@@ -248,8 +275,6 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     this.notificationService.success(`Filtering transactions for ${categoryName} in ${this.availableMonths[this.selectedMonth].label} ${this.selectedYear}`);
   }
 
-
-
   // Update income vs expense chart
   updateIncomeExpenseChart() {
     let income = 0;
@@ -263,35 +288,18 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       expenses = this.getTotalExpenses();
     }
 
-    this.pieChartOption = {
-      ...this.pieChartOption,
-      title: {
-        text: 'Income vs Expenses',
-        left: 'center',
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold'
-        }
-      },
-      series: [
-        {
-          name: 'Transactions',
-          type: 'pie',
-          radius: '50%',
-          data: [
-            { value: income, name: 'Income', itemStyle: { color: '#10b981' } },
-            { value: expenses, name: 'Expenses', itemStyle: { color: '#ef4444' } }
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      ]
-    };
+    const data = [
+      { name: 'Income', value: income, itemStyle: { color: '#10b981' } },
+      { name: 'Expenses', value: expenses, itemStyle: { color: '#ef4444' } }
+    ];
+
+    this.browserOnly(() => {
+      if (this.pieSeries) {
+        // Set data for pie series
+        this.pieSeries.data.setAll(data);
+        this.pieSeries.appear(1000, 100);
+      }
+    });
   }
 
   // Get filtered transactions based on year/month selection
@@ -330,26 +338,11 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     });
 
     // Convert to chart data format
-    const colors = [
-      '#5B8DEF', // Soft Blue
-      '#A0C4FF', // Light Cornflower
-      '#B8B8FF', // Lavender Gray
-      '#CDB4DB', // Soft Purple
-      '#FFAFCC', // Pink Coral
-      '#FFC8DD', // Light Pink
-      '#FDCB82', // Soft Orange
-      '#90DBF4', // Baby Blue
-      '#ADE8F4', // Aqua Tint
-      '#CAF0F8', // Ice Blue
-      '#A2D2FF', // Powder Blue
-      '#D0F4DE'  // Mint
-    ];
-
     return Array.from(categoryMap.values()).map((category, index) => ({
       name: category.name,
       categoryId: category.id,
       value: category.amount,
-      itemStyle: { color: colors[index % colors.length] }
+      itemStyle: { color: this.premiumColors[index % this.premiumColors.length] }
     }));
   }
 
