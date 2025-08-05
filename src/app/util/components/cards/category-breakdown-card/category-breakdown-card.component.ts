@@ -305,7 +305,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   private createPieChart(): void {
     if (!this.root) return;
 
-    console.log('Creating pie chart...');
+    console.log('Creating nested donut chart...');
 
     // Dispose existing chart if any
     if (this.chart) {
@@ -313,68 +313,87 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
       this.chart = undefined;
     }
 
-    // Create pie chart with centered layout
+    // Create pie chart with custom start and end angles for donut effect
     this.chart = this.root.container.children.push(
       am5percent.PieChart.new(this.root, {
-        layout: this.root.verticalLayout,
-        radius: am5.percent(60),
+        startAngle: 160,
+        endAngle: 380
       })
     );
 
-    // Create series with proper configuration and centering
-    const series = this.chart.series.push(
+    // Create outer series (main categories)
+    const series0 = this.chart.series.push(
       am5percent.PieSeries.new(this.root, {
-        name: "Category Breakdown",
         valueField: "amount",
         categoryField: "category",
-      
+        startAngle: 160,
+        endAngle: 380,
+        radius: am5.percent(70),
+        innerRadius: am5.percent(65)
       })
     );
 
-    // Configure series appearance
-    // series.labels.template.set("forceHidden", true);
-    // series.ticks.template.set("forceHidden", true);
-    series.labels.template.set("forceHidden", false);
-    series.labels.template.set("fill", am5.color(0x000000));
-    series.labels.template.set("fontSize", 12);
-    series.labels.template.set("fontWeight", "bold");
-    series.labels.template.set("textAlign", "center");
-    series.labels.template.set("textBaseline", "middle");
-    series.labels.template.set("text", "{category}");
+    // Create color set for outer series
+    const colorSet = am5.ColorSet.new(this.root, {
+      colors: [series0.get("colors")?.getIndex(0) || am5.color(0x000000)],
+      passOptions: {
+        lightness: -0.05,
+        hue: 0
+      }
+    });
+    series0.set("colors", colorSet);
 
-    // Add color set
-    const colorSet = am5.ColorSet.new(this.root, {});
-    colorSet.set("colors", this.premiumColors.map(color => am5.color(color)));
-    series.set("colors", colorSet);
+    // Hide labels and ticks for outer series
+    series0.ticks.template.set("forceHidden", true);
+    series0.labels.template.set("forceHidden", true);
 
-    // Add legend with proper positioning below the chart
-    const legend = this.chart.children.push(
-      am5.Legend.new(this.root, {
-        centerX: am5.percent(10),
-        x: am5.percent(20),
-        y: am5.percent(95), // Position legend below the pie chart
-        layout: this.root.horizontalLayout,
+    // Create inner series (sub-categories or count)
+    const series1 = this.chart.series.push(
+      am5percent.PieSeries.new(this.root, {
+        startAngle: 160,
+        endAngle: 380,
+        valueField: "count", // Using count as the inner series value
+        innerRadius: am5.percent(80),
+        categoryField: "category"
       })
     );
 
-    // Set legend data
-    legend.data.setAll(series.dataItems);
+    // Hide labels and ticks for inner series
+    series1.ticks.template.set("forceHidden", true);
+    series1.labels.template.set("forceHidden", true);
+
+    // Add center label
+    const label = this.chart.seriesContainer.children.push(
+      am5.Label.new(this.root, {
+        textAlign: "center",
+        centerY: am5.p100,
+        centerX: am5.p50,
+        text: "[fontSize:18px]Total[/]:\n[bold fontSize:30px]{totalAmount}[/]"
+      })
+    );
 
     // Add tooltip with better formatting
-    series.slices.template.set("tooltipText", "[bold]{category}[/]\nAmount: {value}\nPercentage: {valuePercentTotal.formatNumber('#.0')}%");
+    series0.slices.template.set("tooltipText", "[bold]{category}[/]\nAmount: {value}\nPercentage: {valuePercentTotal.formatNumber('#.0')}%");
+    series1.slices.template.set("tooltipText", "[bold]{category}[/]\nCount: {value}");
 
     // Add hover effects
-    series.slices.template.states.create("hover", {
+    series0.slices.template.states.create("hover", {
+      scale: 1.05,
+      fillOpacity: 1
+    });
+    series1.slices.template.states.create("hover", {
       scale: 1.05,
       fillOpacity: 1
     });
 
     // Store references for data updates
-    this.pieSeries = series;
-    this.legend = legend;
+    this.pieSeries = series0;
+    this.innerSeries = series1;
+    this.centerLabel = label;
 
-    console.log('Pie chart created successfully');
-    series.appear(1000, 100);
+    console.log('Nested donut chart created successfully');
+    series0.appear(1000, 100);
+    series1.appear(1000, 100);
   }
 
   // Store chart components for data updates
@@ -382,6 +401,8 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   private yAxis: am5xy.ValueAxis<am5xy.AxisRenderer> | undefined;
   private series: am5xy.ColumnSeries | undefined;
   private pieSeries: am5percent.PieSeries | undefined;
+  private innerSeries: am5percent.PieSeries | undefined;
+  private centerLabel: am5.Label | undefined;
   private legend: am5.Legend | undefined;
 
   private subscribeToData(): void {
@@ -412,6 +433,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     const data = breakdown.map(item => ({
       category: item.category,
       amount: item.amount,
+      count: item.count,
       percentage: item.percentage,
       color: item.color
     }));
@@ -419,15 +441,21 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     console.log('Updating chart data:', data);
 
     if (this.currentChartType === 'pie') {
-      if (this.pieSeries) {
-        console.log('Setting pie chart data');
+      if (this.pieSeries && this.innerSeries) {
+        console.log('Setting nested donut chart data');
+        
+        // Set data for both series
         this.pieSeries.data.setAll(data);
-        this.pieSeries.appear(1000, 100);
-        // Update legend if available
-        if (this.legend) {
-          this.legend.data.setAll(this.pieSeries.dataItems);
-
+        this.innerSeries.data.setAll(data);
+        
+        // Update center label with total amount
+        const totalAmount = breakdown.reduce((sum, item) => sum + item.amount, 0);
+        if (this.centerLabel) {
+          this.centerLabel.set("text", `[fontSize:18px]Total[/]:\n[bold fontSize:30px]${this.formatCurrency(totalAmount)}[/]`);
         }
+        
+        this.pieSeries.appear(1000, 100);
+        this.innerSeries.appear(1000, 100);
       } else {
         console.error('Pie series not available');
       }
@@ -448,6 +476,12 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     if (this.currentChartType === 'pie') {
       if (this.pieSeries) {
         this.pieSeries.data.clear();
+      }
+      if (this.innerSeries) {
+        this.innerSeries.data.clear();
+      }
+      if (this.centerLabel) {
+        this.centerLabel.set("text", "[fontSize:18px]Total[/]:\n[bold fontSize:30px]₹0[/]");
       }
     } else {
       if (this.series && this.xAxis) {
