@@ -67,7 +67,7 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
   transactionsLoading$: Observable<boolean>;
 
   // Computed metrics data
-  metrics$: Observable<{ income: number; expenses: number; savings: number }>;
+  metrics$: Observable<{ expenses: number; savings: number }>;
   isLoading$: Observable<boolean>;
 
   // AmCharts
@@ -124,7 +124,7 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  private calculateFinancialMetrics(): Observable<{ income: number; expenses: number; savings: number }> {
+  private calculateFinancialMetrics(): Observable<{ expenses: number; savings: number }> {
     return this.transactions$.pipe(
       map((transactions) => {
         const currentMonth = new Date().getMonth();
@@ -147,7 +147,7 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
 
         const savings = income - expenses;
 
-        return { income, expenses, savings };
+        return { expenses, savings };
       })
     );
   }
@@ -290,14 +290,14 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updatePieChartData(metrics: { income: number; expenses: number; savings: number }): void {
+  private updatePieChartData(metrics: { expenses: number; savings: number }): void {
     if (!this.outerSeries || !this.innerSeries) {
       console.error('Pie chart series not available');
       return;
     }
 
-    const { income, expenses, savings } = metrics;
-    const total = income + expenses + Math.abs(savings);
+    const { expenses, savings } = metrics;
+    const total = expenses + Math.abs(savings);
 
     if (total === 0) {
       this.clearPieChartData();
@@ -307,7 +307,7 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
     // Prepare outer series data (Total Financial Flow)
     const outerData = [
       {
-        category: "Saving = blue, Expenses = red, Income = green",
+        category: "Expenses and Savings Overview",
         value: total,
         sliceSettings: {
           fill: am5.color(0x000000),
@@ -318,17 +318,8 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
       }
     ];
 
-    // Prepare inner series data (Income, Expenses, Savings breakdown)
+    // Prepare inner series data (Expenses, Savings breakdown)
     const innerData = [
-      {
-        category: "Income",
-        value: income,
-        amount: this.formatCurrency(income),
-        percent: total > 0 ? (income / total) * 100 : 0,
-        sliceSettings: { 
-          fill: am5.color(this.getCustomColor('income', '#10B981')) 
-        }
-      },
       {
         category: "Expenses",
         value: expenses,
@@ -442,7 +433,7 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
 
   get isEmpty(): Observable<boolean> {
     return this.metrics$.pipe(
-      map(metrics => !metrics || (metrics.income === 0 && metrics.expenses === 0))
+      map(metrics => !metrics || (metrics.expenses === 0))
     );
   }
 
