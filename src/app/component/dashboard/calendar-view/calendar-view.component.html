@@ -22,7 +22,7 @@
         <button mat-icon-button 
                 (click)="togglePieChart()"
                 [color]="showPieChart ? 'primary' : 'basic'"
-                matTooltip="{{ showPieChart ? 'Hide chart' : 'Show chart' }}">
+                matTooltip="{{ showPieChart ? 'Hide gauge chart' : 'Show gauge chart' }}">
           <mat-icon>pie_chart</mat-icon>
         </button>
         <button mat-icon-button 
@@ -123,8 +123,8 @@
     </div>
   </div>
 
-  <!-- Pie Chart Section -->
-  <div class="pie-chart-section" [style.display]="showPieChart ? 'block' : 'none'">
+  <!-- Solid Gauge Chart Section -->
+  <div class="gauge-chart-section" [style.display]="showPieChart ? 'block' : 'none'">
     <div class="chart-container">
       <div [id]="chartContainerId" class="amcharts-container"></div>
     </div>

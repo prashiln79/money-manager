@@ -59,7 +59,7 @@ export class HomeComponent {
     headerIcon: 'category',
     headerIconColor: 'blue',
     maxItems: 5,
-    chartType: 'pie',
+    chartType: 'radial',
   };
   quickActionsFabConfig: QuickActionsFabConfig = {
     title: 'Quick Actions',

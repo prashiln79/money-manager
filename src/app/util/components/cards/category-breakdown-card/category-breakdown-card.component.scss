@@ -97,7 +97,8 @@
   .amcharts-container {
     width: 100%;
     min-height: 24rem; // Increased for full view
-    max-height: 32rem; // Maximum height for large cards
+    height: 35rem; // Maximum height for large cards
+    margin-top: -5rem;
     
     // Ensure chart is responsive
     ::ng-deep canvas {
@@ -118,6 +119,12 @@
     
     // Pie chart specific styling
     ::ng-deep .am5-pie-chart {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    // Radar chart specific styling
+    ::ng-deep .am5-radar-chart {
       width: 100% !important;
       height: 100% !important;
     }
@@ -155,6 +162,14 @@
 .category-breakdown-chart-pie {
   width: fit-content;
   height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.category-breakdown-chart-radial {
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

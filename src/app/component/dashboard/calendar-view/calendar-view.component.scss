@@ -124,8 +124,8 @@
   }
 }
 
-// Pie Chart Section
-.pie-chart-section {
+// Solid Gauge Chart Section
+.gauge-chart-section {
   padding: 1rem 0;
   border-bottom: 1px solid #f3f4f6;
   background: #f4f3f6;
@@ -165,8 +165,8 @@
         height: 100% !important;
       }
       
-      // Pie chart specific styling
-      ::ng-deep .am5-pie-chart {
+      // Radar chart specific styling
+      ::ng-deep .am5-radar-chart {
         width: 100% !important;
         height: 100% !important;
       }

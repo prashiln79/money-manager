@@ -18,7 +18,7 @@ import { Category } from 'src/app/util/models/category.model';
 import { TransactionType } from 'src/app/util/config/enums';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
-import * as am5percent from "@amcharts/amcharts5/percent";
+import * as am5radar from "@amcharts/amcharts5/radar";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 
 @Component({
@@ -48,9 +48,10 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   // AM Charts properties
   private root: am5.Root | undefined;
-  private chart: am5percent.PieChart | undefined;
-  private pieSeries: am5percent.PieSeries | undefined;
-  chartContainerId = 'calendar-pie-chart';
+  private chart: am5radar.RadarChart | undefined;
+  private series1: am5radar.RadarColumnSeries | undefined;
+  private series2: am5radar.RadarColumnSeries | undefined;
+  chartContainerId = 'calendar-gauge-chart';
   showPieChart = false;
   showCalendar = true;
   chartViewMode: 'income-expense' | 'category' = 'category';
@@ -149,48 +150,105 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       this.root = am5.Root.new(this.chartContainerId);
       this.root.setThemes([am5themes_Animated.new(this.root)]);
 
-      // Create simple pie chart
+      // Create radar chart for solid gauge effect
       this.chart = this.root.container.children.push(
-        am5percent.PieChart.new(this.root, {})
-      );
-
-      // Create pie series
-      this.pieSeries = this.chart.series.push(
-        am5percent.PieSeries.new(this.root, {
-          valueField: "value",
-          categoryField: "name",
-          radius: am5.percent(80)
+        am5radar.RadarChart.new(this.root, {
+          panX: false,
+          panY: false,
+          wheelX: "panX",
+          wheelY: "zoomX",
+          innerRadius: am5.percent(20),
+          startAngle: -90,
+          endAngle: 180
         })
       );
 
-      // Create color set
-      const colorSet = am5.ColorSet.new(this.root, {
-        colors: this.premiumColors.map(color => am5.color(color))
+      // Add cursor
+      let cursor = this.chart.set("cursor", am5radar.RadarCursor.new(this.root, {
+        behavior: "zoomX"
+      }));
+      cursor.lineY.set("visible", false);
+
+      // Create axes and their renderers
+      let xRenderer = am5radar.AxisRendererCircular.new(this.root, {});
+      xRenderer.labels.template.setAll({
+        radius: 10
       });
-      this.pieSeries.set("colors", colorSet);
+      xRenderer.grid.template.setAll({
+        forceHidden: true
+      });
 
-      // Add labels
-      this.pieSeries.labels.template.set("text", "{name}\n{valuePercentTotal.formatNumber('#.0')}%");
+      let xAxis = this.chart.xAxes.push(am5xy.ValueAxis.new(this.root, {
+        renderer: xRenderer,
+        min: 0,
+        max: 100,
+        strictMinMax: true,
+        numberFormat: "₹#'",
+        tooltip: am5.Tooltip.new(this.root, {})
+      }));
 
-      // Add tooltip
-      this.pieSeries.slices.template.set("tooltipText", "[bold]{name}[/]\nAmount: ₹{value}\nPercentage: {valuePercentTotal.formatNumber('#.0')}%");
+      let yRenderer = am5radar.AxisRendererRadial.new(this.root, {
+        minGridDistance: 20
+      });
+      yRenderer.labels.template.setAll({
+        centerX: am5.p100,
+        fontWeight: "500",
+        fontSize: 18,
+        templateField: "columnSettings"
+      });
+      yRenderer.grid.template.setAll({
+        forceHidden: true
+      });
 
-      // Add hover effects
-      this.pieSeries.slices.template.states.create("hover", {
-        scale: 1.05,
-        fillOpacity: 1
+      let yAxis = this.chart.yAxes.push(am5xy.CategoryAxis.new(this.root, {
+        categoryField: "category",
+        renderer: yRenderer
+      }));
+
+      // Create series for background (full value)
+      this.series1 = this.chart.series.push(am5radar.RadarColumnSeries.new(this.root, {
+        xAxis: xAxis,
+        yAxis: yAxis,
+        clustered: false,
+        valueXField: "full",
+        categoryYField: "category",
+        fill: this.root.interfaceColors.get("alternativeBackground")
+      }));
+
+      this.series1.columns.template.setAll({
+        width: am5.p100,
+        fillOpacity: 0.08,
+        strokeOpacity: 0,
+        cornerRadius: 20
+      });
+
+      // Create series for actual values
+      this.series2 = this.chart.series.push(am5radar.RadarColumnSeries.new(this.root, {
+        xAxis: xAxis,
+        yAxis: yAxis,
+        clustered: false,
+        valueXField: "value",
+        categoryYField: "category"
+      }));
+
+      this.series2.columns.template.setAll({
+        width: am5.p100,
+        strokeOpacity: 0,
+        tooltipText: "[bold]{category}[/]\nAmount: ₹{valueX.formatNumber('#,###.##')}",
+        cornerRadius: 20,
+        templateField: "columnSettings"
       });
 
       // Add click handler
-      this.pieSeries.slices.template.events.on("click", (ev) => {
+      this.series2.columns.template.events.on("click", (ev: any) => {
         const dataItem = ev.target.dataItem;
         if (dataItem && this.chartViewMode === 'category' && !this.isMobile) {
           const data = dataItem.dataContext as any;
-          this.applyCategoryFilter(data.categoryId || data.name);
+          this.applyCategoryFilter(data.categoryId || data.category);
         }
       });
 
-      console.log('Simple AM Charts pie chart initialized successfully');
+      console.log('Solid gauge chart initialized successfully');
     } catch (error) {
       console.error('Error initializing AM Charts:', error);
     }
@@ -249,10 +307,41 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     const categoryData = this.getCategorySpendingData(filteredTransactions);
     
     this.browserOnly(() => {
-      if (this.pieSeries) {
-        // Set data for pie series
-        this.pieSeries.data.setAll(categoryData);
-        this.pieSeries.appear(1000, 100);
+      if (this.series1 && this.series2 && this.chart) {
+        // Get the maximum amount for scaling
+        const maxAmount = Math.max(...categoryData.map(item => item.value), 1);
+        
+        // Update x-axis max value
+        const xAxis = this.chart.xAxes.getIndex(0);
+        if (xAxis) {
+          (xAxis as any).set("max", maxAmount);
+        }
+
+        // Convert data to gauge format
+        const gaugeData = categoryData.map((item, index) => ({
+          category: item.name,
+          categoryId: item.categoryId,
+          value: item.value,
+          full: maxAmount,
+          columnSettings: {
+            fill: am5.color(this.premiumColors[index % this.premiumColors.length])
+          }
+        }));
+
+        // Set data for both series
+        this.series1.data.setAll(gaugeData);
+        this.series2.data.setAll(gaugeData);
+        
+        // Update y-axis data
+        const yAxis = this.chart.yAxes.getIndex(0);
+        if (yAxis) {
+          yAxis.data.setAll(gaugeData);
+        }
+
+        // Animate chart
+        this.series1.appear(1000);
+        this.series2.appear(1000);
+        this.chart.appear(1000, 100);
       }
     });
   }
@@ -288,16 +377,50 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       expenses = this.getTotalExpenses();
     }
 
+    // Find the maximum amount for scaling
+    const maxAmount = Math.max(income, expenses, 1);
+
     const data = [
-      { name: 'Income', value: income, itemStyle: { color: '#10b981' } },
-      { name: 'Expenses', value: expenses, itemStyle: { color: '#ef4444' } }
+      { 
+        category: 'Income', 
+        value: income, 
+        full: maxAmount,
+        columnSettings: {
+          fill: am5.color('#10b981')
+        }
+      },
+      { 
+        category: 'Expenses', 
+        value: expenses, 
+        full: maxAmount,
+        columnSettings: {
+          fill: am5.color('#ef4444')
+        }
+      }
     ];
 
     this.browserOnly(() => {
-      if (this.pieSeries) {
-        // Set data for pie series
-        this.pieSeries.data.setAll(data);
-        this.pieSeries.appear(1000, 100);
+      if (this.series1 && this.series2 && this.chart) {
+        // Update x-axis max value
+        const xAxis = this.chart.xAxes.getIndex(0);
+        if (xAxis) {
+          (xAxis as any).set("max", maxAmount);
+        }
+
+        // Set data for both series
+        this.series1.data.setAll(data);
+        this.series2.data.setAll(data);
+        
+        // Update y-axis data
+        const yAxis = this.chart.yAxes.getIndex(0);
+        if (yAxis) {
+          yAxis.data.setAll(data);
+        }
+
+        // Animate chart
+        this.series1.appear(1000);
+        this.series2.appear(1000);
+        this.chart.appear(1000, 100);
       }
     });
   }
@@ -337,11 +460,15 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Convert to chart data format
+    // Find the maximum amount to set as the gauge scale
+    const maxAmount = Math.max(...Array.from(categoryMap.values()).map(category => category.amount), 1);
+
+    // Convert to chart data format with actual amounts
     return Array.from(categoryMap.values()).map((category, index) => ({
       name: category.name,
       categoryId: category.id,
       value: category.amount,
+      maxValue: maxAmount,
       itemStyle: { color: this.premiumColors[index % this.premiumColors.length] }
     }));
   }

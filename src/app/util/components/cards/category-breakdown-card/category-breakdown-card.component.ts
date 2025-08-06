@@ -9,7 +9,7 @@ import { Observable, Subject, combineLatest } from 'rxjs';
 import { takeUntil, map, startWith, filter } from 'rxjs/operators';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
-import * as am5percent from "@amcharts/amcharts5/percent";
+import * as am5radar from "@amcharts/amcharts5/radar";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import { AppState } from '../../../../store/app.state';
 import * as TransactionsSelectors from '../../../../store/transactions/transactions.selectors';
@@ -53,7 +53,7 @@ export interface CategoryBreakdownConfig {
   showCount?: boolean;
   showAverage?: boolean;
   layout?: 'list' | 'grid' | 'compact';
-  chartType?: 'bar' | 'pie';
+  chartType?: 'bar' | 'radial';
   onCategoryClick?: (category: CategoryBreakdown) => void;
   onRefresh?: () => void;
 }
@@ -91,7 +91,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     showCount: false,
     showAverage: false,
     layout: 'list',
-    chartType: 'pie'
+    chartType: 'radial'
   };
 
   // Store observables
@@ -106,8 +106,8 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   
   // AmCharts
   private root: am5.Root | undefined;
-  private chart: am5xy.XYChart | am5percent.PieChart | undefined;
-  currentChartType: 'bar' | 'pie' = 'pie';
+  private chart: am5xy.XYChart | am5radar.RadarChart | undefined;
+  currentChartType: 'bar' | 'radial' = 'radial';
   
   // Generate unique chart container ID
   chartContainerId: string;
@@ -164,7 +164,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Chart type is controlled by config only
-    this.currentChartType = this.effectiveConfig.chartType || 'pie';
+    this.currentChartType = this.effectiveConfig.chartType || 'radial';
     
     // Update chart container ID if chart type changes
     this.updateChartContainerId();
@@ -208,8 +208,8 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
       this.root.setThemes([am5themes_Animated.new(this.root)]);
 
       // Create chart based on current type
-      if (this.currentChartType === 'pie') {
-        this.createPieChart();
+      if (this.currentChartType === 'radial') {
+        this.createRadialChart();
       } else {
         this.createBarChart();
       }
@@ -302,10 +302,10 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
     this.chart.appear(1000, 100);
   }
 
-  private createPieChart(): void {
+  private createRadialChart(): void {
     if (!this.root) return;
 
-    console.log('Creating nested donut chart...');
+    console.log('Creating radial bar chart...');
 
     // Dispose existing chart if any
     if (this.chart) {
@@ -313,96 +313,97 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
       this.chart = undefined;
     }
 
-    // Create pie chart with custom start and end angles for donut effect
+    // Create radar chart
     this.chart = this.root.container.children.push(
-      am5percent.PieChart.new(this.root, {
-        startAngle: 160,
-        endAngle: 380
+      am5radar.RadarChart.new(this.root, {
+        panX: false,
+        panY: false,
+        wheelX: "panX",
+        wheelY: "zoomX",
+        innerRadius: am5.percent(40)
       })
     );
 
-    // Create outer series (main categories)
-    const series0 = this.chart.series.push(
-      am5percent.PieSeries.new(this.root, {
-        valueField: "amount",
-        categoryField: "category",
-        startAngle: 160,
-        endAngle: 380,
-        radius: am5.percent(70),
-        innerRadius: am5.percent(65)
-      })
-    );
+    // Add cursor
+    const radarChart = this.chart as am5radar.RadarChart;
+    const cursor = radarChart.set("cursor", am5radar.RadarCursor.new(this.root, {
+      behavior: "zoomX"
+    }));
+    cursor.lineY.set("visible", false);
 
-    // Create color set for outer series
-    const colorSet = am5.ColorSet.new(this.root, {
-      colors: [series0.get("colors")?.getIndex(0) || am5.color(0x000000)],
-      passOptions: {
-        lightness: -0.05,
-        hue: 0
-      }
+    // Create axes and their renderers
+    const xRenderer = am5radar.AxisRendererCircular.new(this.root, {
+      strokeOpacity: 0.1,
+      minGridDistance: 50
     });
-    series0.set("colors", colorSet);
 
-    // Hide labels and ticks for outer series
-    series0.ticks.template.set("forceHidden", true);
-    series0.labels.template.set("forceHidden", true);
+    xRenderer.labels.template.setAll({
+      radius: 10,
+      maxPosition: 0.98
+    });
 
-    // Create inner series (sub-categories or count)
-    const series1 = this.chart.series.push(
-      am5percent.PieSeries.new(this.root, {
-        startAngle: 160,
-        endAngle: 380,
-        valueField: "count", // Using count as the inner series value
-        innerRadius: am5.percent(80),
-        categoryField: "category"
+    const xAxis = radarChart.xAxes.push(
+      am5xy.ValueAxis.new(this.root, {
+        renderer: xRenderer,
+        extraMax: 0.1,
+        tooltip: am5.Tooltip.new(this.root, {})
       })
     );
 
-    // Hide labels and ticks for inner series
-    series1.ticks.template.set("forceHidden", true);
-    series1.labels.template.set("forceHidden", true);
-
-    // Add center label
-    const label = this.chart.seriesContainer.children.push(
-      am5.Label.new(this.root, {
-        textAlign: "center",
-        centerY: am5.p100,
-        centerX: am5.p50,
-        text: "[fontSize:18px]Total[/]:\n[bold fontSize:30px]{totalAmount}[/]"
+    const yAxis = radarChart.yAxes.push(
+      am5xy.CategoryAxis.new(this.root, {
+        categoryField: "category",
+        renderer: am5radar.AxisRendererRadial.new(this.root, { minGridDistance: 20 })
       })
     );
 
-    // Add tooltip with better formatting
-    series0.slices.template.set("tooltipText", "[bold]{category}[/]\nAmount: {value}\nPercentage: {valuePercentTotal.formatNumber('#.0')}%");
-    series1.slices.template.set("tooltipText", "[bold]{category}[/]\nCount: {value}");
+    // Create series
+    const series = radarChart.series.push(
+      am5radar.RadarColumnSeries.new(this.root, {
+        name: "Amount",
+        xAxis: xAxis,
+        yAxis: yAxis,
+        valueXField: "amount",
+        categoryYField: "category"
+      })
+    );
+
+    // Configure series appearance
+    series.set("stroke", this.root.interfaceColors.get("background"));
+    series.columns.template.setAll({
+      width: am5.p100,
+      strokeOpacity: 0.1,
+      tooltipText: "[bold]{category}[/]\nAmount: {valueX}\nPercentage: {valuePercentTotal.formatNumber('#.0')}%"
+    });
+
+    // Add color set
+    const colorSet = am5.ColorSet.new(this.root, {});
+    colorSet.set("colors", this.premiumColors.map(color => am5.color(color)));
+    series.columns.template.set("fill", colorSet.next());
 
     // Add hover effects
-    series0.slices.template.states.create("hover", {
-      scale: 1.05,
-      fillOpacity: 1
-    });
-    series1.slices.template.states.create("hover", {
-      scale: 1.05,
-      fillOpacity: 1
+    series.columns.template.states.create("hover", {
+      fillOpacity: 1,
+      scale: 1.05
     });
 
     // Store references for data updates
-    this.pieSeries = series0;
-    this.innerSeries = series1;
-    this.centerLabel = label;
+    this.radarXAxis = xAxis;
+    this.radarYAxis = yAxis;
+    this.radarSeries = series;
 
-    console.log('Nested donut chart created successfully');
-    series0.appear(1000, 100);
-    series1.appear(1000, 100);
+    console.log('Radial bar chart created successfully');
+    series.appear(1000);
+    this.chart.appear(1000, 100);
   }
 
   // Store chart components for data updates
   private xAxis: am5xy.CategoryAxis<am5xy.AxisRenderer> | undefined;
   private yAxis: am5xy.ValueAxis<am5xy.AxisRenderer> | undefined;
   private series: am5xy.ColumnSeries | undefined;
-  private pieSeries: am5percent.PieSeries | undefined;
-  private innerSeries: am5percent.PieSeries | undefined;
-  private centerLabel: am5.Label | undefined;
+  private radarXAxis: am5xy.ValueAxis<any> | undefined;
+  private radarYAxis: am5xy.CategoryAxis<any> | undefined;
+  private radarSeries: am5radar.RadarColumnSeries | undefined;
   private legend: am5.Legend | undefined;
 
   private subscribeToData(): void {
@@ -440,24 +441,17 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
 
     console.log('Updating chart data:', data);
 
-    if (this.currentChartType === 'pie') {
-      if (this.pieSeries && this.innerSeries) {
-        console.log('Setting nested donut chart data');
+    if (this.currentChartType === 'radial') {
+      if (this.radarSeries && this.radarYAxis) {
+        console.log('Setting radial chart data');
         
-        // Set data for both series
-        this.pieSeries.data.setAll(data);
-        this.innerSeries.data.setAll(data);
+        // Set data for both axis and series
+        this.radarYAxis.data.setAll(data);
+        this.radarSeries.data.setAll(data);
         
-        // Update center label with total amount
-        const totalAmount = breakdown.reduce((sum, item) => sum + item.amount, 0);
-        if (this.centerLabel) {
-          this.centerLabel.set("text", `[fontSize:18px]Total[/]:\n[bold fontSize:30px]${this.formatCurrency(totalAmount)}[/]`);
-        }
-        
-        this.pieSeries.appear(1000, 100);
-        this.innerSeries.appear(1000, 100);
+        this.radarSeries.appear(1000, 100);
       } else {
-        console.error('Pie series not available');
+        console.error('Radar series not available');
       }
     } else {
       if (this.series && this.xAxis) {
@@ -473,15 +467,12 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   private clearChartData(): void {
     if (!this.root) return;
 
-    if (this.currentChartType === 'pie') {
-      if (this.pieSeries) {
-        this.pieSeries.data.clear();
+    if (this.currentChartType === 'radial') {
+      if (this.radarSeries) {
+        this.radarSeries.data.clear();
       }
-      if (this.innerSeries) {
-        this.innerSeries.data.clear();
-      }
-      if (this.centerLabel) {
-        this.centerLabel.set("text", "[fontSize:18px]Total[/]:\n[bold fontSize:30px]₹0[/]");
+      if (this.radarYAxis) {
+        this.radarYAxis.data.clear();
       }
     } else {
       if (this.series && this.xAxis) {
@@ -592,7 +583,7 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
       showCount: this.config.showCount ?? false,
       showAverage: this.config.showAverage ?? false,
       layout: this.config.layout ?? 'list',
-      chartType: this.config.chartType ?? 'pie',
+      chartType: this.config.chartType ?? 'radial',
       onCategoryClick: this.config.onCategoryClick,
       onRefresh: this.config.onRefresh
     };
@@ -601,9 +592,9 @@ export class CategoryBreakdownCardComponent implements OnInit, OnDestroy {
   get cardHeightClass(): string {
     switch (this.effectiveConfig.cardHeight) {
       case 'small': return 'min-h-20';
-      case 'large': return 'min-h-32'; // Full view for pie charts
+      case 'large': return 'min-h-40'; // Full view for radial charts
       case 'auto': return 'min-h-0';
-      default: return 'min-h-24';
+      default: return 'min-h-32';
     }
   }
 
