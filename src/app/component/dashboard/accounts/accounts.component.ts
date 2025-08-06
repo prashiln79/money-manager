@@ -6,6 +6,7 @@ import { Account, LoanDetails } from 'src/app/util/models/account.model';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { AddAccountDialogComponent } from './add-account-dialog/add-account-dialog.component';
+import { AccountStatementDialogComponent } from './account-statement-dialog/account-statement-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { Store } from '@ngrx/store';
@@ -220,6 +221,16 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   public addAccount(): void {
     this.openAccountDialog();
+  }
+
+  public viewAccountStatement(account: Account): void {
+    this.dialog.open(AccountStatementDialogComponent, {
+      data: { account },
+      width: '90vw',
+      maxWidth: '800px',
+      maxHeight: '90vh',
+      panelClass: 'account-statement-dialog'
+    });
   }
 
   /**

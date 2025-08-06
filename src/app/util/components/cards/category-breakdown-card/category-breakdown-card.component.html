@@ -1,10 +1,10 @@
 <mat-card class="category-breakdown-card bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl overflow-hidden h-full">
   <div class="p-4 sm:p-6">
     <!-- Header Section -->
-    <div class="flex items-center justify-between mb-4 sm:mb-6">
+    <div class="flex items-start justify-between mb-4 sm:mb-6 ">
       <div class="flex-1 min-w-0">
         <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">
-          {{ effectiveConfig.title }}
+          Spending Breakdown
         </h3>
         @if (effectiveConfig.subtitle) {
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -12,9 +12,9 @@
         </p>
         }
       </div>
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-1">
         @if (effectiveConfig.showHeaderIcon !== false) {
-        <div class="bg-blue-500/10 p-2 sm:p-3 rounded-lg flex-shrink-0">
+        <div class="bg-blue-500/10 p-1 sm:p-3 rounded-lg flex-shrink-0">
           <mat-icon class="text-blue-600 dark:text-blue-400">
             {{ effectiveConfig.headerIcon || 'category' }}
           </mat-icon>

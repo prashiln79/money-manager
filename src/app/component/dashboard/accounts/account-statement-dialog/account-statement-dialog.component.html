@@ -1,0 +1,161 @@
+<div class="account-statement-dialog">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">account_balance</mat-icon>
+      <div class="header-text">
+        <h2 class="dialog-title">Account Statement</h2>
+        <p class="account-name">{{ account.name }}</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading transactions...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage" class="error-container">
+    <mat-icon class="error-icon">error</mat-icon>
+    <p class="error-message">{{ errorMessage }}</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !errorMessage" class="dialog-content">
+    <!-- Balance Verification Section -->
+    <div class="balance-verification-section">
+      <h3 class="section-title">
+        <mat-icon>verified</mat-icon>
+        Balance Verification
+      </h3>
+      
+      <div class="balance-comparison">
+        <div class="balance-item">
+          <span class="balance-label">Recorded Balance:</span>
+          <span class="balance-value">{{ formatAmount(recordedBalance) }}</span>
+        </div>
+        
+        <div class="balance-item">
+          <span class="balance-label">Calculated Balance:</span>
+          <span class="balance-value">{{ formatAmount(calculatedBalance) }}</span>
+        </div>
+        
+        <div class="balance-item difference" [class]="getBalanceClass()">
+          <span class="balance-label">Difference:</span>
+          <span class="balance-value">{{ formatAmount(balanceDifference) }}</span>
+        </div>
+      </div>
+      
+      <div class="balance-status" [class]="getBalanceClass()">
+        <mat-icon>{{ isBalanceAccurate ? 'check_circle' : 'warning' }}</mat-icon>
+        <span>{{ getBalanceStatusText() }}</span>
+      </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="summary-section">
+      <h3 class="section-title">
+        <mat-icon>analytics</mat-icon>
+        Summary Statistics
+      </h3>
+      
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Total Transactions</span>
+          <span class="summary-value">{{ totalTransactions }}</span>
+        </div>
+        
+        <div class="summary-item positive">
+          <span class="summary-label">Total Deposits</span>
+          <span class="summary-value">{{ formatAmount(totalDeposits) }}</span>
+        </div>
+        
+        <div class="summary-item negative">
+          <span class="summary-label">Total Withdrawals</span>
+          <span class="summary-value">{{ formatAmount(totalWithdrawals) }}</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">Average Transaction</span>
+          <span class="summary-value">{{ formatAmount(averageTransaction) }}</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">Largest Transaction</span>
+          <span class="summary-value">{{ formatAmount(largestTransaction) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="transactions-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>receipt_long</mat-icon>
+          All Transactions ({{ transactions.length }})
+        </h3>
+        <button mat-stroked-button (click)="exportStatement()" class="export-button">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="transactions.length === 0" class="empty-state">
+        <mat-icon class="empty-icon">receipt_long</mat-icon>
+        <p class="empty-text">No transactions found for this account</p>
+      </div>
+
+      <!-- Transactions List -->
+      <div *ngIf="transactions.length > 0" class="transactions-list">
+        <div *ngFor="let transaction of transactions; trackBy: trackByTransactionId" 
+             class="transaction-item">
+          
+          <div class="transaction-main">
+            <div class="transaction-icon" [class]="getTransactionTypeClass(transaction)">
+              <mat-icon>{{ getTransactionTypeIcon(transaction) }}</mat-icon>
+            </div>
+            
+            <div class="transaction-details">
+              <div class="transaction-header">
+                <span class="transaction-payee">{{ transaction.payee || 'Unknown' }}</span>
+                <span class="transaction-amount" [class]="getTransactionTypeClass(transaction)">
+                  {{ formatAmount(transaction.amount || 0) }}
+                </span>
+              </div>
+              
+                             <div class="transaction-meta">
+                 <span class="transaction-date">{{ formatDate(transaction.date) }}</span>
+                 <span class="transaction-type" [class]="getTransactionTypeClass(transaction)">
+                   {{ transaction.type | titlecase }}
+                 </span>
+                 <span class="transaction-category" *ngIf="transaction.category">
+                   {{ transaction.category }}
+                 </span>
+                 <span class="transaction-notes" *ngIf="transaction.notes">
+                   {{ transaction.notes }}
+                 </span>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="dialog-actions">
+    <button mat-button (click)="close()" class="cancel-button">
+      Close
+    </button>
+    <button mat-raised-button color="primary" (click)="exportStatement()" class="export-button">
+      <mat-icon>download</mat-icon>
+      Export Statement
+    </button>
+  </div>
+</div> 

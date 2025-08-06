@@ -62,6 +62,7 @@
 						</div>
 						<div class="list-view-actions">
 							<mat-menu #listMenu="matMenu">
+								<button mat-menu-item (click)="viewAccountStatement(account)" class="action-button statement-button"><mat-icon>receipt_long</mat-icon> View Statement</button>
 								<button mat-menu-item (click)="editAccount(account)" class="action-button edit-button"><mat-icon>edit</mat-icon> Edit</button>
 								<button mat-menu-item (click)="deleteAccount(account)" class="action-button delete-button"><mat-icon class="!text-red-800">delete</mat-icon> Delete</button>
 							</mat-menu>
@@ -136,6 +137,7 @@
 						</div>
 						<div class="account-actions">
 							<mat-menu #menu="matMenu">
+								<button mat-menu-item (click)="viewAccountStatement(account)" class="action-button statement-button" matTooltip="View account statement"><mat-icon>receipt_long</mat-icon> View Statement</button>
 								<button mat-menu-item (click)="editAccount(account)" class="action-button edit-button" matTooltip="Edit account"><mat-icon>edit</mat-icon> Edit</button>
 								<button mat-menu-item (click)="deleteAccount(account)" class="action-button delete-button" matTooltip="Delete account"><mat-icon>delete</mat-icon> Delete</button>
 							</mat-menu>

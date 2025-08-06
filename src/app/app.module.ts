@@ -67,6 +67,7 @@ import { OfflinePageComponent } from './util/components/offline-page/offline-pag
 import { FooterComponent } from './component/dashboard/footer/footer.component';
 import { TermsConditionsComponent } from './component/terms-conditions/terms-conditions.component';
 import { AddAccountDialogComponent } from './component/dashboard/accounts/add-account-dialog/add-account-dialog.component';
+import { AccountStatementDialogComponent } from './component/dashboard/accounts/account-statement-dialog/account-statement-dialog.component';
 import { MobileAccountsListComponent } from './component/dashboard/accounts/mobile-accounts-list/mobile-accounts-list.component';
 import { LandingComponent } from './component/landing/landing.component';
 import { CustomDateRangeDialogComponent } from './util/components/custom-date-range-dialog';
@@ -156,6 +157,7 @@ import { UpcomingTransactionsCardComponent } from './util/components/cards/upcom
     PwaNavigationBarComponent,
     PwaInstallPromptComponent,
     AddAccountDialogComponent,
+    AccountStatementDialogComponent,
     MobileAccountsListComponent,
     LandingComponent,
     CustomDateRangeDialogComponent,

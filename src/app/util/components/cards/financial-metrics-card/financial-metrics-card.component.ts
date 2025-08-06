@@ -46,7 +46,7 @@ export interface FinancialMetricsConfig {
 export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
   @Input() config: FinancialMetricsConfig = {
     title: 'Financial Overview',
-    subtitle: 'Income, Expenses & Savings breakdown',
+    subtitle: '',
     currency: 'INR',
     showHeaderIcon: true,
     headerIcon: 'pie_chart',
@@ -176,8 +176,8 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
           valueField: "value",
           categoryField: "category",
           alignLabels: false,
-          radius: am5.percent(100),
-          innerRadius: am5.percent(80)
+          radius: am5.percent(80),
+          innerRadius: am5.percent(60)
         })
       );
 
@@ -389,7 +389,7 @@ export class FinancialMetricsCardComponent implements OnInit, OnDestroy {
   get effectiveConfig(): FinancialMetricsConfig {
     return {
       title: this.config.title ?? 'Financial Overview',
-      subtitle: this.config.subtitle ?? 'Income, Expenses & Savings breakdown',
+      subtitle: this.config.subtitle ?? '',
       currency: this.config.currency ?? 'INR',
       showHeaderIcon: this.config.showHeaderIcon ?? true,
       headerIcon: this.config.headerIcon ?? 'pie_chart',

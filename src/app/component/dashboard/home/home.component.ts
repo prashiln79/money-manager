@@ -136,7 +136,7 @@ export class HomeComponent {
 
   financialMetricsConfig:FinancialMetricsConfig = {
     title: 'Monthly Financial Summary',
-    subtitle: 'Your financial performance this month',
+    subtitle: '',
     currency: 'INR',
     showHeaderIcon: true,
     headerIcon: 'pie_chart',
