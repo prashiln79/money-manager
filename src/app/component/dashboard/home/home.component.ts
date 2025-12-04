@@ -120,7 +120,7 @@ export class HomeComponent {
     cardsPerRow: {
       xs: 1,
       sm: 2,
-      md: 3,
+      md: 4,
       lg: 5,
       xl: 6,
     },
