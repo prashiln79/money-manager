@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { CategoryBreakdownConfig } from 'src/app/util/components/cards/category-breakdown-card/category-breakdown-card.component';
 import { FinancialMetricsConfig } from 'src/app/util/components/cards/financial-metrics-card/financial-metrics-card.component';
 import { KeyMetricsConfig } from 'src/app/util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
@@ -8,6 +10,8 @@ import { TopCategoriesConfig } from 'src/app/util/components/cards/top-categorie
 import { UpcomingTransactionsConfig } from 'src/app/util/components/cards/upcoming-transactions-card/upcoming-transactions-card.component';
 
 import { QuickAction, QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
+import { MobileAddTransactionComponent } from '../transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 
 @Component({
   selector: 'app-home',
@@ -75,23 +79,23 @@ export class HomeComponent {
       {
         id: 'add-transaction',
         label: 'Add Transaction',
-        icon: 'receipt',
+        icon: 'add',
         color: 'accent',
         tooltip: 'Add Transaction'
       },
       {
-        id: 'export-report',
-        label: 'Export Report',
-        icon: 'file_download',
+        id: 'category',
+        label: 'Category',
+        icon: 'category',
         color: 'warn',
-        tooltip: 'Export Report'
+        tooltip: 'Category'
       },
       {
-        id: 'refresh-data',
-        label: 'Refresh Data',
-        icon: 'refresh',
+        id: 'accounts',
+        label: 'Accounts',
+        icon: 'account_balance',
         color: 'primary',
-        tooltip: 'Refresh Data',
+        tooltip: 'Accounts',
         loading: false
       }
     ],
@@ -99,10 +103,15 @@ export class HomeComponent {
       console.log('Quick action clicked:', action);
       switch (action.id) {
         case 'add-transaction':
+          this._dialog.open(MobileAddTransactionComponent, {
+            panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
+          });
           break;
-        case 'export-report':
+        case 'category':
+          this.router.navigate(["/dashboard/category"]);
           break;
-        case 'refresh-data':
+        case 'accounts':
+          this.router.navigate(["/dashboard/accounts"]);
           break;
       }
     },
@@ -152,5 +161,5 @@ export class HomeComponent {
     }
   };
 
-  constructor() { }
+  constructor( private router: Router,private _dialog: MatDialog,public breakpointService: BreakpointService) { }
 }

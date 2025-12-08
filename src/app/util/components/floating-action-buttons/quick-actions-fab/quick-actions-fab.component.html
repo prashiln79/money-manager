@@ -19,8 +19,7 @@
     <button 
       mat-fab 
       [color]="effectiveConfig.mainButtonColor"
-      [ngClass]="getMainButtonClass()"
-      [matTooltip]="effectiveConfig.mainButtonTooltip"
+      [matTooltip]="isExpanded? 'Close': effectiveConfig.mainButtonTooltip"
       (click)="toggleExpanded()"
       class="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
       <mat-icon>{{ mainButtonIcon }}</mat-icon>

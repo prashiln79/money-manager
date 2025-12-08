@@ -1,6 +1,6 @@
 <!-- Table Container -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col" 
-[ngClass]="{'max-h-[calc(75vh-210px)]': isHome && !breakpointService.device.isTablePortrait,'max-h-[65vh]':isHome && breakpointService.device.isTablePortrait,'max-h-[66vh]': !isHome}">
+[ngClass]="{'max-h-[calc(75vh-210px)]': isHome && !breakpointService.device.isTablePortrait,'max-h-[65vh]':isHome && breakpointService.device.isTablePortrait,'max-h-[79vh]': !isHome}">
   <!-- View Toggle Header -->
   <div class="flex justify-between items-center p-3 border-b border-gray-200 bg-gray-50" *ngIf="hasSelection() && (breakpointService.device.isTablePortrait || breakpointService.device.isDesktop) && !isHome">
     <!-- <div class="flex items-center space-x-2">
