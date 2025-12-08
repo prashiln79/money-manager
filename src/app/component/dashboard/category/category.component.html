@@ -91,7 +91,7 @@
 				</div>
 
 				<!-- Detailed View -->
-				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 xxl:grid-cols-3 gap-4 lg:my-5 pt-4" [ngClass]="{'lg:grid-cols-4': !isChildView}">
+				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 xxl:grid-cols-3 gap-4 lg:my-16 pt-4 lg:px-10" [ngClass]="{'lg:grid-cols-4': !isChildView}">
 					@for (category of categories; track category.id) {
 					<!-- Only show main categories (not sub-categories) in the main list -->
 					@if(!category.isSubCategory && !category.parentCategoryId) {
