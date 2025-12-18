@@ -41,7 +41,9 @@
                 "input": "./",
                 "output": "./"
               },
-              "src/firebase-messaging-sw.js"
+              "src/firebase-messaging-sw.js",
+              "src/robots.txt",
+              "src/sitemap.xml"
             ],
             "styles": ["@angular/material/prebuilt-themes/azure-blue.css", "src/styles/light-theme.scss", "src/styles/dark-theme.scss", "src/styles/styles.scss"],
             "scripts": [],
