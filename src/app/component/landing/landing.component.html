@@ -1,199 +1,101 @@
+<!-- Navbar -->
+<header class="navbar">
+	<div class="logo"><img src="assets/icon/app-icon/icon-192x192.png" alt="Money Manager" class="w-8 h-8" /> <span class="top-2 relative ml-1">Money Manager</span></div>
+	<nav>
+		<a href="#features">Features</a>
+		<a href="#how">How it Works</a>
+		<a href="#pricing">Pricing</a>
+		<button class="btn-outline bg-primary" (click)="navigateToSignIn()">Sign In</button>
+	</nav>
+</header>
 
-<!-- Hero Section -->
-<section class="hero-section min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 relative overflow-hidden">
-  <!-- Background decoration -->
-  <div class="absolute inset-0 overflow-hidden">
-    <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="absolute top-40 left-40 w-80 h-80 bg-primary/25 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-  </div>
+<div class="body">
+	<!-- Hero Section -->
+	<section class="hero relative h-[40vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary-50 to-white">
+		<!-- Animated Background -->
+		<div class="hero-bg absolute inset-0  bg-primary-200 bg-center scale-110"></div>
 
-  <div class="container mx-auto px-4 relative z-10">
-    <div class="grid lg:gap-12 items-center justify-center">
-  
-      <!-- Left Content -->
-      <div class="flex flex-col items-center justify-center text-center">
-        <div class="mb-6">
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-            Simple
-            <span class="bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent block">
-              Money Management
-            </span>
-          </h1>
-  
-          <p class="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 max-w-lg mx-auto">
-            Track your expenses, manage budgets, and keep your finances organized.
-          </p>
-        </div>
-  
-        <!-- CTA Buttons -->
-        <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-          <button 
-            (click)="navigateToSignUp()"
-            class="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-primary-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-            <mat-icon class="!text-[1.5rem]">person_add</mat-icon>
-            <span class="text-lg">Get Started Free</span>
-          </button>
-        </div>
-      </div>
-  
-    </div>
-  </div>
-  
-</section>
+		<!-- Overlay -->
+		<div class="absolute inset-0 bg-white/70 backdrop-blur-sm"></div>
 
+		<!-- Content -->
+		<div class="relative z-10 max-w-3xl text-center px-6 hero-content">
+			<h1 class="hero-title text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
+				Manage Your Money
+				<br class="hidden md:block" />
+				<span class="text-primary">With Confidence</span>
+			</h1>
 
-<!-- Features Section -->
-<section id="features" class="py-16 lg:py-20 bg-white">
-  <div class="container mx-auto px-4">
-    <div class="text-center mb-12 lg:mb-16 flex flex-col items-center justify-center">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-        What You Can Do
-      </h2>
-      <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-        Essential tools to help you manage your money better.
-      </p>
-    </div>
+			<p class="hero-subtitle text-lg md:text-xl text-gray-600 mb-10">
+				Track spending, plan budgets, and achieve your financial goals with clarity and control.
+			</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-      @for (feature of features; track feature.title) {
-      <div class="group p-6 lg:p-8 rounded-2xl border border-gray-200 hover:border-primary hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-primary-50/30 hover:from-primary-50/50 hover:to-white">
-        <div class="text-3xl lg:text-4xl mb-4 group-hover:scale-110 transition-transform duration-300 text-primary">
-          <mat-icon>{{ feature.icon }}</mat-icon>
-        </div>
-        <h3 class="text-lg lg:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">{{ feature.title }}</h3>
-        <p class="text-sm lg:text-base text-gray-600 leading-relaxed">{{ feature.description }}</p>
-      </div>
-      }
-    </div>
-  </div>
-</section>
+			<button class="bg-primary text-white px-10 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300" (click)="navigateToSignUp()">
+				Get Started Free
+			</button>
+		</div>
+	</section>
 
-<!-- How It Works Section -->
-<section class="py-20 bg-gradient-to-br from-primary-50 to-white">
-  <div class="container-responsive px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-16 flex flex-col items-center justify-center">
-      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-        Getting Started
-      </h2>
-      <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-        Simple steps to start managing your money
-      </p>
-    </div>
+	<!-- Features Section -->
+	<section id="features" class="py-16 lg:py-20 bg-white features">
+		<div class="container mx-auto px-4">
+			<div class="text-center mb-12 flex flex-col items-center justify-center">
+				<h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+					What You Can Do
+				</h2>
+				<p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+					Essential tools to help you manage your money better.
+				</p>
+			</div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      @for (step of howItWorks; track step.step) {
-      <div class="text-center group relative">
-        <div class="w-16 h-16 bg-gradient-to-r from-primary to-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-          {{ step.step }}
-        </div>
-        <div class="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 text-primary">
-          <mat-icon>{{ step.icon }}</mat-icon>
-        </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-4 group-hover:text-primary transition-colors duration-300">{{ step.title }}</h3>
-        <p class="text-gray-600 leading-relaxed">{{ step.description }}</p>
-     
-      </div>
-      }
-    </div>
-  </div>
-</section>
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+				@for (feature of features; track feature.title) {
+				<div
+					class="group p-6 lg:p-8 rounded-2xl border border-gray-200 hover:border-primary hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-primary-50/30 hover:from-primary-50/50 hover:to-white"
+				>
+					<div class="text-3xl lg:text-4xl mb-4 group-hover:scale-110 transition-transform duration-300 text-primary">
+						<mat-icon>{{ feature.icon }}</mat-icon>
+					</div>
+					<h3 class="text-lg lg:text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">{{ feature.title }}</h3>
+					<p class="text-sm lg:text-base text-gray-600 leading-relaxed">{{ feature.description }}</p>
+				</div>
+				}
+			</div>
+		</div>
+	</section>
 
-<!-- Final CTA Section -->
-<section class="py-20 bg-gradient-to-r from-primary via-primary-600 to-primary">
-  <div class="container mx-auto text-center px-4 flex flex-col items-center justify-center">
-    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-      Ready to Get Started?
-    </h2>
-    <p class="text-xl text-primary-100 mb-8 mx-auto leading-relaxed">
-      Join thousands of users who are already managing their money smarter.
-    </p>
-    
-    <!-- Features -->
-    <div class="flex flex-wrap items-center justify-center gap-6 mb-8">
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
-          <span class="text-white text-xs">✓</span>
-        </div>
-        <span class="text-primary-100 text-sm">Free to use</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
-          <span class="text-white text-xs">✓</span>
-        </div>
-        <span class="text-primary-100 text-sm">Works offline</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
-          <span class="text-white text-xs">✓</span>
-        </div>
-        <span class="text-primary-100 text-sm">No ads</span>
-      </div>
-    </div>
-
-    <!-- CTA Buttons -->
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <button 
-        (click)="navigateToSignUp()"
-        class="flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-        <mat-icon class="text-xl">person_add</mat-icon>
-        <span class="text-lg font-bold">Get Started Free</span>
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="py-12 bg-gray-900 text-white">
-  <div class="container mx-auto px-4">
-    <!-- Main Footer Content -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-      <!-- Company Info -->
-      <div class="md:col-span-2">
-        <div class="flex items-start mb-4">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3 bg-gradient-to-r from-primary to-primary-600">
-            <img src="assets/icon/app-icon/icon-192x192.png" alt="Money Manager" class="w-6 h-6">
-          </div>
-          <div>
-            <h3 class="text-xl font-bold">Money Manager</h3>
-            <p class="text-sm text-gray-400">Simple Money Management</p>
-          </div>
-        </div>
-        <p class="text-gray-400 mb-4 max-w-md leading-relaxed">
-          Track expenses, manage budgets, and organize your finances with ease.
+	<!-- How it works -->
+  <section class="py-20 bg-gradient-to-br from-primary-50 to-white">
+    <div class="container-responsive px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 flex flex-col items-center justify-center">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          Getting Started
+        </h2>
+        <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          Simple steps to start managing your money
         </p>
       </div>
-
-      <!-- Quick Links -->
-      <div>
-        <h4 class="font-semibold mb-4 text-primary-400">Quick Links</h4>
-        <ul class="space-y-2">
-          <li><a href="#features" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Features</a></li>
-          <li><a routerLink="/privacy-policy" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Privacy Policy</a></li>
-          <li><a routerLink="/terms-conditions" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Terms of Service</a></li>
-          <li><a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">Contact</a></li>
-        </ul>
+  
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (step of howItWorks; track step.step) {
+        <div class="text-center group relative">
+          <div class="w-16 h-16 bg-gradient-to-r from-primary to-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+            {{ step.step }}
+          </div>
+          <!-- <div class="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 text-primary">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </div> -->
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 group-hover:text-primary transition-colors duration-300">{{ step.title }}</h3>
+          <p class="text-gray-600 leading-relaxed">{{ step.description }}</p>
+       
+        </div>
+        }
       </div>
     </div>
+  </section>
+</div>
 
-    <!-- Bottom Footer -->
-    <div class="border-t border-gray-800 pt-6">
-      <div class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
-        <div class="text-gray-400 text-sm">
-          <p>&copy; 2024 Money Manager. All rights reserved.</p>
-        </div>
-        
-        <div class="flex items-center space-x-4 text-sm text-gray-400">
-          <span class="flex items-center">
-            <mat-icon class="text-sm mr-1">security</mat-icon>
-            Secure
-          </span>
-          <span class="flex items-center">
-            <mat-icon class="text-sm mr-1">cloud_done</mat-icon>
-            Cloud Sync
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-</footer> 
+<!-- Footer -->
+<footer class="footer bg-primary-700">
+	<p>© 2025 Money Manager. All rights reserved.</p>
+</footer>
