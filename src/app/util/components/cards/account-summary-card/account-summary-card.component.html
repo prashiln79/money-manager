@@ -1,36 +1,43 @@
-<!-- Loading State -->
-<!-- <div  class="balance-summary-card loading">
-	<div class="balance-summary-header">
-		<mat-icon class="balance-icon">account_balance</mat-icon>
-		<h3 class="balance-summary-title">Total Balance</h3>
-	</div>
-	<div class="loading-content">
-		<mat-spinner diameter="20"></mat-spinner>
-		<span>Loading account data...</span>
-	</div>
-</div> -->
+<div
+  class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 w-full">
 
-<!-- Total Balance Summary Card -->
-<div class="balance-summary-card">
-	<div class="balance-summary-header">
-		<mat-icon class="balance-icon">account_balance</mat-icon>
-		<h3 class="balance-summary-title flex justify-between w-full">Total Balance
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <div
+        class="h-10 w-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
+        <mat-icon>account_balance</mat-icon>
+      </div>
+      <h4 class="text-md font-medium text-gray-500 pt-3">
+        Total Balance
+      </h4>
+    </div>
 
-			<span class="balance-stat-value pr-2" [class]="((totalBalance$ | async) ?? 0) >= 0 ? 'positive' : 'negative'">
-				{{ (totalBalance$ | async) ?? 0 | currency }}
-			</span>
-		</h3>
-	</div>
-	
-	<!-- Balance Breakdown -->
-	<div class="balance-breakdown">
-		<div class="breakdown-item positive" *ngIf="getPositiveAccounts()?.length">
-			<span class="breakdown-label">Assets:</span>
-			<span class="breakdown-value">{{ getTotalPositiveBalance() | currency }}</span>
-		</div>
-		<div class="breakdown-item negative" *ngIf="getNegativeAccounts()?.length">
-			<span class="breakdown-label">Liabilities:</span>
-			<span class="breakdown-value">{{ getTotalNegativeBalance() | currency }}</span>
-		</div>
-	</div>
-</div> 
+    <span
+      class="text-lg font-semibold"
+      [class.text-green-600]="((totalBalance$ | async) ?? 0) >= 0"
+      [class.text-red-500]="((totalBalance$ | async) ?? 0) < 0">
+      {{ (totalBalance$ | async) ?? 0 | currency }}
+    </span>
+  </div>
+
+  <!-- Divider -->
+  <div class="border-t border-gray-100 dark:border-gray-800 my-3"></div>
+
+  <!-- Breakdown -->
+  <div class="flex justify-between text-sm">
+    <div *ngIf="getPositiveAccounts()?.length" class="flex flex-col">
+      <span class="text-gray-400">Assets</span>
+      <span class="font-medium text-green-600">
+        {{ getTotalPositiveBalance() | currency }}
+      </span>
+    </div>
+
+    <div *ngIf="getNegativeAccounts()?.length" class="flex flex-col text-right">
+      <span class="text-gray-400">Liabilities</span>
+      <span class="font-medium text-red-500">
+        {{ getTotalNegativeBalance() | currency }}
+      </span>
+    </div>
+  </div>
+</div>

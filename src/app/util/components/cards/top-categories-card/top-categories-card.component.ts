@@ -11,6 +11,7 @@ import * as CategoriesSelectors from '../../../../store/categories/categories.se
 import { Transaction } from '../../../../util/models/transaction.model';
 import { Category } from '../../../../util/models/category.model';
 import { TransactionType } from '../../../../util/config/enums';
+import { SharedModule } from "src/app/modules/shared/shared.module";
 
 export interface TopCategory {
   category: string;
@@ -47,7 +48,7 @@ export interface TopCategoriesConfig {
 @Component({
   selector: 'app-top-categories-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, SharedModule],
   templateUrl: './top-categories-card.component.html',
   styleUrl: './top-categories-card.component.scss'
 })

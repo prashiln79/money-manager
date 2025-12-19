@@ -1,14 +1,17 @@
-
-
-<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-12 lg:gap-5 xl:gap-5 mt-10">
-
-	<div class="col-span-1 sm:col-span-2 lg:col-span-12">
-		<app-account-summary-card></app-account-summary-card>
-	</div>
-
+<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-12 lg:gap-5 xl:gap-16 mt-24 lg:mx-60">
 	<!-- Calendar View - Full width on mobile, hidden on larger screens -->
 	<div class="col-span-1 sm:hidden">
 		<calendar-view></calendar-view>
+	</div>
+
+	<div class="col-span-1 sm:col-span-1 lg:col-span-4">
+		<app-top-categories-card [config]="topCategoriesConfig"></app-top-categories-card>
+	</div>
+
+	<div class="col-span-1 sm:col-span-1 lg:col-span-8">
+		<app-account-summary-card *ngIf="breakpointService.device.isDesktop"></app-account-summary-card>
+		<hr class="mb-5" />
+		<transaction-table> </transaction-table>
 	</div>
 
 	<!-- Key Metrics Summary Card - Full width on all screens -->
@@ -17,11 +20,8 @@
 	</div> -->
 
 	<!-- Top Categories Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
-	<div class="col-span-1 sm:col-span-1 lg:col-span-4">
-		<app-top-categories-card [config]="topCategoriesConfig"></app-top-categories-card>
-	</div>
 
-	<div class="col-span-1 sm:col-span-1 lg:col-span-4">
+	<div class="col-span-1 sm:col-span-1 lg:col-span-4" *ngIf="breakpointService.device.isDesktop">
 		<!-- <app-upcoming-transactions-card [config]="upcomingTransactionsConfig"></app-upcoming-transactions-card>  -->
 		<app-financial-metrics-card [config]="financialMetricsConfig"></app-financial-metrics-card>
 	</div>
@@ -31,9 +31,6 @@
 		<app-recent-activity-card [config]="recentActivityConfig"></app-recent-activity-card>
 	</div>
 
-	<div class="col-span-1 sm:col-span-1 lg:col-span-4">
-		<app-budget-card [isHomeView]="true"></app-budget-card>
-	</div>
 
 	<!-- Category Breakdown Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
 	<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-8">
