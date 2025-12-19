@@ -2,9 +2,9 @@
 @if(!hideFooter || (breakpointService.device.isMobile || breakpointService.device.isTablePortrait)){
 <footer class="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
 	<!-- Professional Action Bar -->
-	<div class="px-2 py-3 lg:px-4 lg:py-2" [ngClass]="{'lg:pb-0': breakpointService.device.isDesktop}">
+	<div class="px-2 py-3 lg:px-5 lg:py-2 " [ngClass]="{'lg:pb-2 mt-2': breakpointService.device.isDesktop}">
 		<!-- Quick Actions Grid -->
-		<div class="grid grid-cols-5 gap-2 lg:max-w-md lg:mx-auto lg:gap-1">
+		<div class="grid grid-cols-5 gap-2 lg:max-w-md lg:mx-auto lg:gap-1" style="    align-items: flex-end;">
 			<!-- Home -->
 			<button (click)="home()" class="group flex flex-col items-center gap-2 lg:gap-1">
 				<div
