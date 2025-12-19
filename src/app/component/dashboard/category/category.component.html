@@ -1,5 +1,5 @@
 <app-quick-actions-fab [config]="quickActionsFabConfig" (mainButtonClick)="openAddMobileDialog()"></app-quick-actions-fab>
-<div class="categories-container lg:px-40">
+<div class="categories-container lg:mt-24 lg:mx-60">
 	<!-- Error Message Display -->
 	<div *ngIf="errorMessage" class="error-message mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
 		<p class="text-red-700 text-sm">{{ errorMessage }}</p>
@@ -34,11 +34,12 @@
 					Add Category
 				</button>
 			</div>
+			<!-- Overall Budget Card -->
+			<app-budget-card [isHomeView]="false" [isChildView]="isChildView"></app-budget-card>
 
 			<!-- Categories List -->
-			<div *ngIf="categories.length > 0" class="categories-grid-list" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait, '!max-h-[75vh]': !isChildView}">
-				<!-- Overall Budget Card -->
-				<app-budget-card [isHomeView]="false" [isChildView]="isChildView"></app-budget-card>
+			<div *ngIf="categories.length > 0" class="categories-grid-list mt-5" [ngClass]="{'!max-h-[100vh]': breakpointService.device.isTablePortrait, '!max-h-[75vh]': !isChildView}">
+				
 
 
 				<!-- List View -->
@@ -91,7 +92,7 @@
 				</div>
 
 				<!-- Detailed View -->
-				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 xxl:grid-cols-3 gap-4 lg:my-16 pt-4 lg:px-10" [ngClass]="{'lg:grid-cols-4': !isChildView}">
+				<div *ngIf="!isListViewMode" class="grid lg:grid-cols-2 xxl:grid-cols-3 gap-4 lg:gap-10  lg:my-16 pt-4 lg:px-0" [ngClass]="{'lg:grid-cols-4': !isChildView}">
 					@for (category of categories; track category.id) {
 					<!-- Only show main categories (not sub-categories) in the main list -->
 					@if(!category.isSubCategory && !category.parentCategoryId) {

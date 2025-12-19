@@ -8,7 +8,7 @@
 </mobile-transaction-list>
 
 } @else if (!isHome && !breakpointService.device.isMobile && !breakpointService.device.isTablePortrait) {
-<div class="grid grid-cols-12 gap-2">
+<div class="grid grid-cols-12 gap-2 lg:mt-24 lg:mx-60">
 	<!-- <div class="col-span-3">
 		<calendar-view></calendar-view>
 	</div> -->
@@ -23,6 +23,7 @@
 			(expandTable)="expandTable()"
 		></search-filter>
 
+		<hr class="mt-5">
 		<!-- Table Container -->
 		<transaction-table
 			(editTransaction)="editTransaction($event)"
