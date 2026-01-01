@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/images/screenshot/banner.png" alt="Money Manager Banner" width="100%">
+  <img src="src/assets/images/screenshot/banner.png" alt="Money Manager Banner" width="100%">
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/Angular-18-red" />
