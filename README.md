@@ -114,13 +114,13 @@ src/
 ## Screenshots
 
 ### Dashboard Overview
-![Dashboard](assets/images/screenshot/img1.png)
+![Dashboard](src/assets/images/screenshot/img1.png)
 
 ### Budget & Categories
-![Budget](assets/images/screenshot/img2.png)
+![Budget](src/assets/images/screenshot/img2.png)
 
 ### Reports & Analytics
-![Reports](assets/images/screenshot/img3.png)
+![Reports](src/assets/images/screenshot/img3.png)
 
 ## Contributing
 
