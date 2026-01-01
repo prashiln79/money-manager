@@ -196,7 +196,7 @@ export class CommonSyncService {
 
       const registrations = await navigator.serviceWorker.getRegistrations();
       this.serviceWorkerRegistration = registrations.find(reg => 
-        reg.scope.includes('/') || reg.scope.includes('/wallet/')
+        reg.scope.includes('/') || reg.scope.includes('/money-manager/')
       ) || null;
 
       if (!this.serviceWorkerRegistration) {

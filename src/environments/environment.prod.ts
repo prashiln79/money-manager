@@ -1,6 +1,6 @@
 export const environment = {
-  baseUrl: 'https://prashiln79.github.io/wallet',
-  serviceWorkerScope: '/wallet/',
+  baseUrl: 'https://prashiln79.github.io/money-manager',
+  serviceWorkerScope: '/money-manager/',
   production: true,
   defaultAppTheme: 'light-theme',
   firebaseConfig: {

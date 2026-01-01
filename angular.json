@@ -67,7 +67,7 @@
               "extractLicenses": true,
               "sourceMap": false,
               "outputHashing": "all",
-              "baseHref": "https://prashiln79.github.io/wallet/",
+              "baseHref": "https://prashiln79.github.io/money-manager/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
