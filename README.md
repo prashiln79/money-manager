@@ -116,9 +116,9 @@ src/
 ### Dashboard Overview • Budget & Categories • Reports & Analytics
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-  <img src="src/assets/images/screenshot/img1.png" width="100%">
-  <img src="src/assets/images/screenshot/img2.png" width="100%">
-  <img src="src/assets/images/screenshot/img3.png" width="100%">
+  <img src="src/assets/images/screenshot/img1.png">
+  <img src="src/assets/images/screenshot/img2.png">
+  <img src="src/assets/images/screenshot/img3.png">
 </div>
 
 
