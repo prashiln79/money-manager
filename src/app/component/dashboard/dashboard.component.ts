@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 import { loadProfile } from 'src/app/store/profile/profile.actions';
 import { loadAccounts } from 'src/app/store/accounts/accounts.actions';
 import { loadCategories } from 'src/app/store/categories/categories.actions';

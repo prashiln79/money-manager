@@ -16,7 +16,7 @@ import * as CategoriesSelectors from './categories/categories.selectors';
 import * as AccountsSelectors from './accounts/accounts.selectors';
 
 // Import models
-import { Transaction } from '../util/service/transactions.service';
+import { Transaction } from '../util/service/db/transactions.service';
 import { Category } from '../util/models/category.model';
 import { Account } from '../util/models/account.model';
 import { TransactionType } from '../util/config/enums';

@@ -37,19 +37,19 @@ import { BehaviorSubject, Observable, throwError, timer } from 'rxjs';
 import { catchError, retry, timeout, map } from 'rxjs/operators';
 
 import { defaultBankAccounts } from 'src/app/component/auth/registration/registration.component';
-import { NotificationService } from './notification.service';
+import { NotificationService } from '../notification.service';
 import {
   User,
   FirebaseAuthError,
   defaultCategoriesForNewUser,
-} from '../models';
+} from '../../models';
 import { Timestamp } from '@angular/fire/firestore';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import { createAccount } from 'src/app/store/accounts/accounts.actions';
 import { createCategory } from 'src/app/store/categories/categories.actions';
-import { AccountType } from '../config/enums';
-import { APP_CONFIG } from '../config/config';
+import { AccountType } from '../../config/enums';
+import { APP_CONFIG } from '../../config/config';
 
 /**
  * Security configuration for user operations

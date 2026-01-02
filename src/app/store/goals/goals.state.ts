@@ -1,4 +1,4 @@
-import { Goal } from '../../util/service/goals.service';
+import { Goal } from '../../util/service/db/goals.service';
 
 export interface GoalsState {
   goals: Goal[];

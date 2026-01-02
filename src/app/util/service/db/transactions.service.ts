@@ -4,19 +4,19 @@ import { Auth } from '@angular/fire/auth';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { orderBy, query, Timestamp } from '@angular/fire/firestore';
-import { DateService } from './date.service';
-import { Transaction } from '../models/transaction.model';
-import { RecurringInterval, SyncStatus } from '../config/enums';
+import { DateService } from '../date.service';
+import { Transaction } from '../../models/transaction.model';
+import { RecurringInterval, SyncStatus } from '../../config/enums';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
-import * as CategoriesActions from '../../store/categories/categories.actions';
-import * as TransactionsActions from '../../store/transactions/transactions.actions';
+import * as CategoriesActions from '../../../store/categories/categories.actions';
+import * as TransactionsActions from '../../../store/transactions/transactions.actions';
 import { AccountsService } from './accounts.service';
-import * as AccountsActions from '../../store/accounts/accounts.actions';
-import { CreateSplitTransactionRequest } from '../models/splitwise.model';
+import * as AccountsActions from '../../../store/accounts/accounts.actions';
+import { CreateSplitTransactionRequest } from '../../models/splitwise.model';
 import { SplitwiseService } from 'src/app/modules/splitwise/services/splitwise.service';
-import { CommonSyncService, SyncItem } from './common-sync.service';
-import { BaseService } from './base.service';
+import { CommonSyncService, SyncItem } from '../common-sync.service';
+import { BaseService } from '../base.service';
 
 @Injectable({
     providedIn: 'root'

@@ -27,7 +27,7 @@ import {
 } from '../../../util/models/splitwise.model';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { DateService } from 'src/app/util/service/date.service';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
 import { environment } from '@env/environment';
 

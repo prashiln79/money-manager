@@ -7,7 +7,7 @@ import { Auth } from '@angular/fire/auth';
 
 import * as SplitwiseActions from './splitwise.actions';
 import { SplitwiseService } from '../services/splitwise.service';
-import { UserService } from '../../../util/service/user.service';
+import { UserService } from '../../../util/service/db/user.service';
 import { AppState } from '../../../store/app.state';
 
 @Injectable()

@@ -25,7 +25,7 @@ import { Store } from '@ngrx/store';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { RecurringInterval, SyncStatus } from 'src/app/util/config/enums';
 import { FilterService } from 'src/app/util/service/filter.service';
-import { CategoryService } from 'src/app/util/service/category.service';
+import { CategoryService } from 'src/app/util/service/db/category.service';
 
 interface SortOption {
   value: string;

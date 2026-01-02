@@ -23,7 +23,7 @@ import { Transaction } from 'src/app/util/models/transaction.model';
 import { DateService } from 'src/app/util/service/date.service';
 import moment from 'moment';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
-import { CategoryService } from 'src/app/util/service/category.service';
+import { CategoryService } from 'src/app/util/service/db/category.service';
 import { Router } from '@angular/router';
 import { QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 

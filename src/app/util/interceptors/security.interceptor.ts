@@ -3,7 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../service/user.service';
+import { UserService } from '../service/db/user.service';
 import { NotificationService } from '../service/notification.service';
 
 /**

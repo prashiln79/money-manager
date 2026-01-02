@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, mergeMap, catchError } from 'rxjs/operators';
-import { CategoryService } from '../../util/service/category.service';
+import { CategoryService } from '../../util/service/db/category.service';
 import * as CategoriesActions from './categories.actions';
 
 @Injectable()

@@ -8,7 +8,7 @@ import {
 } from "@angular/router";
 import { Observable, of } from "rxjs";
 import { catchError, timeout } from "rxjs/operators";
-import { UserService } from "../service/user.service";
+import { UserService } from "../service/db/user.service";
 import { getAuth, onAuthStateChanged, User } from '@angular/fire/auth';
 import { NotificationService } from "../service/notification.service";
 import { User as AppUser, UserRole } from "../models/user.model";

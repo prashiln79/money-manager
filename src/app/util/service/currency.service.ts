@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CURRENCIES, Currency, DEFAULT_CURRENCY, getCurrencyByCode, getCurrencySymbol } from '../models/currency.model';
-import { UserService } from './user.service';
+import { UserService } from './db/user.service';
 import { APP_CONFIG } from '../config/config';
 
 @Injectable({

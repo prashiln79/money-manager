@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { User } from 'src/app/util/models/user.model';

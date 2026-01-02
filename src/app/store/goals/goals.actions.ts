@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Goal } from '../../util/service/goals.service';
+import { Goal } from '../../util/service/db/goals.service';
 
 // Load goals
 export const loadGoals = createAction(

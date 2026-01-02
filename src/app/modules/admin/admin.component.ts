@@ -5,7 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { NotificationService } from 'src/app/util/service/notification.service';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 import { FeedbackService } from 'src/app/util/service/feedback.service';
 import { AdminSidebarService, AdminSidebarState } from './admin-sidebar.service';
 import { AdminSidebarSection, AdminSidebarNavItem } from './admin-sidebar.config';

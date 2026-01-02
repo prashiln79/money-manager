@@ -1,7 +1,7 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, ViewChild, Inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { MatCalendar, MatCalendarCellClassFunction } from '@angular/material/datepicker';
-import { UserService } from '../../../util/service/user.service';
+import { UserService } from '../../../util/service/db/user.service';
 import { FilterService } from '../../../util/service/filter.service';
 import { NotificationService } from '../../../util/service/notification.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';

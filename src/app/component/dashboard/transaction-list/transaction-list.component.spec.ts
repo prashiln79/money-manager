@@ -10,7 +10,7 @@ import { FilterService } from 'src/app/util/service/filter.service';
 import { DateService } from 'src/app/util/service/date.service';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { Router } from '@angular/router';
-import { TransactionsService } from 'src/app/util/service/transactions.service';
+import { TransactionsService } from 'src/app/util/service/db/transactions.service';
 import { of } from 'rxjs';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { TransactionType, TransactionStatus, SyncStatus } from 'src/app/util/config/enums';

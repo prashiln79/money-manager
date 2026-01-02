@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, writeBatch } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
-import { Account, CreateAccountRequest, UpdateAccountRequest } from '../models/account.model';
-import { Transaction } from '../models/transaction.model';
+import { Account, CreateAccountRequest, UpdateAccountRequest } from '../../models/account.model';
+import { Transaction } from '../../models/transaction.model';
 
 @Injectable({
     providedIn: 'root'

@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Budget } from '../../util/service/budgets.service';
+import { Budget } from '../../util/service/db/budgets.service';
 
 // Load budgets
 export const loadBudgets = createAction(

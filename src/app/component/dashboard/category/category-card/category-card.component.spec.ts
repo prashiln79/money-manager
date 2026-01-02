@@ -3,7 +3,7 @@ import { CategoryCardComponent } from './category-card.component';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
-import { CategoryService } from 'src/app/util/service/category.service';
+import { CategoryService } from 'src/app/util/service/db/category.service';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { Store } from '@ngrx/store';
 import { Auth } from '@angular/fire/auth';

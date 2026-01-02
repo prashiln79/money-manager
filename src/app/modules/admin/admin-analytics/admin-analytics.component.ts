@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 import { FeedbackService } from 'src/app/util/service/feedback.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
 

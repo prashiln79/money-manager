@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Auth } from '@angular/fire/auth';
 import { SplitwiseGroup, AddMemberRequest, GroupMemberRole } from 'src/app/util/models/splitwise.model';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
 @Component({

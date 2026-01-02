@@ -5,7 +5,7 @@ import { Observable, from } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { AppState } from '../../store/app.state';
 import { SplitwiseService } from '../../modules/splitwise/services/splitwise.service';
-import { UserService } from './user.service';
+import { UserService } from './db/user.service';
 import * as SplitwiseActions from '../../modules/splitwise/store/splitwise.actions';
 import { GroupInvitation } from '../models/splitwise.model';
 import { DateService } from './date.service';

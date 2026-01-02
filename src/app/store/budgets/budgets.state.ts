@@ -1,4 +1,4 @@
-import { Budget } from '../../util/service/budgets.service';
+import { Budget } from '../../util/service/db/budgets.service';
 
 export interface BudgetsState {
   budgets: Budget[];

@@ -12,8 +12,8 @@ import { UpcomingTransactionsConfig } from 'src/app/util/components/cards/upcomi
 import { QuickAction, QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 import { MobileAddTransactionComponent } from '../transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
-import { OpenaiService } from 'src/app/util/service/openai.service';
-import { UserService } from 'src/app/util/service/user.service';
+import { OpenaiService } from 'src/app/util/service/ai-chat/openai.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 
 @Component({
   selector: 'app-home',

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { UserService } from './user.service';
+import { UserService } from './db/user.service';
 import { NotificationService } from './notification.service';
 
 /**

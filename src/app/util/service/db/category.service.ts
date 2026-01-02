@@ -3,16 +3,16 @@ import { Firestore, collection, addDoc, doc, updateDoc, deleteDoc, collectionDat
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Category } from 'src/app/util/models';
-import { TransactionType } from '../config/enums';
+import { TransactionType } from '../../config/enums';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
 import * as CategoriesActions from 'src/app/store/categories/categories.actions';
 import * as CategoriesSelectors from 'src/app/store/categories/categories.selectors';
 import { MatDialog } from '@angular/material/dialog';
 import { ParentCategorySelectorDialogComponent, ParentCategorySelectorData } from 'src/app/component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
-import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
-import { NotificationService } from './notification.service';
-import { HapticFeedbackService } from './haptic-feedback.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { NotificationService } from '../notification.service';
+import { HapticFeedbackService } from '../haptic-feedback.service';
 
 @Injectable({
     providedIn: 'root'

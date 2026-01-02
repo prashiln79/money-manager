@@ -11,10 +11,10 @@ import { LoaderService } from '../service/loader.service';
 import { FilterService } from '../service/filter.service';
 import { DateService } from '../service/date.service';
 import { BreakpointService } from '../service/breakpoint.service';
-import { TransactionsService } from '../service/transactions.service';
-import { AccountsService } from '../service/accounts.service';
-import { CategoryService } from '../service/category.service';
-import { UserService } from '../service/user.service';
+import { TransactionsService } from '../service/db/transactions.service';
+import { AccountsService } from '../service/db/accounts.service';
+import { CategoryService } from '../service/db/category.service';
+import { UserService } from '../service/db/user.service';
 import { SubscriptionService } from '../service/subscription.service';
 import { of } from 'rxjs';
 

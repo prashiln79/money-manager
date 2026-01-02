@@ -10,7 +10,7 @@ import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.serv
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { DateService } from 'src/app/util/service/date.service';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
-import { CategoryService } from 'src/app/util/service/category.service';
+import { CategoryService } from 'src/app/util/service/db/category.service';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Category } from 'src/app/util/models/category.model';

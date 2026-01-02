@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, Timestamp } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
-import { DateService } from './date.service';
+import { DateService } from '../date.service';
 
 export interface Goal {
     goalId: string;

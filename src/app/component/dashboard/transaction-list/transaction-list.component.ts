@@ -23,7 +23,7 @@ import { RecurringInterval, SyncStatus, TransactionStatus, TransactionType } fro
 import { APP_CONFIG } from 'src/app/util/config/config';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { Router } from '@angular/router';
-import { TransactionsService } from 'src/app/util/service/transactions.service';
+import { TransactionsService } from 'src/app/util/service/db/transactions.service';
 
 @Component({
   selector: 'transaction-list',

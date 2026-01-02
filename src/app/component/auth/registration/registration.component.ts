@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NotificationService } from "src/app/util/service/notification.service";
 import { ValidationService } from "src/app/util/service/validation.service";
-import { UserService } from "src/app/util/service/user.service";
+import { UserService } from "src/app/util/service/db/user.service";
 import { User, CURRENCIES, DEFAULT_CURRENCY, Category, defaultCategoriesForNewUser } from "src/app/util/models";
 import { AppState } from "src/app/store/app.state";
 import { Store } from "@ngrx/store";

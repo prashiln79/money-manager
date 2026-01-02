@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Auth } from '@angular/fire/auth';
 import { NotificationService } from 'src/app/util/service/notification.service';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
 export interface UserData {

@@ -10,7 +10,7 @@ import { MobileCategoryAddEditPopupComponent } from '../mobile-category-add-edit
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { HapticFeedbackService } from 'src/app/util/service/haptic-feedback.service';
-import { CategoryService } from 'src/app/util/service/category.service';
+import { CategoryService } from 'src/app/util/service/db/category.service';
 import { CategoryBudgetService } from 'src/app/util/service/category-budget.service';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';

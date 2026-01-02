@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { SidebarNavParent, getAllNavigationItems } from '../../../util/config/sidebar.config';
-import { UserService } from 'src/app/util/service/user.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 
 @Component({
   selector: 'side-bar',
