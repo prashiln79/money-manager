@@ -70,6 +70,8 @@ import { AddAccountDialogComponent } from './component/dashboard/accounts/add-ac
 import { AccountStatementDialogComponent } from './component/dashboard/accounts/account-statement-dialog/account-statement-dialog.component';
 import { MobileAccountsListComponent } from './component/dashboard/accounts/mobile-accounts-list/mobile-accounts-list.component';
 import { LandingComponent } from './component/landing/landing.component';
+import { PreLoginHeaderComponent } from './component/landing/pre-login-header/pre-login-header.component';
+import { PreFooterComponent } from './component/landing/pre-footer/pre-footer.component';
 import { CustomDateRangeDialogComponent } from './util/components/custom-date-range-dialog';
 import { ProfileComponent } from './component/dashboard/profile/profile.component';
 import { FeedbackComponent } from './component/feedback/feedback.component';
@@ -160,6 +162,8 @@ import { UpcomingTransactionsCardComponent } from './util/components/cards/upcom
     AccountStatementDialogComponent,
     MobileAccountsListComponent,
     LandingComponent,
+    PreLoginHeaderComponent,
+    PreFooterComponent,
     CustomDateRangeDialogComponent,
     ProfileComponent,
     NotificationSettingsComponent,

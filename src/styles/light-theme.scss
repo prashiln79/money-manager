@@ -24,7 +24,6 @@ $_palettes: (
     99: #d2f3fb,
     100: #e6f7ff,
   ),
-  
   secondary: (
     0: #0f172a,
     10: #1e293b,
@@ -177,6 +176,30 @@ $light-theme: mat.define-theme(
   /*  @ Write Common code for light Theme
   /* ----------------------------------------------------------------------------------------------------- */
   @include mat.all-component-themes($light-theme);
+
+  --mdc-filled-button-container-color: #{mat.get-theme-color($light-theme, primary, 40)};
+  --mdc-filled-button-label-text-color: #{mat.get-theme-color($light-theme, primary, 100)};
+  --mdc-filled-button-container-color-hover: #{mat.get-theme-color($light-theme, primary, 50)};
+  --mdc-filled-button-container-color-focus: #{mat.get-theme-color($light-theme, primary, 50)};
+
+
+  .mat-primary.mat-mdc-button-base {
+    --mdc-filled-button-container-color: #{mat.get-theme-color($light-theme, primary, 40)};
+    --mdc-filled-button-label-text-color: #{mat.get-theme-color($light-theme, primary, 0)};
+    --mdc-protected-button-label-text-color: #{mat.get-theme-color($light-theme, primary, 50)};
+  }
+
+  .mat-accent.mat-mdc-button-base {
+    --mdc-filled-button-container-color: #{mat.get-theme-color($light-theme, tertiary, 40)};
+    --mdc-filled-button-label-text-color: #{mat.get-theme-color($light-theme, tertiary, 0)};
+    --mdc-protected-button-label-text-color: #{mat.get-theme-color($light-theme, tertiary, 50)};
+  }
+
+  .mat-warn.mat-mdc-button-base {
+    --mdc-filled-button-container-color: #{mat.get-theme-color($light-theme, error, 40)};
+    --mdc-filled-button-label-text-color: #{mat.get-theme-color($light-theme, error, 0)};
+    --mdc-protected-button-label-text-color: #{mat.get-theme-color($light-theme, error, 50)};
+  }
 
   background-color: mat.get-theme-color($light-theme, primary, 100);
   color: mat.get-theme-color($light-theme, primary, 0);

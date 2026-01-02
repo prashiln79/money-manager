@@ -26,7 +26,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private pwaNavigationService: PwaNavigationService,
     private commonSyncService: CommonSyncService,
     private ssrService: SsrService,
-    private firebaseMessagingService: FirebaseMessagingService
+    private firebaseMessagingService: FirebaseMessagingService,
+    public themeSwitchingService: ThemeSwitchingService
   ) {
     this.navigationState = {
       canGoBack: false,
@@ -39,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.themeSwitchingService; // Initialize theme service
     if (this.ssrService.isClientSide()) {
       this.isOnline = navigator.onLine;
     }

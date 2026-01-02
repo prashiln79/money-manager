@@ -1,0 +1,26 @@
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid #eee;
+  background-color: white;
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+    }
+  }
+}
