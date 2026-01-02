@@ -14,6 +14,7 @@ import { MobileAddTransactionComponent } from '../transaction-list/add-transacti
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { OpenaiService } from 'src/app/util/service/ai-chat/openai.service';
 import { UserService } from 'src/app/util/service/db/user.service';
+import { ChatFacadeService } from 'src/app/util/service/ai-chat/chat-facade-service';
 
 @Component({
   selector: 'app-home',
@@ -163,49 +164,22 @@ export class HomeComponent {
   //   }
   // };
 
-  constructor(private router: Router, private _dialog: MatDialog, public breakpointService: BreakpointService, private openaiService: OpenaiService, private userService: UserService) {
-    this.userService.userAuth$.subscribe((u: any) => {
-      try {
-        const name = u?.displayName || (u?.uid ? this.userService.getCachedUserData(u.uid)?.firstName : null) || 'User';
-        if (this.messages && this.messages.length && this.messages[0].sender === 'bot') {
-          this.messages[0].text = `Hi <b class="text-primary">${name}</b>, your finances are synced securely. How can Money Manager assist you today?`;
-        }
-      } catch (err) {
-        console.error('Error setting user name in HomeComponent:', err);
-      }
-    });
+  constructor(private router: Router, private _dialog: MatDialog, public breakpointService: BreakpointService, public chatFacadeService: ChatFacadeService, private userService: UserService) {
+
   }
 
-  messages = [
-    { sender: 'bot', text: 'Hi User, your finances are synced securely.' },];
 
-  isTyping = false;
 
   sendMessage(input: HTMLInputElement) {
     const text = input.value?.trim();
     if (!text) return;
 
-    this.messages.push({ sender: 'user', text });
+    this.chatFacadeService.messages.push({ sender: 'user', text });
     input.value = '';
-    this.startBotReply(text);
+    this.chatFacadeService.startBotReply(text);
   }
 
-  startBotReply(userText: string) {
-    this.isTyping = true;
 
-    const systemMessage = this.openaiService.createFinancialAdvisorMessage();
-    const userMessage = { role: 'user' as const, content: userText };
 
-    this.openaiService.sendMessage([systemMessage, userMessage]).subscribe({
-      next: (reply: string) => {
-        this.messages.push({ sender: 'bot', text: reply });
-        this.isTyping = false;
-      },
-      error: (err: any) => {
-        console.error('OpenAI error:', err);
-        this.messages.push({ sender: 'bot', text: 'Sorry, I could not get a response from the AI right now.' });
-        this.isTyping = false;
-      }
-    });
-  }
+
 }
