@@ -12,6 +12,8 @@ import { UpcomingTransactionsConfig } from 'src/app/util/components/cards/upcomi
 import { QuickAction, QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 import { MobileAddTransactionComponent } from '../transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { OpenaiService } from 'src/app/util/service/openai.service';
+import { UserService } from 'src/app/util/service/user.service';
 
 @Component({
   selector: 'app-home',
@@ -19,171 +21,191 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
-  topCategoriesConfig: TopCategoriesConfig = {
-    title: 'Top Categories',
-    subtitle: 'Top categories by spending',
-    currency: 'INR',
-    showHeaderIcon: true,
-    headerIcon: 'category',
-    headerIconColor: 'blue',
-    showFooter: true,
-    footerText: 'Last updated',
-    cardHeight: 'small',
-    theme: 'auto',
-    animations: true,
-    clickable: true,
-  };
-  recentActivityConfig: RecentActivityConfig = {
-    title: 'Recent Activity',
-    subtitle: 'Recent activity',
-    currency: 'INR',
-    showHeaderIcon: true,
-  };
-  monthlyTrendsConfig: MonthlyTrendsConfig = {
-    title: 'Monthly Trends',
-    subtitle: 'Monthly trends',
-    currency: 'INR',
-    showHeaderIcon: true,
-  };
-  categoryBreakdownConfig: CategoryBreakdownConfig = {
-    title: 'Category Breakdown',
-    subtitle: 'Spending by category',
-    currency: 'INR',
-    showHeaderIcon: true,
-    headerIcon: 'category',
-    headerIconColor: 'blue',
-    maxItems: 5,
-    chartType: 'bar',
-  };
-  categoryPieBreakdownConfig: CategoryBreakdownConfig = {
-    title: 'Category Breakdown',
-    subtitle: 'Spending by category',
-    currency: 'INR',
-    showHeaderIcon: true,
-    headerIcon: 'category',
-    headerIconColor: 'blue',
-    maxItems: 5,
-    chartType: 'radial',
-  };
-  quickActionsFabConfig: QuickActionsFabConfig = {
-    title: 'Quick Actions',
-    mainButtonIcon: 'add',
-    mainButtonColor: 'primary',
-    mainButtonTooltip: 'Quick Actions',
-    showLabels: false,
-    animations: true,
-    autoHide: false,
-    autoHideDelay: 3000,
-    theme: 'auto',
-    actions: [
-      {
-        id: 'add-transaction',
-        label: 'Add Transaction',
-        icon: 'add',
-        color: 'accent',
-        tooltip: 'Add Transaction'
-      },
-      {
-        id: 'category',
-        label: 'Category',
-        icon: 'category',
-        color: 'warn',
-        tooltip: 'Category'
-      },
-      {
-        id: 'accounts',
-        label: 'Accounts',
-        icon: 'account_balance',
-        color: 'primary',
-        tooltip: 'Accounts',
-        loading: false
+  // topCategoriesConfig: TopCategoriesConfig = {
+  //   title: 'Top Categories',
+  //   subtitle: 'Top categories by spending',
+  //   currency: 'INR',
+  //   showHeaderIcon: true,
+  //   headerIcon: 'category',
+  //   headerIconColor: 'blue',
+  //   showFooter: true,
+  //   footerText: 'Last updated',
+  //   cardHeight: 'small',
+  //   theme: 'auto',
+  //   animations: true,
+  //   clickable: true,
+  // };
+  // recentActivityConfig: RecentActivityConfig = {
+  //   title: 'Recent Activity',
+  //   subtitle: 'Recent activity',
+  //   currency: 'INR',
+  //   showHeaderIcon: true,
+  // };
+  // monthlyTrendsConfig: MonthlyTrendsConfig = {
+  //   title: 'Monthly Trends',
+  //   subtitle: 'Monthly trends',
+  //   currency: 'INR',
+  //   showHeaderIcon: true,
+  // };
+  // categoryBreakdownConfig: CategoryBreakdownConfig = {
+  //   title: 'Category Breakdown',
+  //   subtitle: 'Spending by category',
+  //   currency: 'INR',
+  //   showHeaderIcon: true,
+  //   headerIcon: 'category',
+  //   headerIconColor: 'blue',
+  //   maxItems: 5,
+  //   chartType: 'bar',
+  // };
+  // categoryPieBreakdownConfig: CategoryBreakdownConfig = {
+  //   title: 'Category Breakdown',
+  //   subtitle: 'Spending by category',
+  //   currency: 'INR',
+  //   showHeaderIcon: true,
+  //   headerIcon: 'category',
+  //   headerIconColor: 'blue',
+  //   maxItems: 5,
+  //   chartType: 'radial',
+  // };
+  // quickActionsFabConfig: QuickActionsFabConfig = {
+  //   title: 'Quick Actions',
+  //   mainButtonIcon: 'add',
+  //   mainButtonColor: 'primary',
+  //   mainButtonTooltip: 'Quick Actions',
+  //   showLabels: false,
+  //   animations: true,
+  //   autoHide: false,
+  //   autoHideDelay: 3000,
+  //   theme: 'auto',
+  //   actions: [
+  //     {
+  //       id: 'add-transaction',
+  //       label: 'Add Transaction',
+  //       icon: 'add',
+  //       color: 'accent',
+  //       tooltip: 'Add Transaction'
+  //     },
+  //     {
+  //       id: 'category',
+  //       label: 'Category',
+  //       icon: 'category',
+  //       color: 'warn',
+  //       tooltip: 'Category'
+  //     },
+  //     {
+  //       id: 'accounts',
+  //       label: 'Accounts',
+  //       icon: 'account_balance',
+  //       color: 'primary',
+  //       tooltip: 'Accounts',
+  //       loading: false
+  //     }
+  //   ],
+  //   onActionClick: (action: QuickAction) => {
+  //     console.log('Quick action clicked:', action);
+  //     switch (action.id) {
+  //       case 'add-transaction':
+  //         this._dialog.open(MobileAddTransactionComponent, {
+  //           panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
+  //         });
+  //         break;
+  //       case 'category':
+  //         this.router.navigate(["/dashboard/category"]);
+  //         break;
+  //       case 'accounts':
+  //         this.router.navigate(["/dashboard/accounts"]);
+  //         break;
+  //     }
+  //   },
+  //   onMainButtonClick: () => {
+  //     console.log('Main FAB clicked');
+  //   }
+  // };
+
+  // keyMetricsConfig: KeyMetricsConfig = {
+  //   title: '',
+  //   subtitle: '',
+  //   currency: 'INR',
+  //   showHeaderIcon: false ,
+  //   columns: 3,
+  //   cardsPerRow: {
+  //     xs: 1,
+  //     sm: 2,
+  //     md: 4,
+  //     lg: 5,
+  //     xl: 6,
+  //   },
+  //   showPeriod: false,
+  // };
+
+  // upcomingTransactionsConfig: UpcomingTransactionsConfig = {
+  //   title: 'Upcoming Transactions',
+  //   subtitle: 'Upcoming transactions',
+  //   currency: 'INR',
+  //   showHeaderIcon: true,
+  // };
+
+  // financialMetricsConfig:FinancialMetricsConfig = {
+  //   title: 'Monthly Financial Summary',
+  //   subtitle: '',
+  //   currency: 'INR',
+  //   showHeaderIcon: true,
+  //   headerIcon: 'pie_chart',
+  //   showFooter: true,
+  //   footerText: 'Last updated',
+  //   cardHeight: 'medium',
+  //   theme: 'auto',
+  //   animations: true,
+  //   loading: false,
+  //   error: '',
+  //   onRefresh: () => {
+  //     console.log('Refreshing financial data...');
+  //   }
+  // };
+
+  constructor(private router: Router, private _dialog: MatDialog, public breakpointService: BreakpointService, private openaiService: OpenaiService, private userService: UserService) {
+    this.userService.userAuth$.subscribe((u: any) => {
+      try {
+        const name = u?.displayName || (u?.uid ? this.userService.getCachedUserData(u.uid)?.firstName : null) || 'User';
+        if (this.messages && this.messages.length && this.messages[0].sender === 'bot') {
+          this.messages[0].text = `Hi <b class="text-primary">${name}</b>, your finances are synced securely. How can Money Manager assist you today?`;
+        }
+      } catch (err) {
+        console.error('Error setting user name in HomeComponent:', err);
       }
-    ],
-    onActionClick: (action: QuickAction) => {
-      console.log('Quick action clicked:', action);
-      switch (action.id) {
-        case 'add-transaction':
-          this._dialog.open(MobileAddTransactionComponent, {
-            panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
-          });
-          break;
-        case 'category':
-          this.router.navigate(["/dashboard/category"]);
-          break;
-        case 'accounts':
-          this.router.navigate(["/dashboard/accounts"]);
-          break;
-      }
-    },
-    onMainButtonClick: () => {
-      console.log('Main FAB clicked');
-    }
-  };
-
-  keyMetricsConfig: KeyMetricsConfig = {
-    title: '',
-    subtitle: '',
-    currency: 'INR',
-    showHeaderIcon: false ,
-    columns: 3,
-    cardsPerRow: {
-      xs: 1,
-      sm: 2,
-      md: 4,
-      lg: 5,
-      xl: 6,
-    },
-    showPeriod: false,
-  };
-
-  upcomingTransactionsConfig: UpcomingTransactionsConfig = {
-    title: 'Upcoming Transactions',
-    subtitle: 'Upcoming transactions',
-    currency: 'INR',
-    showHeaderIcon: true,
-  };
-
-  financialMetricsConfig:FinancialMetricsConfig = {
-    title: 'Monthly Financial Summary',
-    subtitle: '',
-    currency: 'INR',
-    showHeaderIcon: true,
-    headerIcon: 'pie_chart',
-    showFooter: true,
-    footerText: 'Last updated',
-    cardHeight: 'medium',
-    theme: 'auto',
-    animations: true,
-    loading: false,
-    error: '',
-    onRefresh: () => {
-      console.log('Refreshing financial data...');
-    }
-  };
-
-  constructor( private router: Router,private _dialog: MatDialog,public breakpointService: BreakpointService) { }
-
-   messages = [
-    { sender: 'bot', text: 'Hi User, your finances are synced securely.' },
-    { sender: 'user', text: 'Show my total balance' },
-    { sender: 'bot', text: 'Your current total balance is ₹1,30,771.' }
-  ];
-
-   isTyping = false;
-
-  sendMessage(input: HTMLInputElement) {
-    if (!input.value.trim()) return;
-
-    this.messages.push({ sender: 'user', text: input.value });
-    input.value = '';
-    this.startBotReply();
+    });
   }
 
-  startBotReply() {
+  messages = [
+    { sender: 'bot', text: 'Hi User, your finances are synced securely.' },];
+
+  isTyping = false;
+
+  sendMessage(input: HTMLInputElement) {
+    const text = input.value?.trim();
+    if (!text) return;
+
+    this.messages.push({ sender: 'user', text });
+    input.value = '';
+    this.startBotReply(text);
+  }
+
+  startBotReply(userText: string) {
     this.isTyping = true;
-    setTimeout(() => {
-      this.messages.push({ sender: 'bot', text: 'Here is an AI insight based on your data...' });
-      this.isTyping = false;
-    }, 1500);
+
+    const systemMessage = this.openaiService.createFinancialAdvisorMessage();
+    const userMessage = { role: 'user' as const, content: userText };
+
+    this.openaiService.sendMessage([systemMessage, userMessage]).subscribe({
+      next: (reply: string) => {
+        this.messages.push({ sender: 'bot', text: reply });
+        this.isTyping = false;
+      },
+      error: (err: any) => {
+        console.error('OpenAI error:', err);
+        this.messages.push({ sender: 'bot', text: 'Sorry, I could not get a response from the AI right now.' });
+        this.isTyping = false;
+      }
+    });
   }
 }

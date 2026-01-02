@@ -44,6 +44,7 @@ import { AccountSummaryCardComponent } from '../../util/components/cards/account
 import { KeyMetricsSummaryCardComponent } from '../../util/components/cards/key-metrics-summary-card/key-metrics-summary-card.component';
 import { AnalyticsSummaryCardComponent } from '../../util/components/cards/analytics-summary-card/analytics-summary-card.component';
 import { CurrencyPipe } from 'src/app/util/pipes';
+import { SafeHtmlPipe } from 'src/app/util/pipes/safe-html.pipe';
 import { FinancialMetricsCardComponent } from 'src/app/util/components/cards/financial-metrics-card/financial-metrics-card.component';
 
 @NgModule({
@@ -55,7 +56,8 @@ import { FinancialMetricsCardComponent } from 'src/app/util/components/cards/fin
     CategorySplitDialogComponent,
     BudgetCardComponent,
     AccountSummaryCardComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    SafeHtmlPipe
   ],
   imports: [
     CommonModule,
@@ -145,7 +147,8 @@ import { FinancialMetricsCardComponent } from 'src/app/util/components/cards/fin
     FinancialMetricsCardComponent,
 
     // Pipes
-    CurrencyPipe
+    CurrencyPipe,
+    SafeHtmlPipe
   ]
 })
 export class SharedModule { } 

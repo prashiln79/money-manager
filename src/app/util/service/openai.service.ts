@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { env } from 'process';
+import { environment } from '@env/environment';
 
 export interface OpenAIMessage {
   role: 'user' | 'assistant' | 'system';
@@ -43,7 +45,7 @@ export class OpenaiService {
 
   private loadApiKey(): void {
     try {
-      this.apiKey = localStorage.getItem('openai_api_key') || '';
+      this.apiKey = environment.openAiApiKey || '';
     } catch (error) {
       console.error('Error loading OpenAI API key:', error);
     }
