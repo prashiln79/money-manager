@@ -162,4 +162,28 @@ export class HomeComponent {
   };
 
   constructor( private router: Router,private _dialog: MatDialog,public breakpointService: BreakpointService) { }
+
+   messages = [
+    { sender: 'bot', text: 'Hi Prashil, your finances are synced securely.' },
+    { sender: 'user', text: 'Show my total balance' },
+    { sender: 'bot', text: 'Your current total balance is ₹1,30,771.' }
+  ];
+
+   isTyping = false;
+
+  sendMessage(input: HTMLInputElement) {
+    if (!input.value.trim()) return;
+
+    this.messages.push({ sender: 'user', text: input.value });
+    input.value = '';
+    this.startBotReply();
+  }
+
+  startBotReply() {
+    this.isTyping = true;
+    setTimeout(() => {
+      this.messages.push({ sender: 'bot', text: 'Here is an AI insight based on your data...' });
+      this.isTyping = false;
+    }, 1500);
+  }
 }

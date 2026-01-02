@@ -1,6 +1,6 @@
-<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-4 md:gap-6 lg:grid-cols-12 lg:gap-8 lg:mt-20 lg:px-16 xl:gap-12 xl:px-24 2xl:gap-16 2xl:px-48">
-	<!-- Calendar View - Full width on mobile, hidden on larger screens -->
-	<div class="col-span-1 sm:hidden">
+<!-- <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-4 md:gap-6 lg:grid-cols-12 lg:gap-8 lg:mt-20 lg:px-16 xl:gap-12 xl:px-24 2xl:gap-16 2xl:px-48"> -->
+<!-- Calendar View - Full width on mobile, hidden on larger screens -->
+<!-- <div class="col-span-1 sm:hidden">
 		<calendar-view></calendar-view>
 	</div>
 
@@ -12,42 +12,93 @@
 		<app-account-summary-card *ngIf="breakpointService.device.isDesktop"></app-account-summary-card>
 		<hr class="mb-5" />
 		<transaction-table> </transaction-table>
-	</div>
+	</div> -->
 
-	<!-- Key Metrics Summary Card - Full width on all screens -->
-	<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-12">
+<!-- Key Metrics Summary Card - Full width on all screens -->
+<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-12">
 		<app-key-metrics-summary-card [config]="keyMetricsConfig"></app-key-metrics-summary-card>
 	</div> -->
 
-	<!-- Top Categories Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
+<!-- Top Categories Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
 
-	<div class="col-span-1 sm:col-span-1 lg:col-span-4" *ngIf="breakpointService.device.isDesktop">
-		<!-- <app-upcoming-transactions-card [config]="upcomingTransactionsConfig"></app-upcoming-transactions-card>  -->
+<!-- <div class="col-span-1 sm:col-span-1 lg:col-span-4" *ngIf="breakpointService.device.isDesktop">
+		 <app-upcoming-transactions-card [config]="upcomingTransactionsConfig"></app-upcoming-transactions-card>  
 		<app-financial-metrics-card [config]="financialMetricsConfig"></app-financial-metrics-card>
-	</div>
+	</div> -->
 
-	<!-- Recent Activity Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
-	<div class="col-span-1 sm:col-span-1 lg:col-span-4">
+<!-- Recent Activity Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
+<!-- <div class="col-span-1 sm:col-span-1 lg:col-span-4">
 		<app-recent-activity-card [config]="recentActivityConfig"></app-recent-activity-card>
-	</div>
+	</div> -->
 
-	<!-- Category Breakdown Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
-	<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-8">
+<!-- Category Breakdown Card - Full width on mobile, half width on tablet, 1/3 on desktop -->
+<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-8">
 		<app-category-breakdown-card [config]="categoryBreakdownConfig"></app-category-breakdown-card>
 	</div> -->
 
-	<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-4">
+<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-4">
 		<app-category-breakdown-card [config]="categoryPieBreakdownConfig"></app-category-breakdown-card>
 	</div> -->
 
-	<!-- Budget Card - Full width on mobile, half width on tablet, 5/12 on desktop -->
-	<div class="col-span-1 sm:col-span-1 lg:col-span-7"></div>
+<!-- Budget Card - Full width on mobile, half width on tablet, 5/12 on desktop -->
+<!-- <div class="col-span-1 sm:col-span-1 lg:col-span-7"></div> -->
 
-	<!-- Monthly Trends Card - Full width on all screens -->
-	<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-12">
+<!-- Monthly Trends Card - Full width on all screens -->
+<!-- <div class="col-span-1 sm:col-span-2 lg:col-span-12">
 		<app-monthly-trends-card [config]="monthlyTrendsConfig"></app-monthly-trends-card>
 	</div> -->
 
-	<!-- Quick Actions FAB - Fixed position, not part of grid -->
-	<app-quick-actions-fab [config]="quickActionsFabConfig"></app-quick-actions-fab>
-</section>
+<!-- Quick Actions FAB - Fixed position, not part of grid -->
+<!-- <app-quick-actions-fab [config]="quickActionsFabConfig"></app-quick-actions-fab> -->
+<!-- </section> -->
+
+
+<div class="flex flex-col h-[calc(100vh-9.6rem)] bg-white text-gray-800 font-roboto">
+
+	<!-- Balance Card -->
+	<div class="p-4">
+		<div class="max-w-7xl mx-auto bg-gray-50 p-5 rounded-2xl shadow-sm animate-fadeUp">
+			<p class="text-sm text-gray-500">Total Balance</p>
+			<h2 id="balance" class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">₹1,30,771</h2>
+		</div>
+	</div>
+
+	<!-- Chat Area -->
+	<div class="flex-1 overflow-y-auto px-4 space-y-4 mt-10">
+		<div class="max-w-3xl mx-auto">
+
+			<div *ngFor="let msg of messages" class="flex fade-in"
+				[ngClass]="msg.sender === 'user' ? 'justify-end' : 'justify-start'">
+
+				<div class="px-4 py-2 my-2 rounded-2xl max-w-[80%] sm:max-w-[60%] text-sm sm:text-base" [ngClass]="msg.sender === 'user'
+                ? 'bg-primary-500 text-white rounded-br-md'
+                : 'bg-gray-100 text-gray-800 rounded-bl-md'">
+					{{ msg.text }}
+				</div>
+			</div>
+
+			<!-- Typing Loader -->
+			<div *ngIf="isTyping" class="flex justify-start fade-in">
+				<div class="bg-gray-100 px-4 py-2 rounded-2xl rounded-bl-md">
+					<span class="typing-dots">
+						<span></span><span></span><span></span>
+					</span>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- Input Bar -->
+	<div class="border-t border-gray-100 p-4 bg-white">
+		<div class="max-w-2xl mx-auto flex gap-3">
+			<input #chatInput type="text" placeholder="Ask AI or enter expense, income..."
+				class="flex-1 border border-gray-200 rounded-xl px-4 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary-300 transition">
+			<button (click)="sendMessage(chatInput)"
+				class="bg-primary-500 hover:bg-primary-700 text-white px-4 sm:px-6 py-2 rounded-xl text-sm sm:text-base font-medium transition">
+				Send
+			</button>
+		</div>
+	</div>
+
+</div>
