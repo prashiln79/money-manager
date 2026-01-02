@@ -115,12 +115,10 @@ src/
 
 ### Dashboard Overview • Budget & Categories • Reports & Analytics
 
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-
-<img src="src/assets/images/screenshot/img1.png" alt="Dashboard" width="100%">
-<img src="src/assets/images/screenshot/img2.png" alt="Budget & Categories" width="100%">
-<img src="src/assets/images/screenshot/img3.png" alt="Reports & Analytics" width="100%">
-
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+  <img src="src/assets/images/screenshot/img1.png" width="100%">
+  <img src="src/assets/images/screenshot/img2.png" width="100%">
+  <img src="src/assets/images/screenshot/img3.png" width="100%">
 </div>
 
 
