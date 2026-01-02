@@ -113,14 +113,16 @@ src/
 
 ## Screenshots
 
-### Dashboard Overview
-![Dashboard](src/assets/images/screenshot/img1.png)
+### Dashboard Overview • Budget & Categories • Reports & Analytics
 
-### Budget & Categories
-![Budget](src/assets/images/screenshot/img2.png)
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
 
-### Reports & Analytics
-![Reports](src/assets/images/screenshot/img3.png)
+<img src="src/assets/images/screenshot/img1.png" alt="Dashboard" width="100%">
+<img src="src/assets/images/screenshot/img2.png" alt="Budget & Categories" width="100%">
+<img src="src/assets/images/screenshot/img3.png" alt="Reports & Analytics" width="100%">
+
+</div>
+
 
 ## Contributing
 
