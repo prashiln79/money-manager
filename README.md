@@ -1,5 +1,12 @@
 <p align="center">
   <img src="src/assets/images/screenshot/banner.png" alt="Money Manager Banner" width="100%">
+ <div style="display: flex; justify-content: center; margin: 18px 0;">
+  <a href="https://prashil-wadkar.github.io/money-manager/" target="_blank"
+     style="background:#6b7280; color:white; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:600;">
+     🚀 Go to App
+  </a>
+</div>
+
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/Angular-18-red" />
