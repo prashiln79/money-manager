@@ -56,16 +56,16 @@
 <div class="flex flex-col h-[calc(100vh-9.6rem)] bg-white text-gray-800 font-roboto">
 
 	<!-- Balance Card -->
-	<div class="p-4">
-		<div class="max-w-7xl mx-auto bg-gray-50 p-5 rounded-2xl shadow-sm animate-fadeUp">
-			<p class="text-sm text-gray-500">Total Balance</p>
-			<h2 id="balance" class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">₹1,30,771</h2>
+	<div class="p-4" *ngIf="breakpointService.device.isDesktop">
+		<div class="max-w-4xl mx-auto  rounded-2xl shadow-sm animate-fadeUp">
+				<app-account-summary-card ></app-account-summary-card>
 		</div>
 	</div>
+		
 
 	<!-- Chat Area -->
 	<div class="flex-1 overflow-y-auto px-4 space-y-4 mt-10">
-		<div class="max-w-3xl mx-auto">
+		<div class="max-w-4xl mx-auto">
 
 			<div *ngFor="let msg of messages" class="flex fade-in"
 				[ngClass]="msg.sender === 'user' ? 'justify-end' : 'justify-start'">

@@ -164,7 +164,7 @@ export class HomeComponent {
   constructor( private router: Router,private _dialog: MatDialog,public breakpointService: BreakpointService) { }
 
    messages = [
-    { sender: 'bot', text: 'Hi Prashil, your finances are synced securely.' },
+    { sender: 'bot', text: 'Hi User, your finances are synced securely.' },
     { sender: 'user', text: 'Show my total balance' },
     { sender: 'bot', text: 'Your current total balance is ₹1,30,771.' }
   ];
