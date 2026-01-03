@@ -1,62 +1,82 @@
 import { Injectable } from "@angular/core";
-import { OpenaiService } from "./openai.service";
 import { ChatIntentService } from "./chat-intent-service";
+import { IncomeHandlerService } from "./handlers/income-handler.service";
+import { ExpenseHandlerService } from "./handlers/expense-handler.service";
+import { ReportHandlerService } from "./handlers/report-handler.service";
+import { AiReplyHandlerService } from "./handlers/ai-reply-handler.service";
+import { ChatFlowService } from "./handlers/chat-flow.service";
+import { AmountExtractor } from "./utils/amount-extractor.util";
 
 @Injectable({ providedIn: 'root' })
 export class ChatFacadeService {
-    messages: Array<{ sender: string, text: string }> = [ { sender: 'bot', text: 'Hi User, your finances are synced securely. How can Money Manager assist you today?' }];
+    messages: Array<{ sender: string; text: string }> = [];
     isTyping = false;
 
     constructor(
         private intent: ChatIntentService,
-        private ai: OpenaiService,
-    ) { }
+        private flow: ChatFlowService,
+        private income: IncomeHandlerService,
+        private expense: ExpenseHandlerService,
+        private report: ReportHandlerService,
+        private aiReply: AiReplyHandlerService,
+        private extract: AmountExtractor
+    ) {
+        this.messages.push({
+            sender: 'bot',
+            text: '🙂 Hello! I am your financial assistant. How can I help you today?'
+        });
+    }
 
     startBotReply(userText: string) {
         this.isTyping = true;
         const detected = this.intent.detectIntent(userText);
+        const amount = this.extract.extractAmount(userText);
+
+        // 1. Start follow-up flow if user entered only amount and no flow is active
+        if (!this.flow.getStage() && detected === 'AI_REPLY' && amount > 0) {
+            this.pushBot(this.flow.startAmountFlow(amount));
+            return;
+        }
+
+        // 2. Handle type confirmation stage
+        if (this.flow.getStage() === 'askType') {
+            const reply = this.flow.handleTypeReply(userText, detected);
+            this.pushBot(reply);
+            return;
+        }
+
+        // 3. Handle category asking stage
+        if (this.flow.getStage() === 'askCategory') {
+            const reply = this.flow.handleCategoryReply(userText.trim());
+            this.pushBot(reply);
+            return;
+        }
+
+        // 4. Normal intent handlers
+        if (detected === 'ADD_INCOME') {
+            this.pushBot(this.income.addIncome(userText, amount));
+            return;
+        }
 
         if (detected === 'ADD_EXPENSE') {
-            const amount = this.extractAmount(userText);
-            console.log('Adding expense:', amount);
-            this.pushBot(`Expense added: ₹${amount}`);
+            this.pushBot(this.expense.addExpense(userText, amount));
+            return;
         }
 
-        else if (detected === 'ADD_INCOME') {
-            const amount = this.extractAmount(userText);
-            console.log('Adding income:', amount);
-            this.pushBot(`Income added: ₹${amount}`);
+        if (detected === 'GET_REPORT') {
+            this.pushBot(this.report.generateReport());
+            return;
         }
 
-        else if (detected === 'GET_REPORT') {
-            this.pushBot('Generating your financial report...');
-            console.log('Generating report...');
-        }
-
-        else {
-            try {
-                const systemMessage = this.ai.createFinancialAdvisorMessage();
-                const userMessage = { role: 'user' as const, content: userText };
-
-                this.ai.sendMessage([systemMessage, userMessage]).subscribe({
-                    next: reply => this.pushBot(reply),
-                    error: err => this.pushBot('AI error, try again')
-                });
-            } catch (error) {
-                console.error('Error during AI reply:', error);
-                this.pushBot('AI error, try again');
-            }
-
-        }
+        // 5. AI reply fallback
+        this.aiReply.handleAI(userText).subscribe({
+            next: (reply) => this.pushBot(reply),
+            error: () => this.pushBot('Internal error, please try again!')
+        });
     }
 
     private pushBot(text: string) {
         this.messages.push({ sender: 'bot', text });
         this.isTyping = false;
-    }
-
-    private extractAmount(text: string): number {
-        const match = text.match(/(\d[\d,]*)/);
-        return match ? Number(match[1].replace(/,/g, '')) : 0;
     }
 }
