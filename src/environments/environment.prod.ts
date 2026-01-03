@@ -14,5 +14,6 @@ export const environment = {
   },
   // VAPID key for Firebase Cloud Messaging
   // You need to generate this in Firebase Console > Project Settings > Cloud Messaging
-  vapidKey: "BOamaFiXWThOO4UzENQofnI3JSJhXa6ozOS0r9DBDumohWfZyXKMeBKC9ujuYVQPm40LNybcLEEpjRflULWrMco"
+  vapidKey: "BOamaFiXWThOO4UzENQofnI3JSJhXa6ozOS0r9DBDumohWfZyXKMeBKC9ujuYVQPm40LNybcLEEpjRflULWrMco",
+  openAiApiKey: 'sk-REPLACE-WITH-YOUR-KEY'
 };
