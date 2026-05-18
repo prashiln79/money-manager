@@ -29,6 +29,8 @@ import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { FooterService } from 'src/app/component/dashboard/footer/footer.service';
 import { NotesService } from '../../../../util/service/db/notes.service';
 import { UserService } from '../../../../util/service/db/user.service';
+import { CategoryFacadeService } from 'src/app/util/service/db/category-facade.service';
+import { Category } from 'src/app/util/models/category.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 
@@ -57,6 +59,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   notes = signal<Note[]>([]);
   searchQuery = signal('');
   selectedColor = signal<string>(NOTE_COLORS[0].value);
+  categoryMap = signal<Record<string, Category>>({});
 
   noteColors = NOTE_COLORS;
 
@@ -64,6 +67,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   public footerService = inject(FooterService);
   private notesService = inject(NotesService);
   private userService = inject(UserService);
+  private categoryFacadeService = inject(CategoryFacadeService);
   private destroyRef = inject(DestroyRef);
   private dialog = inject(MatDialog);
 
@@ -87,6 +91,42 @@ export class NotesComponent implements OnInit, OnDestroy {
     );
   });
 
+  groupedNotes = computed(() => {
+    const notes = this.filteredNotes();
+    const map = this.categoryMap();
+    const groups = new Map<string, Note[]>();
+    const untagged: Note[] = [];
+    const pinned: Note[] = [];
+
+    notes.forEach(note => {
+      if (note.isPinned) {
+        pinned.push(note);
+      } else if (!note.categoryIds || note.categoryIds.length === 0) {
+        untagged.push(note);
+      } else {
+        note.categoryIds.forEach(catId => {
+          if (!groups.has(catId)) {
+            groups.set(catId, []);
+          }
+          groups.get(catId)!.push(note);
+        });
+      }
+    });
+
+    const groupedArray = Array.from(groups.entries()).map(([catId, notes]) => ({
+      category: map[catId],
+      notes: notes
+    })).filter(g => g.category); // Ignore if category was deleted
+
+    groupedArray.sort((a, b) => a.category.name.localeCompare(b.category.name));
+
+    return {
+      pinned: pinned,
+      groups: groupedArray,
+      untagged: untagged
+    };
+  });
+
   constructor(
     private storageService: LocalIndexDBStorageService,
     private snackBar: MatSnackBar,
@@ -102,6 +142,17 @@ export class NotesComponent implements OnInit, OnDestroy {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(notes => {
       this.notes.set(notes);
+      this.cdr.markForCheck();
+    });
+
+    this.categoryFacadeService.getCategories(userId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(cats => {
+      const map: Record<string, Category> = {};
+      cats.forEach(c => {
+        if (c.id) map[c.id] = c;
+      });
+      this.categoryMap.set(map);
       this.cdr.markForCheck();
     });
   }
@@ -183,6 +234,7 @@ export class NotesComponent implements OnInit, OnDestroy {
             title: result.title,
             content: result.content,
             color: result.color,
+            categoryIds: result.categoryIds || [],
             updatedAt: new Date().toISOString()
           });
           this.snackBar.open('Note updated!', '', { duration: 1800 });
@@ -194,6 +246,7 @@ export class NotesComponent implements OnInit, OnDestroy {
             title: result.title,
             content: result.content,
             color: result.color,
+            categoryIds: result.categoryIds || [],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             isPinned: false,
@@ -247,6 +300,10 @@ export class NotesComponent implements OnInit, OnDestroy {
 
   trackById(_: number, note: Note): string {
     return note.id;
+  }
+
+  trackGroup(_: number, group: any): string {
+    return group.category.id;
   }
 
   private generateId(): string {

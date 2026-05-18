@@ -251,6 +251,33 @@ $note-colors: (
 }
 
 // ── Notes Grid ────────────────────────────────────────────────────────────────
+.note-group {
+  margin-bottom: 2.5rem;
+
+  .note-group-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    .dark-theme & {
+      color: #f1f5f9;
+      border-bottom-color: #334155;
+    }
+
+    mat-icon {
+      font-size: 1.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  }
+}
+
 .notes-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -312,7 +339,7 @@ $note-colors: (
 
     .note-card-actions {
       display: flex;
-      opacity: 0;
+      opacity: 1;
       transition: opacity 0.15s;
       flex-shrink: 0;
 
@@ -325,9 +352,9 @@ $note-colors: (
   &:hover .note-card-actions { opacity: 1; }
   
   // Always show actions on mobile since hover isn't available
-  @media (max-width: 600px) {
-    .note-card-actions { opacity: 1 !important; }
-  }
+  // @media (max-width: 600px) {
+  //   .note-card-actions { opacity: 1 !important; }
+  // }
 
   .note-card-content {
     font-size: 0.875rem;
@@ -341,6 +368,30 @@ $note-colors: (
     -webkit-box-orient: vertical;
     overflow: hidden;
     .dark-theme & { color: #94a3b8; }
+  }
+
+  .note-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+
+    .note-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+
+      mat-icon {
+        font-size: 0.8rem;
+        width: 0.8rem;
+        height: 0.8rem;
+      }
+    }
   }
 
   .note-card-footer {

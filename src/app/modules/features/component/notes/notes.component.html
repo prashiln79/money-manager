@@ -41,33 +41,73 @@
     <p *ngIf="searchQuery()">No notes match "<strong>{{ searchQuery() }}</strong>".</p>
   </div>
 
-  <!-- Notes Grid -->
-  <div class="notes-grid" *ngIf="filteredNotes().length > 0">
-    <ng-container *ngFor="let note of filteredNotes(); trackBy: trackById">
-
-      <!-- Note Card -->
-      <div
-        class="note-card note-{{ note.color }}"
-        (click)="startEditing(note)"
-      >
-        <div class="note-card-header">
-          <span class="note-card-title">{{ note.title }}</span>
-          <div class="note-card-actions" (click)="$event.stopPropagation()">
-            <button mat-icon-button [matTooltip]="note.isPinned ? 'Unpin' : 'Pin'" (click)="togglePin(note)">
-              <mat-icon [class.pinned]="note.isPinned">push_pin</mat-icon>
-            </button>
-            <!-- <button mat-icon-button matTooltip="Delete" (click)="deleteNote(note.id)">
-              <mat-icon>delete_outline</mat-icon>
-            </button> -->
-          </div>
-        </div>
-        <p class="note-card-content">{{ note.content }}</p>
-        <div class="note-card-footer">
-          <span class="note-date">{{ formatDate(note.updatedAt) }}</span>
+  <!-- Notes Display grouped by Tags -->
+  <ng-template #noteCardTemplate let-note="note">
+    <div
+      class="note-card note-{{ note.color }}"
+      (click)="startEditing(note)"
+    >
+      <div class="note-card-header">
+        <span class="note-card-title">{{ note.title }}</span>
+        <div class="note-card-actions" (click)="$event.stopPropagation()">
+          <button mat-icon-button [matTooltip]="note.isPinned ? 'Unpin' : 'Pin'" (click)="togglePin(note)">
+            <mat-icon [class.pinned]="note.isPinned">{{ note.isPinned ? 'undo' : 'push_pin' }}</mat-icon>
+          </button>
         </div>
       </div>
+      <p class="note-card-content">{{ note.content }}</p>
 
-    </ng-container>
-  </div>
+      <div class="note-card-tags" *ngIf="note.categoryIds?.length">
+        <ng-container *ngFor="let catId of note.categoryIds">
+          <span class="note-tag" *ngIf="categoryMap()[catId] as cat" [style.color]="cat.color" [style.background]="cat.color + '22'">
+            <mat-icon>{{ cat.icon }}</mat-icon>
+            {{ cat.name }}
+          </span>
+        </ng-container>
+      </div>
+
+      <div class="note-card-footer">
+        <span class="note-date">{{ formatDate(note.updatedAt) }}</span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-container *ngIf="filteredNotes().length > 0">
+    <div class="note-group" *ngIf="groupedNotes().pinned.length > 0">
+      <h2 class="note-group-title">
+        <mat-icon style="color: var(--primary-500)">push_pin</mat-icon>
+        Pinned
+      </h2>
+      <div class="notes-grid">
+        <ng-container *ngFor="let note of groupedNotes().pinned; trackBy: trackById">
+          <ng-container *ngTemplateOutlet="noteCardTemplate; context: { note: note }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+    <div *ngFor="let group of groupedNotes().groups; trackBy: trackGroup" class="note-group">
+      <h2 class="note-group-title">
+        <mat-icon [style.color]="group.category.color">{{ group.category.icon }}</mat-icon>
+        {{ group.category.name }}
+      </h2>
+      <div class="notes-grid">
+        <ng-container *ngFor="let note of group.notes; trackBy: trackById">
+          <ng-container *ngTemplateOutlet="noteCardTemplate; context: { note: note }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="note-group" *ngIf="groupedNotes().untagged.length > 0">
+      <h2 class="note-group-title" *ngIf="groupedNotes().groups.length > 0">
+        <mat-icon>label_off</mat-icon>
+        Untagged
+      </h2>
+      <div class="notes-grid">
+        <ng-container *ngFor="let note of groupedNotes().untagged; trackBy: trackById">
+          <ng-container *ngTemplateOutlet="noteCardTemplate; context: { note: note }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
 
 </div>

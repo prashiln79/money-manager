@@ -8,8 +8,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { Note, NOTE_COLORS } from '../note.model';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
+import { CategoryFacadeService } from 'src/app/util/service/db/category-facade.service';
+import { UserService } from 'src/app/util/service/db/user.service';
 
 @Component({
   selector: 'app-note-add-sheet',
@@ -22,6 +25,7 @@ import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/c
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
+    MatSelectModule,
   ],
   templateUrl: './note-add-sheet.component.html',
   styleUrls: ['./note-add-sheet.component.scss']
@@ -31,17 +35,23 @@ export class NoteAddSheetComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<NoteAddSheetComponent>, { optional: true });
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private categoryFacadeService = inject(CategoryFacadeService);
+  private userService = inject(UserService);
+
   public bottomSheetData = inject<{ note?: Note, mode?: 'add' | 'edit' | 'view' }>(MAT_BOTTOM_SHEET_DATA, { optional: true });
   public dialogData = inject<{ note?: Note, mode?: 'add' | 'edit' | 'view' }>(MAT_DIALOG_DATA, { optional: true });
   public data = this.bottomSheetData || this.dialogData;
   public isDialog = !!this.dialogRef;
   public currentMode = signal<'add' | 'edit' | 'view'>(this.data?.mode || (this.data?.note ? 'edit' : 'add'));
+  
+  public categories$ = this.categoryFacadeService.getCategories(this.userService.getCurrentUserId() || '');
   @ViewChild('noteTextarea') noteTextarea!: ElementRef<HTMLTextAreaElement>;
   hasSelection = signal(false);
 
   title = '';
   content = '';
   selectedColor = signal(NOTE_COLORS[0].value);
+  selectedCategoryIds: string[] = [];
   noteColors = NOTE_COLORS;
 
   ngOnInit() {
@@ -49,6 +59,7 @@ export class NoteAddSheetComponent implements OnInit {
       this.title = this.data.note.title;
       this.content = this.data.note.content;
       this.selectedColor.set(this.data.note.color);
+      this.selectedCategoryIds = this.data.note.categoryIds || [];
     }
   }
 
@@ -68,7 +79,8 @@ export class NoteAddSheetComponent implements OnInit {
     this.close({
       title: this.title.trim() || 'Untitled',
       content: this.content.trim(),
-      color: this.selectedColor()
+      color: this.selectedColor(),
+      categoryIds: this.selectedCategoryIds
     });
   }
 
