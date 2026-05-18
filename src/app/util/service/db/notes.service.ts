@@ -140,22 +140,41 @@ export class NotesService {
   async updateNote(userId: string, noteId: string, updatedNote: Partial<Note>): Promise<void> {
     // 1. Optimistic Update
     let updatedNotes: Note[] = [];
+    let fullUpdatedNote: Note | undefined;
+
     if (this.isGuest(userId)) {
       const notes = this.localStorageUtility.getItem<Note[]>(LocalStorageKey.GUEST_NOTES) || [];
-      updatedNotes = notes.map(n => n.id === noteId ? { ...n, ...updatedNote } : n);
+      updatedNotes = notes.map(n => {
+        if (n.id === noteId) {
+          fullUpdatedNote = { ...n, ...updatedNote };
+          return fullUpdatedNote;
+        }
+        return n;
+      });
       this.localStorageUtility.setItem(LocalStorageKey.GUEST_NOTES, updatedNotes);
     } else {
       const cacheKey = LocalStorageKeyHelper.getNotesCacheKey(userId);
       const notes = this.localStorageUtility.getItem<Note[]>(cacheKey) || [];
-      updatedNotes = notes.map(n => n.id === noteId ? { ...n, ...updatedNote, syncStatus: SyncStatus.PENDING } : n);
+      updatedNotes = notes.map(n => {
+        if (n.id === noteId) {
+          fullUpdatedNote = { ...n, ...updatedNote, syncStatus: SyncStatus.PENDING } as Note;
+          return fullUpdatedNote;
+        }
+        return n;
+      });
       this.localStorageUtility.setItem(cacheKey, updatedNotes);
     }
     this.notesSubject.next(updatedNotes);
 
     if (this.isGuest(userId)) return;
 
+    if (!fullUpdatedNote) {
+      console.warn(`[NotesService] Note with id ${noteId} not found in cache for update.`);
+      return;
+    }
+
     // 2. Queue for Sync
-    await this.addToSyncQueue('update', { id: noteId, ...updatedNote }, userId);
+    await this.addToSyncQueue('update', fullUpdatedNote, userId);
   }
 
   async deleteNote(userId: string, noteId: string): Promise<void> {
