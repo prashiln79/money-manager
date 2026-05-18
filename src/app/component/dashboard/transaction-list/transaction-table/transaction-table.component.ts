@@ -94,7 +94,7 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
   @ViewChild(MatSort) sort!: MatSort;
 
   dataSource: MatTableDataSource<Transaction> = new MatTableDataSource<Transaction>();
-  displayedColumns: string[] = ['Date', 'Type', 'Amount', 'Status', 'Actions'];
+  displayedColumns: string[] = ['Date', 'Type', 'Amount', 'Status', 'Notes', 'Actions'];
   isListView: boolean = false;
 
   // Selection properties
@@ -187,13 +187,13 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
       } else if (screenWidth < this.TABLET_BREAKPOINT) {
         // Small tablet: Show more columns but hide status (include select column only if not home)
         this.displayedColumns = this.isHome ?
-          ['Date', 'Type', 'Amount', 'Actions'] :
-          ['Date', 'Type', 'Amount', 'Actions'];
+          ['Date', 'Type', 'Amount', 'Note', 'Actions'] :
+          ['Date', 'Type', 'Amount', 'Note', 'Actions'];
       } else {
         // Desktop: Show all columns (include select column only if not home)
         this.displayedColumns = this.isHome ?
-          ['Date', 'Type', 'Amount', 'Status', 'Actions'] :
-          ['Date', 'Type', 'Amount', 'Status', 'Account', 'Actions'];
+          ['Date', 'Type', 'Amount', 'Status', 'Note', 'Actions'] :
+          ['Date', 'Type', 'Amount', 'Status', 'Account', 'Note', 'Actions'];
       }
     }
   }
@@ -358,7 +358,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
         amount: transaction.amount,
         type: transaction.type,
         categoryId: transaction.categoryId,
-        accountId: transaction.accountId
+        accountId: transaction.accountId,
+        notes: transaction.notes
       };
       
       this.startRowEdit.emit(clonedTransaction);
@@ -480,6 +481,13 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   getNetAmount(): number {
     return this.getTotalIncome() - this.getTotalExpense();
+  }
+
+  getSelectedTotal(): number {
+    const selected = this.getSelectedTransactions();
+    const income = selected.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expense = selected.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    return income - expense;
   }
 
   getTransactionCount(): number {

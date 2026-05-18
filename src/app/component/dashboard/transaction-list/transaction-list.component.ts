@@ -244,7 +244,8 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       amount: amount,
       type: element.type,
       categoryId: element.categoryId,
-      accountId: element.accountId
+      accountId: element.accountId,
+      notes: element.notes
     };
 
     const userId = this.userService.getCurrentUserId();
@@ -266,6 +267,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       element.type = element.originalValues.type;
       element.categoryId = element.originalValues.categoryId;
       element.accountId = element.originalValues.accountId;
+      element.notes = element.originalValues.notes;
     }
     element.isEditing = false;
     delete element.originalValues;

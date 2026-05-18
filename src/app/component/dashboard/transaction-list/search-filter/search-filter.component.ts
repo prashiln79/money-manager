@@ -55,7 +55,7 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
 
   // UI state signals
   searchTerm = signal('');
-  selectedCategory = signal('all');
+  selectedCategory = signal<string[]>(['all']);
   selectedType = signal('all');
   selectedYear = signal(dayjs().year());
   selectedMonth = signal(dayjs().month());
@@ -91,7 +91,7 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
     effect(() => {
       const state = this.filterService.filterState();
       this.searchTerm.set(state.searchTerm);
-      this.selectedCategory.set(state.selectedCategory[0] || 'all');
+      this.selectedCategory.set(state.selectedCategory && state.selectedCategory.length > 0 ? state.selectedCategory : ['all']);
       this.selectedType.set(state.selectedType);
       
       if (state.selectedYear) {
@@ -175,8 +175,19 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
     this.filterService.searchTerm.set(value);
   }
 
-  onCategoryChange(value: any) {
-    this.filterService.selectedCategory.set([value]);
+  onCategoryChange(value: string[]) {
+    let newSelection = value || [];
+    if (newSelection.length === 0) {
+      newSelection = ['all'];
+    } else if (newSelection.length > 1 && newSelection.includes('all')) {
+      const previousSelection = this.selectedCategory();
+      if (!previousSelection.includes('all')) {
+        newSelection = ['all'];
+      } else {
+        newSelection = newSelection.filter(v => v !== 'all');
+      }
+    }
+    this.filterService.selectedCategory.set(newSelection);
   }
 
   onTypeChange(value: any) {
@@ -299,11 +310,17 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (state.selectedCategory[0] !== 'all') {
-      const categoryName = this.categories().find(c => c.id === state.selectedCategory[0])?.name;
+    if (!state.selectedCategory.includes('all')) {
+      const categoryNames = state.selectedCategory
+        .map(id => this.categories().find(c => c.id === id)?.name || 'Unknown');
+      
+      const label = categoryNames.length > 1 
+        ? `Categories: ${categoryNames.length} selected`
+        : `Category: ${categoryNames[0]}`;
+
       filters.push({
         type: 'category',
-        label: `Category: ${categoryName || 'Unknown'}`,
+        label: label,
         onRemove: () => this.onClearCategoryFilter()
       });
     }

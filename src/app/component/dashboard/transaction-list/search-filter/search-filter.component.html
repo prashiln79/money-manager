@@ -102,7 +102,7 @@
   <div>
     <mat-form-field appearance="fill" class="w-full">
       <mat-label>Category</mat-label>
-      <mat-select [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)">
+      <mat-select [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)" multiple>
         <mat-option value="all">All Categories</mat-option>
         @for (category of categories(); track category.id) {
           <mat-option [value]="category.id">
