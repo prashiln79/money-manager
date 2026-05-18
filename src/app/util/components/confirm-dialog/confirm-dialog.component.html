@@ -63,6 +63,14 @@
     </div>
     
     <div class="dialog-actions">
+      @if (data.extraActionText) {
+        <button mat-button 
+                type="button"
+                [mat-dialog-close]="'extra'"
+                class="premium-btn cancel-btn">
+          {{ data.extraActionText }}
+        </button>
+      }
       @if (data.cancelText) {
         <button mat-button 
                 type="button"

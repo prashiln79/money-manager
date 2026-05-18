@@ -10,6 +10,7 @@ export interface ConfirmDialogData {
   message: string;
   confirmText: string;
   cancelText?: string;
+  extraActionText?: string;
   type: 'delete' | 'warning' | 'info';
   confirmColor?: 'primary' | 'warn' | 'accent';
   /** Optional Material Icon name (e.g. 'system_update') rendered as the dialog icon */
@@ -40,6 +41,7 @@ export class ConfirmDialogComponent {
       message: data.message || 'Are you sure?',
       confirmText: data.confirmText || 'Confirm',
       cancelText: data.cancelText,
+      extraActionText: data.extraActionText,
       type: data.type || 'warning',
       confirmColor: data.confirmColor || (data.type === 'delete' ? 'warn' : 'primary'),
       icon: data.icon,

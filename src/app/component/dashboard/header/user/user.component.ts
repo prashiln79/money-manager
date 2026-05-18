@@ -256,13 +256,15 @@ export class UserComponent {
       title: 'Refresh Application?',
       message: 'No new updates found, but you can reload to refresh the application state. Any unsaved changes will be lost.',
       confirmText: 'Refresh Now',
-      cancelText: 'Cancel',
+      extraActionText: 'Clear All Data',
       type: 'info',
       icon: 'refresh',
       design: 'premium'
     }).subscribe(confirmed => {
-      if (confirmed) {
+      if (confirmed === true) {
         this.performUpdate();
+      } else if (confirmed === 'extra') {
+        this.clearFullIndexedDB();
       }
     });
   }
@@ -318,6 +320,26 @@ export class UserComponent {
         window.location.reload();
       }
     }, 0);
+  }
+
+  private async clearFullIndexedDB(): Promise<void> {
+    try {
+      if ('indexedDB' in window && 'databases' in indexedDB) {
+        const dbs = await indexedDB.databases();
+        for (const db of dbs) {
+          if (db.name) {
+            window.indexedDB.deleteDatabase(db.name);
+          }
+        }
+      }
+      this.notificationService.success('All data cleared successfully.');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      console.error('Failed to clear All data:', error);
+      this.notificationService.error('Failed to clear All data.');
+    }
   }
 
   openHelp(): void {

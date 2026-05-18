@@ -213,11 +213,11 @@ export class NotificationService {
    *   type: 'delete',
    * }).subscribe(confirmed => { if (confirmed) { ... } });
    */
-  confirm(data: ConfirmDialogData): Observable<boolean> {
+  confirm(data: ConfirmDialogData): Observable<any> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       closeOnNavigation: false,
       data,
     });
-    return dialogRef.afterClosed().pipe(map(result => !!result));
+    return dialogRef.afterClosed();
   }
 }
