@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Note, NOTE_COLORS } from '../note.model';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
@@ -27,10 +27,14 @@ import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/c
   styleUrls: ['./note-add-sheet.component.scss']
 })
 export class NoteAddSheetComponent implements OnInit {
-  private bottomSheetRef = inject(MatBottomSheetRef<NoteAddSheetComponent>);
+  private bottomSheetRef = inject(MatBottomSheetRef<NoteAddSheetComponent>, { optional: true });
+  private dialogRef = inject(MatDialogRef<NoteAddSheetComponent>, { optional: true });
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
-  public data = inject<{ note?: Note, mode?: 'add' | 'edit' | 'view' }>(MAT_BOTTOM_SHEET_DATA, { optional: true });
+  public bottomSheetData = inject<{ note?: Note, mode?: 'add' | 'edit' | 'view' }>(MAT_BOTTOM_SHEET_DATA, { optional: true });
+  public dialogData = inject<{ note?: Note, mode?: 'add' | 'edit' | 'view' }>(MAT_DIALOG_DATA, { optional: true });
+  public data = this.bottomSheetData || this.dialogData;
+  public isDialog = !!this.dialogRef;
   public currentMode = signal<'add' | 'edit' | 'view'>(this.data?.mode || (this.data?.note ? 'edit' : 'add'));
   @ViewChild('noteTextarea') noteTextarea!: ElementRef<HTMLTextAreaElement>;
   hasSelection = signal(false);
@@ -48,12 +52,20 @@ export class NoteAddSheetComponent implements OnInit {
     }
   }
 
+  private close(result?: any) {
+    if (this.bottomSheetRef) {
+      this.bottomSheetRef.dismiss(result);
+    } else if (this.dialogRef) {
+      this.dialogRef.close(result);
+    }
+  }
+
   save() {
     if (!this.title.trim() && !this.content.trim()) {
-      this.bottomSheetRef.dismiss();
+      this.close();
       return;
     }
-    this.bottomSheetRef.dismiss({
+    this.close({
       title: this.title.trim() || 'Untitled',
       content: this.content.trim(),
       color: this.selectedColor()
@@ -74,13 +86,13 @@ export class NoteAddSheetComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.bottomSheetRef.dismiss({ action: 'delete' });
+        this.close({ action: 'delete' });
       }
     });
   }
 
   cancel() {
-    this.bottomSheetRef.dismiss();
+    this.close();
   }
 
   setColor(color: string) {

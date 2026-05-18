@@ -19,6 +19,11 @@ $note-colors: (
   border-radius: 24px 24px 0 0;
   overflow: hidden;
 
+  &.is-dialog {
+    border-radius: 24px;
+    height: 100%;
+  }
+
   .dark-theme & {
     background: #1e293b;
   }
@@ -177,3 +182,20 @@ $note-colors: (
 .color-sky      { background: #7dd3fc; }
 .color-violet   { background: #c4b5fd; }
 .color-teal     { background: #5eead4; }
+
+// Dynamic Background colors for the sheet container based on selected color
+@each $name, $colors in $note-colors {
+  .note-bg-#{$name} {
+    background-color: map.get($colors, light) !important;
+    .dark-theme & {
+      background-color: map.get($colors, dark) !important;
+    }
+
+    .sheet-actions {
+      background-color: map.get($colors, light) !important;
+      .dark-theme & {
+        background-color: map.get($colors, dark) !important;
+      }
+    }
+  }
+}

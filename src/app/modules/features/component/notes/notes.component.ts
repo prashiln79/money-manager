@@ -152,12 +152,25 @@ export class NotesComponent implements OnInit, OnDestroy {
   }
 
   private openNoteSheet(mode: string, note?: Note,): void {
-    const sheetRef = this.bottomSheet.open(NoteAddSheetComponent, {
-      panelClass: 'full-width-bottom-sheet',
-      data: { note, mode: mode }
-    });
+    let afterEvent$;
 
-    sheetRef.afterDismissed().subscribe(result => {
+    if (this.breakpointService.isMobile()) {
+      const sheetRef = this.bottomSheet.open(NoteAddSheetComponent, {
+        panelClass: 'full-width-bottom-sheet',
+        data: { note, mode: mode }
+      });
+      afterEvent$ = sheetRef.afterDismissed();
+    } else {
+      const dialogRef = this.dialog.open(NoteAddSheetComponent, {
+        width: '800px',
+        maxWidth: '90vw',
+        panelClass: 'note-dialog',
+        data: { note, mode: mode }
+      });
+      afterEvent$ = dialogRef.afterClosed();
+    }
+
+    afterEvent$.subscribe(result => {
       if (result) {
         if (result.action === 'delete' && note) {
           this.deleteNote(note.id);

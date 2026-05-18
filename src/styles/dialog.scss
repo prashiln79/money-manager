@@ -228,3 +228,22 @@
 .dialog-host-responsive {
   @include mixins.dialog-host-responsive;
 }
+
+/* Note Dialog Styles */
+.note-dialog {
+	.mat-mdc-dialog-container {
+		border-radius: 24px !important;
+		overflow: hidden !important;
+	}
+	
+	.mat-mdc-dialog-surface {
+		border-radius: 24px !important;
+		overflow: hidden !important;
+		background: transparent !important;
+		padding: 0 !important;
+		
+		.dark-theme & {
+			background-color: transparent !important;
+		}
+	}
+}
