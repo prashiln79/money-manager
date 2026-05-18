@@ -58,7 +58,12 @@ export class NotesService {
           this.notesSubject.next(cachedNotes);
         }
 
-        // 2. Return reactive subject
+        // 2. Fetch latest from Firebase if online
+        if (this.commonSyncService.isCurrentlyOnline()) {
+          this.pullFromFirestore(userId).subscribe();
+        }
+
+        // 3. Return reactive subject
         return this.notesSubject.asObservable();
       })
     );
@@ -90,12 +95,56 @@ export class NotesService {
         this.notesSubject.next(cachedNotes);
       }
 
-      const unsubscribe = onSnapshot(notesRef, (snap) => {
-        const notes: Note[] = [];
-        snap.forEach(docSnap => notes.push(docSnap.data() as Note));
+      let isFirstSnapshot = true;
 
-        this.localStorageUtility.setItem(cacheKey, notes);
-        this.notesSubject.next(notes);
+      const unsubscribe = onSnapshot(notesRef, (snap) => {
+        if (isFirstSnapshot) {
+          isFirstSnapshot = false;
+          const firestoreNotes: Note[] = [];
+          snap.forEach(docSnap => firestoreNotes.push({ id: docSnap.id, ...docSnap.data() } as Note));
+
+          const localNotes = this.localStorageUtility.getItem<Note[]>(cacheKey) || [];
+          const merged = this.mergeFirestoreAndLocal(firestoreNotes, localNotes);
+
+          this.localStorageUtility.setItem(cacheKey, merged);
+          this.notesSubject.next(merged);
+          observer.next();
+          return;
+        }
+
+        const changes = snap.docChanges();
+        if (changes.length === 0) {
+          observer.next();
+          return;
+        }
+
+        const current = this.notesSubject.getValue();
+        const notesMap = new Map<string, Note>(current.map(n => [n.id, n]));
+
+        changes.forEach(change => {
+          const docSnap = change.doc;
+          if (change.type === 'removed') {
+            notesMap.delete(docSnap.id);
+          } else {
+            const data = docSnap.data();
+            const note = { id: docSnap.id, ...data } as Note;
+            const existing = notesMap.get(note.id);
+            const isLocalPending = existing?.syncStatus === SyncStatus.PENDING;
+            
+            if (!isLocalPending) {
+              notesMap.set(note.id, note);
+            }
+          }
+        });
+
+        const updatedList = Array.from(notesMap.values());
+        updatedList.sort((a, b) => {
+          if (a.isPinned !== b.isPinned) return b.isPinned ? 1 : -1;
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        });
+
+        this.localStorageUtility.setItem(cacheKey, updatedList);
+        this.notesSubject.next(updatedList);
         
         observer.next();
       }, (error) => {
@@ -107,6 +156,29 @@ export class NotesService {
         this.activeListenerPath = null;
         unsubscribe();
       };
+    });
+  }
+
+  private mergeFirestoreAndLocal(firestoreNotes: Note[], localNotes: Note[]): Note[] {
+    const firestoreMap = new Map<string, Note>(firestoreNotes.map(n => [n.id, n]));
+    
+    const pendingLocal = localNotes.filter(localNote => {
+      if (!localNote.id) return false;
+      const inFirestore = firestoreMap.has(localNote.id);
+      const isPending = localNote.syncStatus === SyncStatus.PENDING;
+      return !inFirestore || isPending;
+    });
+
+    const pendingLocalMap = new Map<string, Note>(pendingLocal.map(n => [n.id, n]));
+
+    const merged = [
+      ...firestoreNotes.map(n => pendingLocalMap.get(n.id) ?? n),
+      ...pendingLocal.filter(n => !firestoreMap.has(n.id))
+    ];
+
+    return merged.sort((a, b) => {
+      if (a.isPinned !== b.isPinned) return b.isPinned ? 1 : -1;
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
   }
 
@@ -215,11 +287,14 @@ export class NotesService {
     return from(getDocs(notesRef)).pipe(
       timeout(15000),
       tap((querySnapshot) => {
-        const notes: Note[] = [];
-        querySnapshot.forEach(docSnap => notes.push(docSnap.data() as Note));
+        const firestoreNotes: Note[] = [];
+        querySnapshot.forEach(docSnap => firestoreNotes.push({ id: docSnap.id, ...docSnap.data() } as Note));
 
-        this.localStorageUtility.setItem(LocalStorageKeyHelper.getNotesCacheKey(userId), notes);
-        this.notesSubject.next(notes);
+        const localNotes = this.localStorageUtility.getItem<Note[]>(LocalStorageKeyHelper.getNotesCacheKey(userId)) || [];
+        const merged = this.mergeFirestoreAndLocal(firestoreNotes, localNotes);
+
+        this.localStorageUtility.setItem(LocalStorageKeyHelper.getNotesCacheKey(userId), merged);
+        this.notesSubject.next(merged);
       }),
       map(() => undefined),
       catchError(error => {

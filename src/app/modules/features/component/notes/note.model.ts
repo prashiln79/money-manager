@@ -6,6 +6,8 @@ export interface Note {
   createdAt: string;
   updatedAt: string;
   isPinned: boolean;
+  syncStatus?: string;
+  lastSyncedAt?: any;
 }
 
 export interface NoteColor {
