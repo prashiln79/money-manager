@@ -20,8 +20,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatBottomSheetModule, MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { NoteAddSheetComponent } from './note-add-sheet/note-add-sheet.component';
+import { PwaNavigationService } from 'src/app/util/service/pwa-navigation.service';
 import { LocalIndexDBStorageService } from '../../../../util/service/indexdb-storage.service';
 import { LocalStorageKey } from '../../../../util/models/local-storage.model';
 import { Note, NOTE_COLORS } from './note.model';
@@ -70,6 +71,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   private categoryFacadeService = inject(CategoryFacadeService);
   private destroyRef = inject(DestroyRef);
   private dialog = inject(MatDialog);
+  private pwaNavigationService = inject(PwaNavigationService);
 
   filteredNotes = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
@@ -131,7 +133,6 @@ export class NotesComponent implements OnInit, OnDestroy {
     private storageService: LocalIndexDBStorageService,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
-    private bottomSheet: MatBottomSheet,
   ) { }
 
   ngOnInit(): void {
@@ -206,7 +207,7 @@ export class NotesComponent implements OnInit, OnDestroy {
     let afterEvent$;
 
     if (this.breakpointService.isMobile()) {
-      const sheetRef = this.bottomSheet.open(NoteAddSheetComponent, {
+      const sheetRef = this.pwaNavigationService.openBottomSheet(NoteAddSheetComponent, {
         panelClass: 'full-width-bottom-sheet',
         data: { note, mode: mode }
       });
