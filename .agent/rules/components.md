@@ -41,3 +41,4 @@ Follow these rules when creating new Angular components in the codebase.
 - **Loading States**: Always provide skeleton loaders or spinners for asynchronous actions.
 - **Empty States**: Design "Empty States" (e.g., "No transactions found") to guide the user.
 - **Directives**: Use `appImageFallback` for user avatars or group icons that might fail to load.
+- **PWA Overlays & Navigation**: Always use `PwaNavigationService.openBottomSheet()` instead of `MatBottomSheet.open()` to ensure proper back-button handling on mobile devices.
