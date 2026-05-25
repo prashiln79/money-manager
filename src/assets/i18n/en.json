@@ -101,8 +101,6 @@
         "NOTIFICATIONS_DESC": "Receive notifications about important updates",
         "HAPTIC_FEEDBACK": "Haptic Feedback",
         "HAPTIC_FEEDBACK_DESC": "Vibrate on success, error, and navigation actions",
-        "LOCK_ORIENTATION": "Lock Orientation",
-        "LOCK_ORIENTATION_DESC": "Force portrait mode on mobile and PWA devices",
         "EMAIL_UPDATES_DESC": "Receive weekly financial summaries via email",
         "VIEW_MODE_DESC": "Display categories in list view instead of grid view",
         "CHANGE_PASSWORD_DESC": "Update your account password for better security",

@@ -56,7 +56,6 @@ export interface UserPreferences {
 	hapticFeedback?: boolean;
 	hasSeenWelcome?: boolean;
 	captureLocationByDefault?: boolean;
-	lockOrientation?: boolean;
 }
 
 

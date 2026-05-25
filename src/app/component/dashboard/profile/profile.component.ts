@@ -147,8 +147,7 @@ export class ProfileComponent {
     'emailUpdates',
     'categoryListViewMode',
     'hapticFeedback',
-    'pinEnabled',
-    'lockOrientation'
+    'pinEnabled'
   ];
 
   private readonly BASIC_INFO_FIELDS = [
@@ -290,7 +289,6 @@ export class ProfileComponent {
         categoryListViewMode: [{ value: false, disabled: true }],
         appView: [{ value: 'MONTHLY', disabled: true }],
         pinEnabled: [{ value: false, disabled: true }],
-        lockOrientation: [{ value: false, disabled: true }],
       }),
     });
 
@@ -622,7 +620,6 @@ export class ProfileComponent {
         pinHash: user.preferences?.pinHash || '',
         isFamilyMode: user.preferences?.isFamilyMode || false,
         activeFamilyId: user.preferences?.activeFamilyId,
-        lockOrientation: user.preferences?.lockOrientation || false,
       },
       role: user.role,
 
@@ -649,7 +646,6 @@ export class ProfileComponent {
           hapticFeedback: profile.preferences?.hapticFeedback ?? true,
           appView: profile.preferences?.appView || 'MONTHLY',
           pinEnabled: profile.preferences?.pinEnabled || false,
-          lockOrientation: profile.preferences?.lockOrientation || false,
         },
       }, { emitEvent: false });
 

@@ -9,7 +9,6 @@ import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angula
 import { ComponentType } from '@angular/cdk/portal';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from './notification.service';
-import { UserService } from './db/user.service';
 
 export interface NavigationState {
   canGoBack: boolean;
@@ -60,7 +59,6 @@ export class PwaNavigationService implements OnDestroy {
     private bottomSheet: MatBottomSheet,
     private snackBar: MatSnackBar,
     private notificationService: NotificationService,
-    private userService: UserService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (!isPlatformServer(this.platformId)) {
@@ -71,16 +69,6 @@ export class PwaNavigationService implements OnDestroy {
   private initializePwaNavigation(): void {
     const isStandalone = this.isStandalonePwa();
     const isMobile = this.isMobileDevice();
-
-    // Listen to lockOrientation user preference
-    this.userService.userAuth$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(user => {
-        if (user && user.preferences) {
-          const lock = !!user.preferences.lockOrientation;
-          this.setLockOrientation(lock);
-        }
-      });
 
     // 1️⃣ Listen to router events
     this.router.events
@@ -402,29 +390,6 @@ export class PwaNavigationService implements OnDestroy {
     const currentState = this.navigationStateSubject.value;
     const newState = { ...currentState, ...updates };
     this.navigationStateSubject.next(newState);
-  }
-
-  public setLockOrientation(lock: boolean): void {
-    if (isPlatformServer(this.platformId) || typeof window === 'undefined' || !window.screen || !(window.screen as any).orientation) {
-      return;
-    }
-
-    if (lock) {
-      (window.screen as any).orientation.lock('portrait')
-        .then(() => {
-          console.log('Screen orientation locked to portrait');
-        })
-        .catch((err: any) => {
-          console.warn('Screen orientation lock to portrait failed:', err);
-        });
-    } else {
-      try {
-        (window.screen as any).orientation.unlock();
-        console.log('Screen orientation unlocked');
-      } catch (err) {
-        console.warn('Screen orientation unlock failed:', err);
-      }
-    }
   }
 
   ngOnDestroy(): void {
