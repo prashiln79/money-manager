@@ -11,7 +11,7 @@
     "standalone",
     "minimal-ui"
   ],
-  "orientation": "any",
+  "orientation": "portrait-primary",
   "scope": "./",
   "start_url": "./",
   "categories": [
