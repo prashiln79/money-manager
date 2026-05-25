@@ -541,14 +541,15 @@
                           <tbody>
                             @for (cat of groupedCategoryBreakdown(); track cat.categoryId) {
                             <!-- Category Header Row -->
-                            <tr class="mat-mdc-row !bg-neutral-50/80 hover:bg-neutral-100/50 cursor-pointer transition-colors select-none"
+                            <tr class="mat-mdc-row hover:bg-neutral-100/50 cursor-pointer transition-colors select-none"
                               (mousedown)="onLongPressStart(cat.categoryId, $event)"
                               (touchstart)="onLongPressStart(cat.categoryId, $event)"
                               (touchmove)="onLongPressEnd()"
                               (mouseup)="onLongPressEnd()"
                               (touchend)="onLongPressEnd()"
                               (click)="toggleExpand(cat.categoryId)"
-                              [class.bg-primary-50]="expandedCategoryId() === cat.categoryId"
+                              [class.expanded-header-row]="expandedCategoryId() === cat.categoryId"
+                              [class.!bg-neutral-50/80]="expandedCategoryId() !== cat.categoryId"
                               [class.opacity-40]="ignoredCategoryIds().has(cat.categoryId)"
                               [class.grayscale]="ignoredCategoryIds().has(cat.categoryId)">
                               <td class="mat-mdc-cell py-2 px-3">
@@ -574,14 +575,14 @@
                             
                             <!-- Metric Rows (Hidden by default, shown on expand) -->
                             @if (expandedCategoryId() === cat.categoryId) {
-                            <tr class="mat-mdc-row">
+                            <tr class="mat-mdc-row expanded-row">
                               <td class="mat-mdc-cell pl-10 font-medium text-neutral-500 text-[10px] ">Budget</td>
                               <td class="mat-mdc-cell !text-right font-mono tabular-nums font-semibold text-xs text-neutral-400" colspan="2">
                                 {{ cat.budget ? (cat.budget | currency:{ compact: true }) : '—' }}
                               </td>
                             </tr>
 
-                            <tr class="mat-mdc-row">
+                            <tr class="mat-mdc-row expanded-row">
                               <td class="mat-mdc-cell pl-10 font-medium text-neutral-500 text-[10px] ">Prev Period (Trend)</td>
                               <td class="mat-mdc-cell !text-right font-mono tabular-nums font-semibold text-xs" colspan="2">
                                 <div class="flex items-center justify-end gap-2">
@@ -596,7 +597,7 @@
                               </td>
                             </tr>
 
-                            <tr class="mat-mdc-row border-b-4 border-neutral-50">
+                            <tr class="mat-mdc-row border-b-4 border-neutral-50 expanded-row">
                               <td class="mat-mdc-cell pl-10 text-[10px]">Actual Spending</td>
                               <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold text-xs !text-error-600" colspan="2">
                                 {{ cat.amount | currency:{ compact: false } }}
@@ -604,9 +605,9 @@
                             </tr>
 
                             <!-- Expanded Category Details -->
-                            <tr class="mat-mdc-row bg-neutral-50/50">
+                            <tr class="mat-mdc-row expanded-row">
                               <td colspan="3" class="mat-mdc-cell !p-0">
-                                <div class="px-2 py-4 bg-neutral-50/50 border-b border-neutral-100 min-w-0 overflow-hidden">
+                                <div class="px-2 py-4 border-b border-neutral-100 min-w-0 overflow-hidden bg-transparent">
                                   <app-category-report-item [item]="cat" [isExpanded]="true"
                                     [hideHeader]="true"
                                     [expandedData]="expandedItemData()" (toggleExpand)="toggleExpand(cat.categoryId)"

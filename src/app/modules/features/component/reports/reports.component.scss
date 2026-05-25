@@ -146,6 +146,32 @@
         background-color: #f9fafb;
       }
 
+      &.expanded-header-row {
+        background-color: var(--primary-100, #e0f2fe) !important;
+        
+        &:hover {
+          background-color: var(--primary-200, #bae6fd) !important;
+        }
+
+        .mat-mdc-cell {
+          border-bottom-color: var(--primary-200, #bae6fd) !important;
+          border-right-color: var(--primary-200, #bae6fd) !important;
+        }
+      }
+
+      &.expanded-row {
+        background-color: var(--primary-50, #f0f9ff) !important;
+
+        &:hover {
+          background-color: var(--primary-100, #e0f2fe) !important;
+        }
+
+        .mat-mdc-cell {
+          border-bottom-color: var(--primary-100, #e0f2fe) !important;
+          border-right-color: var(--primary-100, #e0f2fe) !important;
+        }
+      }
+
       &:last-child .mat-mdc-cell {
         border-bottom: none;
       }
