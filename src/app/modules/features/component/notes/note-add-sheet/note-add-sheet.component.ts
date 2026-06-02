@@ -9,6 +9,7 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { Note, NOTE_COLORS } from '../note.model';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { CategoryFacadeService } from 'src/app/util/service/db/category-facade.service';
@@ -26,6 +27,7 @@ import { UserService } from 'src/app/util/service/db/user.service';
     MatInputModule,
     MatDialogModule,
     MatSelectModule,
+    TextFieldModule,
   ],
   templateUrl: './note-add-sheet.component.html',
   styleUrls: ['./note-add-sheet.component.scss']

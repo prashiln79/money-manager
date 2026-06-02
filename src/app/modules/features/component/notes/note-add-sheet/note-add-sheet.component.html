@@ -38,7 +38,7 @@
   
     <mat-form-field appearance="fill" class="full-width no-margin">
       <mat-label>Content</mat-label>
-      <textarea matInput [(ngModel)]="content" placeholder="Take a note..." [rows]="isDialog ? 18 : 6" maxlength="2000" [readonly]="currentMode() === 'view'" #noteTextarea (select)="checkSelection()" (keyup)="checkSelection()" (click)="checkSelection()" (input)="checkSelection()" (mousedown)="checkSelection()"></textarea>
+      <textarea matInput [(ngModel)]="content" placeholder="Take a note..." cdkTextareaAutosize [cdkAutosizeMinRows]="isDialog ? 18 : 6" maxlength="2000" [readonly]="currentMode() === 'view'" #noteTextarea (select)="checkSelection()" (keyup)="checkSelection()" (click)="checkSelection()" (input)="checkSelection()" (mousedown)="checkSelection()"></textarea>
     </mat-form-field>
   
     <div class="color-section" *ngIf="currentMode() !== 'view'">
