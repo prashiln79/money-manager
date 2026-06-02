@@ -230,12 +230,22 @@ addEventListener('message', ({ data }) => {
   // Search
   if (filters.searchTerm && filters.searchTerm.trim()) {
     const searchLower = filters.searchTerm.toLowerCase().trim();
-    filtered = filtered.filter((t: any) =>
-      t.payee?.toLowerCase().includes(searchLower) ||
-      t.category?.toLowerCase().includes(searchLower) ||
-      t.notes?.toLowerCase().includes(searchLower) ||
-      t.amount?.toString().includes(searchLower)
-    );
+    const isNumeric = !isNaN(Number(searchLower)) && !isNaN(parseFloat(searchLower));
+    
+    filtered = filtered.filter((t: any) => {
+      const payeeMatch = t.payee?.toLowerCase().includes(searchLower);
+      const categoryMatch = t.category?.toLowerCase().includes(searchLower);
+      const notesMatch = t.notes?.toLowerCase().includes(searchLower);
+      
+      let amountMatch = false;
+      if (isNumeric) {
+        amountMatch = t.amount === Number(searchLower);
+      } else {
+        amountMatch = t.amount?.toString().includes(searchLower);
+      }
+      
+      return payeeMatch || categoryMatch || notesMatch || amountMatch;
+    });
   }
 
   // Type
