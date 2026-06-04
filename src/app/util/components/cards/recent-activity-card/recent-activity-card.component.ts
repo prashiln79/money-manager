@@ -42,7 +42,7 @@ export interface RecentActivityConfig {
   emptyStateMessage?: string;
   showDebugInfo?: boolean;
   maxItems?: number;
-  period?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  period?: 'daily' | 'yesterday' | 'weekly' | 'monthly' | 'last-month' | 'yearly';
   transactionType?: 'all' | 'income' | 'expense';
   onTransactionClick?: (transaction: RecentTransaction) => void;
   onRefresh?: () => void;
@@ -57,7 +57,7 @@ export interface RecentActivityConfig {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RecentActivityCardComponent implements OnInit, OnDestroy {
-  @Input() config: RecentActivityConfig = {
+  @Input() config: RecentActivityConfig | any = {
     title: 'Recent transactions',
     subtitle: 'Latest transactions',
     currency: 'INR',
@@ -74,7 +74,7 @@ export class RecentActivityCardComponent implements OnInit, OnDestroy {
     error: '',
     emptyStateMessage: 'Your recent activity will appear here',
     showDebugInfo: false,
-    maxItems: 5,
+    maxItems: undefined,
     period: 'monthly',
     transactionType: 'all'
   };
@@ -129,29 +129,47 @@ export class RecentActivityCardComponent implements OnInit, OnDestroy {
       map(([transactions, categories]) => {
         const currentDate = new Date();
         let startDate: Date;
+        let endDate = new Date(currentDate);
+        endDate.setHours(23, 59, 59, 999);
 
         // Filter transactions based on period
         switch (this.effectiveConfig.period) {
           case 'daily':
             startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+            startDate.setHours(0, 0, 0, 0);
+            break;
+          case 'yesterday':
+            startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1);
+            startDate.setHours(0, 0, 0, 0);
+            endDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1);
+            endDate.setHours(23, 59, 59, 999);
             break;
           case 'weekly':
             const dayOfWeek = currentDate.getDay();
             const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
             startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - daysToSubtract);
+            startDate.setHours(0, 0, 0, 0);
+            break;
+          case 'last-month':
+            startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+            startDate.setHours(0, 0, 0, 0);
+            endDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+            endDate.setHours(23, 59, 59, 999);
             break;
           case 'yearly':
             startDate = new Date(currentDate.getFullYear(), 0, 1);
+            startDate.setHours(0, 0, 0, 0);
             break;
           default: // monthly
             startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            startDate.setHours(0, 0, 0, 0);
             break;
         }
 
         // Filter transactions by date and type
         const filteredTransactions = transactions.filter(t => {
           const txDate = this.convertToDate(t.date);
-          const matchesDate = txDate >= startDate && txDate <= currentDate;
+          const matchesDate = txDate >= startDate && txDate <= endDate;
           const matchesType = this.effectiveConfig.transactionType === 'all' ||
             t.type === (this.effectiveConfig.transactionType === 'income' ? TransactionType.INCOME : TransactionType.EXPENSE);
           return matchesDate && matchesType;
@@ -172,9 +190,11 @@ export class RecentActivityCardComponent implements OnInit, OnDestroy {
               color: category?.color || '#6B7280'
             };
           })
-          .sort((a, b) => b.date.getTime() - a.date.getTime())
-          .slice(0, this.effectiveConfig.maxItems || 5);
+          .sort((a, b) => b.date.getTime() - a.date.getTime());
 
+        if (this.effectiveConfig.maxItems) {
+          return recentTransactions.slice(0, this.effectiveConfig.maxItems);
+        }
         return recentTransactions;
       })
     );
@@ -187,28 +207,29 @@ export class RecentActivityCardComponent implements OnInit, OnDestroy {
   }
 
   get effectiveConfig(): RecentActivityConfig {
+    const cfg = this.config || {};
     return {
-      title: this.config.title ?? 'Recent Activity',
-      subtitle: this.config.subtitle ?? 'Latest transactions',
-      currency: this.config.currency ?? 'INR',
-      showHeaderIcon: this.config.showHeaderIcon ?? true,
-      headerIcon: this.config.headerIcon ?? 'schedule',
-      headerIconColor: this.config.headerIconColor ?? 'orange',
-      showFooter: this.config.showFooter ?? false,
-      footerText: this.config.footerText ?? 'Last updated',
-      cardHeight: this.config.cardHeight ?? 'medium',
-      theme: this.config.theme ?? 'auto',
-      animations: this.config.animations ?? true,
-      clickable: this.config.clickable ?? true,
-      loading: this.config.loading ?? false,
-      error: this.config.error ?? '',
-      emptyStateMessage: this.config.emptyStateMessage ?? 'Your recent activity will appear here',
-      showDebugInfo: this.config.showDebugInfo ?? false,
-      maxItems: this.config.maxItems ?? 5,
-      period: this.config.period ?? 'monthly',
-      transactionType: this.config.transactionType ?? 'all',
-      onTransactionClick: this.config.onTransactionClick,
-      onRefresh: this.config.onRefresh
+      title: cfg.title ?? 'Recent Activity',
+      subtitle: cfg.subtitle ?? 'Latest transactions',
+      currency: cfg.currency ?? 'INR',
+      showHeaderIcon: cfg.showHeaderIcon ?? true,
+      headerIcon: cfg.headerIcon ?? 'schedule',
+      headerIconColor: cfg.headerIconColor ?? 'orange',
+      showFooter: cfg.showFooter ?? false,
+      footerText: cfg.footerText ?? 'Last updated',
+      cardHeight: cfg.cardHeight ?? 'medium',
+      theme: cfg.theme ?? 'auto',
+      animations: cfg.animations ?? true,
+      clickable: cfg.clickable ?? true,
+      loading: cfg.loading ?? false,
+      error: cfg.error ?? '',
+      emptyStateMessage: cfg.emptyStateMessage ?? 'Your recent activity will appear here',
+      showDebugInfo: cfg.showDebugInfo ?? false,
+      maxItems: cfg.maxItems ?? undefined,
+      period: cfg.period ?? 'monthly',
+      transactionType: cfg.transactionType ?? 'all',
+      onTransactionClick: cfg.onTransactionClick,
+      onRefresh: cfg.onRefresh
     };
   }
 

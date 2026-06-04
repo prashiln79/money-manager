@@ -1,114 +1,95 @@
-<mat-card class="recent-activity-card activity-card-container border-0 rounded-xl overflow-hidden h-full">
-  <div class="p-4 sm:p-6">
-    <!-- Header Section -->
-    <div class="flex items-center justify-between mb-4 sm:mb-6">
-      <div class="flex-1 min-w-0">
-        <p class="activity-card-title text-lg sm:text-xl font-semibold truncate !mb-0">
-          {{ effectiveConfig.title }}
-        </p>
-        @if (effectiveConfig.subtitle) {
-        <p class="activity-card-subtitle text-sm mt-1">
-          {{ effectiveConfig.subtitle }}
-        </p>
-        }
-      </div>
-      @if (effectiveConfig.showHeaderIcon !== false) {
-      <div class="header-icon-wrap p-2 sm:p-3 rounded-lg flex-shrink-0 ml-3">
-        <mat-icon class="header-icon">
-          {{ effectiveConfig.headerIcon || 'schedule' }}
-        </mat-icon>
-      </div>
+<div class="recent-activity-chat-container rounded-2xl border p-4 w-full">
+  
+  <!-- Header Section -->
+  <div class="flex items-center justify-between mb-3 pb-2 border-b border-divider">
+    <div class="min-w-0">
+      <h3 class="activity-card-title text-sm font-semibold truncate m-0">
+        {{ effectiveConfig.title }}
+      </h3>
+      @if (effectiveConfig.subtitle) {
+      <p class="activity-card-subtitle text-xs mt-0.5 m-0 opacity-80">
+        {{ effectiveConfig.subtitle }}
+      </p>
       }
     </div>
-
-    <!-- Loading State -->
-    @if (isLoading$ | async) {
-    <div class="text-center py-8">
-      <div class="loading-icon-wrap inline-flex items-center justify-center w-12 h-12 rounded-full mb-4">
-        <div class="loading-spinner animate-spin rounded-full h-6 w-6 border-b-2"></div>
-      </div>
-      <p class="loading-text text-sm">Loading recent activity...</p>
-    </div>
+    @if (effectiveConfig.showHeaderIcon !== false) {
+    <mat-icon class="header-icon text-base w-4 h-4 flex items-center justify-center opacity-70">
+      {{ effectiveConfig.headerIcon || 'schedule' }}
+    </mat-icon>
     }
+  </div>
 
-    <!-- Error State -->
-    @if (hasError) {
-    <div class="text-center py-8">
-      <div class="error-icon-wrap w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-        <mat-icon class="error-icon">error</mat-icon>
-      </div>
-      <p class="error-text text-sm">{{ effectiveConfig.error }}</p>
-    </div>
-    }
+  <!-- Loading State -->
+  @if (isLoading$ | async) {
+  <div class="flex items-center justify-center gap-2 py-6 text-xs loading-text">
+    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-spinner"></div>
+    <span>Loading...</span>
+  </div>
+  }
 
-    <!-- Content -->
-    @if (!(isLoading$ | async) && !hasError) {
-    <div class="space-y-4">
-      <!-- Recent Transactions List -->
-      @if ((recentTransactions$ | async)?.length) {
-      <div class="transactions-list space-y-3 pr-1">
-        @for (transaction of recentTransactions$ | async; track transaction.id) {
-        <div
-          class="activity-item group flex items-center justify-between p-3 sm:p-4 rounded-xl transition-all duration-200 border border-transparent"
-          [class.cursor-pointer]="effectiveConfig.clickable" [class.cursor-default]="!effectiveConfig.clickable"
-          (click)="onTransactionClick(transaction)">
-          <!-- Left side: Icon + Details -->
-          <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-            <div class="relative">
-              <div
-                class="item-icon-box w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                <mat-icon [class]="getTransactionColor(transaction)" class="text-xl sm:text-2xl">{{
-                  getTransactionIcon(transaction) }}</mat-icon>
-              </div>
-            </div>
-            <div class="min-w-0 flex-1 flex flex-col justify-center">
-              <span class="item-payee text-sm sm:text-base font-semibold truncate leading-tight">{{ transaction.category
-                }}</span>
-            </div>
+  <!-- Error State -->
+  @if (hasError) {
+  <div class="flex items-center gap-2 py-4 text-xs error-text">
+    <mat-icon class="error-icon text-base w-4 h-4 flex items-center justify-center">error</mat-icon>
+    <span>{{ effectiveConfig.error }}</span>
+  </div>
+  }
+
+  <!-- Content -->
+  @if (!(isLoading$ | async) && !hasError) {
+  <div class="space-y-2">
+    <!-- Recent Transactions List -->
+    @if ((recentTransactions$ | async)?.length) {
+    <div class="transactions-list space-y-1.5 max-h-56 overflow-y-auto pr-1">
+      @for (transaction of recentTransactions$ | async; track transaction.id) {
+      <div
+        class="activity-item flex items-center justify-between p-2 rounded-xl transition-all duration-150 border border-transparent"
+        [class.cursor-pointer]="effectiveConfig.clickable" [class.cursor-default]="!effectiveConfig.clickable"
+        (click)="onTransactionClick(transaction)">
+        <!-- Left side: Icon + Details -->
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+          <div class="item-icon-box w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+            <mat-icon [class]="getTransactionColor(transaction)" class="text-base w-4 h-4 flex items-center justify-center">
+              {{ getTransactionIcon(transaction) }}
+            </mat-icon>
           </div>
-
-          <!-- Right side: Amount + Date -->
-          <div class="text-right pl-3 sm:pl-4 flex-shrink-0 flex flex-col justify-center">
-            <span class="text-sm sm:text-base font-bold whitespace-nowrap tracking-tight"
-              [ngClass]="getTransactionColor(transaction)">
-              {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
-            </span>
-            <span class="item-date text-xs mt-0.5 font-medium">
-              {{ formatDate(transaction.date) }}
-            </span>
-          </div>
+          <span class="item-payee text-xs sm:text-sm font-semibold truncate leading-none">
+            {{ transaction.category }}
+          </span>
         </div>
-        }
-      </div>
-      }
 
-      <!-- Empty State -->
-      @if (isEmpty | async) {
-      <div class="text-center py-8 sm:py-12">
-        <div
-          class="empty-icon-wrap w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <mat-icon class="empty-icon text-2xl sm:text-3xl">receipt_long</mat-icon>
+        <!-- Right side: Amount + Date -->
+        <div class="text-right pl-3 flex-shrink-0 flex flex-col justify-center">
+          <span class="text-xs sm:text-sm font-bold whitespace-nowrap tracking-tight"
+            [ngClass]="getTransactionColor(transaction)">
+            {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+          </span>
+          <span class="item-date text-[10px] mt-0.5 font-medium opacity-80">
+            {{ formatDate(transaction.date) }}
+          </span>
         </div>
-        <h4 class="empty-title text-base sm:text-lg font-medium mb-2">No Recent Transactions</h4>
-        <p class="empty-text text-sm">{{ effectiveConfig.emptyStateMessage }}</p>
       </div>
       }
     </div>
     }
 
-    <!-- Footer Section -->
-    @if (effectiveConfig.showFooter) {
-    <div class="footer-divider mt-4 sm:mt-6 pt-4 border-t">
-      <div class="footer-text flex items-center justify-between text-xs">
-        <span>{{ effectiveConfig.footerText || 'Last updated' }}</span>
-        <div class="flex items-center gap-4">
-          @if (effectiveConfig.showDebugInfo) {
-          <span class="text-xs opacity-75">Recent Activity</span>
-          }
-          <span>{{ getLastUpdatedTime() }}</span>
-        </div>
-      </div>
+    <!-- Empty State -->
+    @if (isEmpty | async) {
+    <div class="text-center py-6 text-slate-400">
+      <mat-icon class="empty-icon text-2xl w-6 h-6 flex items-center justify-center mx-auto mb-1.5">receipt_long</mat-icon>
+      <p class="empty-text text-xs m-0">{{ effectiveConfig.emptyStateMessage }}</p>
     </div>
     }
   </div>
-</mat-card>
+  }
+
+  <!-- Footer Section -->
+  @if (effectiveConfig.showFooter) {
+  <div class="footer-divider mt-3 pt-2 border-t">
+    <div class="footer-text flex items-center justify-between text-[10px] opacity-80">
+      <span>{{ effectiveConfig.footerText || 'Last updated' }}</span>
+      <span>{{ getLastUpdatedTime() }}</span>
+    </div>
+  </div>
+  }
+</div>

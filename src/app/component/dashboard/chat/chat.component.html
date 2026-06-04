@@ -35,7 +35,7 @@
             <!-- Recent Activity Card -->
             @if(msg.type === 'UI-ELEMENT' && msg.text === 'RECENT_ACTIVITY_CARD') {
               <div class="relative top-0 z-10 w-full my-2">
-                <app-recent-activity-card></app-recent-activity-card>
+                <app-recent-activity-card [config]="msg.data || {}"></app-recent-activity-card>
               </div>
             }
             <!-- Chat Category Dropdown -->

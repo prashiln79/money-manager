@@ -20,7 +20,12 @@ const PATTERNS = {
     ],
     RECENT_ACTIVITY_KEYWORDS: [
         'recent activity', 'recent-activity', 'recentactivity', 'activity card', 'recent transactions',
-        'last transactions', 'transaction history', 'show history', 'show recent'
+        'last transactions', 'transaction history', 'show history', 'show recent',
+        'show transaction', 'list transaction', 'view transaction', 'my transaction',
+        'week transaction', 'weekly transaction', 'week\'s transaction', 'this week transaction',
+        'today transaction', 'today\'s transaction', 'yesterday transaction', 'yesterday\'s transaction',
+        'month transaction', 'monthly transaction', 'month\'s transaction', 'last month transaction',
+        'year transaction', 'yearly transaction', 'year\'s transaction'
     ],
     CLEAR_DATA_KEYWORDS: [
         'clear data', 'reset data', 'delete all', 'clear all', 'wipe data', 'erase data', 'reset app', 'factory reset'
@@ -105,20 +110,23 @@ export const CHAT_CONSTANTS = {
         'Account summary',
         'Loan summary',
         'Help',
-        'Clear data',
-        capitalize(PATTERNS.INCOME_KEYWORDS[0]),
-        'Show ' + PATTERNS.BALANCE_KEYWORDS[0],
-        capitalize(PATTERNS.ACCOUNT_SUMMARY_KEYWORDS[0]),
-        capitalize(PATTERNS.LOAN_SUMMARY_KEYWORDS[0]),
-        capitalize(PATTERNS.RECENT_ACTIVITY_KEYWORDS[0]),
-        capitalize(PATTERNS.BUDGET_KEYWORDS[0]),
-        capitalize(PATTERNS.REPORT_KEYWORDS[0]),
-        capitalize(PATTERNS.CLEAR_DATA_KEYWORDS[0]),
-        capitalize(PATTERNS.HELP_KEYWORDS[0]),
-        capitalize(PATTERNS.MONTHLY_EXPENDITURE_KEYWORDS[0]),
-        capitalize(PATTERNS.HIGHEST_EXPENSE_KEYWORDS[0]),
-        capitalize(PATTERNS.LAST_EXPENSE_KEYWORDS[0]),
-        capitalize(PATTERNS.QUERY_TRANSACTIONS_KEYWORDS[0]),
+        ...PATTERNS.INCOME_KEYWORDS.map(capitalize),
+        ...PATTERNS.BALANCE_KEYWORDS.map(k => 'Show ' + capitalize(k)),
+        ...PATTERNS.ACCOUNT_SUMMARY_KEYWORDS.map(capitalize),
+        ...PATTERNS.LOAN_SUMMARY_KEYWORDS.map(capitalize),
+        ...PATTERNS.RECENT_ACTIVITY_KEYWORDS.map(capitalize),
+        ...PATTERNS.BUDGET_KEYWORDS.map(capitalize),
+        ...PATTERNS.REPORT_KEYWORDS.map(capitalize),
+        ...PATTERNS.CLEAR_DATA_KEYWORDS.map(capitalize),
+        ...PATTERNS.HELP_KEYWORDS.map(capitalize),
+        ...PATTERNS.MONTHLY_EXPENDITURE_KEYWORDS.map(capitalize),
+        ...PATTERNS.HIGHEST_EXPENSE_KEYWORDS.map(capitalize),
+        ...PATTERNS.LAST_EXPENSE_KEYWORDS.map(capitalize),
+        ...PATTERNS.QUERY_TRANSACTIONS_KEYWORDS.map(capitalize),
+        ...PATTERNS.CATEGORY_SPENDING_KEYWORDS.map(capitalize),
+        ...PATTERNS.HIGHEST_CATEGORY_KEYWORDS.map(capitalize),
+        ...PATTERNS.COMPARE_CATEGORY_KEYWORDS.map(capitalize),
+        
 
     ],
     EXIT_KEYWORDS: ['cancel', 'exit', 'quit', 'stop', 'nevermind', 'never mind', 'back', 'abort']
