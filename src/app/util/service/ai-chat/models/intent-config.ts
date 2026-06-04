@@ -65,48 +65,8 @@ export const INTENT_CONFIG: IntentDefinition[] = [
         id: INTENTS.ACCOUNT_SUMMARY_CARD,
         keywords: CHAT_CONSTANTS.PATTERNS.ACCOUNT_SUMMARY_KEYWORDS,
         priority: 80,
-        description: 'Account Summary', // Merged with Check Balance conceptually for user, but kept separate in config if needed, or just omit description if it's internal. But user prompt had 'Account summary' under Check Balance. Let's stick to the prompt structure.
-        // Actually, the prompt combined "Check Balance" and "Account summary". 
-        // Let's see: "Check Balance": "Show balance", "How much money do I have?", "Account summary"
-        // In intent config, we have CHECK_BALANCE and ACCOUNT_SUMMARY_CARD.
-        // I will add description/examples to CHECK_BALANCE as in the prompt. 
-        // For ACCOUNT_SUMMARY_CARD, it seems to trigger a specific UI. 
-        // The prompt only listed "Check Balance". I'll stick to that in CHECK_BALANCE.
-        // I won't add description/examples to internal/UI specific intents if they weren't in the original prompt, OR I will map them.
-        // Original prompt:
-        // - Add Income...
-        // - Add Expense...
-        // - Check Balance...
-        // - Recent Activity...
-        // - Reports...
-        // - Manage Data...
-        // - Help...
-
-        // Let's map these:
-        // CHECK_BALANCE -> "Check Balance"
-        // RECENT_ACTIVITY_CARD -> "Recent Activity" ("Recent transactions", "History", "Last 5 expenses")
-        // GET_REPORT -> "Reports" ("Show report", "Monthly statement", "Spending analysis")
-        // CLEAR_DATA -> "Manage Data" ("Clear data" (Caution: This wipes all data))
-        // HELP -> "Help" ("Help", "What can you do?", "Commands")
-
-        // internal intents or duplicates? ACCOUNT_SUMMARY_CARD seems to be "Account summary" in the prompt example for Check Balance. 
-        // I'll leave ACCOUNT_SUMMARY_CARD without description for now or maybe it's fine. 
-        // Wait, the prompt lists "Account summary" as an example of "Check Balance". 
-        // In INTENT_CONFIG, ACCOUNT_SUMMARY_CARD is a separate intent. 
-        // I'll add the specific examples to the specific intents.
-    },
-    {
-        id: INTENTS.ACCOUNT_SUMMARY_CARD,
-        keywords: CHAT_CONSTANTS.PATTERNS.ACCOUNT_SUMMARY_KEYWORDS,
-        priority: 80
-        // No visual description/examples needed for the prompt list if it's covered by Check Balance or if we want to list it separately?
-        // The original prompt list was:
-        // - Check Balance: "Show balance", "How much money do I have?", "Account summary"
-        // - Recent Activity: ...
-
-        // If I strictly follow the prompt structure:
-        // I should probably group them or just list the main ones.
-        // I'll add metadata to the ones that correspond to the prompt list.
+        description: 'Account Summary',
+        examples: ['Account summary', 'Show accounts', 'List accounts']
     },
     {
         id: INTENTS.RECENT_ACTIVITY_CARD,

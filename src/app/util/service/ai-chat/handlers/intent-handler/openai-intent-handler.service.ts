@@ -38,11 +38,25 @@ export class OpenAiIntentHandler implements IntentHandler {
 
                 const systemMessage: OpenAIMessage = { ...SYSTEM_PROMPTS['moneyManagerDefault'] };
 
-                // Append Chat History if available
+                // Append Chat History if available (last 5 past messages, excluding current)
                 if (context.history && context.history.length > 0) {
-                    const lastFive = context.history.slice(-5);
+                    const pastHistory = context.history.slice(0, -1);
+                    const lastFive = pastHistory.slice(-5);
                     const historyText = lastFive
-                        .map(msg => `${msg.sender === 'bot' ? 'AI' : 'User'}: ${msg.text || (msg.type === 'command' ? 'Executed Command' : 'Content')}`)
+                        .map(msg => {
+                            const sender = msg.sender === 'bot' ? 'AI' : 'User';
+                            let textContent = '';
+                            if (msg.type === 'text' || msg.type === 'html') {
+                                textContent = msg.text;
+                            } else if (msg.type === 'UI-ELEMENT') {
+                                textContent = `Displayed UI Element: ${msg.text}`;
+                            } else if (msg.type === 'command') {
+                                textContent = `Executed Action: ${msg.command}`;
+                            } else {
+                                textContent = (msg as any).text || 'Interactive Element';
+                            }
+                            return `${sender}: ${textContent}`;
+                        })
                         .join('\n');
 
                     systemMessage.content += `\n\nLAST 5 MESSAGES:\n${historyText}`;
