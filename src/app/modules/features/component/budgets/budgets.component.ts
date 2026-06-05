@@ -308,11 +308,17 @@ export class BudgetsComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Save savings goals and debts (if any)
-    // TODO: Implement savings and debt saving logic when those services are available
+    // Save yearlyBudget configurations under user preferences
+    this.userService.updateUserPreferences({
+      yearlyBudget: {
+        totalIncome: this.yearlyBudget.totalIncome,
+        splitByMonth: this.yearlyBudget.splitByMonth,
+        savingsGoals: this.yearlyBudget.savingsGoals,
+        debts: this.yearlyBudget.debts
+      }
+    });
 
     this.notificationService.success('Yearly budget saved successfully!');
-    this.currentStep = 1; // Reset to first step
   }
 
   // Load budgets for the logged-in user
@@ -338,6 +344,20 @@ export class BudgetsComponent implements OnInit, OnDestroy {
       this.budgets$.subscribe(budgets => {
         this.budgets = budgets;
         this.updateCategoryBudgets();
+
+        // If there are existing budgets, default to Step 6 (full review/summary view)
+        if (budgets && budgets.length > 0) {
+          const hasSavedLimits = budgets.some(b => b.limit > 0);
+          if (hasSavedLimits && this.currentStep === 1) {
+            this.currentStep = 6;
+
+            // If totalIncome is 0, initialize it to the sum of existing budget limits
+            const totalBudgetLimit = budgets.reduce((sum, b) => sum + b.limit, 0);
+            if (this.yearlyBudget.totalIncome === 0 && totalBudgetLimit > 0) {
+              this.yearlyBudget.totalIncome = totalBudgetLimit;
+            }
+          }
+        }
       })
     );
 
@@ -346,6 +366,23 @@ export class BudgetsComponent implements OnInit, OnDestroy {
         this.categories = categories;
         this.initializeCategoryBudgets();
       })
+    );
+
+    // Subscribe to profile to load saved yearlyBudget from user preferences
+    this.subscriptions.add(
+      this.store.select(ProfileSelectors.selectProfile)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(profile => {
+          if (profile && profile.preferences?.yearlyBudget) {
+            const yb = profile.preferences.yearlyBudget;
+            this.yearlyBudget = {
+              totalIncome: yb.totalIncome || this.yearlyBudget.totalIncome || 0,
+              splitByMonth: yb.splitByMonth || false,
+              savingsGoals: yb.savingsGoals ? JSON.parse(JSON.stringify(yb.savingsGoals)) : [],
+              debts: yb.debts ? JSON.parse(JSON.stringify(yb.debts)) : []
+            };
+          }
+        })
     );
 
     this.subscriptions.add(
@@ -377,25 +414,33 @@ export class BudgetsComponent implements OnInit, OnDestroy {
   // Initialize category budgets from existing budgets
   initializeCategoryBudgets() {
     this.getExpenseCategories().forEach(category => {
-      const existingBudget = this.budgets.find(budget => budget.category === category.name);
-      // Convert yearly budget to monthly for slider
-      this.categoryBudgets[category.id || ''] = existingBudget ? existingBudget.limit / 12 : 0;
+      const categoryId = category.id || '';
+      // Only set if not already defined to prevent overwriting user input
+      if (this.categoryBudgets[categoryId] === undefined) {
+        const existingBudget = this.budgets.find(budget => budget.category === category.name);
+        // Convert yearly budget to monthly for slider
+        this.categoryBudgets[categoryId] = existingBudget ? existingBudget.limit / 12 : 0;
+      }
     });
   }
 
   // Update category budgets when budgets change
   updateCategoryBudgets() {
     this.getExpenseCategories().forEach(category => {
-      const existingBudget = this.budgets.find(budget => budget.category === category.name);
-      if (existingBudget) {
-        // Convert yearly budget to monthly for slider
-        this.categoryBudgets[category.id || ''] = existingBudget.limit / 12;
+      const categoryId = category.id || '';
+      // Only set if not already defined to prevent overwriting user input
+      if (this.categoryBudgets[categoryId] === undefined) {
+        const existingBudget = this.budgets.find(budget => budget.category === category.name);
+        if (existingBudget) {
+          // Convert yearly budget to monthly for slider
+          this.categoryBudgets[categoryId] = existingBudget.limit / 12;
+        }
       }
     });
   }
 
   // Handle slider change for category budget with smart allocation
-  onCategoryBudgetChange(categoryId: string, newLimit: number) {
+  onCategoryBudgetChange(categoryId: string, newLimit: number, saveToDb = false) {
     // newLimit is now a monthly amount
     const currentTotal = this.getTotalAllocated();
     const currentCategoryBudget = this.categoryBudgets[categoryId] || 0;
@@ -415,14 +460,16 @@ export class BudgetsComponent implements OnInit, OnDestroy {
       this.categoryBudgets[categoryId] = newLimit;
     }
 
-    // Auto-save the category budget
-    this.saveCategoryBudget(categoryId);
+    if (saveToDb) {
+      // Auto-save the category budget
+      this.saveCategoryBudget(categoryId);
+    }
   }
 
   // Handle input field change for category budget
   onCategoryBudgetInputChange(categoryId: string, event: any) {
     const newLimit = Number(event.target.value) || 0;
-    this.onCategoryBudgetChange(categoryId, newLimit);
+    this.onCategoryBudgetChange(categoryId, newLimit, true);
     // Note: onCategoryBudgetChange already calls saveCategoryBudget, so no need to call it again here
   }
 
@@ -514,7 +561,7 @@ export class BudgetsComponent implements OnInit, OnDestroy {
 
       }
 
-      this.notificationService.success(`Budget created for ${categoryName}`);
+      //this.notificationService.success(`Budget created for ${categoryName}`);
     }
   }
 
@@ -530,7 +577,7 @@ export class BudgetsComponent implements OnInit, OnDestroy {
           budgetId,
           budget: updatedBudget
         }));
-        this.notificationService.success(`Budget limit updated for ${budget.category}`);
+       // this.notificationService.success(`Budget limit updated for ${budget.category}`);
       }
     }
   }
@@ -640,7 +687,9 @@ export class BudgetsComponent implements OnInit, OnDestroy {
 
   // Get only expense categories (exclude income categories)
   getExpenseCategories(): Category[] {
-    return this.categories.filter(category => category.type === TransactionType.EXPENSE);
+    return this.categories
+      .filter(category => category.type === TransactionType.EXPENSE)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }
 
   // Update all category budgets at once

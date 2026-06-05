@@ -56,6 +56,7 @@ export interface UserPreferences {
 	hapticFeedback?: boolean;
 	hasSeenWelcome?: boolean;
 	captureLocationByDefault?: boolean;
+	yearlyBudget?: any;
 }
 
 

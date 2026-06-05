@@ -70,11 +70,9 @@
           <div class="input-mode-toggle">
             <mat-button-toggle-group [(value)]="inputMode" (change)="onInputModeChange()">
               <mat-button-toggle value="slider">
-                <mat-icon>linear_scale</mat-icon>
                 Slider Mode
               </mat-button-toggle>
               <mat-button-toggle value="input">
-                <mat-icon>edit</mat-icon>
                 Input Mode
               </mat-button-toggle>
             </mat-button-toggle-group>
@@ -91,13 +89,19 @@
               <div class="category-row">
                 <div class="category-info">
                   <mat-icon [style.color]="category.color" class="category-icon">{{ category.icon }}</mat-icon>
-                  <span class="category-name">{{ category.name }}</span>
+                  <div class="flex flex-col">
+                    @if (category.group) {
+                      <span class="category-group text-[10px] text-neutral-400 font-semibold leading-tight">{{ category.group }}</span>
+                    }
+                    <span class="category-name">{{ category.name }}</span>
+                  </div>
                 </div>
                 @if (inputMode === 'slider') {
                   <div class="category-slider-container">
                     <mat-slider [max]="yearlyBudget.totalIncome / 12" [min]="0" [step]="50" class="budget-slider">
                       <input matSliderThumb [(ngModel)]="categoryBudgets[category.id || '']"
-                        (input)="onCategoryBudgetChange(category.id || '', categoryBudgets[category.id || ''] || 0)">
+                        (input)="onCategoryBudgetChange(category.id || '', categoryBudgets[category.id || ''] || 0, false)"
+                        (change)="onCategoryBudgetChange(category.id || '', categoryBudgets[category.id || ''] || 0, true)">
                     </mat-slider>
                   </div>
                 }
@@ -106,7 +110,7 @@
                     <div class="budget-input-container">
                       <mat-form-field appearance="fill" class="budget-input">
                         <input matInput type="number" [value]="getCategoryBudget(category.id || '')"
-                          (input)="onCategoryBudgetInputChange(category.id || '', $event)" min="0"
+                          (change)="onCategoryBudgetInputChange(category.id || '', $event)" min="0"
                           [max]="yearlyBudget.totalIncome / 12" step="50">
                         </mat-form-field>
                       </div>

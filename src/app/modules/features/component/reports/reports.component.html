@@ -559,7 +559,20 @@
                                   </div>
                                   <div class="flex flex-col">
                                     <span class="font-medium text-xs text-neutral-800">{{ cat.categoryName }}</span>
-                                    <span class="text-[10px] text-neutral-400 font-semibold">{{ cat.transactionCount }} Transactions</span>
+                                    <span class="text-[10px] text-neutral-400 font-semibold">
+                                      {{ cat.transactionCount }} Transactions                                    
+                                    </span>
+                                     @if (cat.budget) {
+                                       @if (cat.amount > cat.budget) {
+                                         <span class="text-[10px] font-semibold text-error-600">
+                                           Over Budget: {{ (cat.amount - cat.budget) | currency:{ compact: true } }}
+                                         </span>
+                                       } @else {
+                                         <span class="text-[10px] font-semibold text-success-600">
+                                           Remaining: {{ (cat.budget - cat.amount) | currency:{ compact: true } }}
+                                         </span>
+                                       }
+                                     }
                                   </div>
                                 </div>
                               </td>
