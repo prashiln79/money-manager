@@ -104,7 +104,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         if (this.mainContent) {
-          this.mainContent.nativeElement.scrollTop = 0;
+          requestAnimationFrame(() => {
+            if (this.mainContent) {
+              this.mainContent.nativeElement.scrollTop = 0;
+            }
+          });
         }
       });
   }

@@ -34,12 +34,28 @@ export class PerformanceMetricsService implements OnDestroy {
   private lastFpsTime = performance.now();
   private networkCount = 0;
 
+  private isMonitoring = false;
+
   constructor() {
+    // Only check SW status initially; do not burn CPU with continuous rAF/intervals unless dashboard is open
+    this.checkServiceWorkerStatus();
+  }
+
+  public toggleDashboard(visible?: boolean): void {
+    const next = visible !== undefined ? visible : !this.showDashboard();
+    this.showDashboard.set(next);
+    if (next && !this.isMonitoring) {
+      this.startMonitoring();
+    }
+  }
+
+  private startMonitoring(): void {
+    if (this.isMonitoring) return;
+    this.isMonitoring = true;
     this.startFPSCounter();
     this.startMemoryMonitoring();
     this.startCPUMonitoring();
     this.startNetworkMonitoring();
-    this.checkServiceWorkerStatus();
   }
 
   ngOnDestroy(): void {
