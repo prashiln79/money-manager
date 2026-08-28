@@ -66,8 +66,10 @@ export const appConfig: ApplicationConfig = {
     // Store
     importProvidersFrom(AppStoreModule),
 
-    // Translation
-    importProvidersFrom(TranslateModule.forRoot()),
+    // Translation - defaultLanguage prevents blocking render while en.json loads
+    importProvidersFrom(TranslateModule.forRoot({
+      defaultLanguage: 'en'
+    })),
     provideTranslateHttpLoader({
       prefix: './assets/i18n/',
       suffix: '.json'
