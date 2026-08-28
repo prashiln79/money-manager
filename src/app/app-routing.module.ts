@@ -1,37 +1,63 @@
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { SignInComponent } from './component/auth/sign-in/sign-in.component';
-import { RegistrationComponent } from './component/auth/registration/registration.component';
-import { DashboardComponent } from './component/dashboard/dashboard.component';
+import { RouterModule, Routes } from '@angular/router';
 import { authGuard } from './util/guard/auth.guard';
 import { familyModeGuard } from './util/guard/family-mode.guard';
-import { HomeComponent } from './component/dashboard/home/home.component';
-import { LandingComponent } from './component/landing/landing.component';
-import { NotificationSettingsComponent } from './util/components/notification-settings/notification-settings.component';
-import { FeedbackComponent } from './component/feedback/feedback.component';
-import { AppShellComponent } from './app-shell/app-shell.component';
-import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component';
-import { TermsConditionsComponent } from './component/terms-conditions/terms-conditions.component';
-import { OfflinePageComponent } from './util/components/offline-page/offline-page.component';
-import { DataDeletionComponent } from './component/data-deletion/data-deletion.component';
-import { ContactFormComponent } from './component/landing/contact-form/contact-form.component';
-import { SyncToCloudComponent } from './component/sync-to-cloud/sync-to-cloud.component';
 
 export const routes: Routes = [
-  { path: 'shell', component: AppShellComponent, title: 'App Shell' },
-  { path: 'feedback', component: ContactFormComponent, title: 'Feedback' },
-  { path: 'landing', component: LandingComponent, title: 'Welcome' },
-  { path: 'privacy-policy', component: PrivacyPolicyComponent, title: 'Privacy Policy' },
-  { path: 'terms-conditions', component: TermsConditionsComponent, title: 'Terms & Conditions' },
-  { path: 'offline', component: OfflinePageComponent, title: 'Offline' },
-  { path: 'data-deletion', component: DataDeletionComponent, title: 'Data Deletion' },
-  { path: 'sign-in', component: SignInComponent, title: 'Sign In' },
-  { path: 'sign-up', component: SignInComponent, title: 'Sign Up' },
-  { path: 'register', component: RegistrationComponent, title: 'Register' },
+  {
+    path: 'shell',
+    loadComponent: () => import('./app-shell/app-shell.component').then(m => m.AppShellComponent),
+    title: 'App Shell'
+  },
+  {
+    path: 'feedback',
+    loadComponent: () => import('./component/landing/contact-form/contact-form.component').then(m => m.ContactFormComponent),
+    title: 'Feedback'
+  },
+  {
+    path: 'landing',
+    loadComponent: () => import('./component/landing/landing.component').then(m => m.LandingComponent),
+    title: 'Welcome'
+  },
+  {
+    path: 'privacy-policy',
+    loadComponent: () => import('./component/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent),
+    title: 'Privacy Policy'
+  },
+  {
+    path: 'terms-conditions',
+    loadComponent: () => import('./component/terms-conditions/terms-conditions.component').then(m => m.TermsConditionsComponent),
+    title: 'Terms & Conditions'
+  },
+  {
+    path: 'offline',
+    loadComponent: () => import('./util/components/offline-page/offline-page.component').then(m => m.OfflinePageComponent),
+    title: 'Offline'
+  },
+  {
+    path: 'data-deletion',
+    loadComponent: () => import('./component/data-deletion/data-deletion.component').then(m => m.DataDeletionComponent),
+    title: 'Data Deletion'
+  },
+  {
+    path: 'sign-in',
+    loadComponent: () => import('./component/auth/sign-in/sign-in.component').then(m => m.SignInComponent),
+    title: 'Sign In'
+  },
+  {
+    path: 'sign-up',
+    loadComponent: () => import('./component/auth/sign-in/sign-in.component').then(m => m.SignInComponent),
+    title: 'Sign Up'
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./component/auth/registration/registration.component').then(m => m.RegistrationComponent),
+    title: 'Register'
+  },
 
   {
     path: 'dashboard',
-    component: DashboardComponent,
+    loadComponent: () => import('./component/dashboard/dashboard.component').then(m => m.DashboardComponent),
     title: 'Dashboard',
     canActivate: [authGuard],
     data: {
@@ -41,16 +67,20 @@ export const routes: Routes = [
     },
 
     children: [
-      { 
-        path: '', 
-        component: HomeComponent, 
+      {
+        path: '',
+        loadComponent: () => import('./component/dashboard/home/home.component').then(m => m.HomeComponent),
         title: 'Home',
         canActivate: [familyModeGuard]
       },
-      { path: 'sync-to-cloud', component: SyncToCloudComponent, title: 'Sync to Cloud' },
-      { 
-        path: 'home', 
-        component: HomeComponent, 
+      {
+        path: 'sync-to-cloud',
+        loadComponent: () => import('./component/sync-to-cloud/sync-to-cloud.component').then(m => m.SyncToCloudComponent),
+        title: 'Sync to Cloud'
+      },
+      {
+        path: 'home',
+        loadComponent: () => import('./component/dashboard/home/home.component').then(m => m.HomeComponent),
         title: 'Home',
         canActivate: [familyModeGuard]
       },
@@ -137,7 +167,7 @@ export const routes: Routes = [
       },
       {
         path: 'notifications',
-        component: NotificationSettingsComponent,
+        loadComponent: () => import('./util/components/notification-settings/notification-settings.component').then(m => m.NotificationSettingsComponent),
         title: 'Notifications',
         data: {
           roles: ['free', 'premium', 'admin'],
@@ -147,7 +177,7 @@ export const routes: Routes = [
       },
       {
         path: 'feedback',
-        component: FeedbackComponent,
+        loadComponent: () => import('./component/feedback/feedback.component').then(m => m.FeedbackComponent),
         title: 'Feedback',
         data: {
           roles: ['free', 'premium', 'admin'],
@@ -166,7 +196,7 @@ export const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true, preloadingStrategy: PreloadAllModules })],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

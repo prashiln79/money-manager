@@ -1,8 +1,8 @@
 import { ApplicationConfig, isDevMode, APP_INITIALIZER, provideZonelessChangeDetection, importProvidersFrom } from '@angular/core';
-import { provideRouter, withViewTransitions, withHashLocation, withPreloading, PreloadAllModules } from '@angular/router';
+import { provideRouter, withViewTransitions, withHashLocation } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideClientHydration } from '@angular/platform-browser';
+
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -54,12 +54,10 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions({
         skipInitialTransition: true
       }),
-      withHashLocation(),
-      withPreloading(PreloadAllModules)
+      withHashLocation()
     ),
     provideNativeDateAdapter(),
     provideHttpClient(withInterceptors([securityInterceptor])),
-    provideClientHydration(),
     importProvidersFrom(ServiceWorkerModule.register('firebase-messaging-sw.js', {
       enabled: true,
       registrationStrategy: 'registerWhenStable:3000'
