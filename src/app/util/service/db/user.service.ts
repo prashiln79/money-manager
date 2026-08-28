@@ -154,10 +154,13 @@ export class UserService implements OnDestroy {
         }
       });
 
-    this.initializeAuthState();
+    // Defer network-heavy Firebase auth listeners to the next tick so initial paint is not blocked
+    setTimeout(() => {
+      this.initializeAuthState();
+      this.startTokenRefresh();
+    }, 50);
   
     this.startSecurityMonitoring();
-    this.startTokenRefresh();
   }
 
   ngOnDestroy(): void {
