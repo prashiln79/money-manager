@@ -71,7 +71,11 @@
   "overrides": {
     "@angular/fire": {
       "@angular/common": "$@angular/common",
-      "@angular/core": "$@angular/core"
+      "@angular/core": "$@angular/core",
+      "@angular/platform-browser": "$@angular/platform-browser",
+      "@angular/forms": "$@angular/forms",
+      "@angular/router": "$@angular/router",
+      "@angular/animations": "$@angular/animations"
     }
   }
 }
