@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, signal, computed
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, filter, take, firstValueFrom } from 'rxjs';
 import { loadAccounts } from 'src/app/store/accounts/accounts.actions';
 import { AppState } from 'src/app/store/app.state';
 import { loadBudgets } from 'src/app/store/budgets/budgets.actions';
@@ -19,30 +19,9 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { LocalIndexDBStorageService } from 'src/app/util/service/indexdb-storage.service';
 
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatRippleModule } from '@angular/material/core';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSliderModule } from '@angular/material/slider';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSortModule } from '@angular/material/sort';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatTableModule } from '@angular/material/table';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { filter, take, firstValueFrom } from 'rxjs';
 
 /**
  * Enhanced SignInComponent with comprehensive security validation
@@ -56,31 +35,10 @@ import { filter, take, firstValueFrom } from 'rxjs';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatIconModule,
-    MatCheckboxModule,
-    MatRippleModule,
-    MatTooltipModule,
-    MatDividerModule,
-    MatListModule,
-    MatTabsModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatSlideToggleModule,
-    MatAutocompleteModule,
-    MatExpansionModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    MatSliderModule,
-    MatStepperModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
     TranslateModule,
     MatProgressSpinnerModule
-],
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SignInComponent implements OnInit, OnDestroy {

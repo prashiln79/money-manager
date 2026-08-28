@@ -86,13 +86,13 @@ export class LocalIndexDBStorageService {
             await this.openDatabase();
             await this.loadCacheFromDb();
             
-            // Post-initialization: Migrate transaction data if needed
-            await this.migrateIfNeeded();
-            
             console.log(`✅ Storage initialized. KeyValue: ${this.keyValueCache.size}, Transactions: ${this.transactionsCache.size}`);
             this.isInitialized = true;
             this.isCleaningUp = false;
             this.initializedSubject.next(true);
+
+            // Post-initialization: Migrate transaction data in background without blocking startup
+            this.migrateIfNeeded().catch(err => console.warn('Background migration warning:', err));
         } catch (error) {
             console.error('❌ Failed to initialize storage service:', error);
             // Fallback: try to load what we can or operate in memory-only mode if DB fails
@@ -819,23 +819,18 @@ export class LocalIndexDBStorageService {
         });
     }
 
-    private loadCacheFromDb(): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            if (!this.db) {
-                return reject(new Error('Database not open'));
-            }
+    private async loadCacheFromDb(): Promise<void> {
+        if (!this.db) {
+            throw new Error('Database not open');
+        }
 
-            try {
-                // Load from all stores
-                await this.loadStoreIntoCache(this.STORE_NAME);
-                await this.loadStoreIntoCache(this.TRANSACTIONS_STORE);
-                await this.loadStoreIntoCache(this.ACCOUNTS_STORE);
-                await this.loadStoreIntoCache(this.CATEGORIES_STORE);
-                resolve();
-            } catch (error) {
-                reject(error);
-            }
-        });
+        // Load all stores concurrently in parallel
+        await Promise.all([
+            this.loadStoreIntoCache(this.STORE_NAME),
+            this.loadStoreIntoCache(this.TRANSACTIONS_STORE),
+            this.loadStoreIntoCache(this.ACCOUNTS_STORE),
+            this.loadStoreIntoCache(this.CATEGORIES_STORE)
+        ]);
     }
 
     private loadStoreIntoCache(storeName: string): Promise<void> {

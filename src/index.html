@@ -55,6 +55,10 @@
   <link rel="apple-touch-icon" sizes="167x167" href="assets/icon/app-icon/icon-152x152.png">
   <link rel="canonical" href="https://prashiln79.github.io/money-manager/#/landing" />
 
+  <!-- Preload critical initial assets (instant LCP render) -->
+  <link rel="preload" href="assets/i18n/en.json" as="fetch" type="application/json" crossorigin>
+  <link rel="preload" href="assets/images/logo.svg" as="image" type="image/svg+xml">
+
   <!-- Preconnect to critical origins (Firebase auth is in critical path) -->
   <link rel="preconnect" href="https://money-manager-b394e.firebaseapp.com" crossorigin>
   <link rel="preconnect" href="https://apis.google.com" crossorigin>

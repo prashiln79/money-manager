@@ -48,29 +48,9 @@ export const authGuard: CanActivateFn = (route, state) => {
     return router.createUrlTree(['/dashboard'], { queryParams: { error: 'unauthorized' } });
   }
 
-  // 3. SLOW PATH: Only if we have NO session info at all (new visitor or logged out)
-  loaderService.show();
-  return authState(auth).pipe(
-    timeout(15000), // Wait max 15 seconds for Firebase response (can be slow offline on older devices)
-    take(1),
-    map(user => {
-      // If user is authenticated or guest mode is active
-      if (user || userService.isGuestUser()) {
-        if (hasRolePermission()) return true;
-        return router.createUrlTree(['/dashboard'], { queryParams: { error: 'unauthorized' } });
-      }
-
-      // Truly unauthenticated: Redirect to sign-in
-      return router.createUrlTree(['/sign-in'], { 
-        queryParams: { redirect: state.url } 
-      });
-    }),
-    catchError(() => {
-      // On timeout or error, redirect to sign-in
-      return of(router.createUrlTree(['/sign-in'], { 
-        queryParams: { redirect: state.url, error: 'network_timeout' } 
-      }));
-    }),
-    finalize(() => loaderService.hide())
-  );
+  // 3. FAST REDIRECT: Truly unauthenticated (new visitor or logged out)
+  // Redirect immediately to sign-in instead of blocking 2+ seconds on Firebase network calls
+  return router.createUrlTree(['/sign-in'], { 
+    queryParams: { redirect: state.url } 
+  });
 };
