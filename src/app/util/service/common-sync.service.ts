@@ -178,8 +178,10 @@ export class CommonSyncService implements OnDestroy {
 
   ) {
     if (!isPlatformServer(this.platformId)) {
-      this.initializeServices();
-      this.setupServiceWorkerSyncListener();
+      setTimeout(() => {
+        this.initializeServices();
+        this.setupServiceWorkerSyncListener();
+      }, 100);
     }
   }
 
