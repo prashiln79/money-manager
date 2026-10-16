@@ -12,7 +12,6 @@
     "test": "ng test --watch=false && npx playwright test -c playwright.e2e.config.ts",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless --code-coverage",
     "test:coverage": "ng test --watch=false --browsers=ChromeHeadless --code-coverage",
-    "test:pre-commit": "ng test --watch=false --browsers=ChromeHeadless",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "build:with-tests": "npm run test:ci && npm run config && ng build --configuration production",
