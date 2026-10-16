@@ -117,15 +117,22 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         return;
       }
 
-      // 7. Determine creator display name
+      // 7. Determine creator display name and avatar
       let creatorName = tx.userDisplayName;
-      if (!creatorName) {
+      let creatorPhoto = tx.userPhotoURL || tx.photoURL || "";
+
+      if (!creatorName || !creatorPhoto) {
         const creatorUserDoc = await db.collection("users").doc(creatorId).get();
         if (creatorUserDoc.exists) {
-          const u = creatorUserDoc.data();
-          creatorName = u?.displayName || u?.firstName || "A family member";
+          const u = creatorUserDoc.data() || {};
+          if (!creatorName) {
+            creatorName = u.displayName || u.firstName || "A family member";
+          }
+          if (!creatorPhoto) {
+            creatorPhoto = u.photoURL || u.profilePicture || "";
+          }
         } else {
-          creatorName = "A family member";
+          if (!creatorName) creatorName = "A family member";
         }
       }
 
@@ -210,6 +217,7 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         notification: {
           title: notificationTitle,
           body: notificationBody,
+          ...(creatorPhoto ? { imageUrl: creatorPhoto } : {}),
         },
         data: {
           familyId,
@@ -223,13 +231,16 @@ export const onFamilyTransactionCreated = onDocumentCreated(
           category,
           description,
           creatorName,
-          url: "/dashboard/transactions",
+          creatorPhoto: creatorPhoto || "",
+          icon: creatorPhoto || "/assets/icon/app-icon/icon-192x192.png",
+          url: "#/dashboard/transactions",
         },
         android: {
           priority: "high",
           notification: {
             title: notificationTitle,
             body: notificationBody,
+            ...(creatorPhoto ? { imageUrl: creatorPhoto } : {}),
             clickAction: "FLUTTER_NOTIFICATION_CLICK",
           },
         },
@@ -244,22 +255,25 @@ export const onFamilyTransactionCreated = onDocumentCreated(
               sound: "default",
             },
           },
+          ...(creatorPhoto ? {
+            fcmOptions: {
+              imageUrl: creatorPhoto,
+            },
+          } : {}),
         },
         webpush: {
           notification: {
             title: notificationTitle,
             body: notificationBody,
-            icon: "/assets/icon/app-icon/icon-192x192.png",
+            icon: creatorPhoto || "/assets/icon/app-icon/icon-192x192.png",
             badge: "/assets/icon/app-icon/icon-72x72.png",
             tag: `tx-${transactionId}`,
             data: {
-              url: "/dashboard/transactions",
+              url: "#/dashboard/transactions",
               familyId,
               transactionId,
+              creatorPhoto: creatorPhoto || "",
             },
-          },
-          fcmOptions: {
-            link: "/dashboard/transactions",
           },
         },
       };

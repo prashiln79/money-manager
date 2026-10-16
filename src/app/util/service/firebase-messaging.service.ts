@@ -396,14 +396,15 @@ export class FirebaseMessagingService {
   }
 
   private async handleForegroundMessage(payload: any): Promise<void> {
+    const iconUrl = payload.notification?.icon || payload.data?.icon || payload.data?.creatorPhoto;
     const notification: NotificationPayload = {
-      title: payload.notification?.title || 'New Notification',
-      body: payload.notification?.body || '',
-      icon: this.getPlatformSpecificIcon(payload.notification?.icon),
-      badge: this.getPlatformSpecificBadge(payload.notification?.badge),
-      image: payload.notification?.image,
+      title: payload.notification?.title || payload.data?.title || 'New Notification',
+      body: payload.notification?.body || payload.data?.body || '',
+      icon: this.getPlatformSpecificIcon(iconUrl),
+      badge: this.getPlatformSpecificBadge(payload.notification?.badge || payload.data?.badge),
+      image: payload.notification?.image || payload.data?.image,
       data: payload.data || {},
-      tag: payload.notification?.tag,
+      tag: payload.notification?.tag || payload.data?.tag,
       requireInteraction: payload.notification?.requireInteraction || false,
       silent: payload.notification?.silent || false,
       timestamp: payload.notification?.timestamp || Date.now()
@@ -689,14 +690,19 @@ export class FirebaseMessagingService {
       window.focus();
     }
 
-    // Handle custom click logic based on notification data
-    if (notification.data?.['url']) {
-      window.open(notification.data['url'], '_blank');
-    } else if (notification.data?.['route']) {
-      // Navigate to specific route in the app using base URL
-      const route = notification.data['route'];
-      const targetUrl = route.startsWith('/') ? `${environment.baseUrl}${route}` : `${environment.baseUrl}/${route}`;
-      window.location.href = targetUrl;
+    // Handle in-app navigation without opening external browser window
+    const target = notification.data?.['url'] || notification.data?.['route'];
+    if (target) {
+      if (target.startsWith('http://') || target.startsWith('https://')) {
+        if (target.startsWith(window.location.origin)) {
+          window.location.href = target;
+        } else {
+          window.open(target, '_blank');
+        }
+      } else {
+        const cleanRoute = target.startsWith('#') ? target : (target.startsWith('/') ? `#${target}` : `/#/${target}`);
+        window.location.hash = cleanRoute.replace(/^#\/?/, '');
+      }
     }
 
     // Emit click event for components to handle

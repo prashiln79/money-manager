@@ -49,14 +49,32 @@ function detectPlatform() {
   return cachedPlatform;
 }
 
+// Helper to resolve asset URLs correctly across localhost and GitHub Pages
+function getAppAssetUrl(relativePath) {
+  const isGithubPages = self.location.pathname.startsWith('/money-manager');
+  const base = isGithubPages ? '/money-manager' : '';
+  const cleanPath = relativePath.startsWith('/') ? relativePath : '/' + relativePath;
+  return `${self.location.origin}${base}${cleanPath}`;
+}
+
 // Consolidated notification options
 function getNotificationOptions(payload, customOptions = {}) {
   const platform = detectPlatform();
   
+  // Resolve user profile pic or notification icon
+  const iconUrl = payload.notification?.icon || 
+                  payload.data?.icon || 
+                  payload.data?.creatorPhoto || 
+                  getAppAssetUrl('/assets/icon/app-icon/icon-192x192.png');
+
+  const badgeUrl = payload.notification?.badge || 
+                   payload.data?.badge || 
+                   getAppAssetUrl('/assets/icon/app-icon/icon-72x72.png');
+
   const defaultOptions = {
-    body: payload.notification?.body || 'You have a new notification',
-    icon: payload.notification?.icon || '/money-manager/assets/icon/app-icon/icon-192x192.png',
-    badge: payload.notification?.badge || '/money-manager/assets/icon/app-icon/icon-72x72.png',
+    body: payload.notification?.body || payload.data?.body || 'You have a new notification',
+    icon: iconUrl,
+    badge: badgeUrl,
     data: payload.data || {},
     requireInteraction: payload.notification?.requireInteraction || false,
     silent: payload.notification?.silent || false,
@@ -67,14 +85,17 @@ function getNotificationOptions(payload, customOptions = {}) {
     ]
   };
 
-  // Only add optional properties if they are explicitly defined to avoid passing `undefined`
-  if (payload.notification?.image !== undefined) defaultOptions.image = payload.notification.image;
+  // Profile image or banner image if provided
+  const imageUrl = payload.notification?.image || payload.data?.image;
+  if (imageUrl !== undefined) defaultOptions.image = imageUrl;
   if (payload.notification?.tag !== undefined) defaultOptions.tag = payload.notification.tag;
   if (payload.notification?.vibrate !== undefined) defaultOptions.vibrate = payload.notification.vibrate;
 
   // Platform-specific adjustments
   if (platform.isIOS && platform.isSafari) {
-    defaultOptions.icon = payload.notification?.icon || '/money-manager/assets/icon/app-icon/icon-152x152.png';
+    if (!payload.notification?.icon && !payload.data?.icon && !payload.data?.creatorPhoto) {
+      defaultOptions.icon = getAppAssetUrl('/assets/icon/app-icon/icon-152x152.png');
+    }
     defaultOptions.actions = [{ action: 'view', title: 'View' }];
   }
 
@@ -86,7 +107,7 @@ if (messaging) {
   messaging.onBackgroundMessage((payload) => {
     console.log('Background message received:', payload);
     
-    const notificationTitle = payload.notification?.title || 'Family Expense Tracker';
+    const notificationTitle = payload.notification?.title || payload.data?.title || 'Family Expense Tracker';
     const notificationOptions = getNotificationOptions(payload);
 
     return self.registration.showNotification(notificationTitle, notificationOptions)
@@ -101,74 +122,73 @@ self.addEventListener('notificationclick', (event) => {
 
   event.notification.close();
 
-  // 1. Determine target URL
-  let targetUrl = event.notification.data?.url;
-  
-  // If no URL, try to use route (common for local notifications)
-  if (!targetUrl && event.notification.data?.route) {
-    targetUrl = `/money-manager${event.notification.data.route}`;
-  }
-  
-  // Default to app home if nothing else works
-  if (!targetUrl) {
-    targetUrl = '/money-manager/';
-  }
-
-  // Ensure we have an absolute URL for comparisons
-  const absoluteTargetUrl = new URL(targetUrl, self.location.origin).href;
-
-  // 2. Handle specific actions
+  // If user clicked 'dismiss', do nothing
   if (event.action === 'dismiss') {
     return;
   }
 
-  // Handle other actions if present
+  // 1. Determine base path and target URL
+  const isGithubPages = self.location.pathname.startsWith('/money-manager');
+  const basePath = isGithubPages ? '/money-manager/' : '/';
+
+  // Get raw target path from data or route
+  let rawPath = event.notification.data?.url || (event.notification.data?.route ? event.notification.data.route : '#/dashboard/transactions');
+
+  // Handle specific action URL if present
   if (event.action && event.action !== 'view') {
     const actionUrl = event.notification.data?.actionUrl;
     if (actionUrl) {
-      const absoluteActionUrl = new URL(actionUrl, self.location.origin).href;
-      event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-          for (const client of clientList) {
-            if (client.url === absoluteActionUrl && 'focus' in client) {
-              return client.focus();
-            }
-          }
-          if (clients.openWindow) {
-            return clients.openWindow(absoluteActionUrl);
-          }
-        })
-      );
-      return;
+      rawPath = actionUrl;
     }
   }
 
-  // 3. Main focus or open logic (for 'view' action or direct click)
+  // Format as hash route if not a full external URL
+  let targetUrl;
+  if (rawPath.startsWith('http://') || rawPath.startsWith('https://')) {
+    targetUrl = rawPath;
+  } else {
+    // Ensure hash is included for hash routing
+    let routeWithHash = rawPath;
+    if (!routeWithHash.startsWith('#')) {
+      routeWithHash = '#' + (routeWithHash.startsWith('/') ? routeWithHash : '/' + routeWithHash);
+    }
+    targetUrl = `${self.location.origin}${basePath}${routeWithHash}`;
+  }
+
+  // 2. Focus existing window or open new window
   event.waitUntil(
     clients.matchAll({
       type: 'window',
       includeUncontrolled: true
-    }).then((clientList) => {
-      // ✅ If app already open at target → focus it
+    }).then(async (clientList) => {
+      // Find an existing window client for this app origin
+      let matchingClient = null;
       for (const client of clientList) {
-        if (client.url === absoluteTargetUrl && 'focus' in client) {
-          return client.focus();
+        if (client.url && client.url.startsWith(self.location.origin)) {
+          matchingClient = client;
+          break;
         }
       }
 
-      // ✅ If app open at different url → focus it and navigate
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          if ('navigate' in client) {
-            client.navigate(absoluteTargetUrl);
+      // If app window is already open, focus it first
+      if (matchingClient && 'focus' in matchingClient) {
+        await matchingClient.focus();
+        
+        // Navigate to target URL if different
+        if ('navigate' in matchingClient && matchingClient.url !== targetUrl) {
+          try {
+            await matchingClient.navigate(targetUrl);
+          } catch (e) {
+            console.warn('Could not navigate client directly, sending postMessage:', e);
+            matchingClient.postMessage({ type: 'NAVIGATE', url: targetUrl });
           }
-          return client.focus();
         }
+        return;
       }
 
-      // ✅ If not open → open PWA window
+      // If no window is open, open a new window
       if (clients.openWindow) {
-        return clients.openWindow(absoluteTargetUrl);
+        return clients.openWindow(targetUrl);
       }
     })
   );
