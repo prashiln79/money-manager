@@ -1,0 +1,52 @@
+.desktop-layout-wrapper {
+  position: relative;
+}
+
+.desktop-sidebar {
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+
+  .sidebar-nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 4px;
+    }
+  }
+
+  .nav-link {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &.active-nav-link {
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+      font-weight: 600;
+
+      .nav-icon {
+        color: #2563eb;
+      }
+    }
+  }
+}
+
+:host-context(.dark-theme) {
+  .desktop-sidebar {
+    .nav-link.active-nav-link {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+
+      .nav-icon {
+        color: #60a5fa;
+      }
+    }
+  }
+}
+
+.desktop-content-area {
+  scroll-behavior: smooth;
+}

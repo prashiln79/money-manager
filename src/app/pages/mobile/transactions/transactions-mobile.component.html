@@ -1,0 +1,11 @@
+<div class="transaction-mobile-container w-full">
+  <mobile-transaction-list
+    [isRecurring]="isRecurring"
+    (editTransaction)="editTransaction.emit($event)"
+    (deleteTransaction)="deleteTransaction.emit($event)"
+    (bulkDeleteTransactions)="bulkDeleteTransactions.emit($event)"
+    (adjustTransaction)="adjustTransaction.emit($event)"
+    (addTransaction)="addTransaction.emit()"
+    (importTransactions)="importTransactions.emit()">
+  </mobile-transaction-list>
+</div>

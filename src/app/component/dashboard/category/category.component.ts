@@ -56,6 +56,9 @@ import { MatTabGroup } from '@angular/material/tabs';
 
 dayjs.extend(isBetween);
 
+import { CategoryDesktopComponent } from 'src/app/pages/desktop/category/category-desktop.component';
+import { CategoryMobileComponent } from 'src/app/pages/mobile/category/category-mobile.component';
+
 @Component({
   selector: 'user-category',
   templateUrl: './category.component.html',
@@ -77,8 +80,8 @@ dayjs.extend(isBetween);
     MatTooltipModule,
     MatTabsModule,
     TranslateModule,
-    CurrencyPipe,
-    //CategorySummaryCardComponent
+    CategoryDesktopComponent,
+    CategoryMobileComponent
   ]
 })
 export class CategoryComponent implements OnInit, OnDestroy {

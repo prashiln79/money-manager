@@ -68,6 +68,9 @@ import { AccountSummaryCardComponent } from 'src/app/util/components/cards/accou
 import { AccountStatsPipe } from 'src/app/util/pipes/account-stats.pipe';
 
 
+import { AccountsDesktopComponent } from 'src/app/pages/desktop/accounts/accounts-desktop.component';
+import { AccountsMobileComponent } from 'src/app/pages/mobile/accounts/accounts-mobile.component';
+
 @Component({
   selector: 'user-accounts',
   templateUrl: './accounts.component.html',
@@ -83,9 +86,8 @@ import { AccountStatsPipe } from 'src/app/util/pipes/account-stats.pipe';
     MatMenuModule,
     MatTooltipModule,
     TranslateModule,
-    AccountSummaryCardComponent,
-    AccountStatsPipe,
-    CurrencyPipe
+    AccountsDesktopComponent,
+    AccountsMobileComponent
   ]
 })
 export class AccountsComponent implements OnInit, OnDestroy {

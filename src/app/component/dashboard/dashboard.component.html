@@ -1,30 +1,15 @@
-<div class="dashboard-wrapper safe-h-screen flex flex-col">
-
-  <!-- PWA Update Banner -->
-  @if (updateAvailable) {
-    <div class="update-banner">
-      <div class="update-banner-content">
-        <span class="update-banner-icon">🔄</span>
-        <span class="update-banner-text">A new version is available!</span>
-        <button class="update-banner-refresh" (click)="refreshApp()">Refresh</button>
-        <button class="update-banner-dismiss" (click)="dismissUpdate()" aria-label="Dismiss">✕</button>
-      </div>
-    </div>
-  }
-
-  <!-- Fixed Header -->
-  @defer (on timer(200ms)) {
-  <app-header class="dashboard-header"></app-header>
-  }
-
-  <!-- Scrollable Content Area -->
-  <main #mainContent class="main-content flex-1 overflow-y-auto h-[inherit]">
-    <div class="dashboard-container mx-auto px-4 py-1 lg:p-0 h-full max-h-full">
-      <router-outlet></router-outlet>
-    </div>
-  </main>
-
-  <!-- Fixed Footer -->
-  <app-footer class="dashboard-footer"></app-footer>
-
-</div>
+@if (breakpointService.isDesktopLayout()) {
+  <app-desktop-layout
+    [updateAvailable]="updateAvailable"
+    (refreshApp)="refreshApp()"
+    (dismissUpdate)="dismissUpdate()">
+    <router-outlet></router-outlet>
+  </app-desktop-layout>
+} @else {
+  <app-mobile-layout
+    [updateAvailable]="updateAvailable"
+    (refreshApp)="refreshApp()"
+    (dismissUpdate)="dismissUpdate()">
+    <router-outlet></router-outlet>
+  </app-mobile-layout>
+}

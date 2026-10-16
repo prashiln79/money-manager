@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from './header/header.component';
@@ -27,16 +27,20 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 import { appConfig } from 'src/app/app.config';
 import { APP_CONFIG } from 'src/app/util/config/config';
 
+import { DesktopLayoutComponent } from '../../layouts/desktop-layout/desktop-layout.component';
+import { MobileLayoutComponent } from '../../layouts/mobile-layout/mobile-layout.component';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterModule, HeaderComponent, FooterComponent]
+  imports: [RouterModule, DesktopLayoutComponent, MobileLayoutComponent]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  @ViewChild('mainContent') mainContent!: ElementRef<HTMLElement>;
+  public breakpointService = inject(BreakpointService);
   isMobile = false;
   updateAvailable = false;
   private destroy$ = new Subject<void>();
@@ -103,13 +107,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(() => {
-        if (this.mainContent) {
-          requestAnimationFrame(() => {
-            if (this.mainContent) {
-              this.mainContent.nativeElement.scrollTop = 0;
-            }
-          });
-        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
   }
 

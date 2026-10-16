@@ -7,17 +7,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
-import { SearchFilterComponent } from './search-filter/search-filter.component';
-import { TransactionTableComponent } from './transaction-table/transaction-table.component';
-import { MobileTransactionListComponent } from './mobile-transaction-list/mobile-transaction-list.component';
+import { TransactionsDesktopComponent } from 'src/app/pages/desktop/transactions/transactions-desktop.component';
+import { TransactionsMobileComponent } from 'src/app/pages/mobile/transactions/transactions-mobile.component';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Auth } from '@angular/fire/auth';
 import { UserService } from 'src/app/util/service/db/user.service';
 import { Transaction } from 'src/app/util/models/transaction.model';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { MobileAddTransactionComponent } from './add-transaction/mobile-add-transaction/mobile-add-transaction.component';
-import { CalendarViewComponent } from '../calendar-view/calendar-view.component';
-import { MonthlyExpenditureCardComponent } from '../../../util/components/cards/monthly-expenditure-card/monthly-expenditure-card.component';
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { ImportTransactionsComponent } from './add-transaction/import-transactions.component';
 import { FilterService } from 'src/app/util/service/filter.service';
@@ -51,12 +48,9 @@ import { FamilyService } from 'src/app/modules/family/services/family.service';
     MatTooltipModule,
     MatDialogModule,
     TranslateModule,
-    SearchFilterComponent,
-    TransactionTableComponent,
-    MobileTransactionListComponent,
-    CalendarViewComponent,
-    MonthlyExpenditureCardComponent
-]
+    TransactionsDesktopComponent,
+    TransactionsMobileComponent
+  ]
 })
 export class TransactionListComponent implements OnInit, OnDestroy {
   isHome = input<boolean>(false);

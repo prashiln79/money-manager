@@ -1,0 +1,162 @@
+<div class="desktop-layout-wrapper flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-slate-950 font-roboto">
+
+  <!-- Desktop Sidebar -->
+  <aside class="desktop-sidebar flex flex-col flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 z-20"
+         [class.w-72]="!isSidebarCollapsed()"
+         [class.w-20]="isSidebarCollapsed()">
+
+    <!-- Sidebar Brand & Toggle -->
+    <div class="sidebar-header flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+      <a routerLink="/dashboard" class="flex items-center gap-3 overflow-hidden group cursor-pointer no-underline">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-primary-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
+          <mat-icon class="!w-6 !h-6 !text-2xl leading-none">account_balance_wallet</mat-icon>
+        </div>
+        @if (!isSidebarCollapsed()) {
+          <div class="flex flex-col truncate">
+            <span class="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-none">Money Manager</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1">Smart Finances</span>
+          </div>
+        }
+      </a>
+
+      <button mat-icon-button (click)="toggleSidebar()" class="sidebar-collapse-btn text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" [matTooltip]="isSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
+        <mat-icon>{{ isSidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+    </div>
+
+    <!-- Quick Action Button in Sidebar -->
+    <div class="p-3">
+      <button (click)="openAddTransaction()"
+              class="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-md shadow-primary-600/20 hover:shadow-lg transition-all active:scale-95">
+        <mat-icon class="!w-5 !h-5 !text-xl">add</mat-icon>
+        @if (!isSidebarCollapsed()) {
+          <span class="text-sm">Add Transaction</span>
+        }
+      </button>
+    </div>
+
+    <!-- Navigation List -->
+    <nav class="sidebar-nav flex-1 px-3 py-2 overflow-y-auto space-y-4 custom-scrollbar">
+      @for (section of navigationSections; track section.label) {
+        @if (section.label === 'NAVIGATION.ADMIN' ? isAdmin : true) {
+          <div class="nav-section">
+            @if (!isSidebarCollapsed()) {
+              <div class="section-title px-3 py-1 flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider cursor-pointer"
+                   (click)="toggleSection(section)">
+                <span>{{ section.label | translate }}</span>
+                @if (section.isCollapsible) {
+                  <mat-icon class="!w-4 !h-4 !text-base transition-transform" [class.rotate-180]="section.isExpanded">keyboard_arrow_down</mat-icon>
+                }
+              </div>
+            }
+
+            <div class="section-links space-y-1 mt-1" [class.hidden]="section.isCollapsible && !section.isExpanded">
+              @for (child of section.children; track child.label + child.route) {
+                @if ((!child.familyOnly || isFamilyMode()) &&
+                     (!child.hideInFamily || !isFamilyMode()) &&
+                     (!child.hideForGuest || !isGuestUser()) &&
+                     !child.mobileOnly) {
+                  @if (child.externalUrl) {
+                    <a [href]="child.externalUrl" target="_blank"
+                       class="nav-link flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                       [matTooltip]="isSidebarCollapsed() ? (child.label | translate) : ''"
+                       matTooltipPosition="right">
+                      <mat-icon class="!w-5 !h-5 !text-xl text-slate-500 dark:text-slate-400">{{ child.icon }}</mat-icon>
+                      @if (!isSidebarCollapsed()) {
+                        <span class="text-sm font-medium truncate">{{ child.label | translate }}</span>
+                        <mat-icon class="ml-auto !w-4 !h-4 !text-base text-slate-400">open_in_new</mat-icon>
+                      }
+                    </a>
+                  } @else {
+                    <a [routerLink]="child.route" [queryParams]="child.queryParams"
+                       routerLinkActive="active-nav-link"
+                       [routerLinkActiveOptions]="{exact: false}"
+                       class="nav-link flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                       [matTooltip]="isSidebarCollapsed() ? (child.label | translate) : ''"
+                       matTooltipPosition="right">
+                      <mat-icon class="!w-5 !h-5 !text-xl text-slate-500 dark:text-slate-400 nav-icon">{{ child.icon }}</mat-icon>
+                      @if (!isSidebarCollapsed()) {
+                        <span class="text-sm font-medium truncate flex-1">{{ child.label | translate }}</span>
+                        @if (child.isPremium) {
+                          <span class="pro-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400">PRO</span>
+                        }
+                      }
+                    </a>
+                  }
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+    </nav>
+
+    <!-- Sidebar Bottom Actions -->
+    <div class="sidebar-footer p-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+      <a [routerLink]="['/dashboard/profile']" [queryParams]="{tab: 'settings'}"
+         class="flex items-center gap-2 p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+         [matTooltip]="'COMMON.SETTINGS' | translate">
+        <mat-icon class="!w-5 !h-5 !text-xl">settings</mat-icon>
+        @if (!isSidebarCollapsed()) {
+          <span class="text-sm font-medium">{{ 'COMMON.SETTINGS' | translate }}</span>
+        }
+      </a>
+
+      @if (!isSidebarCollapsed()) {
+        <button (click)="logout()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs font-semibold transition-colors">
+          <mat-icon class="!w-4 !h-4 !text-base">logout</mat-icon>
+          <span>{{ 'COMMON.LOGOUT' | translate }}</span>
+        </button>
+      }
+    </div>
+  </aside>
+
+  <!-- Desktop Main Column -->
+  <div class="desktop-main-wrapper flex flex-col flex-1 min-w-0 overflow-hidden">
+
+    <!-- PWA Update Banner -->
+    @if (updateAvailable) {
+      <div class="update-banner bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 flex items-center justify-between shadow-md">
+        <div class="flex items-center gap-2 text-sm font-medium">
+          <span>🔄</span>
+          <span>A new version is available!</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button (click)="refreshApp.emit()" class="px-3 py-1 bg-white text-blue-600 rounded-md font-semibold text-xs hover:bg-slate-100 transition-colors">Refresh</button>
+          <button (click)="dismissUpdate.emit()" class="text-white/80 hover:text-white text-sm" aria-label="Dismiss">✕</button>
+        </div>
+      </div>
+    }
+
+    <!-- Desktop Top Header Bar -->
+    <header class="desktop-top-header flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-800 relative z-50">
+      <div class="header-left flex items-center gap-3">
+        <!-- Direct Quick Navigation Shortcuts for Desktop -->
+        <a routerLink="/dashboard/transactions" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          Transactions
+        </a>
+        <a routerLink="/dashboard/accounts" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          Accounts
+        </a>
+        <a routerLink="/dashboard/category" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          Categories
+        </a>
+        <a routerLink="/dashboard/reports" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          Reports
+        </a>
+      </div>
+
+      <div class="header-right flex items-center gap-4">
+        <!-- User Profile Component -->
+        <app-user></app-user>
+      </div>
+    </header>
+
+    <!-- Desktop Main Content Area -->
+    <main class="desktop-content-area flex-1 overflow-y-auto px-6 py-4">
+      <div class="max-w-[1600px] mx-auto w-full h-full">
+        <ng-content></ng-content>
+      </div>
+    </main>
+  </div>
+</div>

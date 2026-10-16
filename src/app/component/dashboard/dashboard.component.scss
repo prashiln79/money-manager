@@ -12,12 +12,18 @@
   view-transition-name: main-content;
 }
 
-.dashboard-header, .dashboard-footer {
+.dashboard-header {
   display: block;
+  position: relative;
+  z-index: 50;
   background-color: var(--surface-100);
 }
 
 .dashboard-footer {
+  display: block;
+  position: relative;
+  z-index: 30;
+  background-color: var(--surface-100);
   view-transition-name: dashboard-footer;
 }
 

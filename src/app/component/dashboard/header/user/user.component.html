@@ -1,4 +1,4 @@
-<div class="relative inline-block" (clickOutside)="close()">
+<div class="relative inline-block z-50" (clickOutside)="close()">
   <!-- Dropdown toggle button -->
   <button (click)="toggle($event)"
     class="relative z-10 flex items-center p-2 text-sm text-gray-600 bg-transparent border border-transparent rounded-md focus:border-blue-500 focus:ring-opacity-40 dark:focus:ring-opacity-40 focus:ring-blue-300 dark:focus:ring-blue-400 focus:ring dark:text-white focus:outline-none transition-colors"
@@ -54,7 +54,7 @@
   <!-- Dropdown menu -->
   @if (isOpen()) {
     <div
-      class="absolute right-0 z-20 w-64 py-2 mt-2 overflow-hidden origin-top-right bg-white rounded-lg shadow-xl dark:bg-slate-900 border border-gray-200 dark:border-slate-800"
+      class="absolute right-0 z-[100] w-64 py-2 mt-2 overflow-hidden origin-top-right bg-white rounded-lg shadow-xl dark:bg-slate-900 border border-gray-200 dark:border-slate-800"
       @slideDown>
       <!-- Menu Items -->
       <div class="py-1">

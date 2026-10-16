@@ -1,0 +1,759 @@
+<!-- <app-quick-actions-fab [config]="fabConfig"></app-quick-actions-fab> -->
+<!-- @if (breakpointService.device.isMobile) {
+  <app-quick-actions-fab [config]="quickActionsFabConfig()">
+  </app-quick-actions-fab>
+} -->
+
+
+<div class="profile-container">
+  <!-- Profile Header -->
+  <div
+    class="profile-header bg-white dark:bg-gray-800 rounded-2xl  border !border-surface-500 p-6 mb-6 relative">
+
+    <!-- Theme Toggle Badge (Corner) -->
+    <!-- Family Mode Toggle Badge (Corner) -->
+    <!-- <app-family-mode-toggle></app-family-mode-toggle> -->
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-0 sm:pt-0 mt-0">
+      <!-- Left side: Avatar and Info -->
+      <div class="flex items-start gap-4 ">
+        <div (click)="fileInput.click()"
+          class="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-primary-400 to-secondary-500 flex items-center justify-center flex-shrink-0 shadow-inner mt-1 relative cursor-pointer group">
+          <img [src]="userProfile()?.photoURL" appImageFallback
+            class="w-full h-full object-cover" alt="Profile Photo">
+
+          <!-- Upload Overlay -->
+          <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <mat-icon class="text-white scale-75">camera_alt</mat-icon>
+          </div>
+        </div>
+        <input type="file" #fileInput (change)="onProfileImageSelected($event)" accept="image/*" class="hidden">
+        <div class="flex flex-col user-info">
+          <p class="text-xl font-bold text-gray-900 dark:text-white !mb-0 break-words">{{ fullName() }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 m-0 mt-0.5 break-all">{{ userProfile()?.email }}</p>
+          @if (!isGuestMode()) {
+            <div class="flex items-center gap-1.5 mt-2">
+              <button mat-button [matMenuTriggerFor]="familySwitchMenu" 
+                class="family-badge-chip flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all duration-200"
+                [class.family-active]="isFamilyMode()"
+                [class.personal-active]="!isFamilyMode()">
+                <mat-icon class="!w-4 !h-4 !text-[16px]">
+                  {{ isFamilyMode() ? 'family_restroom' : 'person' }}
+                </mat-icon>
+                <span class="text-[11px] font-bold uppercase tracking-tight">
+                  {{ isFamilyMode() ? (activeFamilyName() || 'Family Mode') : 'Personal Mode' }}
+                </span>
+                <mat-icon class="!w-3 !h-3 !text-[14px] opacity-40">expand_more</mat-icon>
+              </button>
+              
+              <mat-menu #familySwitchMenu="matMenu" class="family-switch-menu">
+                <div class="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 mb-1">
+                  Profiles
+                </div>
+                
+                <!-- Personal Mode option -->
+                <button mat-menu-item (click)="switchToPersonalMode()" 
+                  [class.active-family]="!isFamilyMode()">
+                  <div class="flex items-center justify-between w-full gap-4">
+                    <div class="flex items-center gap-2">
+                       <mat-icon class="!w-4 !h-4 !text-[18px]">person</mat-icon>
+                       <span [class.font-bold]="!isFamilyMode()">Individual</span>
+                    </div>
+                    @if (!isFamilyMode()) {
+                      <mat-icon class="!text-[18px] text-primary-600">check_circle</mat-icon>
+                    }
+                  </div>
+                </button>
+                
+                @if (familyGroups().length > 0) {
+                  <mat-divider class="!my-1"></mat-divider>
+                  <div class="px-3 py-1.5 text-[9px] font-bold text-gray-400 uppercase tracking-widest">Families</div>
+                  @for (family of sortedFamilyGroups(); track family.id) {
+                    <button mat-menu-item (click)="switchActiveFamily(family.id!)" 
+                      [class.active-family]="isFamilyMode() && family.id === activeFamilyId()">
+                      <div class="flex items-center justify-between w-full gap-4">
+                        <div class="flex items-center gap-2">
+                           <mat-icon class="!w-4 !h-4 !text-[18px]">family_restroom</mat-icon>
+                           <span [class.font-bold]="isFamilyMode() && family.id === activeFamilyId()">{{ family.name }}</span>
+                        </div>
+                        @if (isFamilyMode() && family.id === activeFamilyId()) {
+                          <mat-icon class="!w-4 !h-4 !text-[18px] text-primary-600">check_circle</mat-icon>
+                        }
+                      </div>
+                    </button>
+                  }
+                }
+                
+                <mat-divider class="!my-1"></mat-divider>
+                <button mat-menu-item routerLink="/dashboard/family">
+                  <mat-icon class="!w-4 !h-4 !text-[18px]">settings</mat-icon>
+                  <span>Manage Families</span>
+                </button>
+              </mat-menu>
+            </div>
+          }
+          <!-- <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ 'PROFILE.MEMBER_SINCE' | translate }} {{
+          getFormattedDate(userProfile()?.createdAt) }}</p> -->
+        </div>
+      </div>
+
+      <!-- Right side: Actions -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+
+
+        <!-- Google Action Buttons (Mobile specifically) -->
+        @if (isGuestMode() && breakpointService.device.isMobile) {
+          <button mat-flat-button color="primary" (click)="signInWithGoogle()"
+            [disabled]="isLoading()"
+            class="!h-[42px] !rounded-lg !text-white w-full">
+            <span class="flex items-center justify-center gap-2">
+              @if (isGoogleLoading()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              }
+              @if (!isGoogleLoading()) {
+                <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">login</mat-icon>
+              }
+              {{ isGoogleLoading() ? 'Loading...' : 'AUTH.SIGN_IN_WITH_GOOGLE' | translate }}
+            </span>
+          </button>
+        }
+        <button mat-flat-button (click)="logout()"
+          [disabled]="isLoading()" class="!h-[42px] !rounded-lg !text-white !bg-primary-700 w-full">
+          <span class="flex items-center justify-center gap-2">
+            @if (isLogoutLoading()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            }
+            @if (!isLogoutLoading()) {
+              <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">logout</mat-icon>
+            }
+            {{ isLogoutLoading() ? 'Loading...' : (isGuestMode() ? ('USER_MENU.EXIT_GUEST' | translate) : ('AUTH.SIGN_OUT' | translate)) }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  @if (userProfile()) {
+    <div class="profile-content">
+      <form [formGroup]="profileForm" class="profile-form">
+        <mat-accordion [multi]="!breakpointService.device.isMobile">
+          <!-- Personal Information Section -->
+          <mat-expansion-panel [expanded]="breakpointService.device.isMobile ? false : true"
+            class="form-section-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title class="flex items-center gap-2">
+                <mat-icon class="section-icon">person</mat-icon>
+                <p class="text-sm font-medium  text-neutral-900 !mb-0">{{
+                'PROFILE.PERSONAL_INFO' | translate }}</p>
+              </mat-panel-title>
+
+            </mat-expansion-panel-header>
+            <div class="form-grid pt-4">
+              <!-- First Name -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.FIRST_NAME' | translate }} *</mat-label>
+                <input matInput formControlName="firstName"
+                  autocomplete="given-name" />
+                @if (profileForm.get('firstName')?.hasError('required')) {
+                  <mat-error>
+                    {{ 'PROFILE.FIRST_NAME_REQUIRED' | translate }}
+                  </mat-error>
+                }
+                @if (profileForm.get('firstName')?.hasError('minlength')) {
+                  <mat-error>
+                    {{ 'PROFILE.FIRST_NAME_MINLENGTH' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+              <!-- Last Name -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.LAST_NAME' | translate }} *</mat-label>
+                <input matInput formControlName="lastName"
+                  autocomplete="family-name" />
+                @if (profileForm.get('lastName')?.hasError('required')) {
+                  <mat-error>
+                    {{ 'PROFILE.LAST_NAME_REQUIRED' | translate }}
+                  </mat-error>
+                }
+                @if (profileForm.get('lastName')?.hasError('minlength')) {
+                  <mat-error>
+                    {{ 'PROFILE.LAST_NAME_MINLENGTH' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+              <!-- Email -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.EMAIL' | translate }} *</mat-label>
+                <input matInput type="email" formControlName="email"
+                  autocomplete="email" />
+                @if (profileForm.get('email')?.hasError('required')) {
+                  <mat-error>
+                    {{ 'PROFILE.EMAIL_REQUIRED' | translate }}
+                  </mat-error>
+                }
+                @if (profileForm.get('email')?.hasError('email')) {
+                  <mat-error>
+                    {{ 'PROFILE.EMAIL_INVALID' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+              <!-- Phone -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.PHONE' | translate }}</mat-label>
+                <input matInput formControlName="phone"
+                  placeholder="+1 (555) 123-4567" autocomplete="tel" />
+                @if (profileForm.get('phone')?.hasError('pattern')) {
+                  <mat-error>
+                    {{ 'PROFILE.PHONE_INVALID' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+              <!-- Date of Birth -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.DOB' | translate }}</mat-label>
+                <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth"
+                  autocomplete="bday" />
+                <mat-datepicker-toggle matSuffix [for]="dobPicker"
+                [disabled]="!isEditingPersonal()"></mat-datepicker-toggle>
+                <mat-datepicker #dobPicker></mat-datepicker>
+              </mat-form-field>
+              <!-- Occupation -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.OCCUPATION' | translate }}</mat-label>
+                <input matInput formControlName="occupation"
+                  placeholder="e.g., Software Engineer" autocomplete="organization-title" />
+              </mat-form-field>
+              <!-- Monthly Income -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.MONTHLY_INCOME' | translate }}</mat-label>
+                <input matInput type="number" formControlName="monthlyIncome"
+                  step="0.01" autocomplete="off" />
+                <span matTextPrefix>{{ userProfile()?.preferences?.defaultCurrency }}&nbsp;</span>
+                @if (profileForm.get('monthlyIncome')?.hasError('min')) {
+                  <mat-error>
+                    {{ 'PROFILE.INCOME_NEGATIVE' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="flex justify-end gap-2 mt-4 px-2 pb-2">
+              @if (!isEditingPersonal()) {
+                <button mat-stroked-button (click)="toggleEdit('personal')" class="!h-9">
+                  <mat-icon class="!text-[18px]">edit</mat-icon>
+                  Edit
+                </button>
+              } @else {
+                <button mat-stroked-button (click)="cancelEdit('personal')" class="!h-9">
+                  Cancel
+                </button>
+                <button mat-flat-button color="primary" (click)="saveProfile('personal')" class="!h-9">
+                  <mat-icon class="!text-[18px]">save</mat-icon>
+                  Save Changes
+                </button>
+              }
+            </div>
+          </mat-expansion-panel>
+          <!-- Preferences Section -->
+          @defer {
+          <mat-expansion-panel [expanded]="breakpointService.device.isMobile ? false : true"
+            class="form-section-panel mt-6" formGroupName="preferences">
+            <mat-expansion-panel-header>
+              <mat-panel-title class="flex items-center gap-2">
+                <mat-icon class="section-icon">settings</mat-icon>
+                <p class="text-sm font-medium !mb-0">{{
+                'PROFILE.PREFERENCES' | translate }}</p>
+              </mat-panel-title>
+
+            </mat-expansion-panel-header>
+            <div class="form-grid pt-4">
+              <!-- ₹ -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.DEFAULT_CURRENCY' | translate }} *</mat-label>
+                <mat-select formControlName="defaultCurrency">
+                  @for (currency of currencies; track currency) {
+                    <mat-option [value]="currency">
+                      {{ currency }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <!-- Timezone -->
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.TIMEZONE' | translate }} *</mat-label>
+                <mat-select formControlName="timezone">
+                  @for (tz of timezones; track tz.value) {
+                    <mat-option [value]="tz.value">
+                      {{ tz.label }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.LANGUAGE' | translate }} *</mat-label>
+                <mat-select formControlName="language">
+                  @for (lang of languages; track lang.code) {
+                    <mat-option [value]="lang.code">
+                      {{ lang.name }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.COUNTRY' | translate }} *</mat-label>
+                <mat-select formControlName="country">
+                  @for (country of countries; track country.code) {
+                    <mat-option [value]="country.code">
+                      {{ country.countryName }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>{{ 'PROFILE.APP_VIEW' | translate }}</mat-label>
+                <mat-select formControlName="appView">
+                  @for (option of appViewOptions; track option.value) {
+                    <mat-option [value]="option.value">
+                      {{ option.label | translate }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="flex justify-end gap-2 mt-4 px-2 pb-4 border-b border-gray-100 dark:border-gray-700">
+              @if (!isEditingPreferences()) {
+                <button mat-stroked-button (click)="toggleEdit('preferences')" class="!h-9">
+                  <mat-icon class="!text-[18px]">edit</mat-icon>
+                  Edit
+                </button>
+              } @else {
+                <button mat-stroked-button (click)="cancelEdit('preferences')" class="!h-9">
+                  Cancel
+                </button>
+                <button mat-flat-button color="primary" (click)="saveProfile('preferences')" class="!h-9">
+                  <mat-icon class="!text-[18px]">save</mat-icon>
+                  Save Changes
+                </button>
+              }
+            </div>
+            <!-- Notification Preferences -->
+            <div class="preferences-grid">
+              <div class="preference-item">
+                <mat-slide-toggle formControlName="notifications" color="primary">
+                  <span class="toggle-label">{{ 'PROFILE.NOTIFICATIONS' | translate }}</span>
+                </mat-slide-toggle>
+                <p class="preference-description">{{ 'PROFILE.NOTIFICATIONS_DESC' | translate }}</p>
+              </div>
+              <div class="preference-item">
+                <mat-slide-toggle formControlName="hapticFeedback" color="primary">
+                  <span class="toggle-label">{{ 'PROFILE.HAPTIC_FEEDBACK' | translate }}</span>
+                </mat-slide-toggle>
+                <p class="preference-description">{{ 'PROFILE.HAPTIC_FEEDBACK_DESC' | translate }}</p>
+              </div>
+              <!-- <div class="preference-item">
+                <mat-slide-toggle formControlName="emailUpdates" color="primary">
+                  <span class="toggle-label">{{ 'PROFILE.EMAIL_UPDATES' | translate }}</span>
+                </mat-slide-toggle>
+                <p class="preference-description">{{ 'PROFILE.EMAIL_UPDATES_DESC' | translate }}</p>
+              </div> -->
+              <!-- <div class="preference-item">
+                <mat-slide-toggle formControlName="categoryListViewMode"
+                  color="primary">
+                  <span class="toggle-label">{{ 'PROFILE.VIEW_MODE' | translate }}</span>
+                </mat-slide-toggle>
+                <p class="preference-description">{{ 'PROFILE.VIEW_MODE_DESC' | translate }}</p>
+              </div> -->
+              <!-- PIN Lock Section -->
+              <div class="preference-item border-t border-gray-100 dark:border-gray-700 pt-4 mt-2">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="toggle-label !font-medium">PIN Lock</span>
+                  <button mat-stroked-button color="primary" type="button" size="small"
+                    (click)="showPinSetup.set(!showPinSetup())"
+                    class="!text-xs !h-8 !px-3">
+                    <mat-icon class="!text-sm !w-4 !h-4">{{ showPinSetup() ? 'close' : 'lock'
+                    }}</mat-icon>
+                    {{ (userProfile()?.preferences?.pinHash ? 'Change PIN' : 'Set PIN') }}
+                  </button>
+                </div>
+                <mat-slide-toggle formControlName="pinEnabled" color="primary">
+                  <span class="toggle-label text-xs">Enable PIN lock on startup</span>
+                </mat-slide-toggle>
+                <p class="preference-description">Require a 4-digit PIN to open the app</p>
+                <!-- PIN Setup Inline -->
+                @if (showPinSetup()) {
+                  <div
+                    class="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 animate-in fade-in slide-in-from-top-2">
+                    <p class="text-xs font-medium mb-3">Enter New 4-Digit PIN</p>
+                    <div class="flex flex-col gap-3">
+                      <mat-form-field appearance="fill" class="!mb-0">
+                        <mat-label>New PIN</mat-label>
+                        <input matInput type="password" maxlength="4" placeholder="••••"
+                          [formControl]="newPinControl" (keypress)="onlyNumbers($event)">
+                        <mat-hint>Choose a 4-digit numeric PIN</mat-hint>
+                      </mat-form-field>
+                      <button mat-flat-button color="primary" [disabled]="newPinControl.invalid"
+                        (click)="updatePin()">
+                        Confirm New PIN
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </mat-expansion-panel>
+        }
+
+        <!-- Appearance Section -->
+        <mat-expansion-panel [expanded]="breakpointService.device.isMobile ? false : true"
+          class="form-section-panel mt-6">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex items-center gap-2">
+              <mat-icon class="section-icon">palette</mat-icon>
+              <p class="text-sm font-medium !mb-0">Appearance</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="pt-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Choose how the app looks to you.</p>
+            
+            <div class="grid grid-cols-3 gap-4">
+              <!-- Light Theme -->
+              <div (click)="selectTheme('light-theme')"
+                class="theme-card flex flex-col items-center p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-300"
+                [class.active-theme]="themePreference() === 'light-theme'">
+                <div class="theme-preview bg-gray-50 rounded-lg p-2 w-full h-20 mb-2 flex flex-col gap-1 shadow-sm">
+                  <div class="h-4 bg-white rounded shadow-sm"></div>
+                  <div class="h-2 bg-gray-300 rounded w-2/3"></div>
+                  <div class="h-2 bg-gray-200 rounded w-1/2"></div>
+                </div>
+                <div class="flex items-center gap-1.5 mt-1">
+                  <mat-icon class="!text-[16px] !w-4 !h-4 text-yellow-500">light_mode</mat-icon>
+                  <span class="text-xs font-medium">Light</span>
+                </div>
+              </div>
+
+              <!-- Dark Theme -->
+              <div (click)="selectTheme('dark-theme')"
+                class="theme-card flex flex-col items-center p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-300"
+                [class.active-theme]="themePreference() === 'dark-theme'">
+                <div class="theme-preview bg-gray-800 rounded-lg p-2 w-full h-20 mb-2 flex flex-col gap-1 shadow-sm">
+                  <div class="h-4 bg-gray-700 rounded shadow-sm"></div>
+                  <div class="h-2 bg-gray-600 rounded w-2/3"></div>
+                  <div class="h-2 bg-gray-700 rounded w-1/2"></div>
+                </div>
+                <div class="flex items-center gap-1.5 mt-1">
+                  <mat-icon class="!text-[16px] !w-4 !h-4 text-blue-300">dark_mode</mat-icon>
+                  <span class="text-xs font-medium">Dark</span>
+                </div>
+              </div>
+
+              <!-- System Theme -->
+              <div (click)="selectTheme('system')"
+                class="theme-card flex flex-col items-center p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-300"
+                [class.active-theme]="themePreference() === 'system'">
+                <div class="theme-preview rounded-lg overflow-hidden w-full h-20 mb-2 relative shadow-sm">
+                  <!-- Base Light Layout -->
+                  <div class="absolute inset-0 bg-gray-50 p-2 flex flex-col gap-1">
+                    <div class="h-4 bg-white rounded shadow-sm"></div>
+                    <div class="h-2 bg-gray-300 rounded w-2/3"></div>
+                    <div class="h-2 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                  <!-- Overlay Dark Layout (Clipped 50%) -->
+                  <div class="absolute inset-0 bg-gray-800 p-2 flex flex-col gap-1" style="clip-path: inset(0 0 0 50%)">
+                    <div class="h-4 bg-gray-700 rounded shadow-sm"></div>
+                    <div class="h-2 bg-gray-600 rounded w-2/3"></div>
+                    <div class="h-2 bg-gray-700 rounded w-1/2"></div>
+                  </div>
+                  <!-- Center Split Divider Line -->
+                  <div class="absolute inset-0 w-1/2 border-r border-gray-300 dark:border-gray-600 pointer-events-none"></div>
+                </div>
+                <div class="flex items-center gap-1.5 mt-1">
+                  <mat-icon class="!text-[16px] !w-4 !h-4 text-gray-500">brightness_auto</mat-icon>
+                  <span class="text-xs font-medium">System</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- More Accent Themes -->
+            <div class="mt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-800/60 pt-4 flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-gray-400">color_lens</mat-icon>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Other Specialty Themes</span>
+              </div>
+              <mat-form-field appearance="outline" class="!mb-0 scale-90 origin-right max-w-[180px]">
+                <mat-select [value]="isSpecialTheme() ? themePreference() : 'none'" (selectionChange)="selectTheme($event.value)">
+                  <mat-option value="none" disabled>Choose Theme</mat-option>
+                  <mat-option value="midnight-theme">
+                    <div class="flex items-center gap-2">
+                      <div class="w-3 h-3 rounded-full bg-[#004fe6] shadow-sm"></div>
+                      <span class="text-sm">Midnight Blue</span>
+                    </div>
+                  </mat-option>
+                  <mat-option value="monochrome-theme">
+                    <div class="flex items-center gap-2">
+                      <div class="w-3 h-3 rounded-full bg-[#111111] border border-gray-400 shadow-sm"></div>
+                      <span class="text-sm">Monochrome</span>
+                    </div>
+                  </mat-option>
+                  
+                  <!-- 5 Trending specialty Themes -->
+                  <mat-option value="cyberpunk-theme">
+                    <div class="flex items-center gap-2">
+                      <div class="w-3 h-3 rounded-full bg-[#ecaef5] shadow-sm"></div>
+                      <span class="text-sm">Cyberpunk Neon</span>
+                    </div>
+                  </mat-option>
+                  <mat-option value="emerald-theme">
+                    <div class="flex items-center gap-2">
+                      <div class="w-3 h-3 rounded-full bg-[#00de91] shadow-sm"></div>
+                      <span class="text-sm">Emerald Forest</span>
+                    </div>
+                  </mat-option>
+                  <mat-option value="nordic-theme">
+                    <div class="flex items-center gap-2">
+                      <div class="w-3 h-3 rounded-full bg-[#0099dc] border border-gray-100 shadow-sm"></div>
+                      <span class="text-sm">Nordic Slate</span>
+                    </div>
+                  </mat-option>
+                  <mat-option value="sunset-theme">
+                    <div class="flex items-center gap-2">
+                      <div class="w-3 h-3 rounded-full bg-[#fbb308] shadow-sm"></div>
+                      <span class="text-sm">Sunset Warmth</span>
+                    </div>
+                  </mat-option>
+                  <mat-option value="dracula-theme">
+                    <div class="flex items-center gap-2">
+                      <div class="w-3 h-3 rounded-full bg-[#a55cff] shadow-sm"></div>
+                      <span class="text-sm">Dracula Violet</span>
+                    </div>
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+        <!-- Family Group Section -->
+        @defer {
+        @if (!isGuestMode()) {
+          <mat-expansion-panel [expanded]="breakpointService.device.isMobile ? false : true"
+            class="form-section-panel mt-6">
+            <mat-expansion-panel-header>
+              <mat-panel-title class="flex items-center gap-2">
+                <mat-icon class="section-icon">family_restroom</mat-icon>
+                <p class="text-sm font-medium !mb-0">
+                  Family Group
+                </p>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="form-grid pt-4">
+              <!-- Loading State -->
+              @if (isFamilyLoading()) {
+                <div class="col-span-full flex flex-col items-center justify-center p-8">
+                  <mat-spinner diameter="40"></mat-spinner>
+                  <p class="text-xs text-gray-400 mt-3">Fetching family data...</p>
+                </div>
+              }
+              <!-- Connected Families -->
+              @if (!isFamilyLoading()) {
+                @if (familyGroups().length > 0) {
+                  <div class="col-span-full space-y-4 w-full overflow-hidden">
+                    @for (family of sortedFamilyGroups(); track family.id) {
+                      @if (activeFamilyId() === family.id) {
+                        <!-- Family card -->
+                        <div
+                          class="p-4 bg-primary-50 rounded-xl border border-primary-100 dark:border-gray-700 overflow-hidden w-full">
+                          <div class="flex items-start justify-between gap-3 mb-3">
+                            <div class="min-w-0">
+                              <p class="text-base font-bold text-gray-800 dark:text-gray-100 truncate" [title]="family.name">{{
+                              family.name }}</p>
+                              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ memberCount() }} Member(s)</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2 shrink-0">
+                              <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 font-medium">
+                                Active
+                              </span>
+                              @if (family.ownerUserId === userProfile()?.uid) {
+                                <span
+                                  class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-bold">
+                                  Owner
+                                </span>
+                              }
+                            </div>
+                          </div>
+                          <!-- Invite Code (Only for active or owner) -->
+                          <div class="flex items-center justify-between bg-white dark:bg-gray-700 rounded-lg px-3 py-2">
+                            <div class="min-w-0">
+                              <p class="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wide">Invite Code</p>
+                              <p
+                                class="text-sm font-black tracking-widest text-primary-700 dark:text-primary-300 truncate">
+                              {{ family.inviteCode }}</p>
+                            </div>
+                            <button mat-icon-button class="!w-8 !h-8 shrink-0"
+                              (click)="copyFamilyCode(family.inviteCode)" type="button">
+                              <mat-icon class="!text-base text-gray-400">content_copy</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                      } @else {
+                        <!-- Other Joined Families -->
+                        <div
+                          class="p-4 bg-surface-100 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-300 group w-full overflow-hidden box-border">
+                          <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                              <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/30 group-hover:text-primary-500 transition-colors shrink-0">
+                                <mat-icon>family_restroom</mat-icon>
+                              </div>
+                              <div class="min-w-0">
+                                <p class="text-sm font-bold text-gray-800 dark:text-gray-100 m-0 truncate" [title]="family.name">{{ family.name }}</p>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium m-0">Member</p>
+                                  <button mat-stroked-button (click)="switchActiveFamily(family.id!)" 
+                                class="!h-8 !px-3 !text-xs !rounded-lg hover:!bg-primary-500 hover:!text-white transition-all">
+                                Switch
+                              </button>
+                              </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                               @if (family.ownerUserId === userProfile()?.uid) {
+                                <span
+                                  class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-bold border border-blue-100 dark:border-blue-800/30 mr-1 hidden sm:inline-block">
+                                  Owner
+                                </span>
+                              }
+                            
+                              <button mat-icon-button [matMenuTriggerFor]="otherFamilyMenu" class="!w-8 !h-8">
+                                <mat-icon class="!text-sm text-gray-400">more_vert</mat-icon>
+                              </button>
+                              <mat-menu #otherFamilyMenu="matMenu">
+                                <button mat-menu-item (click)="copyFamilyCode(family.inviteCode)">
+                                  <mat-icon>content_copy</mat-icon>
+                                  <span>Copy Invite Code</span>
+                                </button>
+                                @if (family.ownerUserId === userProfile()?.uid) {
+                                  <mat-divider></mat-divider>
+                                  <button mat-menu-item color="warn" (click)="deleteFamilyGroup(family)">
+                                    <mat-icon class="text-red-500">delete_forever</mat-icon>
+                                    <span class="text-red-500">Delete Family</span>
+                                  </button>
+                                }
+                              </mat-menu>
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    }
+
+                    <!-- Always show Create/Join buttons at the bottom -->
+                    <div class="flex gap-2  align-center justify-center">
+                      <button mat-flat-button color="primary" type="button" class="flex-1 !h-10 !rounded-xl !text-white"
+                        (click)="createFamilyGroup()" [disabled]="isLoading()">
+                        <mat-icon >add_home</mat-icon>
+                        Create
+                      </button>
+                      <button mat-stroked-button type="button" class="flex-1 !h-10 !rounded-xl" (click)="joinFamilyGroup()"
+                        [disabled]="isLoading()">
+                        <mat-icon >group_add</mat-icon>
+                        Join
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div
+                    class="col-span-full flex flex-col items-center justify-center p-0 no-family-card rounded-2xl text-center">
+                    <div class="gradient-icon-box mb-3">
+                      <div class="icon-bg-glow"></div>
+                      <mat-icon>family_restroom</mat-icon>
+                    </div>
+                    <p class="text-sm text-gray-400 dark:text-gray-500 mb-8 max-w-xs leading-relaxed">
+                      Create a shared wallet for your family or join one using an invite code to start tracking together.
+                    </p>
+                    <div class="empty-cta-container mb-2">
+                      <button mat-flat-button color="primary" type="button" class="flex-1 premium-btn !h-12 !rounded-xl text-white"
+                        (click)="createFamilyGroup()" [disabled]="isLoading()">
+                        <mat-icon class="mr-2">add_home</mat-icon>
+                        Create Group
+                      </button>
+                      <button mat-stroked-button type="button" class="flex-1 premium-btn !h-12 !rounded-xl" (click)="joinFamilyGroup()"
+                        [disabled]="isLoading()">
+                        <mat-icon class="mr-2">group_add</mat-icon>
+                        Join Group
+                      </button>
+                    </div>
+                  </div>
+                }
+                <!-- No family connected -->
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
+    </mat-accordion>
+
+  </form>
+  <!-- Account Actions Section -->
+  @defer {
+  <mat-accordion>
+    <mat-expansion-panel [expanded]="breakpointService.device.isMobile ? false : true"
+      class="bg-white dark:bg-gray-800 rounded-2xl !shadow-none border border-gray-200 dark:border-gray-700">
+      <mat-expansion-panel-header>
+        <mat-panel-title class="flex items-center gap-2">
+          <mat-icon class="section-icon">security</mat-icon>
+          <p class="text-sm font-medium !mb-0">{{
+          'PROFILE.ACCOUNT_ACTIONS' | translate }}</p>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div
+          class="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-primary-500 !w-8 !h-8 !text-[32px]">download</mat-icon>
+              <p class="text-sm font-medium !mb-0">{{ 'PROFILE.EXPORT_DATA' | translate }}</p>
+            </div>
+            <p class="text-xs font-normal my-5 text-left text-gray-500 dark:text-gray-400 !mt-4">{{
+            'PROFILE.EXPORT_DATA_DESC' | translate }}</p>
+          </div>
+          <button mat-stroked-button (click)="exportData()" class="w-full md:w-auto min-w-[140px]">
+            {{ 'PROFILE.DOWNLOAD_DATA' | translate }}
+          </button>
+        </div>
+        <div
+          class="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-primary-500 !w-8 !h-8 !text-[32px]">upload</mat-icon>
+              <p class="text-sm font-medium !mb-0">{{ 'PROFILE.IMPORT_DATA' | translate }}</p>
+            </div>
+            <p class="text-xs font-normal my-5 text-left text-gray-500 dark:text-gray-400">{{
+            'PROFILE.IMPORT_DATA_DESC' | translate }}</p>
+          </div>
+          <input type="file" id="importFileInput" (change)="onFileSelected($event)" accept=".json"
+            class="hidden">
+          <button mat-stroked-button (click)="importData()"
+            class="w-full md:w-auto min-w-[140px] !bg-primary-500 !text-white">
+            {{ 'PROFILE.IMPORT_DATA' | translate }}
+          </button>
+        </div>
+        <div
+          class="p-6 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800 text-center transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <mat-icon
+              class="text-red-600 dark:text-red-400 !w-8 !h-8 !text-[32px]">delete_forever</mat-icon>
+              <p class="text-sm font-medium text-red-800 dark:text-red-200 mb-0">{{
+              'PROFILE.DELETE_ACCOUNT' | translate }}</p>
+            </div>
+            <p class="text-xs text-red-600/70 dark:text-red-300/70 font-normal my-5 text-left">{{
+            'PROFILE.DELETE_ACCOUNT_DESC' | translate }}</p>
+          </div>
+          <button mat-stroked-button color="warn" (click)="deleteAccount()"
+            class="w-full md:w-auto min-w-[140px]">
+            {{ 'PROFILE.DELETE_ACCOUNT' | translate }}
+          </button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+}
+</div>
+}
+</div>

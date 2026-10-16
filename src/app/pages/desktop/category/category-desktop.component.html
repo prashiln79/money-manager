@@ -1,0 +1,192 @@
+<div class="category-desktop-view fade-in dark:bg-slate-950 w-full">
+  <!-- Desktop Header -->
+  <header class="page-header flex items-center justify-between mb-6">
+    <div class="header-left">
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Categories</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Organize transactions, set spending limits, and track budgets</p>
+    </div>
+    <button mat-flat-button color="primary" class="add-category-btn" (click)="openAddMobileDialog.emit()">
+      <mat-icon>add</mat-icon>
+      Add Category
+    </button>
+  </header>
+
+  <!-- Error Message Display -->
+  @if (errorMessage) {
+    <div class="error-message mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 flex items-center justify-between shadow-sm">
+      <p class="error-text text-sm font-medium text-red-600 dark:text-red-400 m-0">{{ errorMessage }}</p>
+      <button mat-icon-button (click)="clearError.emit()" class="error-close-button text-red-500">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- Desktop Tabs -->
+  <mat-tab-group class="category-tabs" animationDuration="0ms" [selectedIndex]="selectedtabGroup" (selectedIndexChange)="selectedtabGroupChange.emit($event)">
+    <!-- Manage Categories Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="flex items-center gap-2">
+          <mat-icon class="!text-lg">category</mat-icon>
+          <span>Categories</span>
+          <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">{{ vm?.categories?.length || 0 }}</span>
+        </div>
+      </ng-template>
+
+      <div class="tab-content pt-4">
+        <!-- Controls: Search & Filter -->
+        <section class="controls-section flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+          <mat-form-field appearance="fill" class="search-bar w-full sm:w-80" subscriptSizing="dynamic">
+            <mat-label>Search categories...</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput type="text" [formControl]="searchControl">
+          </mat-form-field>
+          <div class="filter-pills flex items-center gap-2">
+            <mat-chip-listbox (change)="setFilterType.emit($event.value)" [value]="filterType">
+              <mat-chip-option value="all">All</mat-chip-option>
+              <mat-chip-option value="expense">Expense</mat-chip-option>
+              <mat-chip-option value="income">Income</mat-chip-option>
+            </mat-chip-listbox>
+          </div>
+        </section>
+
+        <!-- Categories List -->
+        <section class="categories-list-section">
+          @if (vm?.categories?.length === 0) {
+            <div class="empty-state p-12 text-center text-slate-400">
+              <mat-icon class="!w-12 !h-12 !text-5xl opacity-40 mb-2">search_off</mat-icon>
+              <p>No categories found matching your search.</p>
+            </div>
+          }
+          @if (vm?.categories?.length > 0) {
+            <mat-card class="categories-list-card border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
+              <mat-list class="pt-0 divide-y divide-slate-100 dark:divide-slate-800">
+                @for (category of vm.categories; track category.id) {
+                  @if (!category.isSubCategory && !category.parentCategoryId) {
+                    <mat-list-item class="category-item-wrapper hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                                   [class.selected]="selectedCategoryId === category.id"
+                                   (click)="toggleExpandCategory.emit({ category, event: $event })">
+                      <div matListItemAvatar class="category-icon w-10 h-10 rounded-xl flex items-center justify-center"
+                           [style.background-color]="category.color + '20'"
+                           [style.color]="category.color">
+                        <mat-icon>{{ category.icon || 'category' }}</mat-icon>
+                      </div>
+                      <span matListItemTitle class="category-name font-bold text-slate-900 dark:text-white">{{ category.name }}</span>
+                      <span matListItemLine class="category-type inline-flex items-center gap-1 text-xs" [style.color]="category.group ? category.color : null">
+                        @if (category.group && category.groupIcon) {
+                          <mat-icon class="!text-[14px] !w-3.5 !h-3.5">{{ category.groupIcon }}</mat-icon>
+                        }
+                        {{ (category.group || category.type) | titlecase }}
+                      </span>
+                      <div matListItemMeta class="item-right flex items-center gap-4">
+                        <div class="amount-container text-right">
+                          <span class="category-amount font-bold text-slate-900 dark:text-white financial-data">
+                            {{ category.totalSpent | currency:{round: true} }}
+                          </span>
+                          @if (category.budget?.hasBudget) {
+                            <div class="budget-progress-wrapper w-24 mt-1">
+                              <mat-progress-bar mode="determinate" [value]="category.budgetProgress"
+                                                [color]="category.budgetColor"
+                                                [ngClass]="category.budgetStatusClass"></mat-progress-bar>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </mat-list-item>
+
+                    <!-- Expanded Details & Subcategories -->
+                    @if (selectedCategoryId === category.id) {
+                      <div class="category-actions-expansion p-4 bg-slate-50/70 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2 mb-4">
+                          <button mat-stroked-button (click)="openMobileDialog.emit(category)">
+                            <mat-icon>edit</mat-icon> Edit
+                          </button>
+                          @if (category.type === 'expense' && category.budget?.hasBudget) {
+                            <button mat-stroked-button (click)="openBudgetDialog.emit(category)">
+                              <mat-icon>account_balance_wallet</mat-icon> Edit Budget
+                            </button>
+                            <button mat-stroked-button color="warn" (click)="removeBudget.emit(category)">
+                              <mat-icon>money_off</mat-icon> Remove Budget
+                            </button>
+                          }
+                          @if (category.type === 'expense' && !category.budget?.hasBudget) {
+                            <button mat-flat-button color="primary" (click)="openBudgetDialog.emit(category)">
+                              <mat-icon>account_balance_wallet</mat-icon> Set Budget
+                            </button>
+                          }
+                          <button mat-stroked-button color="warn" class="ml-auto" (click)="deleteCategory.emit(category)">
+                            <mat-icon>delete</mat-icon> Delete
+                          </button>
+                        </div>
+
+                        <!-- Subcategories Section -->
+                        @if (getSubCategoriesForCategory(category.id).length > 0) {
+                          <div class="subcategories-container pl-6 border-l-2 border-primary-500/30 space-y-2 mt-3">
+                            <span class="text-xs uppercase font-bold text-slate-400">Subcategories</span>
+                            @for (subCategory of getSubCategoriesForCategory(category.id); track subCategory.id) {
+                              <div class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+                                <div class="flex items-center gap-2">
+                                  <mat-icon [style.color]="subCategory.color" class="!w-4 !h-4 !text-base">{{ subCategory.icon || 'category' }}</mat-icon>
+                                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ subCategory.name }}</span>
+                                </div>
+                                <span class="text-xs font-bold financial-data">{{ subCategory.totalSpent | currency }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                }
+              </mat-list>
+            </mat-card>
+          }
+        </section>
+      </div>
+    </mat-tab>
+
+    <!-- Category Groups Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="flex items-center gap-2">
+          <mat-icon class="!text-lg">folder</mat-icon>
+          <span>Groups</span>
+          <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">{{ vm?.availableGroups?.length || 0 }}</span>
+        </div>
+      </ng-template>
+
+      <div class="tab-content pt-4">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Category Groups</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Organize your categories into high-level groups</p>
+          </div>
+          @if (vm?.hasUngroupedCategories) {
+            <button mat-flat-button color="primary" (click)="autoCategorize.emit()" [disabled]="isAutoCategorizing">
+              <mat-icon [class.animate-spin]="isAutoCategorizing">{{ isAutoCategorizing ? 'sync' : 'auto_awesome' }}</mat-icon>
+              <span>{{ isAutoCategorizing ? 'Auto Grouping...' : 'Auto Group Categories' }}</span>
+            </button>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (group of vm?.availableGroups; track group.name) {
+            <mat-card class="group-card hover:shadow-md transition-all cursor-pointer border border-slate-200 dark:border-slate-800 rounded-xl"
+                      (click)="openEditCategoryGroupDialog.emit(group.name)">
+              <div class="p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 flex items-center justify-center">
+                  <mat-icon>{{ group.icon }}</mat-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate m-0">{{ group.name }}</h3>
+                  <p class="text-xs text-slate-400 m-0">{{ group.count }} categories</p>
+                </div>
+                <mat-icon class="text-slate-400">edit</mat-icon>
+              </div>
+            </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

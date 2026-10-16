@@ -1,0 +1,45 @@
+<div class="transaction-desktop-container grid grid-cols-12 gap-6 w-full">
+  <!-- Desktop Left Sidebar: Calendar & Expenditure -->
+  <div class="col-span-12 xl:col-span-3 hidden xl:flex flex-col gap-5">
+    @defer (on viewport) {
+      <calendar-view></calendar-view>
+    } @placeholder {
+      <div class="h-64 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+    }
+
+    @defer (on viewport) {
+      <app-monthly-expenditure-card></app-monthly-expenditure-card>
+    } @placeholder {
+      <div class="h-48 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+    }
+  </div>
+
+  <!-- Desktop Main Column: Search, Filters & Data Table -->
+  <div class="col-span-12 xl:col-span-9 flex flex-col gap-4">
+    <search-filter
+      (addTransaction)="addTransaction.emit()"
+      (importTransactions)="importTransactions.emit()"
+      (openFilterDialog)="openFilterDialog.emit()"
+      (viewAnalytics)="viewAnalytics.emit()"
+      (expandTable)="expandTable.emit()">
+    </search-filter>
+
+    <hr class="dark:border-slate-800">
+
+    @defer (on viewport) {
+      <transaction-table
+        (editTransaction)="editTransaction.emit($event)"
+        (deleteTransaction)="deleteTransaction.emit($event)"
+        (startRowEdit)="startRowEdit.emit($event)"
+        (saveRowEdit)="saveRowEdit.emit($event)"
+        (cancelRowEdit)="cancelRowEdit.emit($event)"
+        (addTransaction)="addTransaction.emit()"
+        (bulkDeleteTransactions)="bulkDeleteTransactions.emit($event)"
+        (bulkUpdateCategory)="bulkUpdateCategory.emit($event)"
+        [isHome]="isHome">
+      </transaction-table>
+    } @placeholder {
+      <div class="h-96 w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse mt-4"></div>
+    }
+  </div>
+</div>

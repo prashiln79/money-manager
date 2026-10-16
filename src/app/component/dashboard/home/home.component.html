@@ -1,3 +1,7 @@
-<div class="home-wrapper font-roboto grid h-full">
-	<app-chat class="safe-h-screen-chat"></app-chat>
+<div class="home-wrapper font-roboto h-full w-full">
+  @if (breakpointService.isDesktopLayout()) {
+    <app-dashboard-desktop-page></app-dashboard-desktop-page>
+  } @else {
+    <app-dashboard-mobile-page></app-dashboard-mobile-page>
+  }
 </div>

@@ -1,0 +1,237 @@
+<div class="profile-desktop-container w-full max-w-7xl mx-auto py-2">
+  <!-- Desktop Profile Header Card -->
+  <div class="profile-header bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 mb-8 shadow-sm">
+    <div class="flex items-center justify-between gap-6">
+      <div class="flex items-center gap-5">
+        <div (click)="desktopFileInput.click()"
+             class="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md relative cursor-pointer group">
+          <img [src]="c.userProfile()?.photoURL" appImageFallback class="w-full h-full object-cover" alt="Profile Photo">
+          <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <mat-icon class="text-white">camera_alt</mat-icon>
+          </div>
+        </div>
+        <input type="file" #desktopFileInput (change)="c.onProfileImageSelected($event)" accept="image/*" class="hidden">
+
+        <div class="flex flex-col">
+          <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white m-0">{{ c.fullName() }}</h1>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 border border-primary-200/50">
+              {{ c.isGuestMode() ? 'Guest Mode' : 'Verified Member' }}
+            </span>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 m-0">{{ c.userProfile()?.email }}</p>
+
+          @if (!c.isGuestMode()) {
+            <div class="flex items-center gap-2 mt-3">
+              <button mat-button [matMenuTriggerFor]="desktopFamilyMenu"
+                      class="family-badge-chip flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium">
+                <mat-icon class="!w-4 !h-4 !text-base">{{ c.isFamilyMode() ? 'family_restroom' : 'person' }}</mat-icon>
+                <span>{{ c.isFamilyMode() ? (c.activeFamilyName() || 'Family Mode') : 'Personal Mode' }}</span>
+                <mat-icon class="!w-3 !h-3 !text-sm text-slate-400">expand_more</mat-icon>
+              </button>
+
+              <mat-menu #desktopFamilyMenu="matMenu">
+                <button mat-menu-item (click)="c.switchToPersonalMode()">
+                  <mat-icon>person</mat-icon>
+                  <span>Personal Mode</span>
+                </button>
+                @for (family of c.sortedFamilyGroups(); track family.id) {
+                  @if (family.id) {
+                    <button mat-menu-item (click)="c.switchActiveFamily(family.id)">
+                      <mat-icon>family_restroom</mat-icon>
+                      <span>{{ family.name }}</span>
+                    </button>
+                  }
+                }
+              </mat-menu>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Quick Theme Switcher Pills -->
+      <div class="theme-pills flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+        <button mat-button class="!min-w-0 !px-3 !py-1 !rounded-lg text-xs font-semibold"
+                [class.bg-white]="c.currentTheme() === 'light-theme'"
+                [class.text-primary-600]="c.currentTheme() === 'light-theme'"
+                [class.shadow-sm]="c.currentTheme() === 'light-theme'"
+                (click)="c.selectTheme('light-theme')">
+          <mat-icon class="!w-4 !h-4 !text-base mr-1">light_mode</mat-icon> Light
+        </button>
+        <button mat-button class="!min-w-0 !px-3 !py-1 !rounded-lg text-xs font-semibold"
+                [class.bg-white]="c.currentTheme() === 'dark-theme'"
+                [class.text-primary-600]="c.currentTheme() === 'dark-theme'"
+                [class.shadow-sm]="c.currentTheme() === 'dark-theme'"
+                (click)="c.selectTheme('dark-theme')">
+          <mat-icon class="!w-4 !h-4 !text-base mr-1">dark_mode</mat-icon> Dark
+        </button>
+        <button mat-button class="!min-w-0 !px-3 !py-1 !rounded-lg text-xs font-semibold"
+                [class.bg-white]="c.currentTheme() === 'system'"
+                [class.text-primary-600]="c.currentTheme() === 'system'"
+                [class.shadow-sm]="c.currentTheme() === 'system'"
+                (click)="c.selectTheme('system')">
+          <mat-icon class="!w-4 !h-4 !text-base mr-1">settings_suggest</mat-icon> System
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop Multi-Section Panels -->
+  @if (c.userProfile()) {
+    <form [formGroup]="c.profileForm" class="profile-desktop-form space-y-6">
+      <mat-accordion [multi]="true">
+        <!-- Personal Information Section -->
+        <mat-expansion-panel [expanded]="true" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
+              <mat-icon class="text-primary-600">person</mat-icon>
+              <span>{{ 'PROFILE.PERSONAL_INFO' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.FIRST_NAME' | translate }} *</mat-label>
+              <input matInput formControlName="firstName" autocomplete="given-name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.LAST_NAME' | translate }}</mat-label>
+              <input matInput formControlName="lastName" autocomplete="family-name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Email Address</mat-label>
+              <input matInput [value]="c.userProfile()?.email" disabled />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.PHONE' | translate }}</mat-label>
+              <input matInput formControlName="phone" autocomplete="tel" />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.OCCUPATION' | translate }}</mat-label>
+              <input matInput formControlName="occupation" />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.MONTHLY_INCOME' | translate }}</mat-label>
+              <input matInput type="number" formControlName="monthlyIncome" />
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Preferences & Regional Settings Section -->
+        <mat-expansion-panel [expanded]="true" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
+              <mat-icon class="text-primary-600">tune</mat-icon>
+              <span>{{ 'PROFILE.PREFERENCES' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div formGroupName="preferences" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.DEFAULT_CURRENCY' | translate }}</mat-label>
+              <mat-select formControlName="defaultCurrency">
+                @for (currency of c.currencies; track currency) {
+                  <mat-option [value]="currency">{{ currency }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.COUNTRY' | translate }}</mat-label>
+              <mat-select formControlName="country">
+                @for (country of c.countries; track country.code) {
+                  <mat-option [value]="country.code">{{ country.countryName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.LANGUAGE' | translate }}</mat-label>
+              <mat-select formControlName="language">
+                @for (language of c.languages; track language.code) {
+                  <mat-option [value]="language.code">{{ language.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'PROFILE.TIMEZONE' | translate }}</mat-label>
+              <mat-select formControlName="timezone">
+                @for (tz of c.timezones; track tz) {
+                  <mat-option [value]="tz">{{ tz }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Default App View</mat-label>
+              <mat-select formControlName="appView">
+                @for (opt of c.appViewOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </form>
+
+    <!-- Desktop Data Actions & Security Grid -->
+    <div class="desktop-account-actions bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 mt-6 shadow-sm">
+      <div class="flex items-center gap-2 mb-6">
+        <mat-icon class="text-primary-600">security</mat-icon>
+        <h2 class="text-base font-bold text-slate-900 dark:text-white m-0">{{ 'PROFILE.ACCOUNT_ACTIONS' | translate }}</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Export Data -->
+        <div class="action-card p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 text-primary-600 font-bold mb-2">
+              <mat-icon>download</mat-icon>
+              <span>{{ 'PROFILE.EXPORT_DATA' | translate }}</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">{{ 'PROFILE.EXPORT_DATA_DESC' | translate }}</p>
+          </div>
+          <button mat-stroked-button (click)="c.exportData()" class="w-full">
+            {{ 'PROFILE.DOWNLOAD_DATA' | translate }}
+          </button>
+        </div>
+
+        <!-- Import Data -->
+        <div class="action-card p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 text-primary-600 font-bold mb-2">
+              <mat-icon>upload</mat-icon>
+              <span>{{ 'PROFILE.IMPORT_DATA' | translate }}</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">{{ 'PROFILE.IMPORT_DATA_DESC' | translate }}</p>
+          </div>
+          <input type="file" id="desktopImportFile" (change)="c.onFileSelected($event)" accept=".json" class="hidden">
+          <button mat-stroked-button (click)="c.importData()" class="w-full !bg-primary-600 !text-white">
+            {{ 'PROFILE.IMPORT_DATA' | translate }}
+          </button>
+        </div>
+
+        <!-- Delete Account -->
+        <div class="action-card p-5 rounded-xl border border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold mb-2">
+              <mat-icon>delete_forever</mat-icon>
+              <span>{{ 'PROFILE.DELETE_ACCOUNT' | translate }}</span>
+            </div>
+            <p class="text-xs text-red-600/70 dark:text-red-400/70 mb-4">{{ 'PROFILE.DELETE_ACCOUNT_DESC' | translate }}</p>
+          </div>
+          <button mat-stroked-button color="warn" (click)="c.deleteAccount()" class="w-full">
+            {{ 'PROFILE.DELETE_ACCOUNT' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

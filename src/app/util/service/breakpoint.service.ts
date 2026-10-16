@@ -16,6 +16,8 @@ export class BreakpointService implements OnDestroy {
   public readonly isTableLandscape = signal(false);
   public readonly isLaptop = signal(false);
   public readonly isDesktop = signal(false);
+  public readonly isMobileOrTablet = signal(false);
+  public readonly isDesktopLayout = signal(false);
 
   public device = {
     isMobile: false,
@@ -23,6 +25,8 @@ export class BreakpointService implements OnDestroy {
     isTableLandscape: false,
     isLaptop: false,
     isDesktop: false,
+    isMobileOrTablet: false,
+    isDesktopLayout: false,
   };
 
   private bpSubscription: Subscription | null = null;
@@ -51,12 +55,16 @@ export class BreakpointService implements OnDestroy {
 
         // 🔥 Smart Mobile Detection
         const smartMobile = this.detectRealMobile(widthMobile);
+        const isMobileOrTablet = widthMobile || isTablePortrait || isTableLandscape || smartMobile;
+        const isDesktopLayout = !isMobileOrTablet && (isLaptop || isDesktop);
 
         this.isMobile.set(smartMobile);
         this.isTablePortrait.set(isTablePortrait);
         this.isTableLandscape.set(isTableLandscape);
         this.isLaptop.set(isLaptop);
         this.isDesktop.set(isDesktop);
+        this.isMobileOrTablet.set(isMobileOrTablet);
+        this.isDesktopLayout.set(isDesktopLayout);
 
         this.device = {
           isMobile: smartMobile,
@@ -64,6 +72,8 @@ export class BreakpointService implements OnDestroy {
           isTableLandscape,
           isLaptop,
           isDesktop,
+          isMobileOrTablet,
+          isDesktopLayout,
         };
       });
   }

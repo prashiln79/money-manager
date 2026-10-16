@@ -1,0 +1,30 @@
+<div class="mobile-layout-wrapper safe-h-screen flex flex-col font-roboto">
+
+  <!-- PWA Update Banner -->
+  @if (updateAvailable) {
+    <div class="update-banner">
+      <div class="update-banner-content">
+        <span class="update-banner-icon">🔄</span>
+        <span class="update-banner-text">A new version is available!</span>
+        <button class="update-banner-refresh" (click)="refreshApp.emit()">Refresh</button>
+        <button class="update-banner-dismiss" (click)="dismissUpdate.emit()" aria-label="Dismiss">✕</button>
+      </div>
+    </div>
+  }
+
+  <!-- Fixed Mobile Header -->
+  @defer (on timer(100ms)) {
+    <app-header class="dashboard-header flex-shrink-0"></app-header>
+  }
+
+  <!-- Scrollable Mobile Content Area -->
+  <main #mainContent class="mobile-main-content flex-1 overflow-y-auto h-[inherit]">
+    <div class="dashboard-container mx-auto px-4 py-1 h-full max-h-full">
+      <ng-content></ng-content>
+    </div>
+  </main>
+
+  <!-- Fixed Mobile Bottom Navigation -->
+  <app-footer class="dashboard-footer flex-shrink-0"></app-footer>
+
+</div>

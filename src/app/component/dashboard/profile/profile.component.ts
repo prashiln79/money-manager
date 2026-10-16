@@ -70,6 +70,9 @@ import { DestroyRef } from '@angular/core';
 import { CommonSyncService } from 'src/app/util/service/common-sync.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { ProfileDesktopComponent } from 'src/app/pages/desktop/profile/profile-desktop.component';
+import { ProfileMobileComponent } from 'src/app/pages/mobile/profile/profile-mobile.component';
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -89,12 +92,12 @@ import { MatDividerModule } from '@angular/material/divider';
     MatSlideToggleModule,
     TranslateModule,
     MatExpansionModule,
-    // ThemeToggleComponent,
     MatBottomSheetModule,
-    RouterLink,
     MatMenuModule,
     MatDividerModule,
-],
+    ProfileDesktopComponent,
+    ProfileMobileComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileComponent {

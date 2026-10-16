@@ -17,12 +17,15 @@ import { map } from 'rxjs/operators';
 import { inject } from '@angular/core';
 import { FamilyService } from 'src/app/modules/family/services/family.service';
 
+import { DashboardDesktopPageComponent } from 'src/app/pages/desktop/dashboard/dashboard-desktop-page.component';
+import { DashboardMobilePageComponent } from 'src/app/pages/mobile/dashboard/dashboard-mobile-page.component';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   standalone: true,
-  imports: [RouterModule, ChatComponent],
+  imports: [RouterModule, DashboardDesktopPageComponent, DashboardMobilePageComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent {
