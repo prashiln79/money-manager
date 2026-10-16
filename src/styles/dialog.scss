@@ -247,3 +247,15 @@
 		}
 	}
 }
+
+/* Banner Upload & Crop Dialog Panel */
+.banner-upload-dialog-panel {
+	.mat-mdc-dialog-container,
+	.mat-mdc-dialog-surface {
+		border-radius: 20px !important;
+		overflow: hidden !important;
+		padding: 0 !important;
+		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35) !important;
+	}
+}
+

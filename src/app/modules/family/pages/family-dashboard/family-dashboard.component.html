@@ -28,6 +28,11 @@
           <div class="flex items-center gap-0.5">
             <button mat-icon-button
               class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              (click)="openBannerDialog()" matTooltip="Change group banner">
+              <mat-icon>add_photo_alternate</mat-icon>
+            </button>
+            <button mat-icon-button
+              class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
               (click)="openMembersSheet()" matTooltip="Manage members">
               <mat-icon>manage_accounts</mat-icon>
             </button>
@@ -106,16 +111,15 @@
             </div>
           </button>
 
-          <button mat-menu-item (click)="bannerInput.click()">
+          <button mat-menu-item (click)="openBannerDialog()">
             <div class="flex items-center">
               <mat-icon class="!mr-3 text-primary-500">image</mat-icon>
               <div class="flex flex-col">
                 <span class="font-medium">Change Banner</span>
-                <span class="text-[10px] text-gray-500 -mt-0.5">Set a header background</span>
+                <span class="text-[10px] text-gray-500 -mt-0.5">Crop, preview & optimize image</span>
               </div>
             </div>
           </button>
-          <input #bannerInput type="file" accept="image/*" class="hidden" (change)="onBannerSelected($event)">
 
           <mat-divider class="!my-1"></mat-divider>
 

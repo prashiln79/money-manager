@@ -1,0 +1,52 @@
+.banner-dialog-container {
+  width: 100%;
+  max-width: 620px;
+}
+
+.dropzone-area {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 10px,
+    rgba(148, 163, 184, 0.05) 10px,
+    rgba(148, 163, 184, 0.05) 20px
+  );
+
+  &:hover {
+    border-color: var(--primary-500, #4f46e5);
+    background-color: rgba(79, 70, 229, 0.02);
+  }
+}
+
+.crop-box {
+  max-height: 280px;
+  touch-action: none;
+  background-color: #0b0f19;
+
+  img {
+    will-change: transform;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+}
+
+.simulation-card {
+  max-height: 140px;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.4);
+    border-radius: 9999px;
+  }
+}

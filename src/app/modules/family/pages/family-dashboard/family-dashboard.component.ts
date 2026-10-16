@@ -69,6 +69,7 @@ import { FamilyJoinDialogComponent } from '../../dialogs/family-join-dialog/fami
 import { FamilyMembersComponent } from '../family-members/family-members.component';
 import { MemberBreakdownSheetComponent } from '../../dialogs/member-breakdown-sheet/member-breakdown-sheet.component';
 import { FamilyModeInfoSheet } from '../../dialogs/family-mode-info-sheet/family-mode-info-sheet';
+import { BannerUploadDialogComponent, BannerUploadDialogResult } from '../../dialogs/banner-upload-dialog/banner-upload-dialog.component';
 
 // Pipes & Directives
 import { CurrencyPipe, AppDatePipe, TruncatePipe } from 'src/app/util/pipes';
@@ -311,24 +312,31 @@ export class FamilyDashboardComponent implements OnInit {
     return this.memberColors[hash % this.memberColors.length];
   }
 
-  onBannerSelected(event: any): void {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  openBannerDialog(): void {
+    const fam = this.family();
+    const familyId = fam?.id;
+    if (!familyId) return;
 
-    if (file.size > 1 * 1024 * 1024) {
-      this.notificationService.error('Image size should be less than 1MB');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      const famId  = this.family()?.id;
-      if (famId) {
-        this.store.dispatch(FamilyActions.updateFamilyBanner({ familyId: famId, banner: base64 }));
+    const dialogRef = this.dialog.open(BannerUploadDialogComponent, {
+      width: '640px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'banner-upload-dialog-panel',
+      data: {
+        currentBanner: fam?.banner || null,
+        familyName: fam?.name,
+        familyIcon: fam?.icon
       }
-    };
-    reader.readAsDataURL(file);
+    });
+
+    dialogRef.afterClosed().subscribe((result: BannerUploadDialogResult | undefined) => {
+      if (!result) return;
+      if (result.action === 'save' && result.base64) {
+        this.store.dispatch(FamilyActions.updateFamilyBanner({ familyId, banner: result.base64 }));
+      } else if (result.action === 'remove') {
+        this.store.dispatch(FamilyActions.updateFamilyBanner({ familyId, banner: '' }));
+      }
+    });
   }
 
   generateReport(): void {
