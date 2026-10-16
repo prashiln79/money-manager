@@ -133,6 +133,8 @@
               [src]="imageSource()!" 
               alt="Crop Source"
               class="pointer-events-none absolute max-w-none origin-center"
+              [style.width.px]="baseImageWidth()"
+              [style.height.px]="baseImageHeight()"
               [style.top]="'50%'"
               [style.left]="'50%'"
               [style.transform]="'translate(-50%, -50%) translate(' + panX() + 'px, ' + panY() + 'px) rotate(' + rotation() + 'deg) scale(' + zoom() + ')'"
@@ -171,7 +173,7 @@
             <div class="flex-1 flex items-center gap-2">
               <input 
                 type="range" 
-                min="1.0" 
+                min="0.8" 
                 max="3.0" 
                 step="0.05"
                 [value]="zoom()"
@@ -218,17 +220,21 @@
             <span class="text-[11px] text-slate-400">Simulation of your actual dashboard header</span>
           </div>
 
-          <div class="simulation-card relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 p-4 shadow-sm select-none"
-               [style.aspectRatio]="activeAspectRatio().ratio">
+          <div 
+            #simulationCard
+            class="simulation-card relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 p-4 shadow-sm select-none"
+            [style.aspectRatio]="activeAspectRatio().ratio">
             <!-- Simulated Background -->
             <div class="absolute inset-0 overflow-hidden">
               <img 
                 [src]="imageSource()!" 
                 alt="Simulation" 
                 class="absolute max-w-none origin-center pointer-events-none"
+                [style.width.px]="baseImageWidth() * simRatio()"
+                [style.height.px]="baseImageHeight() * simRatio()"
                 [style.top]="'50%'"
                 [style.left]="'50%'"
-                [style.transform]="'translate(-50%, -50%) translate(' + panX() * 0.45 + 'px, ' + panY() * 0.45 + 'px) rotate(' + rotation() + 'deg) scale(' + zoom() + ')'" />
+                [style.transform]="'translate(-50%, -50%) translate(' + (panX() * simRatio()) + 'px, ' + (panY() * simRatio()) + 'px) rotate(' + rotation() + 'deg) scale(' + zoom() + ')'" />
               <!-- Dark overlay matching dashboard -->
               <div class="absolute inset-0 bg-black/45 backdrop-blur-[0.5px]"></div>
             </div>

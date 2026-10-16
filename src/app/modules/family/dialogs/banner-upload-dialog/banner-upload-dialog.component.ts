@@ -6,8 +6,7 @@ import {
   computed,
   ElementRef,
   ViewChild,
-  HostListener,
-  AfterViewInit
+  OnDestroy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -44,11 +43,49 @@ export interface BannerUploadDialogResult {
   templateUrl: './banner-upload-dialog.component.html',
   styleUrls: ['./banner-upload-dialog.component.scss']
 })
-export class BannerUploadDialogComponent implements AfterViewInit {
+export class BannerUploadDialogComponent implements OnDestroy {
   readonly dialogRef = inject(MatDialogRef<BannerUploadDialogComponent>);
   readonly data: BannerUploadDialogData = inject(MAT_DIALOG_DATA, { optional: true }) || {};
 
-  @ViewChild('cropViewport') cropViewportRef?: ElementRef<HTMLDivElement>;
+  private cropViewportEl?: HTMLDivElement;
+  private simulationCardEl?: HTMLDivElement;
+  private resizeObserver?: ResizeObserver;
+  private simResizeObserver?: ResizeObserver;
+
+  @ViewChild('cropViewport') set cropViewport(el: ElementRef<HTMLDivElement> | undefined) {
+    this.cropViewportEl = el?.nativeElement;
+    if (this.cropViewportEl) {
+      const width = this.cropViewportEl.clientWidth || 540;
+      this.viewportWidth.set(width);
+      this.resizeObserver?.disconnect();
+      this.resizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          if (entry.contentRect.width > 0) {
+            this.viewportWidth.set(entry.contentRect.width);
+          }
+        }
+      });
+      this.resizeObserver.observe(this.cropViewportEl);
+    }
+  }
+
+  @ViewChild('simulationCard') set simulationCard(el: ElementRef<HTMLDivElement> | undefined) {
+    this.simulationCardEl = el?.nativeElement;
+    if (this.simulationCardEl) {
+      const width = this.simulationCardEl.clientWidth || 200;
+      this.simulationWidth.set(width);
+      this.simResizeObserver?.disconnect();
+      this.simResizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          if (entry.contentRect.width > 0) {
+            this.simulationWidth.set(entry.contentRect.width);
+          }
+        }
+      });
+      this.simResizeObserver.observe(this.simulationCardEl);
+    }
+  }
+
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
 
   // State
@@ -59,14 +96,51 @@ export class BannerUploadDialogComponent implements AfterViewInit {
   readonly isProcessing = signal<boolean>(false);
   readonly isDraggingFile = signal<boolean>(false);
 
+  // Viewport and Natural Dimensions
+  readonly viewportWidth = signal<number>(540);
+  readonly simulationWidth = signal<number>(200);
+  readonly naturalWidth = signal<number>(1200);
+  readonly naturalHeight = signal<number>(500);
+
   // Transform controls
-  readonly zoom = signal<number>(1.0); // 1.0 to 3.0
+  readonly zoom = signal<number>(1.0); // 0.8 to 3.0
   readonly rotation = signal<number>(0); // 0, 90, 180, 270
   readonly panX = signal<number>(0);
   readonly panY = signal<number>(0);
   readonly activeAspectRatio = signal<{ label: string; ratio: number }>({
     label: 'Wide (2.4:1)',
     ratio: 2.4
+  });
+
+  // Base Cover Scale: fits any resolution (4K, 8K, standard) to cover the viewport cleanly
+  readonly baseCoverScale = computed(() => {
+    const vw = this.viewportWidth();
+    const ratio = this.activeAspectRatio().ratio;
+    const vh = vw / ratio;
+
+    const nw = this.naturalWidth();
+    const nh = this.naturalHeight();
+    const rot = this.rotation();
+    const isRot90 = rot === 90 || rot === 270;
+    const effW = isRot90 ? nh : nw;
+    const effH = isRot90 ? nw : nh;
+
+    if (!effW || !effH || !vw) return 1;
+    return Math.max(vw / effW, vh / effH);
+  });
+
+  readonly baseImageWidth = computed(() => {
+    return Math.round(this.naturalWidth() * this.baseCoverScale());
+  });
+
+  readonly baseImageHeight = computed(() => {
+    return Math.round(this.naturalHeight() * this.baseCoverScale());
+  });
+
+  readonly simRatio = computed(() => {
+    const vw = this.viewportWidth();
+    const sw = this.simulationWidth();
+    return vw > 0 ? sw / vw : 0.4;
   });
 
   // Drag interaction state
@@ -88,8 +162,9 @@ export class BannerUploadDialogComponent implements AfterViewInit {
 
   readonly hasExistingBanner = computed(() => !!this.data.currentBanner);
 
-  ngAfterViewInit(): void {
-    // If there's an existing banner and no new image, we keep it as reference
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+    this.simResizeObserver?.disconnect();
   }
 
   // --- File Selection & Handling ---
@@ -136,6 +211,8 @@ export class BannerUploadDialogComponent implements AfterViewInit {
       const img = new Image();
       img.onload = () => {
         this.loadedImg = img;
+        this.naturalWidth.set(img.naturalWidth);
+        this.naturalHeight.set(img.naturalHeight);
         this.originalDimensions.set(`${img.naturalWidth} × ${img.naturalHeight}px`);
         this.resetTransforms();
         this.imageSource.set(result);
@@ -165,7 +242,7 @@ export class BannerUploadDialogComponent implements AfterViewInit {
   }
 
   setZoom(value: number): void {
-    this.zoom.set(Math.min(3.0, Math.max(1.0, value)));
+    this.zoom.set(Math.min(3.0, Math.max(0.8, value)));
     this.updateOptimizedEstimate();
   }
 
@@ -231,7 +308,6 @@ export class BannerUploadDialogComponent implements AfterViewInit {
     const ratio = this.activeAspectRatio().ratio;
     const width = 1200;
     const height = Math.round(width / ratio);
-    // Estimated compressed JPEG size: ~40KB - 85KB
     const approxBytes = Math.round(width * height * 0.12);
     this.optimizedFileSize.set(`~${this.formatBytes(approxBytes)} (${width}×${height})`);
   }
@@ -256,38 +332,31 @@ export class BannerUploadDialogComponent implements AfterViewInit {
       }
 
       // Fill background
-      ctx.fillStyle = '#1e293b';
+      ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const viewportEl = this.cropViewportRef?.nativeElement;
-      const viewportWidth = viewportEl?.clientWidth || 500;
-      const viewportHeight = viewportEl?.clientHeight || (500 / ratio);
-      const scaleFactor = canvas.width / viewportWidth;
+      const vw = this.viewportWidth() || 540;
+      const scaleFactor = canvas.width / vw;
 
-      // Base cover scale calculation
-      const rot = this.rotation();
-      const isRotated90or270 = rot === 90 || rot === 270;
-      const effImgW = isRotated90or270 ? this.loadedImg.naturalHeight : this.loadedImg.naturalWidth;
-      const effImgH = isRotated90or270 ? this.loadedImg.naturalWidth : this.loadedImg.naturalHeight;
-
-      const baseCoverScale = Math.max(viewportWidth / effImgW, viewportHeight / effImgH);
-      const totalScale = baseCoverScale * this.zoom();
+      const baseW = this.baseImageWidth();
+      const baseH = this.baseImageHeight();
+      const totalScale = this.zoom();
 
       ctx.save();
-      // Translate to canvas center + pan offset
+      // Translate to canvas center + pan offset scaled up to target canvas
       ctx.translate(
         canvas.width / 2 + this.panX() * scaleFactor,
         canvas.height / 2 + this.panY() * scaleFactor
       );
-      ctx.rotate((rot * Math.PI) / 180);
+      ctx.rotate((this.rotation() * Math.PI) / 180);
 
-      const drawW = this.loadedImg.naturalWidth * totalScale * scaleFactor;
-      const drawH = this.loadedImg.naturalHeight * totalScale * scaleFactor;
+      const drawW = baseW * scaleFactor * totalScale;
+      const drawH = baseH * scaleFactor * totalScale;
 
       ctx.drawImage(this.loadedImg, -drawW / 2, -drawH / 2, drawW, drawH);
       ctx.restore();
 
-      // Compress to JPEG with quality 0.8
+      // Compress to JPEG with quality 0.82
       let quality = 0.82;
       let base64 = canvas.toDataURL('image/jpeg', quality);
 
