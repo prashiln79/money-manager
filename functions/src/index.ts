@@ -53,8 +53,17 @@ export const onFamilyTransactionCreated = onDocumentCreated(
       return;
     }
 
+    // 4. Ignore internal settlement transactions (matches transactionListener.js)
+    if (tx.category === "Settlement") {
+      logger.info("Ignoring transaction: Settlement category", {
+        familyId,
+        transactionId,
+      });
+      return;
+    }
+
     try {
-      // 4. Fetch the family group details (for group name and validation)
+      // 5. Fetch the family group details (for group name and validation)
       const familyDocRef = db.collection("family-groups").doc(familyId);
       const familyDoc = await familyDocRef.get();
 
@@ -66,28 +75,38 @@ export const onFamilyTransactionCreated = onDocumentCreated(
       const familyData = familyDoc.data() || {};
       const groupName = familyData.name || "Family Group";
 
-      // 5. Fetch all active members of this family group
-      const membersSnapshot = await familyDocRef
-        .collection("members")
-        .where("isActive", "==", true)
-        .get();
+      // 6. Fetch members: support BOTH familyData.memberIds (array) AND members subcollection
+      const recipientUserIdsSet = new Set<string>();
 
-      if (membersSnapshot.empty) {
-        logger.info("No active members found in family group", { familyId });
-        await snap.ref.update({
-          notificationSent: true,
-          notificationSentAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-        return;
+      // A. Check memberIds array directly on the family group document (as in transactionListener.js)
+      if (Array.isArray(familyData.memberIds)) {
+        for (const mid of familyData.memberIds) {
+          if (typeof mid === "string" && mid !== creatorId) {
+            recipientUserIdsSet.add(mid);
+          }
+        }
       }
 
-      // Filter out the transaction creator so they don't receive their own notification
-      const recipientMembers = membersSnapshot.docs
-        .map((doc) => doc.data())
-        .filter((member) => member.userId && member.userId !== creatorId);
+      // B. Also check members subcollection if present
+      try {
+        const membersSnapshot = await familyDocRef.collection("members").get();
+        if (!membersSnapshot.empty) {
+          for (const doc of membersSnapshot.docs) {
+            const mData = doc.data();
+            const uId = mData.userId || doc.id;
+            if (uId && uId !== creatorId && mData.isActive !== false) {
+              recipientUserIdsSet.add(uId);
+            }
+          }
+        }
+      } catch (err) {
+        logger.warn("Could not query members subcollection:", err);
+      }
 
-      if (recipientMembers.length === 0) {
-        logger.info("No other active members to notify in family group", {
+      const recipientUserIds = Array.from(recipientUserIdsSet);
+
+      if (recipientUserIds.length === 0) {
+        logger.info("No other members to notify in family group", {
           familyId,
           creatorId,
         });
@@ -98,17 +117,8 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         return;
       }
 
-      // 6. Determine creator display name
+      // 7. Determine creator display name
       let creatorName = tx.userDisplayName;
-      if (!creatorName) {
-        // Fallback: look up in members subcollection or user profile
-        const creatorMemberDoc = membersSnapshot.docs.find(
-          (doc) => doc.data().userId === creatorId
-        );
-        if (creatorMemberDoc) {
-          creatorName = creatorMemberDoc.data().displayName;
-        }
-      }
       if (!creatorName) {
         const creatorUserDoc = await db.collection("users").doc(creatorId).get();
         if (creatorUserDoc.exists) {
@@ -119,32 +129,28 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         }
       }
 
-      // 7. Format the notification message
-      // Requirements:
-      // Title: New Group Transaction
-      // Message: [Member Name] added a [Income/Expense] of [Amount] in [Category]
+      // 8. Format notification message
       const txType = (tx.type || "expense").toLowerCase();
       const typeLabel = txType === "income" ? "Income" : "Expense";
       const article = typeLabel === "Income" ? "an" : "a";
+      const currency = tx.currency || familyData.currency || "INR";
       const amountValue = typeof tx.amount === "number" ? tx.amount : parseFloat(tx.amount || "0");
       const formattedAmount = isNaN(amountValue) ?
         String(tx.amount || "0") :
-        amountValue.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
+        new Intl.NumberFormat(currency === "INR" ? "en-IN" : "en-US", {
+          style: "currency",
+          currency: currency,
           maximumFractionDigits: 2,
-        });
+        }).format(amountValue);
+
       const category = tx.category || tx._categoryName || "General";
       const description = tx.notes || tx.note || tx.description || "";
 
-      const notificationTitle = "New Group Transaction";
+      const notificationTitle = groupName || "New Group Transaction";
       const notificationBody =
         `${creatorName} added ${article} ${typeLabel} of ${formattedAmount} in ${category}`;
 
-      // 8. Fetch FCM tokens for each recipient user
-      const recipientUserIds = Array.from(
-        new Set(recipientMembers.map((m) => m.userId as string))
-      );
-
+      // 9. Fetch FCM tokens for each recipient user
       const userDocs = await db.getAll(
         ...recipientUserIds.map((uid) => db.collection("users").doc(uid))
       );
@@ -173,7 +179,7 @@ export const onFamilyTransactionCreated = onDocumentCreated(
           }
         }
 
-        // Support single fcmToken for backward compatibility
+        // Support single fcmToken (backward compatibility with transactionListener.js)
         if (
           typeof userData.fcmToken === "string" &&
           userData.fcmToken.trim().length > 0
@@ -198,7 +204,7 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         return;
       }
 
-      // 9. Dispatch Multicast Message via Firebase Admin SDK
+      // 10. Dispatch Multicast Message via Firebase Admin SDK
       const multicastMessage: admin.messaging.MulticastMessage = {
         tokens: validTokens,
         notification: {
@@ -206,17 +212,38 @@ export const onFamilyTransactionCreated = onDocumentCreated(
           body: notificationBody,
         },
         data: {
+          familyId,
+          transactionId,
+          type: "NEW_TRANSACTION",
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
           title: notificationTitle,
           body: notificationBody,
-          familyId,
           groupName,
-          transactionId,
-          type: typeLabel,
           amount: String(tx.amount || ""),
           category,
           description,
           creatorName,
           url: "/dashboard/transactions",
+        },
+        android: {
+          priority: "high",
+          notification: {
+            title: notificationTitle,
+            body: notificationBody,
+            clickAction: "FLUTTER_NOTIFICATION_CLICK",
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              alert: {
+                title: notificationTitle,
+                body: notificationBody,
+              },
+              category: "FLUTTER_NOTIFICATION_CLICK",
+              sound: "default",
+            },
+          },
         },
         webpush: {
           notification: {

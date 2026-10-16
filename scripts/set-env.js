@@ -1,10 +1,25 @@
 const fs = require('fs');
 const path = require('path');
-try {
-  require('dotenv').config();
-} catch (e) {
-  // dotenv not installed, skipping
+// Load .env file natively if it exists
+const envFilePath = path.join(__dirname, '../.env');
+if (fs.existsSync(envFilePath)) {
+  const envContent = fs.readFileSync(envFilePath, 'utf-8');
+  envContent.split(/\r?\n/).forEach(line => {
+    line = line.trim();
+    if (line && !line.startsWith('#')) {
+      const equalsIdx = line.indexOf('=');
+      if (equalsIdx > 0) {
+        const key = line.slice(0, equalsIdx).trim();
+        let value = line.slice(equalsIdx + 1).trim();
+        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+          value = value.slice(1, -1);
+        }
+        process.env[key] = value;
+      }
+    }
+  });
 }
+
 
 const targetDir = path.join(__dirname, '../src/environments');
 const targetPath = path.join(targetDir, 'environment.ts');
