@@ -154,13 +154,17 @@
 .hiker-overlay {
   position: absolute;
   inset: 0;
-  background-image: url('../../../../../assets/images/loan-hero.jpg');
-  background-repeat: no-repeat;
-  background-position: center left;
-  background-size: cover;
   opacity: 0.15;
   z-index: 1;
   pointer-events: none;
+  overflow: hidden;
+
+  .hiker-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center left;
+  }
 }
 
 // ── Aggregate Stats Grid ──────────────────────────────────────────────────────

@@ -45,7 +45,7 @@
             <span class="breakdown-label font-medium text-neutral-700 truncate">Assets</span>
             <span class="text-xs text-neutral-500 truncate">{{ positiveAccounts().length }} accounts</span>
           </div>
-          <div class="font-medium text-md text-success-600 whitespace-nowrap ml-4" aria-label="Assets total">
+          <div class="font-semibold text-md text-success-700 dark:text-success-400 whitespace-nowrap ml-4" aria-label="Assets total">
             {{ totalPositiveBalance() | currency }}
           </div>
         </div>
@@ -62,7 +62,7 @@
             <span class="breakdown-label font-medium text-neutral-700 truncate">Liabilities</span>
             <span class="text-xs text-neutral-500 truncate">{{ negativeAccounts().length }} accounts</span>
           </div>
-          <div class="font-medium text-md text-error-600 whitespace-nowrap ml-4" aria-label="Liabilities total">
+          <div class="font-semibold text-md text-error-700 dark:text-error-400 whitespace-nowrap ml-4" aria-label="Liabilities total">
             {{ totalNegativeBalance() | currency }}
           </div>
         </div>
@@ -74,7 +74,7 @@
   @if (router.url !== '/dashboard/accounts') {
     <div class="my-3 border-t border-surface-300"></div>
     <div class="flex justify-center mt-2">
-      <button mat-stroked-button color="primary" class="w-full !rounded-xl !py-5" routerLink="/dashboard/accounts">
+      <button mat-stroked-button class="w-full !rounded-xl !py-5 !text-primary-700 dark:!text-primary-300 !border-primary-600 font-semibold" routerLink="/dashboard/accounts">
         <mat-icon class="mr-1">visibility</mat-icon>
         View All Accounts
       </button>

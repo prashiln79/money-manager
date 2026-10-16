@@ -27,6 +27,7 @@
             <!-- Home Item -->
             @if (item.id === 'home') {
               <button (click)="onActionClick(item)" 
+                      [attr.aria-label]="isFamilyMode() ? 'Family Home' : 'Home'"
                       (mousedown)="startHomePress()" 
                       (mouseup)="endHomePress()" 
                       (mouseleave)="cancelHomePress()" 
@@ -56,6 +57,7 @@
             <!-- Expense Item -->
             @else if (item.id === 'expense') {
               <button (click)="quickExpense()" 
+                      [attr.aria-label]="item.label.includes('NAVIGATION') ? (item.label | translate) : item.label"
                       class="footer-item-animation group w-full flex flex-col items-center gap-2 lg:gap-1"
                       [style.animation-delay]="i * 0.05 + 's'">
                 <div class="w-10 h-10 lg:w-8 lg:h-8 rounded-xl flex items-center justify-center shadow-md transition-transform transition-colors duration-200 hover:scale-105 hover:shadow-lg dark:shadow-none"
@@ -74,6 +76,7 @@
             <!-- Reports / Settle Item -->
             @else if (item.id === 'reports') {
               <button (click)="handleSettleClick()"
+                      [attr.aria-label]="item.label.includes('NAVIGATION') ? (item.label | translate) : item.label"
                       (mousedown)="startPress()"
                       (mouseup)="endPress()"
                       (mouseleave)="endPress()"
@@ -100,6 +103,7 @@
             <!-- Generic Item (Category, Accounts, Profile) -->
             @else {
               <button (click)="onActionClick(item)" 
+                      [attr.aria-label]="item.label.includes('NAVIGATION') ? (item.label | translate) : item.label"
                       class="footer-item-animation group w-full flex flex-col items-center gap-2 lg:gap-1"
                       [style.animation-delay]="i * 0.05 + 's'">
                 <div class="w-10 h-10 lg:w-8 lg:h-8 rounded-xl flex items-center justify-center shadow-md transition-transform transition-colors duration-200 hover:scale-105 hover:shadow-lg dark:shadow-none"
@@ -120,7 +124,9 @@
 
           <!-- Fallback for FAB if less than 3 items -->
           @if ((dynamicConfig().items?.length ?? 0) < 3 && !dynamicConfig().hideFab) {
-             <button (click)="onAddFabClick()" class="group w-full flex flex-col items-center gap-2 lg:gap-1">
+             <button (click)="onAddFabClick()" 
+                     [attr.aria-label]="fabConfig().label || 'Add transaction'"
+                     class="group w-full flex flex-col items-center gap-2 lg:gap-1">
                 <div class="add-button-box w-12 h-12 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shadow-md hover:scale-105 hover:shadow-lg transition-transform transition-colors duration-200"
                   [ngClass]="fabConfig().bgClass" [class.glow-animation]="fabConfig().label !== 'Add'"
                   [matBadge]="fabConfig().badge" [matBadgeHidden]="!fabConfig().badge" matBadgeColor="primary" matBadgeSize="large">

@@ -58,15 +58,20 @@
   <!-- Preload critical initial assets (instant LCP render) -->
   <link rel="preload" href="assets/i18n/en.json" as="fetch" type="application/json" crossorigin>
   <link rel="preload" href="assets/images/logo.svg" as="image" type="image/svg+xml">
+  <link rel="preload" href="assets/images/loan-hero.webp" as="image" type="image/webp" fetchpriority="high">
 
-  <!-- Preconnect to critical origins (Firebase auth is in critical path) -->
+  <!-- Preconnect to critical origins (Firebase auth & token endpoints) -->
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://money-manager-b394e.firebaseapp.com" crossorigin>
-  <link rel="preconnect" href="https://apis.google.com" crossorigin>
   <link rel="preconnect" href="https://www.googleapis.com" crossorigin>
 
   <!-- dns-prefetch for async font origins (not critical path, preconnect would be wasted) -->
   <link rel="dns-prefetch" href="https://fonts.googleapis.com">
   <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+  <!-- Security meta tag -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
 
   <!-- Fonts - async load (non-blocking) -->
   <link
@@ -78,11 +83,11 @@
       rel="stylesheet">
   </noscript>
 
-  <!-- Material Icons - async load with font-display: block -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet" media="print"
+  <!-- Material Icons - async load with font-display: swap -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" media="print"
     onload="this.media='all'">
   <noscript>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
   </noscript>
 
   <!-- Manifest -->

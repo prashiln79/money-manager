@@ -42,11 +42,12 @@ footer {
 }
 
 .active-label {
-	color: var(--primary-500);
+	color: var(--primary-700);
+	font-weight: 600;
 }
 
 .inactive-label {
-	color: var(--neutral-500);
+	color: var(--neutral-600);
 }
 
 .nav-label {
