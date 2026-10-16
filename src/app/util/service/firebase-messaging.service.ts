@@ -7,8 +7,6 @@ import { APP_CONFIG } from '../config/config';
 import { isPlatformServer } from '@angular/common';
 import { LocalIndexDBStorageService } from 'src/app/util/service/indexdb-storage.service';
 import { LocalStorageKey } from 'src/app/util/models/local-storage.model';
-import { UserService } from './db/user.service';
-import { NotificationService } from './notification.service';
 
 export interface NotificationPayload {
   title: string;
@@ -399,13 +397,13 @@ export class FirebaseMessagingService {
 
   private async handleForegroundMessage(payload: any): Promise<void> {
     const notification: NotificationPayload = {
-      title: payload.notification?.title || payload.data?.title || 'New Group Transaction',
-      body: payload.notification?.body || payload.data?.body || '',
-      icon: this.getPlatformSpecificIcon(payload.notification?.icon || payload.data?.icon),
-      badge: this.getPlatformSpecificBadge(payload.notification?.badge || payload.data?.badge),
-      image: payload.notification?.image || payload.data?.image,
+      title: payload.notification?.title || 'New Notification',
+      body: payload.notification?.body || '',
+      icon: this.getPlatformSpecificIcon(payload.notification?.icon),
+      badge: this.getPlatformSpecificBadge(payload.notification?.badge),
+      image: payload.notification?.image,
       data: payload.data || {},
-      tag: payload.notification?.tag || payload.data?.tag,
+      tag: payload.notification?.tag,
       requireInteraction: payload.notification?.requireInteraction || false,
       silent: payload.notification?.silent || false,
       timestamp: payload.notification?.timestamp || Date.now()
@@ -413,14 +411,6 @@ export class FirebaseMessagingService {
 
     this.notificationSubject.next(notification);
     await this.showNotification(notification);
-
-    // In-app alert so users immediately notice even if system notifications are quiet/backgrounded
-    try {
-      const notificationService = this.injector.get(NotificationService);
-      notificationService.info(`🔔 ${notification.title}: ${notification.body}`, 'View');
-    } catch (e) {
-      console.warn('Could not display foreground snackbar:', e);
-    }
   }
 
   private getPlatformSpecificIcon(defaultIcon?: string): string {
@@ -460,27 +450,7 @@ export class FirebaseMessagingService {
       this.permissionSubject.next(permission);
 
       if (permission === 'granted') {
-        const token = await this.getToken();
-        if (token) {
-          try {
-            const userService = this.injector.get(UserService);
-            await userService.updateFcmToken(token);
-          } catch (e) {
-            console.warn('Could not sync token with UserService after permission granted:', e);
-          }
-        }
-      } else if (permission === 'denied') {
-        // Clean up token if previously registered
-        const currentToken = this.getStoredToken();
-        if (currentToken) {
-          try {
-            const userService = this.injector.get(UserService);
-            await userService.removeFcmToken(currentToken);
-          } catch (e) {
-            console.warn('Could not remove token on permission denial:', e);
-          }
-          this.clearStoredToken();
-        }
+        await this.getToken();
       }
 
       return permission;
@@ -547,14 +517,6 @@ export class FirebaseMessagingService {
         // Store token in localStorage for persistence
         this.storageService.setItem(LocalStorageKey.FCM_TOKEN, token);
 
-        // Sync with backend user profile
-        try {
-          const userService = this.injector.get(UserService);
-          await userService.updateFcmToken(token);
-        } catch (e) {
-          console.warn('Failed to sync FCM token with UserService:', e);
-        }
-
         return token;
       } else {
         console.warn('No registration token available');
@@ -600,8 +562,6 @@ export class FirebaseMessagingService {
       }
       registration = this.swRegistration;
 
-      const oldToken = this.getStoredToken();
-
       // Force token refresh
       const token = await getToken(this.messaging, {
         vapidKey: environment.vapidKey,
@@ -611,18 +571,6 @@ export class FirebaseMessagingService {
       if (token) {
         this.tokenSubject.next(token);
         this.storageService.setItem(LocalStorageKey.FCM_TOKEN, token);
-
-        // Update in backend
-        try {
-          const userService = this.injector.get(UserService);
-          if (oldToken && oldToken !== token) {
-            await userService.removeFcmToken(oldToken);
-          }
-          await userService.updateFcmToken(token);
-        } catch (e) {
-          console.warn('Failed to update refreshed token in UserService:', e);
-        }
-
         return token;
       }
 

@@ -11,9 +11,6 @@
 <app-pwa-install-prompt (installClicked)="onInstallClicked()" (dismissClicked)="onDismissClicked()">
 </app-pwa-install-prompt>
 
-<!-- Notification Permission Opt-In Prompt -->
-<app-notification-opt-in-prompt></app-notification-opt-in-prompt>
-
 <!-- Main App Content -->
 <div [class.blur-md]="isLocked()">
   <app-loader></app-loader>
