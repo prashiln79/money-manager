@@ -30,6 +30,8 @@ import { BreakpointService } from './util/service/breakpoint.service';
 import { inject } from '@angular/core';
 
 
+import { NotificationOptInPromptComponent } from './util/components/notification-opt-in-prompt/notification-opt-in-prompt.component';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -39,6 +41,7 @@ import { inject } from '@angular/core';
     CommonModule,
     RouterModule,
     PwaInstallPromptComponent,
+    NotificationOptInPromptComponent,
     LoaderComponent,
     PinLockComponent,
     PerformanceDashboardComponent

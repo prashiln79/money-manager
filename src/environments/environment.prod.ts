@@ -13,7 +13,7 @@ export const environment = {
     measurementId: ""
   },
   vapidKey: "",
-  openAiApiKey: 'test_key',
+  openAiApiKey: '',
   SLACK_WEBHOOK_URL: '',
   googleClientId: '',
   contactSpreadsheetId: ''

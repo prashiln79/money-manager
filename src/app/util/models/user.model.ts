@@ -26,6 +26,7 @@ export interface User {
 	displayName?: string;
 	profilePicture?: string;
 	fcmToken?: string;
+	fcmTokens?: string[];
 }
 
 

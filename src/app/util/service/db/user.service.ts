@@ -32,7 +32,9 @@ import {
   getDocs,
   limit,
   deleteDoc,
-  onSnapshot
+  onSnapshot,
+  arrayUnion,
+  arrayRemove
 } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError, timer, firstValueFrom, of, from, Subject } from 'rxjs';
@@ -937,6 +939,17 @@ export class UserService implements OnDestroy {
           timestamp: new Date().toISOString()
         });
 
+        // Clean up FCM token for this device on logout
+        const currentFcmToken = this.storageService.getItem<string>(LocalStorageKey.FCM_TOKEN);
+        if (currentFcmToken) {
+          try {
+            await this.removeFcmToken(currentFcmToken);
+            this.storageService.removeItem(LocalStorageKey.FCM_TOKEN);
+          } catch (tokenErr) {
+            console.warn('Failed to clean up FCM token on logout:', tokenErr);
+          }
+        }
+
         // Clear cached data
         this.storageService.removeItem(`user-data-${currentUser.uid}`);
         this.storageService.removeItem(`last-login-${currentUser.uid}`);
@@ -1739,38 +1752,70 @@ export class UserService implements OnDestroy {
   }
 
   /**
-   * Update FCM Token
+   * Update FCM Token (supports multiple devices per user)
    */
   async updateFcmToken(token: string): Promise<void> {
     const uid = this.getCurrentUserId();
-    if (!uid || this.isGuestUser()) return;
+    if (!uid || this.isGuestUser() || !token) return;
 
     // 1. Update local state/cache (Internal preferences)
     const currentUser = this.getCurrentUserSnapshot();
     if (currentUser) {
+      const currentTokens = Array.isArray((currentUser as any).fcmTokens) ? (currentUser as any).fcmTokens : [];
+      const updatedTokens = Array.from(new Set([...currentTokens, token]));
       const updatedUser = {
         ...currentUser,
         fcmToken: token,
+        fcmTokens: updatedTokens,
         updatedAt: new Date()
       };
       this.storageService.setItem(`user-data-${uid}`, updatedUser);
       this.store.dispatch(ProfileActions.setProfile({ profile: updatedUser }));
     }
 
-    // 2. Queue for Sync
+    // 2. Direct write to Firestore to register token across devices
     try {
-      const commonSyncService = this.injector.get(CommonSyncService);
-      await commonSyncService.registerSyncItem({
-        id: uid,
-        type: 'user',
-        operation: 'update',
-        data: { fcmToken: token },
-        maxRetries: 3,
-        collectionPath: 'users'
+      const userRef = doc(this.firestore, `users/${uid}`);
+      await updateDoc(userRef, {
+        fcmToken: token,
+        fcmTokens: arrayUnion(token),
+        updatedAt: serverTimestamp()
       });
-      console.log('✅ FCM token queued for sync');
+      console.log('✅ FCM token registered in Firestore (multi-device supported)');
+    } catch (firestoreError) {
+      console.warn('Direct FCM token update failed, queuing for sync:', firestoreError);
+      try {
+        const commonSyncService = this.injector.get(CommonSyncService);
+        await commonSyncService.registerSyncItem({
+          id: uid,
+          type: 'user',
+          operation: 'update',
+          data: { fcmToken: token, fcmTokens: [token] },
+          maxRetries: 3,
+          collectionPath: 'users'
+        });
+      } catch (error) {
+        console.error('❌ Error queuing FCM token sync:', error);
+      }
+    }
+  }
+
+  /**
+   * Remove FCM Token (used on logout, permission denial, or token revocation)
+   */
+  async removeFcmToken(token: string): Promise<void> {
+    const uid = this.getCurrentUserId();
+    if (!uid || this.isGuestUser() || !token) return;
+
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      await updateDoc(userRef, {
+        fcmTokens: arrayRemove(token),
+        updatedAt: serverTimestamp()
+      });
+      console.log('✅ FCM token removed from Firestore');
     } catch (error) {
-      console.error('❌ Error queuing FCM token sync:', error);
+      console.warn('Could not remove FCM token directly from Firestore:', error);
     }
   }
 

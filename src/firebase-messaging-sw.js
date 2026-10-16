@@ -54,28 +54,32 @@ function getNotificationOptions(payload, customOptions = {}) {
   const platform = detectPlatform();
   
   const defaultOptions = {
-    body: payload.notification?.body || 'You have a new notification',
-    icon: payload.notification?.icon || '/money-manager/assets/icon/app-icon/icon-192x192.png',
-    badge: payload.notification?.badge || '/money-manager/assets/icon/app-icon/icon-72x72.png',
+    body: payload.notification?.body || payload.data?.body || 'You have a new transaction update',
+    icon: payload.notification?.icon || payload.data?.icon || '/assets/icon/app-icon/icon-192x192.png',
+    badge: payload.notification?.badge || payload.data?.badge || '/assets/icon/app-icon/icon-72x72.png',
     data: payload.data || {},
     requireInteraction: payload.notification?.requireInteraction || false,
     silent: payload.notification?.silent || false,
     timestamp: payload.notification?.timestamp || Date.now(),
     actions: payload.notification?.actions || [
-      { action: 'view', title: 'View' },
+      { action: 'view', title: 'View Details' },
       { action: 'dismiss', title: 'Dismiss' }
     ]
   };
 
   // Only add optional properties if they are explicitly defined to avoid passing `undefined`
-  if (payload.notification?.image !== undefined) defaultOptions.image = payload.notification.image;
-  if (payload.notification?.tag !== undefined) defaultOptions.tag = payload.notification.tag;
+  if (payload.notification?.image !== undefined || payload.data?.image !== undefined) {
+    defaultOptions.image = payload.notification?.image || payload.data?.image;
+  }
+  if (payload.notification?.tag !== undefined || payload.data?.tag !== undefined) {
+    defaultOptions.tag = payload.notification?.tag || payload.data?.tag;
+  }
   if (payload.notification?.vibrate !== undefined) defaultOptions.vibrate = payload.notification.vibrate;
 
   // Platform-specific adjustments
   if (platform.isIOS && platform.isSafari) {
-    defaultOptions.icon = payload.notification?.icon || '/money-manager/assets/icon/app-icon/icon-152x152.png';
-    defaultOptions.actions = [{ action: 'view', title: 'View' }];
+    defaultOptions.icon = payload.notification?.icon || payload.data?.icon || '/assets/icon/app-icon/icon-152x152.png';
+    defaultOptions.actions = [{ action: 'view', title: 'View Details' }];
   }
 
   return { ...defaultOptions, ...customOptions };
@@ -86,7 +90,7 @@ if (messaging) {
   messaging.onBackgroundMessage((payload) => {
     console.log('Background message received:', payload);
     
-    const notificationTitle = payload.notification?.title || 'Family Expense Tracker';
+    const notificationTitle = payload.notification?.title || payload.data?.title || 'New Group Transaction';
     const notificationOptions = getNotificationOptions(payload);
 
     return self.registration.showNotification(notificationTitle, notificationOptions)

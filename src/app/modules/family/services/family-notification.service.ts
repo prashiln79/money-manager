@@ -91,12 +91,15 @@ export class FamilyNotificationService {
 
           // In production: only notify for other members' transactions
           // In development: notify for ANY addition (including yours) to verify it works
-          const shouldNotify = !isDeleted && creatorId && (isOtherUser || !environment.production);
+          // If FCM push notifications are configured and active, Cloud Functions sends the notification.
+          // We only fire a local fallback alert if FCM is unavailable or push is not enabled.
+          const hasFcmToken = !!this.userService.getCurrentUserSnapshot()?.fcmToken;
+          const shouldNotify = !isDeleted && creatorId && isOtherUser && !hasFcmToken;
 
           if (shouldNotify) {
-            console.log(`[FamilyNotificationService] Triggering notification for transaction ${change.doc.id}`);
+            console.log(`[FamilyNotificationService] Fallback local alert for transaction ${change.doc.id}`);
             
-            // Trigger the shared notification manager (push notification)
+            // Trigger the shared notification manager (fallback alert)
             this.notificationManager.sendTransactionAlert({
               id: change.doc.id,
               description: tx.notes || tx.category || 'New Transaction',
@@ -104,7 +107,7 @@ export class FamilyNotificationService {
               userDisplayName: tx.userDisplayName || 'Family Member'
             });
           } else {
-            console.log(`[FamilyNotificationService] Notification skipped: isDeleted=${isDeleted}, isOtherUser=${isOtherUser}`);
+            console.log(`[FamilyNotificationService] Notification handled via FCM Cloud Function or skipped: isDeleted=${isDeleted}, isOtherUser=${isOtherUser}, hasFcmToken=${hasFcmToken}`);
           }
         }
       });
