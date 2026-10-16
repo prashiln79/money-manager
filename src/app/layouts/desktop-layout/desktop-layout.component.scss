@@ -5,6 +5,52 @@
 .desktop-sidebar {
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
 
+  /* Precise icon centering and typography */
+  mat-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 1 !important;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    flex-shrink: 0;
+    overflow: visible !important;
+    box-sizing: border-box;
+
+    &.nav-icon {
+      width: 20px !important;
+      height: 20px !important;
+      font-size: 20px !important;
+      line-height: 1 !important;
+    }
+
+    &.\!w-4,
+    &.\!text-base {
+      width: 16px !important;
+      height: 16px !important;
+      font-size: 16px !important;
+      line-height: 1 !important;
+    }
+
+    &.\!w-5,
+    &.\!text-xl {
+      width: 20px !important;
+      height: 20px !important;
+      font-size: 20px !important;
+      line-height: 1 !important;
+    }
+  }
+
+
   .sidebar-nav {
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 163, 184, 0.3) transparent;

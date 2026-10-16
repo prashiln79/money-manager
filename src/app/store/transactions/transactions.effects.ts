@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, mergeMap, catchError, switchMap } from 'rxjs/operators';
+import { map, mergeMap, catchError, switchMap, withLatestFrom, filter } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { AppState } from '../app.state';
+import * as TransactionsSelectors from './transactions.selectors';
 import { TransactionsService } from '../../util/service/db/transactions.service';
 import * as TransactionsActions from './transactions.actions';
 import { RecurringService } from '../../util/service/db/recurring.service';
@@ -15,7 +18,16 @@ export class TransactionsEffects {
   
   loadTransactions$ = createEffect(() => this.actions$.pipe(
     ofType(TransactionsActions.loadTransactions),
-    switchMap(({ userId }) => this.transactionsService.getTransactions(userId)
+    withLatestFrom(
+      this.store.select(TransactionsSelectors.selectAllTransactions),
+      this.store.select(TransactionsSelectors.selectTransactionsLastLoaded)
+    ),
+    filter(([action, transactions, lastLoaded]) => {
+      if (action.force) return true;
+      const isCacheValid = !!lastLoaded && (Date.now() - lastLoaded < 300000); // 5 minutes TTL
+      return !isCacheValid || transactions.length === 0;
+    }),
+    switchMap(([action]) => this.transactionsService.getTransactions(action.userId)
       .pipe(
         map(transactions => TransactionsActions.loadTransactionsSuccess({ transactions })),
         catchError(error => of(TransactionsActions.loadTransactionsFailure({ error })))
@@ -151,6 +163,7 @@ export class TransactionsEffects {
     private actions$: Actions,
     private transactionsService: TransactionsService,
     private recurringService: RecurringService,
-    private userService: UserService
+    private userService: UserService,
+    private store: Store<AppState>
   ) {}
 }

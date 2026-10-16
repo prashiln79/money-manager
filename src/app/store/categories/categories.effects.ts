@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, mergeMap, catchError, switchMap } from 'rxjs/operators';
+import { map, mergeMap, catchError, switchMap, withLatestFrom, filter } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { AppState } from '../app.state';
+import * as CategoriesSelectors from './categories.selectors';
 import { CategoryService } from '../../util/service/db/category.service';
 import * as CategoriesActions from './categories.actions';
 
@@ -10,10 +13,19 @@ export class CategoriesEffects {
   loadCategories$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CategoriesActions.loadCategories),
-      switchMap(({ userId }) =>
-        this.categoryService.getCategories(userId).pipe(
+      withLatestFrom(
+        this.store.select(CategoriesSelectors.selectAllCategories),
+        this.store.select(CategoriesSelectors.selectCategoriesLastLoaded)
+      ),
+      filter(([action, categories, lastLoaded]) => {
+        if (action.force) return true;
+        const isCacheValid = !!lastLoaded && (Date.now() - lastLoaded < 300000); // 5 minutes TTL
+        return !isCacheValid || categories.length === 0;
+      }),
+      switchMap(([action]) =>
+        this.categoryService.getCategories(action.userId).pipe(
           map((categories) =>
-            CategoriesActions.loadCategoriesSuccess({ categories })
+            CategoriesActions.loadCategoriesSuccess({ categories, context: action.context })
           ),
           catchError((error) =>
             of(CategoriesActions.loadCategoriesFailure({ error }))
@@ -100,6 +112,7 @@ export class CategoriesEffects {
 
   constructor(
     private actions$: Actions,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private store: Store<AppState>
   ) { }
 }

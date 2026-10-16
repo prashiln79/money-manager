@@ -35,6 +35,7 @@ export enum LocalStorageKey {
     APP_LANGUAGE = 'app_language',
     REPORTS_PREFERENCES = 'reports-preferences',
     REPORTS_UI_STATE = 'reports-ui-state',
+    SIDEBAR_COLLAPSED = 'desktop-sidebar-collapsed',
 
     // Feature Flags
     FEATURE_FLAGS = 'feature-flags',
@@ -93,6 +94,7 @@ export interface LocalStorageTypeMap {
     // App State
     [LocalStorageKey.THEME_PREFERENCE]: 'light' | 'dark' | 'auto';
     [LocalStorageKey.LOCALE_PREFERENCE]: string;
+    [LocalStorageKey.SIDEBAR_COLLAPSED]: boolean;
 
     // Feature Flags
     [LocalStorageKey.FEATURE_FLAGS]: Record<string, boolean>;

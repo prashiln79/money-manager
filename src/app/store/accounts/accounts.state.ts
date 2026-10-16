@@ -5,6 +5,7 @@ export type AccountsContext = 'personal' | 'family';
 export interface AccountsBucket {
   entities: { [id: string]: Account };
   ids: string[];
+  lastLoaded?: number | null;
 }
 
 export interface AccountsState {

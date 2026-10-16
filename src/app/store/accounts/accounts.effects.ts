@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, mergeMap, catchError, switchMap } from 'rxjs/operators';
+import { map, mergeMap, catchError, switchMap, withLatestFrom, filter } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { AppState } from '../app.state';
+import * as AccountsSelectors from './accounts.selectors';
 import { AccountsService } from '../../util/service/db/accounts.service';
 import * as AccountsActions from './accounts.actions';
 
@@ -10,9 +13,18 @@ export class AccountsEffects {
   
   loadAccounts$ = createEffect(() => this.actions$.pipe(
     ofType(AccountsActions.loadAccounts),
-    switchMap(({ userId }) => this.accountsService.getAccounts(userId)
+    withLatestFrom(
+      this.store.select(AccountsSelectors.selectAllAccountsRaw),
+      this.store.select(AccountsSelectors.selectAccountsLastLoaded)
+    ),
+    filter(([action, accounts, lastLoaded]) => {
+      if (action.force) return true;
+      const isCacheValid = !!lastLoaded && (Date.now() - lastLoaded < 300000); // 5 minutes TTL
+      return !isCacheValid || accounts.length === 0;
+    }),
+    switchMap(([action]) => this.accountsService.getAccounts(action.userId)
       .pipe(
-        map(accounts => AccountsActions.loadAccountsSuccess({ accounts })),
+        map(accounts => AccountsActions.loadAccountsSuccess({ accounts, context: action.context })),
         catchError(error => of(AccountsActions.loadAccountsFailure({ error })))
       ))
   ));
@@ -95,6 +107,7 @@ export class AccountsEffects {
 
   constructor(
     private actions$: Actions,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private store: Store<AppState>
   ) {}
 } 

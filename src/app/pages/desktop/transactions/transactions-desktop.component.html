@@ -1,45 +1,131 @@
-<div class="transaction-desktop-container grid grid-cols-12 gap-6 w-full">
-  <!-- Desktop Left Sidebar: Calendar & Expenditure -->
-  <div class="col-span-12 xl:col-span-3 hidden xl:flex flex-col gap-5">
-    @defer (on viewport) {
-      <calendar-view></calendar-view>
-    } @placeholder {
-      <div class="h-64 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-    }
+<div class="transactions-desktop-view w-full flex flex-col gap-6">
+  <!-- Desktop Header -->
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 m-0">
+          Transactions
+        </h1>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+          {{ transactionCount() }} {{ transactionCount() === 1 ? 'transaction' : 'transactions' }}
+        </span>
+      </div>
+      <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 m-0">
+        Track and manage your income and expenses.
+      </p>
+    </div>
 
-    @defer (on viewport) {
-      <app-monthly-expenditure-card></app-monthly-expenditure-card>
-    } @placeholder {
-      <div class="h-48 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-    }
-  </div>
+    <!-- Top Right Actions -->
+    <div class="flex items-center gap-3 self-start sm:self-auto">
+      <button
+        mat-stroked-button
+        (click)="importTransactions.emit()"
+        class="!text-xs !h-9 !px-3.5 !rounded-lg border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        matTooltip="Import transactions from CSV or statement">
+        <mat-icon class="text-sm !w-4 !h-4 mr-1.5">file_upload</mat-icon>
+        Import
+      </button>
 
-  <!-- Desktop Main Column: Search, Filters & Data Table -->
-  <div class="col-span-12 xl:col-span-9 flex flex-col gap-4">
-    <search-filter
-      (addTransaction)="addTransaction.emit()"
-      (importTransactions)="importTransactions.emit()"
-      (openFilterDialog)="openFilterDialog.emit()"
-      (viewAnalytics)="viewAnalytics.emit()"
-      (expandTable)="expandTable.emit()">
-    </search-filter>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="addTransaction.emit()"
+        class="!text-xs !h-9 !px-4 !rounded-lg font-medium shadow-xs hover:shadow transition-all !bg-emerald-600 hover:!bg-emerald-700 !text-white flex items-center"
+        matTooltip="Add a new transaction">
+        <mat-icon class="text-sm !w-4 !h-4 mr-1.5">add</mat-icon>
+        Add Transaction
+      </button>
+    </div>
+  </header>
 
-    <hr class="dark:border-slate-800">
+  <!-- Compact Financial Summary (Fintech Dashboard Metrics) -->
+  <section class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Financial Summary">
+    <!-- Total Income -->
+    <div class="summary-metric-card p-4 rounded-xl bg-surface-50 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 transition-all hover:border-emerald-300/80 dark:hover:border-emerald-800/60">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40">
+            <mat-icon class="text-base !w-4.5 !h-4.5 leading-none">arrow_downward</mat-icon>
+          </div>
+          <div>
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Total Income</span>
+            <span class="text-lg font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">
+              +{{ totalIncome() | currency }}
+            </span>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/40 dark:border-emerald-800/40">
+          Inflow
+        </span>
+      </div>
+    </div>
 
-    @defer (on viewport) {
-      <transaction-table
-        (editTransaction)="editTransaction.emit($event)"
-        (deleteTransaction)="deleteTransaction.emit($event)"
-        (startRowEdit)="startRowEdit.emit($event)"
-        (saveRowEdit)="saveRowEdit.emit($event)"
-        (cancelRowEdit)="cancelRowEdit.emit($event)"
-        (addTransaction)="addTransaction.emit()"
-        (bulkDeleteTransactions)="bulkDeleteTransactions.emit($event)"
-        (bulkUpdateCategory)="bulkUpdateCategory.emit($event)"
-        [isHome]="isHome">
-      </transaction-table>
-    } @placeholder {
-      <div class="h-96 w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse mt-4"></div>
-    }
-  </div>
+    <!-- Total Expenses -->
+    <div class="summary-metric-card p-4 rounded-xl bg-surface-50 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 transition-all hover:border-rose-300/80 dark:hover:border-rose-800/60">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/40">
+            <mat-icon class="text-base !w-4.5 !h-4.5 leading-none">arrow_upward</mat-icon>
+          </div>
+          <div>
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Total Expenses</span>
+            <span class="text-lg font-bold font-mono tracking-tight text-rose-600 dark:text-rose-400">
+              -{{ totalExpenses() | currency }}
+            </span>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200/40 dark:border-rose-800/40">
+          Outflow
+        </span>
+      </div>
+    </div>
+
+    <!-- Net Cash Flow -->
+    <div class="summary-metric-card p-4 rounded-xl bg-surface-50 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 transition-all"
+         [class.hover:border-blue-300]="netCashFlow() >= 0"
+         [class.hover:border-amber-300]="netCashFlow() < 0">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center"
+               [class]="netCashFlow() >= 0 ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/40'">
+            <mat-icon class="text-base !w-4.5 !h-4.5 leading-none">account_balance_wallet</mat-icon>
+          </div>
+          <div>
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Net Cash Flow</span>
+            <span class="text-lg font-bold font-mono tracking-tight"
+                  [class]="netCashFlow() >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-amber-600 dark:text-amber-400'">
+              {{ (netCashFlow() >= 0 ? '+' : '') + (netCashFlow() | currency) }}
+            </span>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium px-2 py-0.5 rounded-full border"
+              [class]="netCashFlow() >= 0 ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/40 dark:border-blue-800/40' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/40 dark:border-amber-800/40'">
+          {{ netCashFlow() >= 0 ? 'Surplus' : 'Deficit' }}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search and Filters Toolbar -->
+  <search-filter
+    (addTransaction)="addTransaction.emit()"
+    (importTransactions)="importTransactions.emit()"
+    (openFilterDialog)="openFilterDialog.emit()"
+    (viewAnalytics)="viewAnalytics.emit()"
+    (expandTable)="expandTable.emit()">
+  </search-filter>
+
+  <!-- Responsive Desktop Transactions Data Table -->
+  <transaction-table
+    (editTransaction)="editTransaction.emit($event)"
+    (deleteTransaction)="deleteTransaction.emit($event)"
+    (startRowEdit)="startRowEdit.emit($event)"
+    (saveRowEdit)="saveRowEdit.emit($event)"
+    (cancelRowEdit)="cancelRowEdit.emit($event)"
+    (addTransaction)="addTransaction.emit()"
+    (bulkDeleteTransactions)="bulkDeleteTransactions.emit($event)"
+    (bulkUpdateCategory)="bulkUpdateCategory.emit($event)"
+    [isHome]="isHome">
+  </transaction-table>
 </div>
+

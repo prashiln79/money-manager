@@ -9,6 +9,7 @@ export interface TransactionsState {
   recurringLoading: boolean;
   error: any;
   selectedTransactionId: string | null;
+  lastLoaded: number | null;
 }
 
 export const initialState: TransactionsState = {
@@ -18,5 +19,6 @@ export const initialState: TransactionsState = {
   loading: false,
   recurringLoading: false,
   error: null,
-  selectedTransactionId: null
+  selectedTransactionId: null,
+  lastLoaded: null
 }; 

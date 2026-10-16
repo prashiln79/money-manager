@@ -1,5 +1,5 @@
 import { ApplicationConfig, isDevMode, APP_INITIALIZER, provideZonelessChangeDetection, importProvidersFrom } from '@angular/core';
-import { provideRouter, withViewTransitions, withHashLocation } from '@angular/router';
+import { provideRouter, withViewTransitions, withHashLocation, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
@@ -22,6 +22,7 @@ import { LocalIndexDBStorageService } from './util/service/indexdb-storage.servi
 import { CommonSyncService } from './util/service/common-sync.service';
 import { FamilyTransactionsService } from './util/service/db/family-transactions.service';
 import { TransactionsFacadeService, PERSONAL_TRANSACTIONS_SERVICE } from './util/service/db/transactions-facade.service';
+import { TRANSACTIONS_FACADE_TOKEN } from './util/service/db/transactions-facade.token';
 import { TransactionsService } from './util/service/db/transactions.service';
 import { AccountsFacadeService, PERSONAL_ACCOUNTS_SERVICE } from './util/service/db/accounts-facade.service';
 import { AccountsService } from './util/service/db/accounts.service';
@@ -51,6 +52,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideAnimationsAsync(),
     provideRouter(routes,
+      withPreloading(PreloadAllModules),
       withViewTransitions({
         skipInitialTransition: true
       }),
@@ -119,6 +121,10 @@ export const appConfig: ApplicationConfig = {
     // Transaction/Account/Category Services
     FamilyTransactionsService,
     TransactionsFacadeService,
+    {
+      provide: TRANSACTIONS_FACADE_TOKEN,
+      useExisting: TransactionsFacadeService
+    },
     {
       provide: PERSONAL_TRANSACTIONS_SERVICE,
       useClass: TransactionsService

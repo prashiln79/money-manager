@@ -1,18 +1,27 @@
 <p align="center">
   <img src="src/assets/images/screenshot/banner.png" alt="Money Manager Banner" width="100%">
- <div style="display: flex; justify-content: center; margin: 18px 0;">
-  <a href="https://prashiln79.github.io/money-manager" target="_blank"
-     style="background:#6b7280; color:white; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:600;">
-     🚀 Go to App
-  </a>
-</div>
-
 </p>
+
 <p align="center">
-  <img src="https://img.shields.io/badge/Angular-18-red" />
-  <img src="https://img.shields.io/badge/PWA-Ready-green" />
-  <img src="https://img.shields.io/badge/Tests-80%25-success" />
-  <img src="https://img.shields.io/badge/License-MIT-blue" />
+  <a href="https://prashiln79.github.io/money-manager" target="_blank"
+     style="background:#4f46e5; color:white; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:600; display:inline-block; margin: 4px;">
+     🚀 Go to Web App
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://play.google.com/store/apps/details?id=io.github.prashiln79.twa" target="_blank"
+     style="background:#059669; color:white; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:600; display:inline-block; margin: 4px;">
+     📱 Get on Google Play
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=io.github.prashiln79.twa" target="_blank">
+    <img src="https://img.shields.io/badge/Google_Play-414141?style=flat&logo=googleplay&logoColor=white" alt="Google Play" />
+  </a>
+  <img src="https://img.shields.io/badge/Angular-18-red" alt="Angular 18" />
+  <img src="https://img.shields.io/badge/PWA-Ready-green" alt="PWA Ready" />
+  <img src="https://img.shields.io/badge/Tests-80%25-success" alt="Tests" />
+  <img src="https://img.shields.io/badge/License-MIT-blue" alt="License" />
 </p>
 
 # Money Manager

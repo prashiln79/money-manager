@@ -5,7 +5,7 @@ import { RecurringTemplate } from 'src/app/util/models/recurring.model';
 // Load Transactions
 export const loadTransactions = createAction(
   '[Transactions] Load Transactions',
-  props<{ userId: string }>()
+  props<{ userId: string; force?: boolean }>()
 );
 
 export const loadTransactionsSuccess = createAction(

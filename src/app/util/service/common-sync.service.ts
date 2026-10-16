@@ -24,7 +24,7 @@ import { AccountsService } from './db/accounts.service';
 import { CategoryService } from './db/category.service';
 import { AccountsFacadeService } from './db/accounts-facade.service';
 import { CategoryFacadeService } from './db/category-facade.service';
-import { TransactionsFacadeService } from './db/transactions-facade.service';
+import { TRANSACTIONS_FACADE_TOKEN } from './db/transactions-facade.token';
 import { BudgetsService } from './db/budgets.service';
 import { GoalsService } from './db/goals.service';
 import { UserService } from './db/user.service';
@@ -544,7 +544,7 @@ export class CommonSyncService implements OnDestroy {
     this.updateSyncStatus({ isFullSyncing: true });
 
 
-    const transactionsService = this.injector.get(TransactionsFacadeService);
+    const transactionsService = this.injector.get(TRANSACTIONS_FACADE_TOKEN);
     const accountsService = this.injector.get(AccountsFacadeService);
     const categoryService = this.injector.get(CategoryFacadeService);
     const budgetsService = this.injector.get(BudgetsService);
@@ -634,7 +634,7 @@ export class CommonSyncService implements OnDestroy {
           switchMap(isOnline => isOnline ? this.syncAll() : of(null))
         );
         
-        const transactionsService = this.injector.get(TransactionsFacadeService);
+        const transactionsService = this.injector.get(TRANSACTIONS_FACADE_TOKEN);
         const accountsService = this.injector.get(AccountsFacadeService);
         const categoryService = this.injector.get(CategoryFacadeService);
         const budgetsService = this.injector.get<BudgetsService>(BudgetsService);

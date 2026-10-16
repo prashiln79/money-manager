@@ -11,12 +11,15 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
-import { AppState } from '../../../../store/app.state';
-import * as CategoriesSelectors from '../../../../store/categories/categories.selectors';
-import { selectAllTransactions } from '../../../../store/transactions/transactions.selectors';
+import { AppState } from 'src/app/store/app.state';
+import * as CategoriesSelectors from 'src/app/store/categories/categories.selectors';
+import { selectAllTransactions } from 'src/app/store/transactions/transactions.selectors';
+import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import dayjs from 'dayjs';
 import { DateService } from 'src/app/util/service/date.service';
-import { FilterService } from '../../../../util/service/filter.service';
+import { FilterService } from 'src/app/util/service/filter.service';
+
+
 
 @Component({
   selector: 'search-filter',
@@ -34,7 +37,8 @@ import { FilterService } from '../../../../util/service/filter.service';
     MatChipsModule,
     TranslateModule,
     FormsModule
-],
+  ],
+
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchFilterComponent implements OnInit, OnDestroy {
@@ -77,12 +81,35 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
   months = signal<{ value: number; label: string }[]>([]);
   currentYear = dayjs().year();
 
-  // Computed filtered count
-  filteredCount = computed(() => {
+  // Computed filtered transactions and totals
+  filteredTransactions = computed(() => {
     const transactions = this.allTransactions();
     const filterState = this.filterService.filterState();
-    return this.filterService.filterTransactions(transactions, filterState).length;
+    return this.filterService.filterTransactions(transactions, filterState);
   });
+
+  filteredCount = computed(() => this.filteredTransactions().length);
+
+  filteredIncome = computed(() => {
+    return this.filteredTransactions()
+      .filter(tx => tx.type === 'income')
+      .reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
+  });
+
+  filteredExpense = computed(() => {
+    return this.filteredTransactions()
+      .filter(tx => tx.type === 'expense')
+      .reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
+  });
+
+  filteredNet = computed(() => {
+    return this.filteredIncome() - this.filteredExpense();
+  });
+
+  storeAccounts = this.store.selectSignal(selectAllAccounts);
+  accounts = computed(() => this.storeAccounts());
+  selectedAccount = signal<string>('all');
+  selectedSort = signal<string>('date-desc');
 
   constructor() {
     this.updateMonths();
@@ -94,6 +121,16 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
       this.selectedCategory.set(state.selectedCategory && state.selectedCategory.length > 0 ? state.selectedCategory : ['all']);
       this.selectedType.set(state.selectedType);
       
+      if (state.accountFilter && state.accountFilter.length > 0) {
+        this.selectedAccount.set(state.accountFilter[0]);
+      } else {
+        this.selectedAccount.set('all');
+      }
+
+      if (state.selectedSort) {
+        this.selectedSort.set(state.selectedSort);
+      }
+
       if (state.selectedYear) {
         this.selectedYear.set(state.selectedYear.startYear);
       } else {
@@ -238,6 +275,25 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
     this.expandTable.emit();
   }
 
+  onAccountChange(accountId: string) {
+    this.selectedAccount.set(accountId);
+    if (!accountId || accountId === 'all') {
+      this.filterService.setAccountFilter([]);
+    } else {
+      this.filterService.setAccountFilter([accountId]);
+    }
+  }
+
+  onSortChange(sortBy: string) {
+    this.selectedSort.set(sortBy);
+    this.filterService.selectedSort.set(sortBy);
+  }
+
+  onClearAccountFilter() {
+    this.selectedAccount.set('all');
+    this.filterService.setAccountFilter([]);
+  }
+
   onClearAllFilters() {
     this.filterService.selectedDate.set(null);
     this.filterService.selectedDateRange.set(null);
@@ -246,6 +302,10 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
     this.filterService.selectedType.set('all');
     this.filterService.searchTerm.set('');
     this.filterService.isRecurring.set(null);
+    this.selectedAccount.set('all');
+    this.selectedSort.set('date-desc');
+    this.filterService.setAccountFilter([]);
+    this.filterService.selectedSort.set('date-desc');
   }
 
   onClearSearchFilter() {
@@ -330,6 +390,28 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
         type: 'type',
         label: `Type: ${state.selectedType}`,
         onRemove: () => this.onClearTypeFilter()
+      });
+    }
+
+    if (state.accountFilter && state.accountFilter.length > 0) {
+      const acc = this.accounts().find(a => a.accountId === state.accountFilter![0]);
+      filters.push({
+        type: 'account',
+        label: `Account: ${acc?.name || 'Selected'}`,
+        onRemove: () => this.onClearAccountFilter()
+      });
+    }
+
+    if (state.selectedSort && state.selectedSort !== 'date-desc') {
+      const sortLabels: Record<string, string> = {
+        'date-asc': 'Oldest first',
+        'amount-desc': 'Highest amount',
+        'amount-asc': 'Lowest amount'
+      };
+      filters.push({
+        type: 'sort',
+        label: `Sort: ${sortLabels[state.selectedSort] || state.selectedSort}`,
+        onRemove: () => this.onSortChange('date-desc')
       });
     }
 

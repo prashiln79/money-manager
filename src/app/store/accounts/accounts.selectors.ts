@@ -18,6 +18,11 @@ export const selectActiveBucket = createSelector(
   (state) => state[state.activeContext]
 );
 
+export const selectAccountsLastLoaded = createSelector(
+  selectActiveBucket,
+  (bucket) => bucket.lastLoaded ?? null
+);
+
 export const selectAllAccountsRaw = createSelector(
   selectActiveBucket,
   (bucket): Account[] => {

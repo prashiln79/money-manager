@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of, from } from 'rxjs';
-import { map, mergeMap, catchError, concatMap, withLatestFrom } from 'rxjs/operators';
+import { map, mergeMap, catchError, concatMap, withLatestFrom, filter } from 'rxjs/operators';
 import { UserService } from '../../util/service/db/user.service';
 import * as ProfileActions from './profile.actions';
 import * as ProfileSelectors from './profile.selectors';
@@ -12,7 +12,9 @@ import { AppState } from '../app.state';
 export class ProfileEffects {
   loadProfile$ = createEffect(() => this.actions$.pipe(
     ofType(ProfileActions.loadProfile),
-    mergeMap(({ userId }) => from(this.userService.getCurrentUser())
+    withLatestFrom(this.store.select(ProfileSelectors.selectProfile)),
+    filter(([action, profile]) => !profile),
+    mergeMap(([{ userId }]) => from(this.userService.getCurrentUser())
       .pipe(
         map(profile => {
           if (profile) {

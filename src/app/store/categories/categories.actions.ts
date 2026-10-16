@@ -6,7 +6,7 @@ import { CategoriesContext } from './categories.state';
 // Load Categories
 export const loadCategories = createAction(
   '[Categories] Load Categories',
-  props<{ userId: string }>()
+  props<{ userId: string; context?: CategoriesContext; force?: boolean }>()
 );
 
 export const loadCategoriesSuccess = createAction(

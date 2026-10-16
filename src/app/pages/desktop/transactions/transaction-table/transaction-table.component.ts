@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, ViewChild, OnInit, OnDestroy, AfterViewInit, HostListener, Input, ChangeDetectionStrategy, ChangeDetectorRef, inject, effect } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, OnInit, OnDestroy, AfterViewInit, HostListener, Input, ChangeDetectionStrategy, ChangeDetectorRef, inject, effect, signal, computed } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,8 +11,9 @@ import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from 'src/app/util/pipes/currency.pipe';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort, MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
-import { Transaction } from '../../../../util/models/transaction.model';
+import { Transaction } from 'src/app/util/models/transaction.model';
 import { Auth } from '@angular/fire/auth';
 import { UserService } from 'src/app/util/service/db/user.service';
 import { Subscription, Observable } from 'rxjs';
@@ -21,6 +22,7 @@ import { DateService } from 'src/app/util/service/date.service';
 import { FilterService } from 'src/app/util/service/filter.service';
 import { selectAllCategories } from 'src/app/store/categories/categories.selectors';
 import { selectAllTransactions } from 'src/app/store/transactions/transactions.selectors';
+import * as TransactionsSelectors from 'src/app/store/transactions/transactions.selectors';
 import { Account, Category } from 'src/app/util/models';
 import { AppState } from 'src/app/store/app.state';
 import { Store } from '@ngrx/store';
@@ -28,15 +30,15 @@ import { APP_CONFIG } from 'src/app/util/config/config';
 import { SsrService } from 'src/app/util/service/ssr.service';
 import { ConfirmDialogComponent } from 'src/app/util/components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { MobileAddTransactionComponent } from '../add-transaction/mobile-add-transaction/mobile-add-transaction.component';
+import { MobileAddTransactionComponent } from 'src/app/component/dashboard/transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
-import { ParentCategorySelectorDialogComponent } from '../../category/parent-category-selector-dialog/parent-category-selector-dialog.component';
+import { ParentCategorySelectorDialogComponent } from 'src/app/component/dashboard/category/parent-category-selector-dialog/parent-category-selector-dialog.component';
 import { selectAllAccounts } from 'src/app/store/accounts/accounts.selectors';
 import { toSignal } from '@angular/core/rxjs-interop';
 import * as ProfileSelectors from 'src/app/store/profile/profile.selectors';
 import * as FamilySelectors from 'src/app/modules/family/store/family.selectors';
 import { FamilyMember } from 'src/app/util/models/family.model';
-import { computed } from '@angular/core';
+
 
 @Component({
   selector: 'transaction-table',
@@ -47,6 +49,7 @@ import { computed } from '@angular/core';
     CommonModule,
     MatTableModule,
     MatSortModule,
+    MatPaginatorModule,
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
@@ -73,7 +76,7 @@ import { computed } from '@angular/core';
 export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly auth = inject(Auth);
   private readonly dateService = inject(DateService);
-  private readonly filterService = inject(FilterService);
+  public readonly filterService = inject(FilterService);
   private readonly store = inject(Store<AppState>);
   private readonly ssrService = inject(SsrService);
   private readonly dialog = inject(MatDialog);
@@ -82,6 +85,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
   private readonly cdr = inject(ChangeDetectorRef);
 
   @Input() isHome: boolean = false;
+  @Input() loadingInput?: boolean;
+  @Input() errorInput?: string | null;
+
   @Output() editTransaction = new EventEmitter<Transaction>();
   @Output() deleteTransaction = new EventEmitter<Transaction>();
   @Output() startRowEdit = new EventEmitter<Transaction>();
@@ -92,10 +98,20 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
   @Output() bulkUpdateCategory = new EventEmitter<{ transactions: Transaction[], categoryId: string }>();
 
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  selectedDetailTransaction = signal<Transaction | null>(null);
+
+  private readonly storeLoading = this.store.selectSignal(TransactionsSelectors.selectTransactionsLoading);
+  private readonly storeError = this.store.selectSignal(TransactionsSelectors.selectTransactionsError);
+
+  loading = computed(() => this.loadingInput !== undefined ? this.loadingInput : this.storeLoading());
+  error = computed(() => this.errorInput !== undefined ? this.errorInput : this.storeError());
 
   dataSource: MatTableDataSource<Transaction> = new MatTableDataSource<Transaction>();
-  displayedColumns: string[] = ['Date', 'Type', 'Amount', 'Status', 'Notes', 'Actions'];
+  displayedColumns: string[] = ['select', 'Date', 'Transaction', 'Category', 'Account', 'Type', 'Amount', 'Actions'];
   isListView: boolean = false;
+
 
   // Selection properties
   selectedTransactions: Set<string> = new Set();
@@ -162,6 +178,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   ngAfterViewInit() {
     this.setupSorting();
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
   }
 
   @HostListener('window:resize')
@@ -185,15 +204,15 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
         // Mobile: Show only essential columns (no select column)
         this.displayedColumns = ['Date', 'Amount', 'Actions'];
       } else if (screenWidth < this.TABLET_BREAKPOINT) {
-        // Small tablet: Show more columns but hide status (include select column only if not home)
+        // Small tablet
         this.displayedColumns = this.isHome ?
-          ['Date', 'Type', 'Amount', 'Note', 'Actions'] :
-          ['Date', 'Type', 'Amount', 'Note', 'Actions'];
+          ['Date', 'Transaction', 'Category', 'Amount', 'Actions'] :
+          ['select', 'Date', 'Transaction', 'Category', 'Amount', 'Actions'];
       } else {
-        // Desktop: Show all columns (include select column only if not home)
+        // Desktop: Show full columns
         this.displayedColumns = this.isHome ?
-          ['Date', 'Type', 'Amount', 'Status', 'Note', 'Actions'] :
-          ['Date', 'Type', 'Amount', 'Status', 'Account', 'Note', 'Actions'];
+          ['Date', 'Transaction', 'Category', 'Account', 'Type', 'Amount', 'Actions'] :
+          ['select', 'Date', 'Transaction', 'Category', 'Account', 'Type', 'Amount', 'Actions'];
       }
     }
   }
@@ -232,7 +251,6 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
 
   private updateFilteredData() {
     // Use FilterService to get filtered and sorted transactions
-    const currentYear = dayjs().year();
     let filteredData: Transaction[];
 
     // Check if we have specific date filters applied
@@ -274,8 +292,9 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
         return direction === 'asc' ? 'date-asc' : 'date-desc';
       case 'Amount':
         return direction === 'asc' ? 'amount-asc' : 'amount-desc';
-
-      case 'Type':
+      case 'Transaction':
+        return 'payee-asc';
+      case 'Category':
         return 'category-asc';
       default:
         return 'date-desc';
@@ -288,17 +307,21 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
       switch (property) {
         case 'Date':
           return (this.dateService.toDate(item?.date) || new Date()).getTime();
+        case 'Transaction':
+          return (item?.payee || this.getCategoryName(item?.categoryId) || '').toLowerCase();
+        case 'Category':
+          return (this.getCategoryName(item?.categoryId) || item?.category || '').toLowerCase();
+        case 'Account':
+          return this.getAccountName(item?.accountId).toLowerCase();
         case 'Type':
-          return (item?.category.toString().toLowerCase() || '');
-
-        case 'Amount':
-          return item?.amount;
-        case 'Status':
           return (item?.type || '').toLowerCase();
+        case 'Amount':
+          return item?.amount || 0;
         default:
           return '';
       }
     };
+
 
     // Connect the sort to the data source
     this.dataSource.sort = this.sort;
@@ -343,11 +366,21 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
       });
   }
 
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    if (this.selectedDetailTransaction()) {
+      this.closeDetailDrawer();
+    }
+  }
+
   onStartRowEdit(transaction: any) {
     // Clone to avoid NgRx frozen object error when adding UI properties
     const index = this.dataSource.data.findIndex(t => t.id === transaction.id);
     if (index !== -1) {
       const clonedTransaction = { ...transaction };
+      const formattedDate = dayjs(this.dateService.toDate(transaction.date)).format('YYYY-MM-DD');
+      clonedTransaction.editDate = formattedDate;
+      clonedTransaction.isEditing = true;
       
       // Update the data source with the new object reference so the parent can mutate it safely
       const newData = [...this.dataSource.data];
@@ -355,12 +388,15 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
       this.dataSource.data = newData;
 
       clonedTransaction.originalValues = {
+        payee: transaction.payee,
         amount: transaction.amount,
         type: transaction.type,
         categoryId: transaction.categoryId,
         accountId: transaction.accountId,
-        notes: transaction.notes
+        notes: transaction.notes,
+        editDate: formattedDate
       };
+
       
       this.startRowEdit.emit(clonedTransaction);
       this.cdr.markForCheck();
@@ -381,20 +417,42 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
     this.addTransaction.emit();
   }
 
-  onRowClick(transaction: Transaction) {
-    // Select the row
-    this.toggleSelection(transaction);
+  onRowClick(transaction: any) {
+    if (transaction.isEditing) {
+      return;
+    }
+    this.openDetailDrawer(transaction);
+  }
+
+  onRowDoubleClick(transaction: any) {
+    if (this.canEdit(transaction)) {
+      this.onStartRowEdit(transaction);
+    }
+  }
+
+  openDetailDrawer(transaction: Transaction) {
+    this.selectedDetailTransaction.set(transaction);
     this.cdr.markForCheck();
   }
 
-  private openTransactionViewDialog(transaction: Transaction) {
-    const dialogRef = this.dialog.open(MobileAddTransactionComponent, {
+  closeDetailDrawer() {
+    this.selectedDetailTransaction.set(null);
+    this.cdr.markForCheck();
+  }
+
+  duplicateTransaction(transaction: Transaction) {
+    this.closeDetailDrawer();
+    const { id, createdAt, syncStatus, settlementId, ...dup } = transaction as any;
+    this.dialog.open(MobileAddTransactionComponent, {
       panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog',
-      data: {
-        transaction: transaction,
-        mode: 'view' // This will make the dialog read-only
-      }
+      closeOnNavigation: false,
+      data: { ...dup, isDuplicate: true }
     });
+  }
+
+  getMemberName(memberId: string): string {
+    const member = this.familyMembers().find(m => m.id === memberId || m.userId === memberId);
+    return member?.displayName || member?.email || memberId;
   }
 
   getFilteredCount(): number {
@@ -451,8 +509,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
     return categoryId ? this.categories[categoryId]?.name || categoryId : "";
   }
 
-  getCategoryColor(category: string): string {
-    return this.categories[category]?.color || "#46777f";
+  getCategoryColor(category?: string): string {
+    return (category && this.categories[category]?.color) || "#46777f";
   }
 
   getDateDisplay(date: Date | any): string {
@@ -623,7 +681,8 @@ export class TransactionTableComponent implements OnInit, OnDestroy, AfterViewIn
     });
   }
 
-  getAccountName(accountId: string): string {
+  getAccountName(accountId?: string): string {
+    if (!accountId) return '—';
     return this.accounts.find(account => account.accountId === accountId)?.name || accountId;
   }
 

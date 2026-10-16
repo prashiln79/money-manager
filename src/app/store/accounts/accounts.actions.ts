@@ -6,7 +6,7 @@ import { AccountsContext } from './accounts.state';
 // Load Accounts
 export const loadAccounts = createAction(
   '[Accounts] Load Accounts',
-  props<{ userId: string }>()
+  props<{ userId: string; context?: AccountsContext; force?: boolean }>()
 );
 
 export const loadAccountsSuccess = createAction(

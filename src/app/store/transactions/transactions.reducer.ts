@@ -7,9 +7,9 @@ export const transactionsReducer = createReducer(
   initialState,
   
   // Load Transactions
-  on(TransactionsActions.loadTransactions, (state) => ({
+  on(TransactionsActions.loadTransactions, (state, { force }) => ({
     ...state,
-    loading: true,
+    loading: force ? true : state.ids.length === 0,
     error: null
   })),
   
@@ -29,6 +29,7 @@ export const transactionsReducer = createReducer(
       ...state,
       entities,
       ids,
+      lastLoaded: Date.now(),
       loading: false,
       error: null
     };

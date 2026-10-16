@@ -1042,3 +1042,30 @@ table {
     filter: grayscale(0);
   }
 }
+
+// Inline Row Editing Active State
+.is-editing-row {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+  box-shadow: inset 3px 0 0 #3b82f6 !important;
+
+  :host-context(.dark-theme) & {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    box-shadow: inset 3px 0 0 #60a5fa !important;
+  }
+}
+
+// Detail Slide-Over Drawer Animation
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

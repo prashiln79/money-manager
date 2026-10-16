@@ -1,18 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TransactionTableComponent } from './transaction-table.component';
-import { TestSetup } from '../../../../util/testing/test-setup';
-import { TEST_IMPORTS } from '../../../../util/testing/test-config';
+import { TestSetup } from 'src/app/util/testing/test-setup';
+import { TEST_IMPORTS } from 'src/app/util/testing/test-config';
 import { of } from 'rxjs';
-import { Transaction } from '../../../../util/models/transaction.model';
-import { Category } from '../../../../util/models';
-import { TransactionType, TransactionStatus, SyncStatus } from '../../../../util/config/enums';
+import { Transaction } from 'src/app/util/models/transaction.model';
+import { Category } from 'src/app/util/models';
+import { TransactionType, TransactionStatus, SyncStatus } from 'src/app/util/config/enums';
 import { Store } from '@ngrx/store';
 import { Auth } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
-import { BreakpointService } from '../../../../util/service/breakpoint.service';
-import { DateService } from '../../../../util/service/date.service';
-import { FilterService } from '../../../../util/service/filter.service';
-import { SsrService } from '../../../../util/service/ssr.service';
+import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { DateService } from 'src/app/util/service/date.service';
+import { FilterService } from 'src/app/util/service/filter.service';
+import { SsrService } from 'src/app/util/service/ssr.service';
+
 
 describe('TransactionTableComponent', () => {
   let component: TransactionTableComponent;

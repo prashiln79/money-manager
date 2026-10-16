@@ -1,0 +1,151 @@
+<div class="filter-toolbar rounded-xl p-3.5 bg-surface-50 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-xs flex flex-col gap-3">
+  <!-- Active Filter Chips Row -->
+  @if (hasActiveFilters()) {
+    <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-200/60 dark:border-slate-800">
+      <div class="flex flex-wrap items-center gap-1.5">
+        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium mr-1 flex items-center">
+          <mat-icon class="text-xs !w-3.5 !h-3.5 mr-1 text-primary-500">filter_list</mat-icon>
+          Active filters:
+        </span>
+        @for (filter of getActiveFilters(); track filter.type) {
+          <mat-chip [removable]="true" (removed)="filter.onRemove()"
+            class="!bg-blue-50 !text-blue-700 !border-blue-200 dark:!bg-blue-900/30 dark:!text-blue-300 dark:!border-blue-800/40 text-xs !h-6.5 font-medium">
+            {{ filter.label }}
+            <mat-icon matChipRemove class="text-blue-500 dark:text-blue-400 text-xs">cancel</mat-icon>
+          </mat-chip>
+        }
+      </div>
+
+      <button
+        mat-button
+        class="!text-xs !h-7 !px-2.5 !text-slate-600 dark:!text-slate-300 hover:!bg-slate-100 dark:hover:!bg-slate-800 !rounded-md"
+        (click)="onClearAllFilters()"
+        matTooltip="Clear all applied filters">
+        <mat-icon class="text-xs !w-3.5 !h-3.5 mr-1">filter_alt_off</mat-icon>
+        Clear All
+      </button>
+    </div>
+  }
+
+  <!-- Filter Controls Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 w-full items-center">
+    <!-- 1. Search Field -->
+    <div class="lg:col-span-2">
+      <mat-form-field appearance="fill" class="w-full dense-form-field">
+        <mat-label>Search transactions...</mat-label>
+        <input matInput [ngModel]="searchTerm()" (ngModelChange)="onSearchChange($event)"
+          placeholder="Payee, notes, category..." />
+        @if (searchTerm()) {
+          <button mat-icon-button matSuffix (click)="onClearSearchFilter()" aria-label="Clear search" class="!w-6 !h-6">
+            <mat-icon class="text-xs">close</mat-icon>
+          </button>
+        } @else {
+          <mat-icon matSuffix class="text-slate-400 text-sm">search</mat-icon>
+        }
+      </mat-form-field>
+    </div>
+
+    <!-- 2. Type Filter -->
+    <div>
+      <mat-form-field appearance="fill" class="w-full dense-form-field">
+        <mat-label>Type</mat-label>
+        <mat-select [ngModel]="selectedType()" (ngModelChange)="onTypeChange($event)">
+          <mat-option value="all">All Types</mat-option>
+          <mat-option value="income">Income</mat-option>
+          <mat-option value="expense">Expense</mat-option>
+          <mat-option value="transfer">Transfer</mat-option>
+        </mat-select>
+        <mat-icon matSuffix class="text-slate-400 text-sm">swap_horiz</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- 3. Category Filter -->
+    <div>
+      <mat-form-field appearance="fill" class="w-full dense-form-field">
+        <mat-label>Category</mat-label>
+        <mat-select [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)" multiple>
+          <mat-option value="all">All Categories</mat-option>
+          @for (category of categories(); track category.id) {
+            <mat-option [value]="category.id">
+              {{ category.name }}
+            </mat-option>
+          }
+        </mat-select>
+        <mat-icon matSuffix class="text-slate-400 text-sm">category</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- 4. Account Filter -->
+    <div>
+      <mat-form-field appearance="fill" class="w-full dense-form-field">
+        <mat-label>Account</mat-label>
+        <mat-select [ngModel]="selectedAccount()" (ngModelChange)="onAccountChange($event)">
+          <mat-option value="all">All Accounts</mat-option>
+          @for (account of accounts(); track account.accountId) {
+            <mat-option [value]="account.accountId">
+              {{ account.name }}
+            </mat-option>
+          }
+        </mat-select>
+        <mat-icon matSuffix class="text-slate-400 text-sm">account_balance</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- 5. Sort Options -->
+    <div>
+      <mat-form-field appearance="fill" class="w-full dense-form-field">
+        <mat-label>Sort By</mat-label>
+        <mat-select [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)">
+          <mat-option value="date-desc">Newest First</mat-option>
+          <mat-option value="date-asc">Oldest First</mat-option>
+          <mat-option value="amount-desc">Highest Amount</mat-option>
+          <mat-option value="amount-asc">Lowest Amount</mat-option>
+        </mat-select>
+        <mat-icon matSuffix class="text-slate-400 text-sm">sort</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Secondary Date Range Sub-Bar -->
+  <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+    <div class="flex items-center gap-3">
+      <!-- Quick Period / Month Selection -->
+      <div class="flex items-center gap-1.5">
+        <span class="text-slate-400 dark:text-slate-500 font-medium">Period:</span>
+        <select
+          [ngModel]="selectedMonthOption()"
+          (ngModelChange)="onSelectedMonthChange($event)"
+          class="bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary-500">
+          <option value="all">All Months</option>
+          @for (month of months(); track month.value) {
+            <option [value]="month.value.toString()">{{ month.label }}</option>
+          }
+        </select>
+
+        <select
+          [ngModel]="selectedYear()"
+          (ngModelChange)="onSelectedYearChange($event)"
+          class="bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary-500">
+          @for (year of availableYears(); track year) {
+            <option [value]="year">{{ year }}</option>
+          }
+        </select>
+      </div>
+
+      <span class="text-slate-300 dark:text-slate-700">|</span>
+
+      <span class="text-slate-500 dark:text-slate-400 font-mono">
+        Showing {{ filteredCount() }} {{ filteredCount() === 1 ? 'result' : 'results' }}
+      </span>
+    </div>
+
+    @if (hasActiveFilters()) {
+      <button
+        mat-button
+        (click)="onClearAllFilters()"
+        class="!text-xs !h-6 !px-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30">
+        Reset to Default
+      </button>
+    }
+  </div>
+</div>

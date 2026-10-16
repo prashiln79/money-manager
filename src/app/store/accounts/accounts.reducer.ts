@@ -30,11 +30,14 @@ export const accountsReducer = createReducer(
   })),
 
   // ── Load Accounts ───────────────────────────────────────────────────────────
-  on(AccountsActions.loadAccounts, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
+  on(AccountsActions.loadAccounts, (state, { context, force }) => {
+    const target = ctx(state, context);
+    return {
+      ...state,
+      loading: force ? true : (state[target]?.ids?.length ?? 0) === 0,
+      error: null
+    };
+  }),
 
   on(AccountsActions.loadAccountsSuccess, (state, { accounts, context }) => {
     const target = ctx(state, context);
@@ -43,7 +46,7 @@ export const accountsReducer = createReducer(
       return acc;
     }, {} as { [id: string]: any });
     const ids = accounts.map(a => a.accountId);
-    return updateBucket({ ...state, loading: false, error: null }, target, { entities, ids });
+    return updateBucket({ ...state, loading: false, error: null }, target, { entities, ids, lastLoaded: Date.now() });
   }),
 
   on(AccountsActions.loadAccountsFailure, (state, { error }) => ({

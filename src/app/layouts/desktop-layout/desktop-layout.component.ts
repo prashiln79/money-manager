@@ -15,6 +15,7 @@ import { selectIsFamilyMode } from '../../store/profile/profile.selectors';
 import { UserComponent } from '../../component/dashboard/header/user/user.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MobileAddTransactionComponent } from '../../component/dashboard/transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
+import { LocalStorageKey } from '../../util/models/local-storage.model';
 
 @Component({
   selector: 'app-desktop-layout',
@@ -42,7 +43,15 @@ export class DesktopLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
 
-  public readonly isSidebarCollapsed = signal(false);
+  private getInitialSidebarCollapsed(): boolean {
+    try {
+      return localStorage.getItem(LocalStorageKey.SIDEBAR_COLLAPSED) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  public readonly isSidebarCollapsed = signal(this.getInitialSidebarCollapsed());
   public navigationSections: SidebarNavParent[] = [];
   public isAdmin = false;
 
@@ -66,7 +75,15 @@ export class DesktopLayoutComponent implements OnInit {
   }
 
   toggleSidebar(): void {
-    this.isSidebarCollapsed.update(collapsed => !collapsed);
+    this.isSidebarCollapsed.update(collapsed => {
+      const next = !collapsed;
+      try {
+        localStorage.setItem(LocalStorageKey.SIDEBAR_COLLAPSED, String(next));
+      } catch (e) {
+        console.error('Failed to save sidebar state to storage', e);
+      }
+      return next;
+    });
   }
 
   toggleSection(section: SidebarNavParent): void {

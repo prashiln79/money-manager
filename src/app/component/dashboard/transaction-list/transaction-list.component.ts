@@ -242,6 +242,17 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       notes: element.notes
     };
 
+    if (element.payee !== undefined) {
+      updateData.payee = element.payee;
+    }
+
+    if (element.editDate) {
+      const parsedDate = new Date(element.editDate);
+      if (!isNaN(parsedDate.getTime())) {
+        updateData.date = parsedDate;
+      }
+    }
+
     const userId = this.userService.getCurrentUserId();
     if (userId && element.id) {
       this.store.dispatch(TransactionsActions.updateTransaction({
@@ -257,15 +268,18 @@ export class TransactionListComponent implements OnInit, OnDestroy {
 
   cancelRowEdit(element: any) {
     if (element.originalValues) {
+      element.payee = element.originalValues.payee;
       element.amount = element.originalValues.amount;
       element.type = element.originalValues.type;
       element.categoryId = element.originalValues.categoryId;
       element.accountId = element.originalValues.accountId;
       element.notes = element.originalValues.notes;
+      element.editDate = element.originalValues.editDate;
     }
     element.isEditing = false;
     delete element.originalValues;
   }
+
 
   openImportDialog() {
     const dialogRef = this._dialog.open(ImportTransactionsComponent, {
@@ -349,7 +363,7 @@ export class TransactionListComponent implements OnInit, OnDestroy {
   refreshTransactions(): void {
     const userId = this.userService.getCurrentUserId();
     if (userId) {
-      this.store.dispatch(TransactionsActions.loadTransactions({ userId }));
+      this.store.dispatch(TransactionsActions.loadTransactions({ userId, force: true }));
       this.notificationService.success('Transactions refreshed');
     }
   }

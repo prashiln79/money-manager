@@ -96,6 +96,11 @@ export const selectTransactionsLoading = createSelector(
   (state, isFamilyMode, familyLoading) => isFamilyMode ? familyLoading : state.loading
 );
 
+export const selectTransactionsLastLoaded = createSelector(
+  selectTransactionsState,
+  (state) => state.lastLoaded
+);
+
 export const selectTransactionsError = createSelector(
   selectTransactionsState,
   ProfileSelectors.selectIsFamilyMode,

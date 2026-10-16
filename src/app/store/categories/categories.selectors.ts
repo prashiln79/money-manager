@@ -11,6 +11,11 @@ export const selectCategoriesActiveBucket = createSelector(
   (state) => state[state.activeContext]
 );
 
+export const selectCategoriesLastLoaded = createSelector(
+  selectCategoriesActiveBucket,
+  (bucket) => bucket.lastLoaded ?? null
+);
+
 export const selectAllCategories = createSelector(
   selectCategoriesActiveBucket,
   (bucket): Category[] =>

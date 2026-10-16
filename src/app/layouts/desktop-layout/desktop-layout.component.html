@@ -6,37 +6,57 @@
          [class.w-20]="isSidebarCollapsed()">
 
     <!-- Sidebar Brand & Toggle -->
-    <div class="sidebar-header flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
-      <a routerLink="/dashboard" class="flex items-center gap-3 overflow-hidden group cursor-pointer no-underline">
+    <div class="sidebar-header flex items-center px-3.5 h-16 border-b border-slate-100 dark:border-slate-800"
+         [class.justify-between]="!isSidebarCollapsed()"
+         [class.justify-center]="isSidebarCollapsed()">
+      <a routerLink="/dashboard" class="flex items-center gap-3 overflow-hidden group cursor-pointer no-underline"
+         [matTooltip]="isSidebarCollapsed() ? 'Money Manager' : ''"
+         matTooltipPosition="right">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-primary-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
-          <mat-icon class="!w-6 !h-6 !text-2xl leading-none">account_balance_wallet</mat-icon>
+          <mat-icon class="!w-5 !h-5 !text-xl">account_balance_wallet</mat-icon>
         </div>
         @if (!isSidebarCollapsed()) {
           <div class="flex flex-col truncate">
-            <span class="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-none">Money Manager</span>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1">Smart Finances</span>
+            <span class="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">Money Manager</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none">Smart Finances</span>
           </div>
         }
       </a>
 
-      <button mat-icon-button (click)="toggleSidebar()" class="sidebar-collapse-btn text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" [matTooltip]="isSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
-        <mat-icon>{{ isSidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
-      </button>
+      @if (!isSidebarCollapsed()) {
+        <button type="button" (click)="toggleSidebar()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" matTooltip="Collapse sidebar">
+          <mat-icon class="!w-5 !h-5 !text-xl">chevron_left</mat-icon>
+        </button>
+      }
     </div>
 
+    @if (isSidebarCollapsed()) {
+      <div class="flex justify-center py-2 border-b border-slate-100/60 dark:border-slate-800/60">
+        <button type="button" (click)="toggleSidebar()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" matTooltip="Expand sidebar" matTooltipPosition="right">
+          <mat-icon class="!w-4 !h-4 !text-base">chevron_right</mat-icon>
+        </button>
+      </div>
+    }
+
     <!-- Quick Action Button in Sidebar -->
-    <div class="p-3">
+    <div class="p-3 flex justify-center">
       <button (click)="openAddTransaction()"
-              class="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-md shadow-primary-600/20 hover:shadow-lg transition-all active:scale-95">
-        <mat-icon class="!w-5 !h-5 !text-xl">add</mat-icon>
+              class="flex items-center justify-center rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-md shadow-primary-600/20 hover:shadow-lg transition-all active:scale-95 cursor-pointer h-10"
+              [class.w-full]="!isSidebarCollapsed()"
+              [class.w-10]="isSidebarCollapsed()"
+              [class.px-3]="!isSidebarCollapsed()"
+              [class.gap-2]="!isSidebarCollapsed()"
+              [matTooltip]="isSidebarCollapsed() ? 'Add Transaction' : ''"
+              matTooltipPosition="right">
+        <mat-icon class="!w-5 !h-5 !text-xl flex-shrink-0">add</mat-icon>
         @if (!isSidebarCollapsed()) {
-          <span class="text-sm">Add Transaction</span>
+          <span class="text-sm font-medium leading-5">Add Transaction</span>
         }
       </button>
     </div>
 
     <!-- Navigation List -->
-    <nav class="sidebar-nav flex-1 px-3 py-2 overflow-y-auto space-y-4 custom-scrollbar">
+    <nav class="sidebar-nav flex-1 px-3 py-2 overflow-y-auto space-y-3 custom-scrollbar">
       @for (section of navigationSections; track section.label) {
         @if (section.label === 'NAVIGATION.ADMIN' ? isAdmin : true) {
           <div class="nav-section">
@@ -58,25 +78,35 @@
                      !child.mobileOnly) {
                   @if (child.externalUrl) {
                     <a [href]="child.externalUrl" target="_blank"
-                       class="nav-link flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                       class="nav-link flex items-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-10"
+                       [class.justify-center]="isSidebarCollapsed()"
+                       [class.w-10]="isSidebarCollapsed()"
+                       [class.mx-auto]="isSidebarCollapsed()"
+                       [class.px-3]="!isSidebarCollapsed()"
+                       [class.gap-3]="!isSidebarCollapsed()"
                        [matTooltip]="isSidebarCollapsed() ? (child.label | translate) : ''"
                        matTooltipPosition="right">
-                      <mat-icon class="!w-5 !h-5 !text-xl text-slate-500 dark:text-slate-400">{{ child.icon }}</mat-icon>
+                      <mat-icon class="nav-icon text-slate-500 dark:text-slate-400 flex-shrink-0">{{ child.icon }}</mat-icon>
                       @if (!isSidebarCollapsed()) {
-                        <span class="text-sm font-medium truncate">{{ child.label | translate }}</span>
-                        <mat-icon class="ml-auto !w-4 !h-4 !text-base text-slate-400">open_in_new</mat-icon>
+                        <span class="text-sm font-medium truncate flex-1 leading-5">{{ child.label | translate }}</span>
+                        <mat-icon class="ml-auto !w-4 !h-4 !text-base flex-shrink-0 text-slate-400">open_in_new</mat-icon>
                       }
                     </a>
                   } @else {
                     <a [routerLink]="child.route" [queryParams]="child.queryParams"
                        routerLinkActive="active-nav-link"
                        [routerLinkActiveOptions]="{exact: false}"
-                       class="nav-link flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                       class="nav-link flex items-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-10"
+                       [class.justify-center]="isSidebarCollapsed()"
+                       [class.w-10]="isSidebarCollapsed()"
+                       [class.mx-auto]="isSidebarCollapsed()"
+                       [class.px-3]="!isSidebarCollapsed()"
+                       [class.gap-3]="!isSidebarCollapsed()"
                        [matTooltip]="isSidebarCollapsed() ? (child.label | translate) : ''"
                        matTooltipPosition="right">
-                      <mat-icon class="!w-5 !h-5 !text-xl text-slate-500 dark:text-slate-400 nav-icon">{{ child.icon }}</mat-icon>
+                      <mat-icon class="nav-icon text-slate-500 dark:text-slate-400 flex-shrink-0">{{ child.icon }}</mat-icon>
                       @if (!isSidebarCollapsed()) {
-                        <span class="text-sm font-medium truncate flex-1">{{ child.label | translate }}</span>
+                        <span class="text-sm font-medium truncate flex-1 leading-5">{{ child.label | translate }}</span>
                         @if (child.isPremium) {
                           <span class="pro-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400">PRO</span>
                         }
@@ -92,23 +122,32 @@
     </nav>
 
     <!-- Sidebar Bottom Actions -->
-    <div class="sidebar-footer p-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+    <div class="sidebar-footer p-3 border-t border-slate-100 dark:border-slate-800 flex items-center"
+         [class.justify-between]="!isSidebarCollapsed()"
+         [class.justify-center]="isSidebarCollapsed()">
       <a [routerLink]="['/dashboard/profile']" [queryParams]="{tab: 'settings'}"
-         class="flex items-center gap-2 p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-         [matTooltip]="'COMMON.SETTINGS' | translate">
-        <mat-icon class="!w-5 !h-5 !text-xl">settings</mat-icon>
+         class="flex items-center rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-10"
+         [class.px-3]="!isSidebarCollapsed()"
+         [class.gap-3]="!isSidebarCollapsed()"
+         [class.w-10]="isSidebarCollapsed()"
+         [class.justify-center]="isSidebarCollapsed()"
+         [class.mx-auto]="isSidebarCollapsed()"
+         [matTooltip]="'COMMON.SETTINGS' | translate"
+         matTooltipPosition="right">
+        <mat-icon class="nav-icon text-slate-500 dark:text-slate-400 flex-shrink-0">settings</mat-icon>
         @if (!isSidebarCollapsed()) {
-          <span class="text-sm font-medium">{{ 'COMMON.SETTINGS' | translate }}</span>
+          <span class="text-sm font-medium leading-5">{{ 'COMMON.SETTINGS' | translate }}</span>
         }
       </a>
 
       @if (!isSidebarCollapsed()) {
-        <button (click)="logout()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs font-semibold transition-colors">
-          <mat-icon class="!w-4 !h-4 !text-base">logout</mat-icon>
-          <span>{{ 'COMMON.LOGOUT' | translate }}</span>
+        <button (click)="logout()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs font-semibold transition-colors cursor-pointer">
+          <mat-icon class="!w-4 !h-4 !text-base flex-shrink-0">logout</mat-icon>
+          <span class="leading-5">{{ 'COMMON.LOGOUT' | translate }}</span>
         </button>
       }
     </div>
+
   </aside>
 
   <!-- Desktop Main Column -->

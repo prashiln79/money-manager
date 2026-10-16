@@ -1,7 +1,46 @@
-// Filter Container
-.filter-container {
-  background-color: var(--surface-200);
+// Filter Toolbar
+.filter-toolbar {
+  background-color: var(--surface-50);
+  transition: all 0.2s ease;
 
+  :host-context(.dark-theme) & {
+    background-color: var(--surface-200);
+  }
+}
+
+// Dense form fields for desktop toolbar
+.dense-form-field {
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      padding: 0 10px !important;
+      height: 40px !important;
+      border-radius: 8px !important;
+    }
+
+    .mat-mdc-form-field-infix {
+      min-height: 40px !important;
+      padding-top: 8px !important;
+      padding-bottom: 8px !important;
+    }
+
+    .mat-mdc-floating-label {
+      top: 18px !important;
+      font-size: 13px !important;
+    }
+
+    .mdc-floating-label--float-above {
+      top: 12px !important;
+      font-size: 10px !important;
+    }
+
+    .mat-mdc-select-value, .mat-mdc-input-element {
+      font-size: 13px !important;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+  }
 }
 
 // Filter Text
@@ -28,9 +67,8 @@
   :host-context(.light-theme) & {
     border-color: var(--neutral-100);
   }
-  
-
 }
+
 
 // Material Form Fields - Dark Theme Support
 :host-context(.dark-theme) {

@@ -76,27 +76,74 @@
           </div>
         </th>
         <td mat-cell *matCellDef="let element" class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800">
-          <div class="text-xs md:text-sm text-gray-600 dark:text-slate-400">
-            @if(breakpointService.device.isTablePortrait) {
-              {{ getDateTimestamp(element.date) | date:'MMM dd' }}
-            } @else if(breakpointService.device.isDesktop) {
-              {{ getDateTimestamp(element.date) | date:'dd MMM yyyy hh:mm a' }}
-            } @else {
-              {{ getDateTimestamp(element.date) | date:'dd MMM yyyy' }}
+          @if (!element.isEditing) {
+            <div class="text-xs md:text-sm text-gray-600 dark:text-slate-400 font-medium">
+              @if(breakpointService.device.isTablePortrait) {
+                {{ getDateTimestamp(element.date) | date:'MMM dd' }}
+              } @else if(breakpointService.device.isDesktop) {
+                {{ getDateTimestamp(element.date) | date:'dd MMM yyyy, hh:mm a' }}
+              } @else {
+                {{ getDateTimestamp(element.date) | date:'dd MMM yyyy' }}
+              }
+            </div>
+            @if (!breakpointService.device.isDesktop) {
+              <div class="text-xs text-gray-400 hidden md:block">
+                {{ getDateTimestamp(element.date) | date:'hh:mm a' }}
+              </div>
             }
+          }
+          @if (element.isEditing) {
+            <input type="date" [(ngModel)]="element.editDate"
+              (keydown.enter)="onSaveRowEdit(element)"
+              (keydown.escape)="onCancelRowEdit(element)"
+              class="w-full px-2 py-1.5 border border-primary-400 dark:border-primary-600 dark:bg-slate-800 dark:text-slate-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary-500" />
+          }
+        </td>
+      </ng-container>
+      <!-- Transaction / Description Column -->
+      <ng-container matColumnDef="Transaction">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header
+          class="bg-gray-50 dark:bg-slate-950 px-3 md:px-4 py-4 sticky top-0 z-10">
+          <div class="flex items-center space-x-1 md:space-x-2">
+            <mat-icon class="text-gray-500 text-xs md:text-sm">receipt</mat-icon>
+            <span class="font-semibold text-gray-700 dark:text-slate-200 text-xs md:text-sm">Transaction</span>
           </div>
-          @if (!breakpointService.device.isDesktop) {
-            <div class="text-xs text-gray-400 hidden md:block">
-              {{ getDateTimestamp(element.date) | date:'hh:mm a' }}
+        </th>
+        <td mat-cell *matCellDef="let element" class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800">
+          @if (!element.isEditing) {
+            <div class="flex flex-col min-w-0 max-w-[280px]">
+              <span class="font-semibold text-xs md:text-sm text-gray-900 dark:text-slate-100 truncate" [title]="element.payee || getCategoryName(element.categoryId)">
+                {{ element.payee || getCategoryName(element.categoryId) || 'Transaction' }}
+              </span>
+              @if (element.notes) {
+                <span class="text-[11px] text-gray-500 dark:text-slate-400 truncate mt-0.5" [title]="element.notes">
+                  {{ element.notes }}
+                </span>
+              }
+            </div>
+          }
+          @if (element.isEditing) {
+            <div class="flex flex-col gap-1.5 min-w-[180px]">
+              <input [(ngModel)]="element.payee" type="text"
+                (keydown.enter)="onSaveRowEdit(element)"
+                (keydown.escape)="onCancelRowEdit(element)"
+                class="w-full px-2 py-1 border border-primary-400 dark:border-primary-600 dark:bg-slate-800 dark:text-slate-100 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-primary-500"
+                placeholder="Transaction name" />
+              <input [(ngModel)]="element.notes" type="text"
+                (keydown.enter)="onSaveRowEdit(element)"
+                (keydown.escape)="onCancelRowEdit(element)"
+                class="w-full px-2 py-1 border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-md text-[11px] focus:outline-none focus:ring-1 focus:ring-primary-500"
+                placeholder="Notes / description" />
             </div>
           }
         </td>
       </ng-container>
-      <!-- Type Column -->
-      <ng-container matColumnDef="Type">
+
+      <!-- Category Column -->
+      <ng-container matColumnDef="Category">
         <th mat-header-cell *matHeaderCellDef mat-sort-header
           class="px-3 md:px-4 py-4 hidden sm:table-cell sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
-          <div class="flex items-center space-x-1 ">
+          <div class="flex items-center space-x-1">
             <mat-icon class="text-gray-500 text-xs md:text-sm">category</mat-icon>
             <span class="font-semibold text-gray-700 dark:text-slate-200 text-xs md:text-sm">Category</span>
           </div>
@@ -105,7 +152,7 @@
           class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800 hidden sm:table-cell">
           @if (!element.isEditing) {
             <div
-              class="inline-flex items-center gap-1.5 md:gap-2 px-1.5 md:px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-slate-800">
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50">
               <mat-icon class="text-xs md:text-sm" [style.color]="getCategoryColor(element.categoryId)">{{
               getCategoryIcon(element.categoryId) }}</mat-icon>
               <span class="text-xs font-medium text-gray-800 dark:text-slate-200">
@@ -113,14 +160,16 @@
               </span>
               @if (element.isRecurring) {
                 <mat-icon
-                  class="text-[10px] md:text-xs text-primary-500 ml-1"
+                  class="text-[10px] md:text-xs text-primary-500 ml-0.5"
                 matTooltip="Recurring Transaction">repeat</mat-icon>
               }
             </div>
           }
           @if (element.isEditing) {
             <select [(ngModel)]="element.categoryId"
-              class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              (keydown.enter)="onSaveRowEdit(element)"
+              (keydown.escape)="onCancelRowEdit(element)"
+              class="w-full px-2 py-1.5 border border-primary-400 dark:border-primary-600 dark:bg-slate-800 dark:text-slate-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary-500">
               @for (cat of categoryList; track cat.id) {
                 <option [value]="cat.id">{{cat.name}}</option>
               }
@@ -128,59 +177,7 @@
           }
         </td>
       </ng-container>
-      <!-- Amount Column -->
-      <ng-container matColumnDef="Amount">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header
-          class="bg-gray-50 dark:bg-slate-950 px-3 md:px-4 py-4 sticky top-0 z-10">
-          <div class="flex items-center space-x-1 md:space-x-2">
-            <mat-icon class="text-gray-500 text-xs md:text-sm">account_balance_wallet</mat-icon>
-            <span class="font-semibold text-gray-700 dark:text-slate-200 text-xs md:text-sm">Amount</span>
-          </div>
-        </th>
-        <td mat-cell *matCellDef="let element" class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800">
-          @if (!element.isEditing) {
-            <span class="font-bold text-xs md:text-sm"
-              [class]="element.type === 'income' ? 'text-green-700' : 'text-red-800'">
-              {{ (element.type == 'income' ? '+' : '-') + (element?.amount | currency) }}
-            </span>
-          }
-          @if (element.isEditing) {
-            <input [(ngModel)]="element.amount" type="number"
-              class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter amount" />
-          }
-        </td>
-      </ng-container>
-      <!-- Status Column -->
-      <ng-container matColumnDef="Status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header
-          class="bg-gray-50 dark:bg-slate-950 px-3 md:px-4 py-4 hidden md:table-cell sticky top-0 z-10">
-          <div class="flex items-center space-x-1 md:space-x-2">
-            <mat-icon class="text-gray-500 text-xs md:text-sm">swap_horiz</mat-icon>
-            <span class="font-semibold text-gray-700 dark:text-slate-200 text-xs md:text-sm">Type</span>
-          </div>
-        </th>
-        <td mat-cell *matCellDef="let element"
-          class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800 hidden md:table-cell">
-          @if (!element.isEditing) {
-            <span>
-              <span class="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs font-medium"
-                [class]="element.type === 'income' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400'">
-                <mat-icon class="text-xs mr-1">{{element.type === 'income' ? 'trending_up' : 'trending_down'}}</mat-icon>
-                {{element.type}}
-              </span>
-            </span>
-          }
-          @if (element.isEditing) {
-            <select [(ngModel)]="element.type"
-              class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-              <option value="transfer">Transfer</option>
-            </select>
-          }
-        </td>
-      </ng-container>
+
       <!-- Account Column -->
       <ng-container matColumnDef="Account">
         <th mat-header-cell *matHeaderCellDef mat-sort-header
@@ -192,13 +189,16 @@
         </th>
         <td mat-cell *matCellDef="let element" class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800">
           @if (!element.isEditing) {
-            <div class="text-xs md:text-sm text-gray-600 dark:text-slate-400">
+            <div class="inline-flex items-center text-xs text-gray-600 dark:text-slate-300 font-medium">
+              <mat-icon class="text-xs !w-3.5 !h-3.5 mr-1 text-slate-400">account_balance</mat-icon>
               {{ getAccountName(element.accountId) }}
             </div>
           }
           @if (element.isEditing) {
             <select [(ngModel)]="element.accountId"
-              class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              (keydown.enter)="onSaveRowEdit(element)"
+              (keydown.escape)="onCancelRowEdit(element)"
+              class="w-full px-2 py-1.5 border border-primary-400 dark:border-primary-600 dark:bg-slate-800 dark:text-slate-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary-500">
               @for (acc of accounts; track acc.accountId) {
                 <option [value]="acc.accountId">{{acc.name}}</option>
               }
@@ -206,28 +206,64 @@
           }
         </td>
       </ng-container>
-      <!-- Note Column -->
-      <ng-container matColumnDef="Note">
+
+      <!-- Type Column -->
+      <ng-container matColumnDef="Type">
         <th mat-header-cell *matHeaderCellDef mat-sort-header
-          class="bg-gray-50 dark:bg-slate-950 px-3 md:px-4 py-4 sticky top-0 z-10 hidden sm:table-cell">
+          class="bg-gray-50 dark:bg-slate-950 px-3 md:px-4 py-4 hidden md:table-cell sticky top-0 z-10">
           <div class="flex items-center space-x-1 md:space-x-2">
-            <mat-icon class="text-gray-500 text-xs md:text-sm">description</mat-icon>
-            <span class="font-semibold text-gray-700 dark:text-slate-200 text-xs md:text-sm">Note</span>
+            <mat-icon class="text-gray-500 text-xs md:text-sm">swap_horiz</mat-icon>
+            <span class="font-semibold text-gray-700 dark:text-slate-200 text-xs md:text-sm">Type</span>
           </div>
         </th>
-        <td mat-cell *matCellDef="let element" class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800 hidden sm:table-cell max-w-[150px]">
+        <td mat-cell *matCellDef="let element"
+          class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800 hidden md:table-cell">
           @if (!element.isEditing) {
-            <div class="text-xs md:text-sm text-gray-600 dark:text-slate-400 truncate" [title]="element.notes || ''">
-              {{ element.notes || '-' }}
-            </div>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize"
+              [class]="element.type === 'income' ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40' : (element.type === 'expense' ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60' : 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40')">
+              <mat-icon class="text-xs mr-1 !w-3 !h-3 leading-none">{{element.type === 'income' ? 'trending_up' : (element.type === 'expense' ? 'trending_down' : 'sync_alt')}}</mat-icon>
+              {{element.type}}
+            </span>
           }
           @if (element.isEditing) {
-            <input [(ngModel)]="element.notes" type="text"
-              class="w-full px-2 md:px-3 py-1 md:py-2 border border-blue-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Add note" />
+            <select [(ngModel)]="element.type"
+              (keydown.enter)="onSaveRowEdit(element)"
+              (keydown.escape)="onCancelRowEdit(element)"
+              class="w-full px-2 py-1.5 border border-primary-400 dark:border-primary-600 dark:bg-slate-800 dark:text-slate-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+              <option value="transfer">Transfer</option>
+            </select>
           }
         </td>
       </ng-container>
+
+      <!-- Amount Column -->
+      <ng-container matColumnDef="Amount">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header
+          class="bg-gray-50 dark:bg-slate-950 px-3 md:px-4 py-4 sticky top-0 z-10 text-right">
+          <div class="flex items-center justify-end space-x-1 md:space-x-2">
+            <span class="font-semibold text-gray-700 dark:text-slate-200 text-xs md:text-sm">Amount</span>
+            <mat-icon class="text-gray-500 text-xs md:text-sm">account_balance_wallet</mat-icon>
+          </div>
+        </th>
+        <td mat-cell *matCellDef="let element" class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800 text-right">
+          @if (!element.isEditing) {
+            <span class="font-bold text-xs md:text-sm font-mono tracking-tight"
+              [class]="element.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'">
+              {{ (element.type == 'income' ? '+' : (element.type == 'expense' ? '-' : '')) + (element?.amount | currency) }}
+            </span>
+          }
+          @if (element.isEditing) {
+            <input [(ngModel)]="element.amount" type="number" step="0.01" min="0"
+              (keydown.enter)="onSaveRowEdit(element)"
+              (keydown.escape)="onCancelRowEdit(element)"
+              class="w-full px-2 py-1.5 border border-primary-400 dark:border-primary-600 dark:bg-slate-800 dark:text-slate-100 rounded-lg text-xs font-mono font-bold text-right focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="0.00" />
+          }
+        </td>
+      </ng-container>
+
       <!-- Actions Column -->
       <ng-container matColumnDef="Actions">
         <th mat-header-cell *matHeaderCellDef
@@ -238,42 +274,70 @@
           </div>
         </th>
         <td mat-cell *matCellDef="let element"
-          class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800 text-center">
+          class="px-3 md:px-4 py-4 border-b border-gray-100 dark:border-slate-800 text-center"
+          (click)="$event.stopPropagation()">
           <!-- Normal state -->
           @if (!element.isEditing) {
-            <div class="flex justify-center items-center space-x-1 md:space-x-2">
+            <div class="flex justify-center items-center space-x-1">
+              <!-- Quick View Details -->
+              <button mat-icon-button class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-full transition-colors !w-8 !h-8"
+                (click)="openDetailDrawer(element)" matTooltip="View details">
+                <mat-icon class="text-sm">visibility</mat-icon>
+              </button>
+
               @if (canEdit(element)) {
-                <button mat-icon-button class="text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                  (click)="$event.stopPropagation(); onStartRowEdit(element)" matTooltip="Edit transaction">
-                  <mat-icon class="text-sm md:text-base">edit</mat-icon>
+                <!-- Quick Inline Edit -->
+                <button mat-icon-button class="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-full transition-colors !w-8 !h-8"
+                  (click)="onStartRowEdit(element)" matTooltip="Quick edit (or double click row)">
+                  <mat-icon class="text-sm">edit</mat-icon>
                 </button>
               }
-              @if (canDelete(element)) {
-                <button mat-icon-button class="text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                  (click)="$event.stopPropagation(); onDeleteTransaction(element)" matTooltip="Delete transaction">
-                  <mat-icon class="text-sm md:text-base">delete</mat-icon>
+
+              <!-- More Options Menu -->
+              <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full !w-8 !h-8"
+                matTooltip="More options">
+                <mat-icon class="text-sm">more_vert</mat-icon>
+              </button>
+              <mat-menu #rowMenu="matMenu">
+                <button mat-menu-item (click)="openDetailDrawer(element)">
+                  <mat-icon class="text-sm">info</mat-icon>
+                  <span>View Details</span>
                 </button>
-              }
-              @if (!canEdit(element) && !canDelete(element)) {
-                <span class="text-[11px] text-gray-400 dark:text-gray-500 italic px-2">View only</span>
-              }
-              @if (!canEdit(element) && canDelete(element) && element.settlementId) {
-                <span class="text-[10px] text-gray-400 dark:text-gray-500 italic px-1">Uneditable settlement</span>
-              }
+                @if (canEdit(element)) {
+                  <button mat-menu-item (click)="onEditTransaction(element)">
+                    <mat-icon class="text-sm">open_in_new</mat-icon>
+                    <span>Full Form Edit</span>
+                  </button>
+                  <button mat-menu-item (click)="onStartRowEdit(element)">
+                    <mat-icon class="text-sm">edit_note</mat-icon>
+                    <span>Quick Edit Inline</span>
+                  </button>
+                }
+                <button mat-menu-item (click)="duplicateTransaction(element)">
+                  <mat-icon class="text-sm">content_copy</mat-icon>
+                  <span>Duplicate</span>
+                </button>
+                @if (canDelete(element)) {
+                  <button mat-menu-item (click)="onDeleteTransaction(element)" class="!text-red-600">
+                    <mat-icon class="text-sm !text-red-600">delete</mat-icon>
+                    <span class="text-red-600">Delete</span>
+                  </button>
+                }
+              </mat-menu>
             </div>
           }
           <!-- Editing state -->
           @if (element.isEditing) {
-            <div class="flex justify-center space-x-1 md:space-x-2">
-              <button mat-icon-button color="primary"
-                class="bg-green-100 text-green-600 hover:bg-green-200 rounded-full transition-colors"
-                (click)="$event.stopPropagation(); onSaveRowEdit(element)" matTooltip="Save changes">
-                <mat-icon class="text-sm md:text-base">check</mat-icon>
+            <div class="flex justify-center space-x-1">
+              <button mat-icon-button
+                class="!bg-emerald-100 !text-emerald-700 hover:!bg-emerald-200 dark:!bg-emerald-950/60 dark:!text-emerald-300 rounded-full transition-colors !w-8 !h-8"
+                (click)="onSaveRowEdit(element)" matTooltip="Save changes (Enter)">
+                <mat-icon class="text-sm">check</mat-icon>
               </button>
-              <button mat-icon-button color="warn"
-                class="bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition-colors"
-                (click)="$event.stopPropagation(); onCancelRowEdit(element)" matTooltip="Cancel editing">
-                <mat-icon class="text-sm md:text-base">close</mat-icon>
+              <button mat-icon-button
+                class="!bg-rose-100 !text-rose-700 hover:!bg-rose-200 dark:!bg-rose-950/60 dark:!text-rose-300 rounded-full transition-colors !w-8 !h-8"
+                (click)="onCancelRowEdit(element)" matTooltip="Cancel editing (Esc)">
+                <mat-icon class="text-sm">close</mat-icon>
               </button>
             </div>
           }
@@ -281,15 +345,25 @@
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-12 md:h-16 sticky top-0 z-10"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-        class="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+        class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
+        [class.is-editing-row]="row.isEditing"
         [class.upcoming-transaction]="isUpcoming(row)"
         [class.opacity-50]="row.syncStatus === 'pending'"
         [class.grayscale]="row.syncStatus === 'pending'"
         [class.selected-row]="isSelected(row)"
-        (click)="onRowClick(row)">
+        (click)="onRowClick(row)"
+        (dblclick)="onRowDoubleClick(row)">
       </tr>
     </table>
   </div>
+
+  <!-- Desktop Pagination -->
+  <mat-paginator
+    [pageSize]="25"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    showFirstLastButtons
+    class="border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+  </mat-paginator>
 }
 
 <!-- Desktop/Tablet List View -->
@@ -628,20 +702,225 @@
   </div>
 </div>
 
+<!-- Loading Skeleton State -->
+@if (loading()) {
+  <div class="p-6 space-y-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+    <div class="h-9 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse"></div>
+    <div class="h-12 bg-slate-50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+    <div class="h-12 bg-slate-50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+    <div class="h-12 bg-slate-50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+    <div class="h-12 bg-slate-50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+  </div>
+}
+
+<!-- Error State -->
+@if (error() && !loading()) {
+  <div class="p-8 text-center bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+    <div class="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center mb-3">
+      <mat-icon>error_outline</mat-icon>
+    </div>
+    <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Unable to load transactions</h3>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">{{ error() }}</p>
+  </div>
+}
+
 <!-- Empty State -->
-@if (!dataSource.data.length) {
-  <div class="text-center py-8 md:py-12 px-4">
-    <mat-icon class="text-gray-400 dark:text-slate-600 text-4xl md:text-6xl mb-4">receipt_long</mat-icon>
-    <h3 class="text-base md:text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">No transactions for {{
-    getCurrentYear() }}</h3>
-    <p class="text-gray-500 dark:text-slate-400 mb-4 text-sm md:text-base">No transactions found for the current year.
-      Start by adding your
-    first transaction to track your finances.</p>
-    <button mat-flat-button color="primary" class="flex items-center space-x-2 mx-auto text-sm md:text-base"
-      (click)="onAddTransaction()">
-      <mat-icon class="text-primary-50">add</mat-icon>
-      <span class="text-primary-50">Add Transaction</span>
-    </button>
+@if (!loading() && !error() && !dataSource.data.length) {
+  <div class="text-center py-12 px-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+    <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 mx-auto flex items-center justify-center mb-3.5 border border-slate-200/60 dark:border-slate-700/60">
+      <mat-icon class="text-2xl !w-7 !h-7 leading-none">{{ hasActiveFilters() ? 'filter_alt_off' : 'receipt_long' }}</mat-icon>
+    </div>
+    @if (hasActiveFilters()) {
+      <h3 class="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1">No matching transactions</h3>
+      <p class="text-gray-500 dark:text-slate-400 mb-4 text-xs max-w-sm mx-auto">
+        No transactions match your current search and filter criteria. Try adjusting or clearing filters.
+      </p>
+      <button mat-stroked-button class="!text-xs !h-8 !px-3 mx-auto" (click)="clearAllFilters()">
+        <mat-icon class="text-xs mr-1">filter_alt_off</mat-icon>
+        Clear All Filters
+      </button>
+    } @else {
+      <h3 class="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1">No transactions recorded yet</h3>
+      <p class="text-gray-500 dark:text-slate-400 mb-4 text-xs max-w-sm mx-auto">
+        Start tracking your finances by creating your first transaction.
+      </p>
+      <button mat-flat-button color="primary" class="!text-xs !h-8 !px-4 mx-auto !bg-emerald-600 !text-white"
+        (click)="onAddTransaction()">
+        <mat-icon class="text-xs mr-1">add</mat-icon>
+        Add Transaction
+      </button>
+    }
+  </div>
+}
+
+
+<!-- Desktop Transaction Detail Slide-Over Drawer -->
+@if (selectedDetailTransaction(); as selectedTx) {
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 transition-opacity"
+       (click)="closeDetailDrawer()">
+  </div>
+
+  <!-- Drawer Container -->
+  <div class="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col border-l border-slate-200 dark:border-slate-800 animate-slide-in-right overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40">
+      <div class="flex items-center space-x-2">
+        <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
+              [class]="selectedTx.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : (selectedTx.type === 'expense' ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800' : 'bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800')">
+          {{ selectedTx.type }}
+        </span>
+        @if (selectedTx.isRecurring) {
+          <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300">
+            <mat-icon class="text-xs !w-3.5 !h-3.5 mr-1 leading-none">repeat</mat-icon>
+            Recurring
+          </span>
+        }
+      </div>
+
+      <button mat-icon-button (click)="closeDetailDrawer()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 !w-8 !h-8" aria-label="Close details">
+        <mat-icon class="text-base">close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-5">
+      <!-- Big Amount & Category Card -->
+      <div class="text-center py-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800">
+        <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-3 shadow-sm"
+             [style.background-color]="getCategoryColor(selectedTx.categoryId) + '22'">
+          <mat-icon class="text-2xl !w-8 !h-8 leading-none" [style.color]="getCategoryColor(selectedTx.categoryId)">
+            {{ getCategoryIcon(selectedTx.categoryId) }}
+          </mat-icon>
+        </div>
+        <div class="text-3xl font-extrabold font-mono tracking-tight"
+             [class]="selectedTx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+          {{ (selectedTx.type === 'income' ? '+' : '-') + (selectedTx.amount | currency) }}
+        </div>
+        <div class="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1">
+          {{ getCategoryName(selectedTx.categoryId) }}
+        </div>
+      </div>
+
+      <!-- Quick Action Toolbar -->
+      <div class="grid grid-cols-3 gap-2">
+        @if (canEdit(selectedTx)) {
+          <button mat-stroked-button
+                  class="!text-xs !h-9 !rounded-xl !border-blue-200 dark:!border-blue-800/60 !text-blue-600 dark:!text-blue-400 hover:!bg-blue-50 dark:hover:!bg-blue-950/30"
+                  (click)="onEditTransaction(selectedTx); closeDetailDrawer()">
+            <mat-icon class="text-sm !w-4 !h-4 mr-1">edit</mat-icon>
+            Edit
+          </button>
+        }
+        <button mat-stroked-button
+                class="!text-xs !h-9 !rounded-xl !border-slate-200 dark:!border-slate-700 !text-slate-700 dark:!text-slate-300 hover:!bg-slate-100 dark:hover:!bg-slate-800"
+                (click)="duplicateTransaction(selectedTx)">
+          <mat-icon class="text-sm !w-4 !h-4 mr-1">content_copy</mat-icon>
+          Duplicate
+        </button>
+        @if (canDelete(selectedTx)) {
+          <button mat-stroked-button
+                  class="!text-xs !h-9 !rounded-xl !border-rose-200 dark:!border-rose-800/50 !text-rose-600 dark:!text-rose-400 hover:!bg-rose-50 dark:hover:!bg-rose-950/30"
+                  (click)="onDeleteTransaction(selectedTx); closeDetailDrawer()">
+            <mat-icon class="text-sm !w-4 !h-4 mr-1">delete</mat-icon>
+            Delete
+          </button>
+        }
+      </div>
+
+      <!-- Details List -->
+      <div class="space-y-3 divide-y divide-slate-100 dark:divide-slate-800 text-xs md:text-sm">
+        <!-- Date & Time -->
+        <div class="pt-3 flex justify-between items-start">
+          <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center">
+            <mat-icon class="text-sm !w-4 !h-4 mr-1.5 text-slate-400">calendar_today</mat-icon>
+            Date & Time
+          </span>
+          <span class="font-medium text-slate-800 dark:text-slate-200 text-right">
+            {{ getDateTimestamp(selectedTx.date) | date:'EEEE, dd MMM yyyy' }}<br>
+            <span class="text-xs text-slate-500 dark:text-slate-400">{{ getDateTimestamp(selectedTx.date) | date:'hh:mm:ss a' }}</span>
+          </span>
+        </div>
+
+        <!-- Account -->
+        <div class="pt-3 flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center">
+            <mat-icon class="text-sm !w-4 !h-4 mr-1.5 text-slate-400">account_balance</mat-icon>
+            Account
+          </span>
+          <span class="font-semibold text-slate-800 dark:text-slate-200">
+            {{ getAccountName(selectedTx.accountId) }}
+          </span>
+        </div>
+
+        <!-- Notes -->
+        <div class="pt-3 flex flex-col space-y-1.5">
+          <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center">
+            <mat-icon class="text-sm !w-4 !h-4 mr-1.5 text-slate-400">description</mat-icon>
+            Notes
+          </span>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-slate-700 dark:text-slate-300 text-xs leading-relaxed border border-slate-100 dark:border-slate-800">
+            {{ selectedTx.notes || 'No notes provided for this transaction.' }}
+          </div>
+        </div>
+
+        <!-- Family Split Details -->
+        @if (selectedTx.splitData) {
+          <div class="pt-3 flex flex-col space-y-2">
+            <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center">
+              <mat-icon class="text-sm !w-4 !h-4 mr-1.5 text-slate-400">groups</mat-icon>
+              Family Split Breakdown
+            </span>
+            <div class="p-3 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30 text-xs space-y-2">
+              @if (selectedTx.splitData.paidBy) {
+                <div>
+                  <span class="font-semibold text-slate-700 dark:text-slate-300">Paid by:</span>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    @for (payer of selectedTx.splitData.paidBy; track payer.userId) {
+                      <span class="bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                        {{ payer.displayName || getMemberName(payer.userId) }}: <strong class="font-mono">{{ payer.amount | currency }}</strong>
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+              @if (selectedTx.splitData.splitBetween) {
+                <div>
+                  <span class="font-semibold text-slate-700 dark:text-slate-300">Split between:</span>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    @for (split of selectedTx.splitData.splitBetween; track split.userId) {
+                      <span class="bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                        {{ split.displayName || getMemberName(split.userId) }}: <strong class="font-mono">{{ split.amount | currency }}</strong>
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Sync Status -->
+        <div class="pt-3 flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center">
+            <mat-icon class="text-sm !w-4 !h-4 mr-1.5 text-slate-400">sync</mat-icon>
+            Sync Status
+          </span>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                [class]="selectedTx.syncStatus === 'synced' ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50' : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200/50'">
+            {{ selectedTx.syncStatus === 'synced' ? 'Synced with Cloud' : 'Pending Sync' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40 flex justify-between items-center">
+      <span class="text-[11px] text-slate-400 font-mono">ID: {{ selectedTx.id?.substring(0, 12) }}...</span>
+      <button mat-button class="!text-xs text-slate-600 dark:text-slate-300" (click)="closeDetailDrawer()">
+        Close
+      </button>
+    </div>
   </div>
 }
 </div>

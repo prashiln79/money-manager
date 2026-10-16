@@ -25,11 +25,14 @@ export const categoriesReducer = createReducer(
   })),
 
   // ── Load Categories ─────────────────────────────────────────────────────────
-  on(CategoriesActions.loadCategories, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
+  on(CategoriesActions.loadCategories, (state, { context, force }) => {
+    const target = ctx(state, context);
+    return {
+      ...state,
+      loading: force ? true : (state[target]?.ids?.length ?? 0) === 0,
+      error: null
+    };
+  }),
 
   on(CategoriesActions.loadCategoriesSuccess, (state, { categories, context }) => {
     const target = ctx(state, context);
@@ -38,7 +41,7 @@ export const categoriesReducer = createReducer(
       return acc;
     }, {} as { [id: string]: Category });
     const ids = [...new Set(categories.map(c => c.id).filter((id): id is string => !!id))];
-    return updateBucket({ ...state, loading: false, error: null }, target, { entities, ids });
+    return updateBucket({ ...state, loading: false, error: null }, target, { entities, ids, lastLoaded: Date.now() });
   }),
 
   on(CategoriesActions.loadCategoriesFailure, (state, { error }) => ({

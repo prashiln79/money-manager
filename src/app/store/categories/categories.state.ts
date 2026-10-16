@@ -5,6 +5,7 @@ export type CategoriesContext = 'personal' | 'family';
 export interface CategoriesBucket {
   entities: { [id: string]: Category };
   ids: string[];
+  lastLoaded?: number | null;
 }
 
 export interface CategoriesState {
