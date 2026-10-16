@@ -42,6 +42,9 @@ describe('CategoryComponent', () => {
   const mockCategories: Category[] = [
     {
       id: '1',
+      userId: 'test-user-id',
+      familyId: 'test-family-id',
+      isSystem: false,
       name: 'Food',
       type: TransactionType.EXPENSE,
       icon: 'restaurant',
@@ -57,6 +60,9 @@ describe('CategoryComponent', () => {
     },
     {
       id: '2',
+      userId: 'test-user-id',
+      familyId: 'test-family-id',
+      isSystem: false,
       name: 'Transport',
       type: TransactionType.EXPENSE,
       icon: 'directions_car',

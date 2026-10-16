@@ -47,6 +47,7 @@ describe('TransactionListComponent', () => {
       category: 'Food',
       accountId: 'account1',
       userId: 'test-user-id',
+      familyId: 'family1',
       type: TransactionType.EXPENSE,
       date: new Date('2024-01-15'),
       status: TransactionStatus.COMPLETED,

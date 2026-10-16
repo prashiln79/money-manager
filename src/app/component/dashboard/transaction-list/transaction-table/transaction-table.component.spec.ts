@@ -34,6 +34,7 @@ describe('TransactionTableComponent', () => {
       category: 'Food',
       accountId: 'account1',
       userId: 'test-user-id',
+      familyId: 'family1',
       type: TransactionType.EXPENSE,
       date: new Date('2024-01-15'),
       status: TransactionStatus.COMPLETED,
@@ -48,6 +49,9 @@ describe('TransactionTableComponent', () => {
   const mockCategories: { [key: string]: Category } = {
     '1': {
       id: '1',
+      userId: 'test-user-id',
+      familyId: 'family1',
+      isSystem: false,
       name: 'Food',
       type: TransactionType.EXPENSE,
       icon: 'restaurant',

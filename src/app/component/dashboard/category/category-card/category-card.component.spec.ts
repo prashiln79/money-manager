@@ -19,6 +19,9 @@ describe('CategoryCardComponent', () => {
 
   const mockCategory: Category = {
     id: 'test-category',
+    userId: 'user1',
+    familyId: 'family1',
+    isSystem: false,
     name: 'Test Category',
     type: TransactionType.EXPENSE,
     icon: 'test',

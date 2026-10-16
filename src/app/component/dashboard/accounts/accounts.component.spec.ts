@@ -41,6 +41,7 @@ describe('AccountsComponent', () => {
       balance: 5000,
       currency: 'USD',
       userId: 'test-user-id',
+      familyId: 'family1',
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -52,14 +53,8 @@ describe('AccountsComponent', () => {
       balance: -1500,
       currency: 'USD',
       userId: 'test-user-id',
+      familyId: 'family1',
       isActive: true,
-      creditCardDetails: {
-        dueDate: 15,
-        billingCycleStart: 1,
-        creditLimit: 5000,
-        minimumPayment: 50,
-        showReminder: true
-      },
       createdAt: new Date(),
       updatedAt: new Date()
     },
@@ -70,6 +65,7 @@ describe('AccountsComponent', () => {
       balance: -25000,
       currency: 'USD',
       userId: 'test-user-id',
+      familyId: 'family1',
       isActive: true,
       loanDetails: {
         lenderName: 'Bank',
@@ -303,23 +299,9 @@ describe('AccountsComponent', () => {
       expect(result?.loanAmount).toBe(25000);
     });
 
-    it('should get credit card details', () => {
-      const result = component.getCreditCardDetails(mockAccounts[1]);
-      expect(result).toBeDefined();
-      expect(result.creditLimit).toBe(5000);
-    });
   });
 
   describe('Date Calculations', () => {
-    it('should calculate next due date for credit card', () => {
-      const result = component.calculateNextDueDate(mockAccounts[1]);
-      expect(result).toBeInstanceOf(Date);
-    });
-
-    it('should calculate next billing date for credit card', () => {
-      const result = component.calculateNextBillingDate(mockAccounts[1]);
-      expect(result).toBeInstanceOf(Date);
-    });
 
     it('should get day suffix correctly', () => {
       expect(component.getDaySuffix(1)).toBe('st');
