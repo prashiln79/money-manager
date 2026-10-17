@@ -27,23 +27,124 @@
 	}
 }
 
-.desktop-dialog {
-	.mat-mdc-dialog-container {
-		border-radius: 16px !important;
-		max-height: 90vh !important;
-		overflow: hidden !important;
-		width: 60vw !important;
+@keyframes slideInFromRight {
+	from {
+		transform: translateX(100%);
+		opacity: 0.9;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
 
-		.dark-theme & {
-			background-color: mat.get-theme-color(dark.$dark-theme, neutral, 10) !important;
+/* ═══════════════════════════════════════════════════════════════════ */
+/* DESKTOP POPUPS & SIDE PANELS: RIGHT-SIDE DRAWER EXPERIENCE          */
+/* ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+	/* Push dialog overlay wrapper to the right edge */
+	.cdk-global-overlay-wrapper:has(.desktop-dialog),
+	.cdk-global-overlay-wrapper:has(.banner-upload-dialog-panel),
+	.cdk-global-overlay-wrapper:has(.category-details-dialog-panel),
+	.cdk-global-overlay-wrapper:has(.account-statement-dialog),
+	.cdk-global-overlay-wrapper:has(.import-transactions-dialog),
+	.cdk-global-overlay-wrapper:has(.mat-bottom-sheet-container) {
+		justify-content: flex-end !important;
+		align-items: stretch !important;
+	}
+
+	.cdk-overlay-pane.desktop-dialog,
+	.cdk-overlay-pane.banner-upload-dialog-panel,
+	.cdk-overlay-pane.category-details-dialog-panel,
+	.cdk-overlay-pane.account-statement-dialog,
+	.cdk-overlay-pane.import-transactions-dialog,
+	.cdk-overlay-pane:has(.mat-bottom-sheet-container) {
+		margin-left: auto !important;
+		margin-right: 0 !important;
+		margin-top: 0 !important;
+		margin-bottom: 0 !important;
+		position: absolute !important;
+		right: 0 !important;
+		top: 0 !important;
+		bottom: 0 !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+		animation: slideInFromRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+	}
+
+	.desktop-dialog {
+		.mat-mdc-dialog-container {
+			border-radius: 0 !important;
+			border-top-left-radius: 24px !important;
+			border-bottom-left-radius: 24px !important;
+			border-top-right-radius: 0 !important;
+			border-bottom-right-radius: 0 !important;
+			height: 100vh !important;
+			max-height: 100vh !important;
+			width: 800px !important;
+			max-width: min(860px, 92vw) !important;
+			min-width: min(580px, 85vw) !important;
+			overflow: hidden !important;
+			box-shadow: -16px 0 48px rgba(0, 0, 0, 0.18) !important;
+
+			.dark-theme & {
+				background-color: mat.get-theme-color(dark.$dark-theme, neutral, 10) !important;
+				box-shadow: -16px 0 48px rgba(0, 0, 0, 0.45) !important;
+			}
+		}
+
+		.mat-mdc-dialog-surface {
+			border-radius: 0 !important;
+			border-top-left-radius: 24px !important;
+			border-bottom-left-radius: 24px !important;
+			border-top-right-radius: 0 !important;
+			border-bottom-right-radius: 0 !important;
+			height: 100% !important;
+			max-height: 100vh !important;
+			padding: 0 !important;
+			overflow: hidden !important;
+			display: flex !important;
+			flex-direction: column !important;
+			
+			.dark-theme & {
+				background-color: mat.get-theme-color(dark.$dark-theme, neutral, 10) !important;
+				color: mat.get-theme-color(dark.$dark-theme, neutral, 95) !important;
+			}
 		}
 	}
-	.mat-mdc-dialog-surface {
-		overflow: hidden !important;
-		
+
+	/* Right-Side Bottom Sheet Drawer on Desktop */
+	.mat-bottom-sheet-container {
+		border-radius: 0 !important;
+		border-top-left-radius: 24px !important;
+		border-bottom-left-radius: 24px !important;
+		border-top-right-radius: 0 !important;
+		border-bottom-right-radius: 0 !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+		min-width: min(520px, 90vw) !important;
+		max-width: min(600px, 92vw) !important;
+		box-shadow: -16px 0 48px rgba(0, 0, 0, 0.2) !important;
+		overflow-y: auto !important;
+
 		.dark-theme & {
-			background-color: mat.get-theme-color(dark.$dark-theme, neutral, 10) !important;
-			color: mat.get-theme-color(dark.$dark-theme, neutral, 95) !important;
+			box-shadow: -16px 0 48px rgba(0, 0, 0, 0.45) !important;
+		}
+	}
+
+	.auto-height-sheet {
+		max-height: 100vh !important;
+		height: 100vh !important;
+	}
+}
+
+/* Fallback for Mobile Screens (< 768px) */
+@media (max-width: 767px) {
+	.desktop-dialog {
+		.mat-mdc-dialog-container {
+			border-radius: 16px !important;
+			max-height: 90vh !important;
+			width: 95vw !important;
 		}
 	}
 }

@@ -70,6 +70,8 @@ import { LocationService } from 'src/app/util/service/location.service';
 
 
 
+import { AddTransactionDesktopComponent } from 'src/app/pages/desktop/transactions/add-transaction/add-transaction-desktop.component';
+
 @Component({
   selector: 'app-mobile-add-transaction',
   templateUrl: './mobile-add-transaction.component.html',
@@ -99,7 +101,8 @@ import { LocationService } from 'src/app/util/service/location.service';
     CommonHeaderComponent,
     CommonBodyContentComponent,
     ImageFallbackDirective,
-    NgxMatSelectSearchModule
+    NgxMatSelectSearchModule,
+    AddTransactionDesktopComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -430,6 +433,10 @@ export class MobileAddTransactionComponent implements OnInit, AfterViewInit, OnD
   }
 
   ngOnInit(): void {
+    if (this.breakpointService.isDesktopLayout()) {
+      this.dialogRef.addPanelClass('desktop-dialog');
+    }
+
     this.userId = this.userService.getCurrentUserId();
 
     // Initialize location enabled state from preferences

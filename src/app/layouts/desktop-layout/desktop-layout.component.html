@@ -168,21 +168,52 @@
     }
 
     <!-- Desktop Top Header Bar -->
-    <header class="desktop-top-header flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-800 relative z-50">
-      <div class="header-left flex items-center gap-3">
-        <!-- Direct Quick Navigation Shortcuts for Desktop -->
-        <a routerLink="/dashboard/transactions" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-          Transactions
-        </a>
-        <a routerLink="/dashboard/accounts" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-          Accounts
-        </a>
-        <a routerLink="/dashboard/category" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-          Categories
-        </a>
-        <a routerLink="/dashboard/reports" routerLinkActive="font-semibold text-primary-600" class="text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-colors px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-          Reports
-        </a>
+    <header class="desktop-top-header flex items-center justify-between px-6 py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-800 relative z-50">
+      <div class="header-left flex items-center gap-1.5 flex-wrap">
+        <!-- Dynamic Quick Navigation / Page Action Shortcuts for Desktop -->
+        @for (item of dynamicNavItems(); track item.id) {
+          @if (item.route) {
+            <a [routerLink]="item.route"
+               routerLinkActive="active-header-link"
+               [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' || item.route === '/dashboard/home' || item.route === '/dashboard/family' }"
+               class="nav-header-item text-sm text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 inline-flex items-center gap-2 no-underline cursor-pointer">
+              @if (item.isImage) {
+                <img [src]="item.icon" class="w-4 h-4 object-cover rounded flex-shrink-0" alt="icon" />
+              } @else if (item.icon) {
+                <mat-icon class="nav-header-icon text-slate-400">{{ item.icon }}</mat-icon>
+              }
+              <span class="leading-none">{{ item.label.includes('NAVIGATION') ? (item.label | translate) : item.label }}</span>
+              @if (item.badge) {
+                <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 font-bold leading-none">{{ item.badge }}</span>
+              }
+            </a>
+          } @else {
+            <button type="button"
+                    (click)="handleItemClick(item)"
+                    class="nav-header-item text-sm font-medium transition-colors px-3 py-1.5 rounded-lg inline-flex items-center gap-2 cursor-pointer border-0"
+                    [ngClass]="item.bgClass ? (item.bgClass + ' text-white shadow-sm hover:opacity-90') : 'text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800 bg-transparent'">
+              @if (item.isImage) {
+                <img [src]="item.icon" class="w-4 h-4 object-cover rounded flex-shrink-0" alt="icon" />
+              } @else if (item.icon) {
+                <mat-icon class="nav-header-icon">{{ item.icon }}</mat-icon>
+              }
+              <span class="leading-none">{{ item.label.includes('NAVIGATION') ? (item.label | translate) : item.label }}</span>
+              @if (item.badge) {
+                <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 font-bold leading-none">{{ item.badge }}</span>
+              }
+            </button>
+          }
+        }
+
+        <!-- Custom FAB action if present in config -->
+        @if (fabAction(); as fab) {
+          <button type="button"
+                  (click)="handleFabClick()"
+                  class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white shadow-sm inline-flex items-center gap-1.5 cursor-pointer ml-2 transition-all active:scale-95 border-0">
+            <mat-icon class="fab-icon">{{ fab.icon || 'add' }}</mat-icon>
+            <span class="leading-none">{{ fab.label.includes('NAVIGATION') ? (fab.label | translate) : fab.label }}</span>
+          </button>
+        }
       </div>
 
       <div class="header-right flex items-center gap-4">

@@ -21,6 +21,10 @@
   &.has-banner {
     background-size: cover;
     background-position: center;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     // Ensure content stays on top of banner & overlay
     > div:not(.absolute) {
@@ -68,6 +72,20 @@
 
 :host {
   font-family: 'Inter', system-ui, sans-serif;
+
+  mat-icon {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  button, a {
+    mat-icon {
+      vertical-align: middle;
+    }
+  }
 }
 
 .family-dashboard {
@@ -105,5 +123,9 @@
   // Invite Code
   .font-black.tracking-\[0\.2em\] {
     font-family: 'JetBrains Mono', monospace !important;
+  }
+
+  .shadow-xs {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   }
 }

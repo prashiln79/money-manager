@@ -1,0 +1,991 @@
+<div class="reports-desktop-container bg-surface-100 min-h-screen px-4 sm:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto">
+  <div class="w-full">
+
+    <!-- ═══════════ PAGE HEADING & EXECUTIVE TOOLBAR ═══════════ -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-neutral-800 dark:text-white flex items-center gap-2 mb-1">
+          <mat-icon class="text-primary-500 !text-xl !w-5 !h-5 flex-shrink-0">donut_large</mat-icon>
+          <span>Financial Reports</span>
+        </h1>
+        <p class="text-neutral-400 dark:text-neutral-500 text-xs sm:text-sm font-medium">
+          Comprehensive spending patterns, category distributions, and predictive expense forecasting
+        </p>
+      </div>
+
+      <!-- Controls Command Bar: Period Toggle, Date Navigator, Year Dropdown -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <!-- Period Toggles (Weekly, Monthly, Yearly, All) -->
+        <mat-button-toggle-group [value]="c.selectedPeriod()" (change)="c.selectPeriod($event.value)"
+                                 appearance="standard" class="period-toggle shadow-xs">
+          @for (p of c.periodOptions; track p) {
+            <mat-button-toggle [value]="p">
+              {{ p | titlecase }}
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+
+        <!-- Date Navigator Pill -->
+        <div class="flex items-center bg-white dark:bg-slate-900 rounded-xl px-1.5 h-[38px] border border-neutral-200 dark:border-neutral-800 shadow-xs">
+          @if (c.selectedPeriod() === 'monthly' || c.selectedPeriod() === 'weekly' || c.selectedPeriod() === 'yearly') {
+            <button type="button"
+                    (click)="c.selectedPeriod() === 'weekly' ? c.previousWeek() : c.previousMonth()"
+                    [disabled]="!c.canGoPrevious()"
+                    class="w-7 h-7 inline-flex items-center justify-center rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-300 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed border-0">
+              <mat-icon class="!text-sm !w-4 !h-4 flex-shrink-0">chevron_left</mat-icon>
+            </button>
+          }
+          <span class="text-xs font-bold text-primary-600 dark:text-primary-400 px-3 truncate text-center min-w-[120px] leading-none">
+            {{ c.getPeriodLabel('current') }}
+          </span>
+          @if (c.selectedPeriod() === 'monthly' || c.selectedPeriod() === 'weekly' || c.selectedPeriod() === 'yearly') {
+            <button type="button"
+                    (click)="c.selectedPeriod() === 'weekly' ? c.nextWeek() : c.nextMonth()"
+                    [disabled]="!c.canGoNext()"
+                    class="w-7 h-7 inline-flex items-center justify-center rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-300 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed border-0">
+              <mat-icon class="!text-sm !w-4 !h-4 flex-shrink-0">chevron_right</mat-icon>
+            </button>
+          }
+        </div>
+
+        <!-- Year Select -->
+        @if (c.selectedPeriod() !== 'all') {
+          <div class="bg-white dark:bg-slate-900 rounded-xl px-3 h-[38px] border border-neutral-200 dark:border-neutral-800 shadow-xs flex items-center justify-center">
+            <mat-form-field appearance="fill" class="year-select-field !w-auto !text-primary-500 !bg-transparent !border-none mb-0">
+              <mat-select [value]="c.selectedYear()" (selectionChange)="c.selectYear($event.value)">
+                @for (y of c.availableYears; track y) {
+                  <mat-option [value]="y">{{ y }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ═══════════ TABS ═══════════ -->
+    <mat-tab-group animationDuration="300ms" [selectedIndex]="c.activeTab === 'summary' ? 0 : 1"
+      (selectedIndexChange)="c.selectTab($event === 0 ? 'summary' : 'forecast')" class="reports-tabs">
+
+      <!-- ############################################################################## -->
+      <!--                        TAB 1: PAST & CURRENT SUMMARY                         -->
+      <!-- ############################################################################## -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="mr-2">bar_chart</mat-icon>
+          <span>Summary</span>
+        </ng-template>
+        <ng-template matTabContent>
+          <div class="pt-6">
+            <!-- ═══════════ LOADING ═══════════ -->
+            @if (c.isLoading) {
+            <div class="flex flex-col items-center justify-center gap-4 py-12">
+              <mat-spinner diameter="40"></mat-spinner>
+              <span class="text-neutral-400">Analysing your transactions…</span>
+            </div>
+            }
+
+            <!-- ═══════════ NO DATA ═══════════ -->
+            @if (!c.isLoading && c.transactions().length === 0) {
+            <mat-card class="!rounded-2xl">
+              <mat-card-content class="text-center py-12">
+                <mat-icon class="text-neutral-300 !text-6xl mb-4">assessment</mat-icon>
+                <p class="text-xl font-semibold text-neutral-600 mb-2">No Transaction Data</p>
+                <p class="text-neutral-400 text-sm max-w-md mx-auto">
+                  Add some income and expense transactions to see your financial reports and predictions.
+                </p>
+              </mat-card-content>
+            </mat-card>
+            }
+
+            @if (!c.isLoading && c.transactions().length > 0) {
+            <div class="space-y-6">
+              <!-- ═══════════ MODERN EXECUTIVE KPI CARDS ═══════════ -->
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Card 1: Total Spending -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{{ c.spendingLabel }}</span>
+                    <div class="w-8 h-8 rounded-xl bg-primary-50 dark:bg-primary-950/50 text-primary-600 flex items-center justify-center shrink-0">
+                      <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">payments</mat-icon>
+                    </div>
+                  </div>
+                  <div class="my-2">
+                    <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
+                      {{ (c.currentPeriodSummary?.avgMonthlySpending ?? 0) | currency:{ compact: false, round: true } }}
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <span class="text-slate-400 font-medium">Income:</span>
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
+                      {{ (c.currentPeriodSummary?.avgMonthlyIncome ?? 0) | currency:{ compact: true } }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Card 2: Top Category -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Top Category</span>
+                    <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center shrink-0">
+                      <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">{{ c.highestSpendingCategory?.categoryIcon || 'category' }}</mat-icon>
+                    </div>
+                  </div>
+                  <div class="my-2">
+                    @if (c.highestSpendingCategory) {
+                      <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
+                        {{ c.currentPeriodSummary?.topCategory?.amount | currency:{ compact: true } }}
+                      </span>
+                    } @else {
+                      <span class="text-xl font-bold text-slate-300">—</span>
+                    }
+                  </div>
+                  <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <span class="text-slate-400 font-medium truncate max-w-[120px]">{{ c.highestSpendingCategory?.categoryName || 'None' }}</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300 font-mono tabular-nums">
+                      {{ c.highestSpendingCategory ? ((c.highestSpendingCategory.percentage | number:'1.0-0') + '% of exp') : '' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Card 3: Savings Rate -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Savings Rate</span>
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center shrink-0">
+                      <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">savings</mat-icon>
+                    </div>
+                  </div>
+                  <div class="my-2 flex items-baseline gap-2">
+                    <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight tabular-nums"
+                          [class.text-emerald-600]="(c.currentPeriodSummary?.savingsRate ?? 0) >= 0"
+                          [class.text-rose-600]="(c.currentPeriodSummary?.savingsRate ?? 0) < 0">
+                      {{ (c.currentPeriodSummary?.savingsRate ?? 0) | number:'1.0-0' }}%
+                    </span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                          [ngClass]="(c.currentPeriodSummary?.savingsRate ?? 0) >= 0 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'">
+                      {{ (c.currentPeriodSummary?.savingsRate ?? 0) >= 0 ? 'Healthy' : 'Deficit' }}
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <span class="text-slate-400 font-medium">Saved:</span>
+                    <span class="font-bold font-mono text-slate-700 dark:text-slate-300">
+                      {{ (c.currentPeriodSummary?.savings ?? 0) | currency:{ compact: true } }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Card 4: Expense Trend -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Expense Trend</span>
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center shrink-0">
+                      <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">trending_up</mat-icon>
+                    </div>
+                  </div>
+                  <div class="my-2">
+                    <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight tabular-nums"
+                          [class.text-rose-600]="c.currentPeriodSummary?.expenseGrowth !== null && (c.currentPeriodSummary?.expenseGrowth ?? 0) > 0"
+                          [class.text-emerald-600]="c.currentPeriodSummary?.expenseGrowth !== null && (c.currentPeriodSummary?.expenseGrowth ?? 0) <= 0"
+                          [class.text-slate-400]="c.currentPeriodSummary?.expenseGrowth === null">
+                      @if (c.currentPeriodSummary?.expenseGrowth !== null) {
+                        <span>{{ (c.currentPeriodSummary?.expenseGrowth ?? 0) > 0 ? '+' : '' }}{{ c.currentPeriodSummary?.expenseGrowth | number:'1.1-1' }}%</span>
+                      } @else {
+                        <span>—</span>
+                      }
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <span class="text-slate-400 font-medium">Vs Previous:</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">
+                      {{ c.currentPeriodSummary?.expenseGrowth !== null ? ((c.currentPeriodSummary?.expenseGrowth ?? 0) <= 0 ? 'Decreased' : 'Increased') : 'Stable' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ═══════ SUMMARY & CATEGORY GRID ═══════ -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                
+                <!-- ═══════════ COLUMN 1: FINANCIAL OVERVIEW ═══════════ -->
+                <div class="space-y-6">
+                  <!-- ═══════════ PERIOD SUMMARY ═══════════ -->
+                  <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                    <mat-card-content class="!p-5">
+                      <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2.5">
+                          <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center">
+                            <mat-icon class="!text-lg !w-5 !h-5">account_balance_wallet</mat-icon>
+                          </div>
+                          <div>
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 !mb-0">Financial Summary</h3>
+                            <span class="text-[11px] text-slate-400">Net cash flow breakdown</span>
+                          </div>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                          {{ c.getPeriodLabel('current') }}
+                        </span>
+                      </div>
+
+                      <!-- Current Period Summary Table -->
+                      @if (c.currentPeriodSummary) {
+                      <div class="overflow-x-auto">
+                        <table class="w-full history-table accounting-table compact-table">
+                          <thead>
+                            <tr class="mat-mdc-header-row">
+                              <th class="mat-mdc-header-cell">SUMMARY</th>
+                              <th class="mat-mdc-header-cell !text-right">PERCENT</th>
+                              <th class="mat-mdc-header-cell !text-right">TOTAL</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr class="mat-mdc-row">
+                              <td class="mat-mdc-cell font-medium">Total Income</td>
+                              <td class="mat-mdc-cell !text-right text-neutral-400">100%</td>
+                              <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-success-800">
+                                {{ c.currentPeriodSummary.income | currency:{compact:false,round:true} }}
+                              </td>
+                            </tr>
+
+                            <tr class="mat-mdc-row">
+                              <td class="mat-mdc-cell font-medium">Expenses</td>
+                              <td class="mat-mdc-cell !text-right text-neutral-400">
+                                {{ (c.nonCreditCardExpenses() | math:'percentWidth':c.currentPeriodSummary.income) | number:'1.0-0' }}%
+                              </td>
+                              <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-error-600">
+                                {{ c.nonCreditCardExpenses() | currency:{compact:false,round:true} }}
+                              </td>
+                            </tr>
+                            @if (c.totalCreditCardSpending() > 0) {
+                              <tr class="mat-mdc-row">
+                                <td class="mat-mdc-cell font-medium">Credit Card Expenses</td>
+                                <td class="mat-mdc-cell !text-right text-neutral-400">
+                                  {{ (c.totalCreditCardSpending() | math:'percentWidth':c.currentPeriodSummary.income) | number:'1.0-0' }}%
+                                </td>
+                                <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-error-600">
+                                  {{ c.totalCreditCardSpending() | currency:{compact:false,round:true} }}
+                                </td>
+                              </tr>
+                            }
+                            @if (c.selectedPeriod() === 'monthly' && c.totalCreditCardPayments() > 0) {
+                              <tr class="mat-mdc-row">
+                                <td class="mat-mdc-cell font-medium">Previous Month Due</td>
+                                <td class="mat-mdc-cell !text-right text-neutral-400">
+                                  {{ (c.totalCreditCardPayments() | math:'percentWidth':c.currentPeriodSummary.income) | number:'1.0-0' }}%
+                                </td>
+                                <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-error-600">
+                                  {{ c.totalCreditCardPayments() | currency:{compact:false,round:true} }}
+                                </td>
+                              </tr>
+                            }
+
+                            @if (c.totalLoanPayments() > 0) {
+                              <tr class="mat-mdc-row">
+                                <td class="mat-mdc-cell font-medium">Loan Payments</td>
+                                <td class="mat-mdc-cell !text-right text-neutral-400">
+                                  {{ (c.totalLoanPayments() | math:'percentWidth':c.currentPeriodSummary.income) | number:'1.0-0' }}%
+                                </td>
+                                <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-error-600">
+                                  {{ c.totalLoanPayments() | currency:{compact:false,round:true} }}
+                                </td>
+                              </tr>
+                            }
+
+                            @if (c.totalOtherTransfers() > 0) {
+                              <tr class="mat-mdc-row">
+                                <td class="mat-mdc-cell font-medium">Other Transfers</td>
+                                <td class="mat-mdc-cell !text-right text-neutral-400">
+                                  {{ (c.totalOtherTransfers() | math:'percentWidth':c.currentPeriodSummary.income) | number:'1.0-0' }}%
+                                </td>
+                                <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-error-600">
+                                  {{ c.totalOtherTransfers() | currency:{compact:false,round:true} }}
+                                </td>
+                              </tr>
+                            }
+
+                            @if (c.totalInvestments() > 0) {
+                              <tr class="mat-mdc-row">
+                                <td class="mat-mdc-cell font-medium">Investments</td>
+                                <td class="mat-mdc-cell !text-right text-neutral-400">
+                                  {{ (c.totalInvestments() | math:'percentWidth':c.currentPeriodSummary.income) | number:'1.0-0' }}%
+                                </td>
+                                <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-error-600">
+                                  {{ c.totalInvestments() | currency:{compact:false,round:true} }}
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                          <tfoot>
+                            <tr class="mat-mdc-footer-row !bg-neutral-50/50">
+                              <td class="mat-mdc-footer-cell font-bold">
+                                Balance
+                              </td>
+                              <td class="mat-mdc-footer-cell !text-right font-mono tabular-nums">
+                                {{ (c.currentPeriodBalance() | math:'percentWidth':c.currentPeriodSummary.income) | number:'1.0-0' }}%
+                              </td>
+                              <td class="mat-mdc-footer-cell !text-right font-mono tabular-nums font-bold"
+                                [class.!text-success-800]="c.currentPeriodBalance() >= 0"
+                                [class.!text-error-600]="c.currentPeriodBalance() < 0">
+                                {{ c.currentPeriodBalance() | currency:{compact:false,round:true} }}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                      } @else {
+                      <div class="text-center py-8">
+                        <mat-icon class="text-neutral-300 !text-4xl mb-2">event_busy</mat-icon>
+                        <p class="text-neutral-400 text-sm">No data for the selected period</p>
+                      </div>
+                      }
+                    </mat-card-content>
+                  </mat-card>
+
+                  <!-- Income Table -->
+                  <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                    <div (click)="c.toggleIncomeCollapse()" 
+                         class="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-2xl">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center">
+                          <mat-icon class="!text-lg !w-5 !h-5">payments</mat-icon>
+                        </div>
+                        <div>
+                          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 !mb-0">Income Breakdown</h4>
+                          <span class="text-[11px] text-slate-400">Sources of revenue</span>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        @if (c.isIncomeCollapsed()) {
+                          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                            {{ c.currentPeriodSummary?.income | currency:{ compact: true } }}
+                          </span>
+                        }
+                        <mat-icon class="text-neutral-400 transition-all duration-300" 
+                                  [class.rotate-180]="!c.isIncomeCollapsed()">
+                          expand_more
+                        </mat-icon>
+                      </div>
+                    </div>
+
+                    @if (!c.isIncomeCollapsed()) {
+                    <mat-card-content class="pt-0 pb-4">
+                      <div class="overflow-x-auto">
+                        <table class="w-full history-table accounting-table compact-table">
+                          <thead>
+                            <tr class="mat-mdc-header-row">
+                              <th class="mat-mdc-header-cell">INCOME SOURCE</th>
+                              <th class="mat-mdc-header-cell !text-right">ACTUAL</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (item of c.incomeBreakdown(); track item.categoryId) {
+                            <tr class="mat-mdc-row">
+                              <td class="mat-mdc-cell font-medium">{{ item.categoryName }}</td>
+                              <td class="mat-mdc-cell !text-right !text-success-600 font-mono tabular-nums font-semibold">
+                                {{ item.amount | currency:{ compact: true } }}
+                              </td>
+                            </tr>
+                            } @empty {
+                            <tr class="mat-mdc-row">
+                              <td colspan="2" class="mat-mdc-cell text-center py-8 text-neutral-400">No income data for this period</td>
+                            </tr>
+                            }
+                          </tbody>
+                          <tfoot>
+                            <tr class="mat-mdc-footer-row border-t border-neutral-100">
+                              <td class="mat-mdc-footer-cell">Total Income</td>
+                              <td class="mat-mdc-footer-cell !text-right !text-success-600 font-mono tabular-nums font-bold">
+                                {{ c.currentPeriodSummary?.income | currency:{ compact: true } }}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </mat-card-content>
+                    }
+                  </mat-card>
+
+                  <!-- Accounts Table -->
+                  <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                    <div (click)="c.toggleAccountsCollapse()" 
+                         class="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-2xl">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 flex items-center justify-center">
+                          <mat-icon class="!text-lg !w-5 !h-5">account_balance</mat-icon>
+                        </div>
+                        <div>
+                          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 !mb-0">Accounts & Balance</h4>
+                          <span class="text-[11px] text-slate-400">Current liquid net worth</span>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        @if (c.isAccountsCollapsed()) {
+                          <span class="text-xs font-bold font-mono"
+                                [class.text-emerald-600]="c.totalBalance() >= 0"
+                                [class.text-rose-600]="c.totalBalance() < 0">
+                            {{ c.totalBalance() | currency:{ compact: true } }}
+                          </span>
+                        }
+                        <mat-icon class="text-neutral-400 transition-all duration-300" 
+                                  [class.rotate-180]="!c.isAccountsCollapsed()">
+                          expand_more
+                        </mat-icon>
+                      </div>
+                    </div>
+
+                    @if (!c.isAccountsCollapsed()) {
+                    <mat-card-content class="pt-0 pb-4">
+                      <div class="overflow-x-auto">
+                        <table class="w-full history-table accounting-table compact-table">
+                          <thead>
+                            <tr class="mat-mdc-header-row">
+                              <th class="mat-mdc-header-cell">ACCOUNT NAME</th>
+                              <th class="mat-mdc-header-cell !text-right">BALANCE</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (account of c.allAccounts(); track account.accountId) {
+                            <tr class="mat-mdc-row">
+                              <td class="mat-mdc-cell font-medium">{{ account.name }}</td>
+                              <td class="mat-mdc-cell !text-right font-mono tabular-nums font-semibold"
+                                  [class.!text-success-600]="account.balance >= 0"
+                                  [class.!text-error-600]="account.balance < 0">
+                                {{ account.balance | currency:{ compact: true } }}
+                              </td>
+                            </tr>
+                            } @empty {
+                            <tr class="mat-mdc-row">
+                              <td colspan="2" class="mat-mdc-cell text-center py-8 text-neutral-400">No accounts found</td>
+                            </tr>
+                            }
+                          </tbody>
+                          <tfoot>
+                            <tr class="mat-mdc-footer-row border-t border-neutral-100">
+                              <td class="mat-mdc-footer-cell">Net Worth</td>
+                              <td class="mat-mdc-footer-cell !text-right font-mono tabular-nums font-bold"
+                                  [class.!text-success-600]="c.totalBalance() >= 0"
+                                  [class.!text-error-600]="c.totalBalance() < 0">
+                                {{ c.totalBalance() | currency:{ compact: true } }}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </mat-card-content>
+                    }
+                  </mat-card>
+                </div>
+
+                <!-- ═══════════ COLUMN 2: EXPENSE ANALYSIS ═══════════ -->
+                <div class="space-y-6">
+                  @defer (on viewport) {
+                  <!-- ═══════════ CATEGORY BREAKDOWN ═══════════ -->
+                  <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                    <div (click)="c.toggleExpenseCollapse()" 
+                         class="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-2xl">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
+                          <mat-icon class="!text-lg !w-5 !h-5">pie_chart</mat-icon>
+                        </div>
+                        <div>
+                          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 !mb-0">Expense Analysis</h4>
+                          <span class="text-[11px] text-slate-400">Category spending distribution</span>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        @if (c.isExpenseCollapsed()) {
+                          <span class="text-xs font-bold text-rose-600 dark:text-rose-400 font-mono">
+                            {{ c.currentPeriodSummary?.expense | currency:{ compact: true } }}
+                          </span>
+                        }
+                        <mat-icon class="text-neutral-400 transition-all duration-300" 
+                                  [class.rotate-180]="!c.isExpenseCollapsed()">
+                          expand_more
+                        </mat-icon>
+                      </div>
+                    </div>
+
+                    @if (!c.isExpenseCollapsed()) {
+                    <mat-card-content class="!px-4 !pt-0 pb-4">
+                      <div class="overflow-x-auto mt-2">
+                        <table class="w-full history-table accounting-table compact-table">
+                          <thead>
+                            <tr class="mat-mdc-header-row">
+                              <th class="mat-mdc-header-cell">Expense Category</th>
+                              <th class="mat-mdc-header-cell !text-right">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (cat of c.groupedCategoryBreakdown(); track cat.categoryId) {
+                            <!-- Category Header Row -->
+                            <tr class="mat-mdc-row hover:bg-neutral-100/50 cursor-pointer transition-colors select-none"
+                              (mousedown)="c.onLongPressStart(cat.categoryId, $event)"
+                              (touchstart)="c.onLongPressStart(cat.categoryId, $event)"
+                              (touchmove)="c.onLongPressEnd()"
+                              (mouseup)="c.onLongPressEnd()"
+                              (touchend)="c.onLongPressEnd()"
+                              (click)="c.toggleExpand(cat.categoryId)"
+                              [class.expanded-header-row]="c.expandedCategoryId() === cat.categoryId"
+                              [class.!bg-neutral-50/80]="c.expandedCategoryId() !== cat.categoryId"
+                              [class.opacity-40]="c.ignoredCategoryIds().has(cat.categoryId)"
+                              [class.grayscale]="c.ignoredCategoryIds().has(cat.categoryId)">
+                              <td class="mat-mdc-cell py-2 px-3">
+                                <div class="flex items-center gap-3">
+                                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 border-2">
+                                    <mat-icon class="!text-sm !w-auto !h-auto" [style.color]="'#94a3b8'">{{ cat.categoryIcon || 'category' }}</mat-icon>
+                                  </div>
+                                  <div class="flex flex-col">
+                                    <span class="font-medium text-xs text-neutral-800">{{ cat.categoryName }}</span>
+                                    <span class="text-[10px] text-neutral-400 font-semibold">
+                                      {{ cat.transactionCount }} Transactions                                    
+                                    </span>
+                                     @if (cat.budget) {
+                                       @if (cat.amount > cat.budget) {
+                                         <span class="text-[10px] font-semibold text-error-600">
+                                           Over Budget: {{ (cat.amount - cat.budget) | currency:{ compact: true } }}
+                                         </span>
+                                       } @else {
+                                         <span class="text-[10px] font-semibold text-success-600">
+                                           Remaining: {{ (cat.budget - cat.amount) | currency:{ compact: true } }}
+                                         </span>
+                                       }
+                                     }
+                                  </div>
+                                </div>
+                              </td>
+                              <td class="mat-mdc-cell !text-right py-2 px-3">
+                                <div class="flex items-center justify-end gap-3">
+                                  <span class="font-semibold text-xs !text-error-600 font-mono tabular-nums">
+                                    {{ cat.amount | currency:{ compact: true } }}
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                            
+                            <!-- Metric Rows (Hidden by default, shown on expand) -->
+                            @if (c.expandedCategoryId() === cat.categoryId) {
+                            <tr class="mat-mdc-row expanded-row">
+                              <td class="mat-mdc-cell pl-10 font-medium text-neutral-500 text-[10px]">Budget</td>
+                              <td class="mat-mdc-cell !text-right font-mono tabular-nums font-semibold text-xs text-neutral-400" colspan="2">
+                                {{ cat.budget ? (cat.budget | currency:{ compact: true }) : '—' }}
+                              </td>
+                            </tr>
+
+                            <tr class="mat-mdc-row expanded-row">
+                              <td class="mat-mdc-cell pl-10 font-medium text-neutral-500 text-[10px]">Prev Period (Trend)</td>
+                              <td class="mat-mdc-cell !text-right font-mono tabular-nums font-semibold text-xs" colspan="2">
+                                <div class="flex items-center justify-end gap-2">
+                                  <span class="text-neutral-400">{{ cat.prevAmount ? (cat.prevAmount | currency:{ compact: true }) : '—' }}</span>
+                                  <div class="flex items-center gap-0.5 font-bold"
+                                       [class.text-error-600]="cat.diff > 0"
+                                       [class.text-success-600]="cat.diff < 0">
+                                    <mat-icon class="!text-xs">{{ cat.diff > 0 ? 'trending_up' : (cat.diff < 0 ? 'trending_down' : 'remove') }}</mat-icon>
+                                    <span>{{ cat.trend | abs | number:'1.0-0' }}%</span>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+
+                            <tr class="mat-mdc-row border-b-4 border-neutral-50 expanded-row">
+                              <td class="mat-mdc-cell pl-10 text-[10px]">Actual Spending</td>
+                              <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold text-xs !text-error-600" colspan="2">
+                                {{ cat.amount | currency:{ compact: false } }}
+                              </td>
+                            </tr>
+
+                            <!-- Expanded Category Details -->
+                            <tr class="mat-mdc-row expanded-row">
+                              <td colspan="3" class="mat-mdc-cell !p-0">
+                                <div class="px-2 py-4 border-b border-neutral-100 min-w-0 overflow-hidden bg-transparent">
+                                  <app-category-report-item [item]="cat" [isExpanded]="true"
+                                    [hideHeader]="true"
+                                    [expandedData]="c.expandedItemData()" (toggleExpand)="c.toggleExpand(cat.categoryId)"
+                                    class="!block !shadow-none !border-none !bg-transparent min-w-0">
+                                  </app-category-report-item>
+                                </div>
+                              </td>
+                            </tr>
+                            }
+                            } @empty {
+                            <tr class="mat-mdc-row">
+                              <td [attr.colspan]="c.breakpointService.isMobile() ? 3 : 5" class="mat-mdc-cell text-center py-12">
+                                <mat-icon class="text-neutral-200 !text-5xl mb-2">auto_graph</mat-icon>
+                                <p class="text-neutral-400 font-medium">No expenses recorded for this period</p>
+                              </td>
+                            </tr>
+                            }
+                          </tbody>
+                          <tfoot>
+                            <tr class="mat-mdc-footer-row border-t border-neutral-100">
+                              <td class="mat-mdc-footer-cell font-bold text-neutral-500">Total Expenses</td>
+                              <td class="mat-mdc-footer-cell !text-right text-error-600 font-mono tabular-nums font-bold">
+                                {{ c.currentPeriodSummary?.expense | currency:{ compact: false } }}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+
+                      <div class="flex justify-center mt-6">
+                        <button mat-button color="primary" routerLink="/dashboard/category"
+                          class="!text-xs !font-bold flex items-center gap-1 group !h-7 !px-3 hover:bg-primary-50 rounded-full transition-all">
+                          <span>Explore All Categories</span>
+                          <mat-icon class="!text-sm !w-auto !h-auto transition-transform group-hover:translate-x-1">arrow_forward</mat-icon>
+                        </button>
+                      </div>
+                    </mat-card-content>
+                    }
+                  </mat-card>
+                  } @placeholder {
+                  <div class="space-y-3">
+                    <div class="h-14 bg-neutral-200 rounded-xl animate-pulse"></div>
+                    <div class="h-14 bg-neutral-200 rounded-xl animate-pulse"></div>
+                    <div class="h-14 bg-neutral-200 rounded-xl animate-pulse"></div>
+                  </div>
+                  }
+                </div>
+              </div>
+              @defer (on viewport) {
+             
+              <!-- ═══════════ MONTHLY HISTORY ═══════════ -->
+              @if (c.filteredMonthlySummaries.length > 0) {
+              <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900 mt-6">
+                <mat-card-content class="!p-5">
+                  <div class="flex items-center gap-2.5 mb-5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 flex items-center justify-center">
+                      <mat-icon class="!text-lg !w-5 !h-5">{{ c.selectedPeriod() === 'weekly' ? 'view_week' :
+                        (c.selectedPeriod() === 'all' ? 'history' : 'calendar_month') }}</mat-icon>
+                    </div>
+                    <div>
+                      <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 !mb-0">
+                        {{ c.selectedPeriod() === 'weekly' ? 'Weekly' : c.selectedPeriod() === 'yearly' ? 'Yearly' :
+                        c.selectedPeriod() === 'all' ? 'All Time' : 'Monthly' }} History
+                        <span *ngIf="c.selectedPeriod() !== 'yearly' && c.selectedPeriod() !== 'all'">({{ c.selectedYear() }})</span>
+                      </h3>
+                      <span class="text-xs text-slate-400">Historical performance ledger</span>
+                    </div>
+                  </div>
+                  <div class="overflow-x-auto rounded-lg">
+                    <table mat-table [dataSource]="c.filteredMonthlySummaries"
+                      class="w-full history-table accounting-table compact-table">
+                      <!-- Month Column -->
+                      <ng-container matColumnDef="month">
+                        <th mat-header-cell *matHeaderCellDef>{{ c.selectedPeriod() === 'weekly' ? 'Week' :
+                          c.selectedPeriod() === 'yearly' ? 'Year' : (c.selectedPeriod() === 'all' ? 'Period' : 'Month') }}
+                        </th>
+                        <td mat-cell *matCellDef="let m" class="font-medium text-neutral-700 !text-xs sm:!text-sm">
+                          {{ m.label }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef class="font-bold !text-xs sm:!text-sm">TOTAL</td>
+                      </ng-container>
+                      <!-- Income Column -->
+                      <ng-container matColumnDef="income">
+                        <th mat-header-cell *matHeaderCellDef class="!text-right">Income</th>
+                        <td mat-cell *matCellDef="let m"
+                          class="!text-right font-mono tabular-nums !text-success-500 font-medium !text-xs sm:!text-sm">
+                          {{ m.income | currency:{ compact:true} }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef
+                          class="!text-right font-mono tabular-nums font-bold !text-success-500 !text-xs sm:!text-sm">{{ c.totalHistory().income |
+                          currency:{ compact:true} }}</td>
+                      </ng-container>
+                      <!-- Expense Column -->
+                      <ng-container matColumnDef="expense">
+                        <th mat-header-cell *matHeaderCellDef class="!text-right">Expense</th>
+                        <td mat-cell *matCellDef="let m"
+                          class="!text-right font-mono tabular-nums !text-error-500 font-medium !text-xs sm:!text-sm">
+                          {{ m.expense | currency:{ compact:true} }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef
+                          class="!text-right font-mono tabular-nums font-bold !text-error-500 !text-xs sm:!text-sm">{{ c.totalHistory().expense |
+                          currency:{ compact:true} }}</td>
+                      </ng-container>
+                      <!-- Savings Column -->
+                      <ng-container matColumnDef="savings">
+                        <th mat-header-cell *matHeaderCellDef class="!text-right">Savings</th>
+                        <td mat-cell *matCellDef="let m" class="!text-right font-mono tabular-nums font-semibold !text-xs sm:!text-sm"
+                          [class.!text-success-500]="m.savings >= 0" [class.!text-error-500]="m.savings < 0">
+                          {{ m.savings >= 0 ? '+' : '-' }}{{ (m.savings | abs) | currency:{ compact:true} }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef class="!text-right font-mono tabular-nums font-bold !text-xs sm:!text-sm"
+                          [class.!text-success-500]="c.totalHistory().savings >= 0"
+                          [class.!text-error-500]="c.totalHistory().savings < 0">{{ c.totalHistory().savings >= 0 ? '+' : '-'
+                          }}{{ (c.totalHistory().savings | abs) | currency:{ compact:true} }}</td>
+                      </ng-container>
+                      <tr mat-header-row *matHeaderRowDef="['month', 'income', 'expense', 'savings']">
+                      </tr>
+                      <tr mat-row *matRowDef="let row; columns: ['month', 'income', 'expense', 'savings'];">
+                      </tr>
+                      <tr mat-footer-row *matFooterRowDef="['month', 'income', 'expense', 'savings']">
+                      </tr>
+                    </table>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+              }
+              } @placeholder {
+              <div class="h-48 bg-neutral-200 rounded-xl animate-pulse"></div>
+              }
+            </div>
+            }
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- ############################################################################## -->
+      <!--                           TAB 2: PREDICTIONS                                  -->
+      <!-- ############################################################################## -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="mr-2">auto_graph</mat-icon>
+          Predictions
+        </ng-template>
+
+        <ng-template matTabContent>
+          <div class="pt-6">
+            <!-- ═══════════ LOADING ═══════════ -->
+            @if (c.isLoading) {
+            <div class="flex flex-col items-center justify-center gap-4 py-12">
+              <mat-spinner diameter="40"></mat-spinner>
+              <span class="text-neutral-400">Analysing your transactions…</span>
+            </div>
+            }
+
+            <!-- ═══════════ NO DATA ═══════════ -->
+            @if (!c.isLoading && c.transactions().length === 0) {
+            <mat-card class="!rounded-xl">
+              <mat-card-content class="text-center py-8">
+                <mat-icon class="text-neutral-300 !text-6xl mb-4">assessment</mat-icon>
+                <p class="text-xl font-semibold text-neutral-600 mb-2">No Transaction Data</p>
+                <p class="text-neutral-400 text-sm">
+                  Add some income and expense transactions to generate predictions.
+                </p>
+              </mat-card-content>
+            </mat-card>
+            }
+
+            @if (!c.isLoading && c.transactions().length > 0) {
+            <div class="space-y-6">
+              <!-- Not enough data warning -->
+              @if (!c.nextMonthPrediction) {
+              <div class="grid grid-cols-1 gap-4">
+                <div class="bg-white p-8 rounded-xl border border-neutral-200 text-center">
+                  <mat-icon class="text-warning-400 !text-5xl mb-4">auto_graph</mat-icon>
+                  <p class="text-xl font-semibold text-neutral-600 mb-2">Not Enough Data Yet</p>
+                  <p class="text-neutral-400 text-sm max-w-md mx-auto">
+                    Keep tracking your expenses and check back soon!
+                  </p>
+                </div>
+              </div>
+              }
+              @if (c.nextMonthPrediction) {
+              <div class="space-y-6">
+                <!-- Spending Trend Banner -->
+                <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                  <mat-card-content class="!p-5">
+                    <p class="text-sm font-semibold text-neutral-500 mb-4 flex items-center gap-2">
+                      <mat-icon [class]="c.nextMonthPrediction.trend | trend:'color'">
+                        {{ c.nextMonthPrediction.trend | trend:'icon' }}
+                      </mat-icon>
+                      Spending Trend
+                    </p>
+                    <div class="flex items-center gap-3 p-4 rounded-xl"
+                      [class.bg-error-100]="c.nextMonthPrediction.trend === 'increasing'"
+                      [class.bg-surface-200]="c.nextMonthPrediction.trend === 'decreasing'"
+                      [class.bg-primary-100]="c.nextMonthPrediction.trend === 'stable'">
+                      <div>
+                        <div class="font-semibold text-neutral-800">
+                          Your spending is <span class="capitalize">{{
+                            c.nextMonthPrediction.trend }}</span>
+                        </div>
+                        <div class="text-sm text-neutral-500">
+                          Based on your last {{ c.monthlySummariesSignal().length >= 6 ? 6 :
+                          c.monthlySummariesSignal().length }} months of data
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+                @defer (on viewport) {
+                <!-- Prediction Table -->
+                <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                  <div (click)="c.togglePredictionsCollapse()" 
+                       class="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-2xl">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 flex items-center justify-center">
+                        <mat-icon class="!text-lg !w-5 !h-5">insights</mat-icon>
+                      </div>
+                      <div>
+                        <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 !mb-0">Predictions & Forecasts</h4>
+                        <span class="text-[11px] text-slate-400">Projected income, expense and savings</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <mat-icon class="text-neutral-400 transition-all duration-300" 
+                                [class.rotate-180]="!c.isPredictionsCollapsed()">
+                        expand_more
+                      </mat-icon>
+                    </div>
+                  </div>
+
+                  @if (!c.isPredictionsCollapsed()) {
+                  <mat-card-content class="pt-0 pb-4">
+                    <div class="overflow-x-auto">
+                      <table class="w-full history-table accounting-table compact-table">
+                        <thead>
+                          <tr class="mat-mdc-header-row">
+                            <th class="mat-mdc-header-cell uppercase">Prediction Category</th>
+                            <th class="mat-mdc-header-cell !text-right uppercase">Estimated Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (prediction of c.allPredictions(); track prediction.label) {
+                          <!-- Period Header Row -->
+                          <tr class="mat-mdc-row !bg-neutral-50/80">
+                            <td colspan="2" class="mat-mdc-cell py-2 px-3">
+                              <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                  <div [class]="prediction.iconClass + ' w-6 h-6 rounded flex items-center justify-center bg-white border border-neutral-100 shadow-sm'">
+                                    <mat-icon class="!text-sm">{{ prediction.icon }}</mat-icon>
+                                  </div>
+                                  <span class="font-bold text-neutral-800 uppercase tracking-tight text-xs">{{ prediction.label }}</span>
+                                </div>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest bg-white border border-neutral-100 shadow-sm"
+                                  [style.color]="prediction.confidence === 'high' ? '#15803d' : prediction.confidence === 'medium' ? '#a16207' : '#b91c1c'">
+                                  {{ prediction.confidence }} Confidence
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                          <!-- Data Rows -->
+                          <tr class="mat-mdc-row">
+                            <td class="mat-mdc-cell pl-10 font-medium text-neutral-500">Expected Expense</td>
+                            <td class="mat-mdc-cell !text-right font-mono tabular-nums font-semibold !text-error-600">
+                              {{ prediction.predictedExpense | currency:{ compact: true } }}
+                            </td>
+                          </tr>
+                          <tr class="mat-mdc-row">
+                            <td class="mat-mdc-cell pl-10 font-medium text-neutral-500">Expected Income</td>
+                            <td class="mat-mdc-cell !text-right font-mono tabular-nums font-semibold !text-success-600">
+                              {{ prediction.predictedIncome | currency:{ compact: true } }}
+                            </td>
+                          </tr>
+                          <tr class="mat-mdc-row border-b-4 border-neutral-50">
+                            <td class="mat-mdc-cell pl-10 font-bold text-neutral-800">Potential Savings</td>
+                            <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold"
+                                [class.!text-success-600]="prediction.predictedSavings >= 0"
+                                [class.!text-error-600]="prediction.predictedSavings < 0">
+                              {{ (prediction.predictedSavings >= 0 ? '+' : '-') }}{{ (prediction.predictedSavings | abs) | currency:{ compact: true } }}
+                            </td>
+                          </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </mat-card-content>
+                  }
+                </mat-card>
+                } @placeholder {
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div class="h-48 bg-neutral-200 rounded-xl animate-pulse"></div>
+                  <div class="h-48 bg-neutral-200 rounded-xl animate-pulse"></div>
+                  <div class="h-48 bg-neutral-200 rounded-xl animate-pulse"></div>
+                </div>
+                }
+                @defer (on viewport) {
+                <!-- Expected Expenses Breakdown -->
+                @if (c.nextMonthPrediction.expectedCategories.length > 0) {
+                <mat-card class="!rounded-2xl !border border-slate-200/80 dark:!border-slate-800 shadow-sm bg-white dark:bg-slate-900 mt-4">
+                  <div (click)="c.toggleExpectedExpensesCollapse()" 
+                       class="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-2xl">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
+                        <mat-icon class="!text-lg !w-5 !h-5">receipt_long</mat-icon>
+                      </div>
+                      <div>
+                        <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 !mb-0">Next Month Expected Expenses</h4>
+                        <span class="text-[11px] text-slate-400">Granular recurring predictions</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-[10px] font-bold px-2 py-0.5 bg-primary-100/50 text-primary-600 rounded-full border border-primary-200">
+                        {{ c.nextMonthPrediction.expectedCategories.length }} categories
+                      </span>
+                      <mat-icon class="text-neutral-400 transition-all duration-300" 
+                                [class.rotate-180]="!c.isExpectedExpensesCollapsed()">
+                        expand_more
+                      </mat-icon>
+                    </div>
+                  </div>
+
+                  @if (!c.isExpectedExpensesCollapsed()) {
+                  <mat-card-content class="pt-0 pb-4">
+                    <p class="text-[11px] text-neutral-400 mb-3 px-1">
+                      Based on your patterns, these are the predicted expenses for next month.
+                    </p>
+                    <div class="overflow-x-auto">
+                      <table class="w-full history-table accounting-table compact-table">
+                        <thead>
+                          <tr class="mat-mdc-header-row">
+                            <th class="mat-mdc-header-cell uppercase">Category</th>
+                            <th class="mat-mdc-header-cell !text-right uppercase">Estimated</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (cat of c.nextMonthPrediction.expectedCategories; track cat.categoryId) {
+                          <tr class="mat-mdc-row">
+                            <td class="mat-mdc-cell font-medium">
+                              <div class="flex items-center gap-2">
+                                <mat-icon class="!text-xs text-neutral-400">{{ cat.categoryIcon || 'category' }}</mat-icon>
+                                <span>{{ cat.categoryName }}</span>
+                              </div>
+                            </td>
+                            <td class="mat-mdc-cell !text-right font-mono tabular-nums font-bold !text-error-600">
+                              {{ cat.amount | currency:{ compact: true } }}
+                            </td>
+                          </tr>
+                          }
+                        </tbody>
+                        <tfoot>
+                          <tr class="mat-mdc-footer-row border-t border-neutral-100">
+                            <td class="mat-mdc-footer-cell font-bold uppercase tracking-wider text-neutral-500">Total Expected</td>
+                     
+                            <td class="mat-mdc-footer-cell !text-right text-error-600 font-mono tabular-nums font-bold">
+                              {{ c.nextMonthPrediction.predictedExpense | currency:{ compact: false } }}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </mat-card-content>
+                  }
+                </mat-card>
+                }
+                } @placeholder {
+                <div class="h-24 bg-neutral-200 rounded-xl animate-pulse"></div>
+                }
+                <!-- How predictions work -->
+                <mat-card class="!rounded-2xl bg-surface-200 border border-slate-200 dark:border-slate-800">
+                  <mat-card-content>
+                    <div class="flex items-start gap-3 pt-2">
+                      <mat-icon class="text-neutral-400 !text-sm mt-0.5">info</mat-icon>
+                      <div class="text-xs text-neutral-400 leading-relaxed">
+                        <strong class="text-neutral-500">How predictions work:</strong>
+                        We use a <strong>weighted moving average</strong> (40/30/20/10) over the last 4 months, adjusted for spending trends. 
+                        <strong>Fixed costs</strong> (like rent) are detected and projected exactly. 
+                        <strong>Abnormal spikes</strong> are automatically filtered out to ensure a realistic forecast.
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+              }
+            </div>
+            }
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+
+  </div>
+</div>

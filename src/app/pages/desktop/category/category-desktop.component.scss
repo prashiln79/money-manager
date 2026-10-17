@@ -1,4 +1,23 @@
 :host {
   display: block;
   width: 100%;
+
+  mat-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle;
+    line-height: 1 !important;
+    flex-shrink: 0;
+  }
+
+  button, a {
+    mat-icon {
+      vertical-align: middle;
+    }
+  }
+
+  .financial-data {
+    font-variant-numeric: tabular-nums;
+  }
 }

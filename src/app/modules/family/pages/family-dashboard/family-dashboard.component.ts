@@ -58,6 +58,7 @@ import { FamilyTransactionsService } from 'src/app/util/service/db/family-transa
 import { LoaderService } from 'src/app/util/service/loader.service';
 import { LocalIndexDBStorageService } from 'src/app/util/service/indexdb-storage.service';
 import { ReportService } from 'src/app/util/service/db/report.service';
+import { MobileAddTransactionComponent } from 'src/app/component/dashboard/transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { UserService } from 'src/app/util/service/db/user.service';
 import { PwaNavigationService } from 'src/app/util/service/pwa-navigation.service';
 import { NotificationService } from 'src/app/util/service/notification.service';
@@ -74,6 +75,7 @@ import { BannerUploadDialogComponent, BannerUploadDialogResult } from '../../dia
 // Pipes & Directives
 import { CurrencyPipe, AppDatePipe, TruncatePipe } from 'src/app/util/pipes';
 import { ImageFallbackDirective } from 'src/app/util/directives/image-fallback.directive';
+import { FamilyDashboardDesktopComponent } from 'src/app/pages/desktop/family/family-dashboard-desktop.component';
 
 @Component({
   selector: 'app-family-dashboard',
@@ -97,7 +99,8 @@ import { ImageFallbackDirective } from 'src/app/util/directives/image-fallback.d
     CurrencyPipe,
     AppDatePipe,
     TruncatePipe,
-    ImageFallbackDirective
+    ImageFallbackDirective,
+    FamilyDashboardDesktopComponent
   ],
   templateUrl: './family-dashboard.component.html',
   styleUrls: ['./family-dashboard.component.scss']
@@ -253,7 +256,10 @@ export class FamilyDashboardComponent implements OnInit {
   }
 
   addTransaction(): void {
-    // TODO: implement transaction addition logic
+    this.dialog.open(MobileAddTransactionComponent, {
+      closeOnNavigation: false,
+      panelClass: this.breakpointService.device.isMobile ? 'mobile-dialog' : 'desktop-dialog'
+    });
   }
 
   openMembersSheet(): void {
@@ -444,8 +450,7 @@ export class FamilyDashboardComponent implements OnInit {
     });
   }
 
-  // ─── Private Helpers ─────────────────────────────────────────────────────────
-
-  private readonly memberColors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
+  // ─── Helpers ────────────────────────────────────────────────────────────────
+  readonly memberColors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
 
 }

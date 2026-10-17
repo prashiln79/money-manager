@@ -1,0 +1,527 @@
+<div class="family-dashboard-desktop bg-surface-100 min-h-screen px-4 sm:px-6 lg:px-8 py-6">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    @if (c.family()) {
+      <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+      <!--                      DESKTOP HERO / EXECUTIVE HEADER                        -->
+      <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+      <div class="relative overflow-hidden rounded-3xl min-h-[320px] lg:min-h-[360px] text-white shadow-xl shadow-primary-950/10 flex flex-col justify-end"
+           [ngClass]="c.family()?.banner ? 'bg-slate-950' : 'bg-gradient-to-r from-primary-600 via-primary-700 to-indigo-800'">
+
+        <!-- Full-Fidelity Background Cover Photo -->
+        @if (c.family()?.banner) {
+          <div class="absolute inset-0 bg-cover bg-center transition-all duration-700 z-0"
+               [style.backgroundImage]="'url(' + c.family()?.banner + ')'"></div>
+          <!-- Dark readable gradient scrim -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/25 z-0 pointer-events-none"></div>
+          <div class="absolute inset-0 bg-black/20 z-0 pointer-events-none"></div>
+        } @else {
+          <!-- Ambient lighting when no photo is set -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-0 pointer-events-none"></div>
+        }
+
+        <!-- Top Right "Change Cover Photo" button overlay -->
+        <div class="absolute top-4 right-4 z-20">
+          <button type="button"
+                  (click)="c.openBannerDialog()"
+                  class="h-8 px-3 rounded-xl bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/20 text-white font-medium text-xs transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                  matTooltip="Change cover photo">
+            <mat-icon class="!text-sm !w-4 !h-4 flex-shrink-0">camera_alt</mat-icon>
+            <span class="leading-none">{{ c.family()?.banner ? 'Change Cover' : 'Add Cover' }}</span>
+          </button>
+        </div>
+
+        <div class="relative z-10 p-6 sm:p-8 lg:p-10 pt-20 sm:pt-24 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <!-- Left: Family Identity & Role Badges -->
+          <div class="flex items-center gap-5">
+            <div class="relative group cursor-pointer shrink-0" (click)="c.openBannerDialog()">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center shadow-lg overflow-hidden shrink-0">
+                @if (c.family()?.icon?.startsWith('data:')) {
+                  <img [src]="c.family()?.icon" alt="group icon" class="w-full h-full object-cover" />
+                } @else {
+                  <mat-icon class="!w-12 !h-12 !text-5xl text-white/95 inline-flex items-center justify-center">{{ c.family()?.icon || 'family_restroom' }}</mat-icon>
+                }
+              </div>
+              <div class="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <mat-icon class="text-white !text-xl !w-5 !h-5 inline-flex items-center justify-center">camera_alt</mat-icon>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center gap-3 flex-wrap">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white mb-0 drop-shadow-sm leading-tight">
+                  {{ c.family()?.name }}
+                </h1>
+                <!-- Mode Badge -->
+                <button type="button"
+                        (click)="c.openModeInfo()"
+                        class="px-2.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/25 transition-all inline-flex items-center gap-1.5 text-white cursor-pointer shadow-xs">
+                  <mat-icon class="!text-xs !w-3.5 !h-3.5 flex-shrink-0">{{ c.family()?.mode === 'split' ? 'call_split' : 'savings' }}</mat-icon>
+                  <span class="leading-none">{{ c.family()?.mode === 'split' ? 'Split Expenses' : 'Common Budget' }}</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-4 text-xs sm:text-sm text-white/90 flex-wrap drop-shadow-xs">
+                <span class="inline-flex items-center gap-1.5">
+                  <mat-icon class="!text-sm !w-4 !h-4 text-white/80 flex-shrink-0">group</mat-icon>
+                  <span class="leading-none"><strong>{{ c.members().length }}</strong> Members</span>
+                </span>
+                <span class="text-white/40 leading-none">•</span>
+                <span class="inline-flex items-center gap-1.5">
+                  <mat-icon class="!text-sm !w-4 !h-4 text-white/80 flex-shrink-0">shield</mat-icon>
+                  <span class="leading-none">{{ c.family()?.ownerUserId === c.currentUserId() ? 'Owner' : 'Member' }}</span>
+                </span>
+                @if (c.family()?.inviteCode) {
+                  <span class="text-white/40 leading-none">•</span>
+                  <button type="button"
+                          (click)="c.copyCode(c.family()?.inviteCode || '')"
+                          class="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-lg border border-white/20 font-mono font-bold text-xs cursor-pointer transition-colors text-white backdrop-blur-xs"
+                          matTooltip="Click to copy invite code">
+                    <span class="leading-none">Code: {{ c.family()?.inviteCode }}</span>
+                    <mat-icon class="!text-xs !w-3.5 !h-3.5 flex-shrink-0">content_copy</mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Desktop Actions -->
+          <div class="inline-flex items-center gap-2.5 flex-wrap self-start md:self-center">
+            <!-- Members Sheet / Management Button -->
+            <button type="button"
+                    (click)="c.openMembersSheet()"
+                    class="h-10 px-4 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/25 text-white font-semibold text-xs transition-all inline-flex items-center gap-2 cursor-pointer shadow-sm active:scale-95">
+              <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">person_add</mat-icon>
+              <span class="leading-none">Manage Members</span>
+            </button>
+
+            <!-- Settle Up Button (Split mode) -->
+            @if (c.family()?.mode === 'split') {
+              <a routerLink="/dashboard/family/settle"
+                 class="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs transition-all inline-flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-950/20 active:scale-95 no-underline">
+                <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">handshake</mat-icon>
+                <span class="leading-none">Settle Up</span>
+              </a>
+            }
+
+            <!-- Add Expense FAB/CTA -->
+            <button type="button"
+                    (click)="c.addTransaction()"
+                    class="h-10 px-4 rounded-xl bg-white text-primary-700 hover:bg-white/90 font-bold text-xs transition-all inline-flex items-center gap-2 cursor-pointer shadow-md shadow-black/10 active:scale-95">
+              <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">add</mat-icon>
+              <span class="leading-none">Add Expense</span>
+            </button>
+
+            <!-- More Menu -->
+            <button mat-icon-button [matMenuTriggerFor]="familyMenu" class="text-white/80 hover:text-white !inline-flex !items-center !justify-center">
+              <mat-icon class="!w-5 !h-5 !text-xl flex-shrink-0">more_vert</mat-icon>
+            </button>
+            <mat-menu #familyMenu="matMenu" class="rounded-2xl">
+              <button mat-menu-item (click)="c.openBannerDialog()">
+                <mat-icon class="flex-shrink-0">image</mat-icon>
+                <span>Change Banner</span>
+              </button>
+              <button mat-menu-item (click)="c.generateReport()">
+                <mat-icon class="flex-shrink-0">download</mat-icon>
+                <span>Export PDF Report</span>
+              </button>
+              <button mat-menu-item (click)="c.editFamily()" *ngIf="c.family()?.ownerUserId === c.currentUserId()">
+                <mat-icon class="flex-shrink-0">edit</mat-icon>
+                <span>Edit Family Details</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="c.deleteFamily()" class="!text-red-600">
+                <mat-icon class="!text-red-600 flex-shrink-0">
+                  {{ c.family()?.ownerUserId === c.currentUserId() ? 'delete_forever' : 'exit_to_app' }}
+                </mat-icon>
+                <span>{{ c.family()?.ownerUserId === c.currentUserId() ? 'Delete Family' : 'Leave Family' }}</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+      <!--                  MAIN CONTENT: 8-COL ANALYTICS + 4-COL SIDEBAR               -->
+      <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- ───────────────────────────────────────────────────────────────────────────── -->
+        <!--                         LEFT/MAIN COLUMN (8 COLS)                             -->
+        <!-- ───────────────────────────────────────────────────────────────────────────── -->
+        <div class="lg:col-span-8 space-y-6">
+
+          <!-- 1. KPI CARDS STRIP -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+            <!-- Card 1: Total Spent -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Spent</span>
+                <div class="w-8 h-8 rounded-xl bg-primary-50 dark:bg-primary-950/50 text-primary-600 flex items-center justify-center shrink-0">
+                  <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">receipt_long</mat-icon>
+                </div>
+              </div>
+              <div class="my-2">
+                <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
+                  {{ (c.stats()?.totalExpense || 0) | currency:{ compact: false, round: true } }}
+                </span>
+              </div>
+              <div class="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+                <span>{{ c.family()?.mode === 'split' ? 'Shared pool' : 'Common budget' }}</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Mode Dependent KPI -->
+            @if (c.family()?.mode === 'split') {
+              <!-- Net Balance in Split Mode -->
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Your Balance</span>
+                  <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">scale</mat-icon>
+                  </div>
+                </div>
+                <div class="my-2">
+                  <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight tabular-nums"
+                        [class.text-emerald-600]="c.myNetSettleBalance() >= 0"
+                        [class.text-rose-600]="c.myNetSettleBalance() < 0">
+                    {{ (c.myNetSettleBalance() >= 0 ? '+' : '') }}{{ c.myNetSettleBalance() | currency:{ compact: false, round: true } }}
+                  </span>
+                </div>
+                <div class="text-[11px] font-medium flex items-center gap-1"
+                     [class.text-emerald-600]="c.myNetSettleBalance() >= 0"
+                     [class.text-rose-600]="c.myNetSettleBalance() < 0">
+                  <span>{{ c.myNetSettleBalance() >= 0 ? 'You are owed' : 'You owe group' }}</span>
+                </div>
+              </div>
+            } @else {
+              <!-- Remaining Budget in Common Mode -->
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Net Balance</span>
+                  <div class="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 flex items-center justify-center shrink-0">
+                    <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">account_balance_wallet</mat-icon>
+                  </div>
+                </div>
+                <div class="my-2">
+                  <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
+                    {{ (c.stats()?.netBalance || 0) | currency:{ compact: false, round: true } }}
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+                  <span>Total pool balance</span>
+                </div>
+              </div>
+            }
+
+            <!-- Card 3: You Paid / Contributed -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">You Paid</span>
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">payments</mat-icon>
+                </div>
+              </div>
+              <div class="my-2">
+                <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
+                  {{ (c.currentUserPaid() || 0) | currency:{ compact: false, round: true } }}
+                </span>
+              </div>
+              <div class="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+                <span>{{ c.family()?.mode === 'split' ? 'Share: ' + (c.currentUserExpense() | currency:{ compact: true }) : 'Your deposits' }}</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Active Members -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active</span>
+                <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center shrink-0">
+                  <mat-icon class="!text-base !w-4 !h-4 flex-shrink-0">people_outline</mat-icon>
+                </div>
+              </div>
+              <div class="my-2">
+                <span class="text-xl sm:text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
+                  {{ c.members().length }}
+                </span>
+              </div>
+              <div class="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+                <span>Your share: {{ c.currentUserSharePercentage() | number:'1.0-0' }}%</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 2. MEMBER SPENDING & CONTRIBUTION MATRIX (2 columns on desktop) -->
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white inline-flex items-center gap-2 mb-0.5">
+                  <mat-icon class="text-primary-500 !text-xl !w-5 !h-5 flex-shrink-0">groups</mat-icon>
+                  <span>Member Contributions & Breakdown</span>
+                </h3>
+                <p class="text-xs text-slate-400 mb-0">Detailed individual shares, paid amounts, and net standing</p>
+              </div>
+
+              <button type="button"
+                      (click)="c.openMembersSheet()"
+                      class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition-colors inline-flex items-center gap-1.5 cursor-pointer">
+                <mat-icon class="!text-sm !w-4 !h-4 flex-shrink-0">settings</mat-icon>
+                <span>Manage</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              @for (member of c.stats()?.memberBreakdown || []; track member.userId) {
+                <div (click)="c.openMemberDetails(member)"
+                     class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800/80 hover:border-primary-400 dark:hover:border-primary-600 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800 transition-all cursor-pointer group shadow-xs">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                      <!-- Avatar -->
+                      <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-sm"
+                           [style.backgroundColor]="c.memberColor(member.userId)">
+                        @if (member.photoURL) {
+                          <img [src]="member.photoURL" appImageFallback class="w-full h-full object-cover">
+                        } @else {
+                          <span class="leading-none flex items-center justify-center">{{ (member.displayName || 'Member').slice(0, 1) | uppercase }}</span>
+                        }
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                            {{ member.displayName || 'Unknown' }}
+                          </span>
+                          @if (member.userId === c.currentUserId()) {
+                            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300">You</span>
+                          }
+                        </div>
+                        <span class="text-[11px] text-slate-400">
+                          {{ member.role === 'admin' ? 'Family Admin' : 'Member' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Percentage Badge -->
+                    <div class="text-right">
+                      <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-mono">
+                        {{ ((member.totalExpense / (c.stats()?.totalExpense || 1)) * 100) | number:'1.0-0' }}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Mini Stats Row -->
+                  <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/50 dark:border-slate-700/50 text-xs">
+                    <div>
+                      <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Paid</span>
+                      <span class="font-mono font-bold text-slate-800 dark:text-slate-100">
+                        {{ member.totalPaid | currency:{ compact: true } }}
+                      </span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">
+                        {{ c.family()?.mode === 'split' ? 'Share' : 'Usage' }}
+                      </span>
+                      <span class="font-mono font-bold text-slate-800 dark:text-slate-100">
+                        {{ member.totalExpense | currency:{ compact: true } }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- 3. RECENT ACTIVITY STREAM (Desktop Table/List) -->
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white inline-flex items-center gap-2 mb-0.5">
+                  <mat-icon class="text-primary-500 !text-xl !w-5 !h-5 flex-shrink-0">history</mat-icon>
+                  <span>Recent Family Transactions</span>
+                </h3>
+                <p class="text-xs text-slate-400 mb-0">Latest expense ledger entries recorded across members</p>
+              </div>
+
+              <a routerLink="/dashboard/transactions"
+                 class="text-xs font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 inline-flex items-center gap-1 no-underline">
+                <span>All Transactions</span>
+                <mat-icon class="!text-sm !w-4 !h-4 flex-shrink-0">chevron_right</mat-icon>
+              </a>
+            </div>
+
+            @if (c.recentActivities().length) {
+              <div class="space-y-3">
+                @for (activity of c.displayedActivities(); track activity.id) {
+                  <div class="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 transition-all flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                      <!-- Activity Icon -->
+                      <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0 text-primary-600 shadow-2xs">
+                        <mat-icon class="!text-xl !w-5 !h-5 flex-shrink-0">{{ activity.icon || 'receipt' }}</mat-icon>
+                      </div>
+
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-bold text-slate-900 dark:text-white truncate">
+                            {{ activity.title }}
+                          </span>
+                          @if (activity.category) {
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-200/60 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                              {{ activity.category }}
+                            </span>
+                          }
+                        </div>
+                        <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                          <span>{{ activity.timestamp | appDate:'relative' }}</span>
+                          <span>•</span>
+                          <span>Paid by <strong class="text-slate-600 dark:text-slate-300">{{ activity.memberName }}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="text-right shrink-0">
+                      <span class="text-base font-extrabold font-mono text-slate-900 dark:text-white tabular-nums">
+                        {{ activity.amount | currency }}
+                      </span>
+                    </div>
+                  </div>
+                }
+
+                @if (c.recentActivities().length > c.activityLimit()) {
+                  <div class="text-center pt-3">
+                    <button type="button"
+                            (click)="c.loadMoreActivities()"
+                            class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors cursor-pointer">
+                      Load More Activity
+                    </button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <!-- Empty Activity State -->
+              <div class="text-center py-12 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                <mat-icon class="text-slate-300 dark:text-slate-600 !text-4xl !w-10 !h-10 mb-2 flex-shrink-0">receipt_long</mat-icon>
+                <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">No transactions recorded yet</p>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto mb-4">When family members record expenses, they will appear here with live share calculations.</p>
+                <button type="button"
+                        (click)="c.addTransaction()"
+                        class="px-4 py-2 rounded-xl bg-primary-600 text-white text-xs font-bold shadow-sm hover:bg-primary-700 transition-colors inline-flex items-center gap-1.5 cursor-pointer">
+                  <mat-icon class="!text-sm !w-4 !h-4 flex-shrink-0">add</mat-icon>
+                  <span>Add First Expense</span>
+                </button>
+              </div>
+            }
+          </div>
+
+        </div>
+
+        <!-- ───────────────────────────────────────────────────────────────────────────── -->
+        <!--                         RIGHT/SIDEBAR COLUMN (4 COLS)                         -->
+        <!-- ───────────────────────────────────────────────────────────────────────────── -->
+        <div class="lg:col-span-4 space-y-6">
+
+          <!-- 1. SETTLE UP CALLOUT PANEL (Split mode only) -->
+          @if (c.family()?.mode === 'split') {
+            <div class="bg-gradient-to-br from-emerald-50 to-teal-50/60 dark:from-emerald-950/40 dark:to-teal-950/20 rounded-3xl p-6 border border-emerald-200/70 dark:border-emerald-800/50 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 inline-flex items-center gap-1.5">
+                  <mat-icon class="!text-base !w-4 !h-4 text-emerald-600 flex-shrink-0">handshake</mat-icon>
+                  <span>Settlement Center</span>
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-200/60 text-emerald-900 dark:bg-emerald-900/60 dark:text-emerald-200">
+                  Live
+                </span>
+              </div>
+
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                @if (c.myNetSettleBalance() > 0.01) {
+                  Other members owe you a total of <strong class="text-emerald-700 dark:text-emerald-300 font-mono">{{ c.myNetSettleBalance() | currency }}</strong>.
+                } @else if (c.myNetSettleBalance() < -0.01) {
+                  You owe the group <strong class="text-rose-600 font-mono">{{ -c.myNetSettleBalance() | currency }}</strong> to clear all outstanding splits.
+                } @else {
+                  All your shared expenses are completely balanced!
+                }
+              </p>
+
+              <a routerLink="/dashboard/family/settle"
+                 class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md shadow-emerald-600/20 transition-all active:scale-95 inline-flex items-center justify-center gap-2 cursor-pointer no-underline border-0">
+                <mat-icon class="!w-4 !h-4 !text-base flex-shrink-0">payment</mat-icon>
+                <span>{{ c.myNetSettleBalance() !== 0 ? 'Review & Settle Up' : 'View Settlement History' }}</span>
+              </a>
+            </div>
+          }
+
+          <!-- 2. INVITE CODE & SHARING CARD -->
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white inline-flex items-center gap-2 mb-0">
+                <mat-icon class="text-primary-500 !text-lg !w-4 !h-4 flex-shrink-0">share</mat-icon>
+                <span>Invite Family Members</span>
+              </h3>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+              Share this invite code with family members. They can join from the Family Groups screen to track shared expenses together.
+            </p>
+
+            <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between gap-3">
+              <div class="flex flex-col">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Group Code</span>
+                <span class="text-base font-bold font-mono tracking-widest text-primary-600 dark:text-primary-400">
+                  {{ c.family()?.inviteCode }}
+                </span>
+              </div>
+              <button type="button"
+                      (click)="c.copyCode(c.family()?.inviteCode || '')"
+                      class="px-3 py-1.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer border-0">
+                <mat-icon class="!text-xs !w-3.5 !h-3.5 flex-shrink-0">content_copy</mat-icon>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. DETAILED REPORTS & ANALYTICS SHORTCUT CARD -->
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white inline-flex items-center gap-2 mb-1">
+              <mat-icon class="text-primary-500 !text-lg !w-4 !h-4 flex-shrink-0">insights</mat-icon>
+              <span>Reports & Exports</span>
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Analyze category spending trends or receive an executive PDF breakdown via email.
+            </p>
+
+            <div class="pt-2 space-y-2">
+              <a [routerLink]="['/dashboard/family/reports']"
+                 class="w-full py-2 px-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-primary-50 dark:hover:bg-primary-950/40 text-slate-700 dark:text-slate-200 hover:text-primary-600 dark:hover:text-primary-400 font-semibold text-xs border border-slate-200/70 dark:border-slate-700/70 inline-flex items-center justify-between transition-colors no-underline">
+                <span class="inline-flex items-center gap-2">
+                  <mat-icon class="!text-sm !w-4 !h-4 text-primary-500 flex-shrink-0">donut_large</mat-icon>
+                  <span>Family Spending Reports</span>
+                </span>
+                <mat-icon class="!text-sm !w-4 !h-4 text-slate-400 flex-shrink-0">chevron_right</mat-icon>
+              </a>
+
+              <button type="button"
+                      (click)="c.generateReport()"
+                      class="w-full py-2 px-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-primary-50 dark:hover:bg-primary-950/40 text-slate-700 dark:text-slate-200 hover:text-primary-600 dark:hover:text-primary-400 font-semibold text-xs border border-slate-200/70 dark:border-slate-700/70 inline-flex items-center justify-between transition-colors cursor-pointer">
+                <span class="inline-flex items-center gap-2">
+                  <mat-icon class="!text-sm !w-4 !h-4 text-primary-500 flex-shrink-0">mail</mat-icon>
+                  <span>Email PDF Summary</span>
+                </span>
+                <mat-icon class="!text-sm !w-4 !h-4 text-slate-400 flex-shrink-0">send</mat-icon>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    } @else {
+      <!-- Loading Skeleton / Spinner State -->
+      <div class="flex flex-col items-center justify-center py-24 gap-4">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span class="text-sm font-semibold text-slate-400">Loading family group dashboard...</span>
+      </div>
+    }
+  </div>
+</div>

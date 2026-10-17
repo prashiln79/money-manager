@@ -1,0 +1,34 @@
+.family-dashboard-desktop {
+  min-height: 100vh;
+}
+
+// Global perfect icon alignment in desktop family dashboard
+mat-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle;
+  line-height: 1 !important;
+  flex-shrink: 0;
+}
+
+button, a {
+  mat-icon {
+    vertical-align: middle;
+  }
+}
+
+.shadow-xs {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-2xs {
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+// Background cover photo container
+.bg-cover {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+}

@@ -44,6 +44,7 @@ import { TrendPipe } from '../../../../util/pipes/trend.pipe';
 import { LocalIndexDBStorageService } from '../../../../util/service/indexdb-storage.service';
 import { CategoryReportItemComponent } from 'src/app/util/components/cards/category-report-item/category-report-item.component';
 import { LocalStorageKey } from '../../../../util/models/local-storage.model';
+import { ReportsDesktopComponent } from 'src/app/pages/desktop/reports/reports-desktop.component';
 
 interface ReportsPreferences {
     selectedPeriod: 'weekly' | 'monthly' | 'yearly' | 'all';
@@ -83,7 +84,8 @@ interface ReportsPreferences {
         AbsPipe,
         MathPipe,
         TrendPipe,
-        CategoryReportItemComponent
+        CategoryReportItemComponent,
+        ReportsDesktopComponent
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })

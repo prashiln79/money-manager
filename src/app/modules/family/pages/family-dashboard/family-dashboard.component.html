@@ -1,3 +1,6 @@
+@if (breakpointService.isDesktopLayout()) {
+  <app-family-dashboard-desktop [c]="this"></app-family-dashboard-desktop>
+} @else {
 <div class="family-dashboard bg-surface-100">
 
 
@@ -9,6 +12,10 @@
     <!-- Header Section -->
     <div
       class="shadow-sm rounded-b-3xl px-5 pt-4 pb-6 border-b border-gray-100 dark:border-gray-800/50 mb-4 relative header-section transition-all duration-300"
+      [class.min-h-[220px]]="!!family()?.banner"
+      [class.flex]="!!family()?.banner"
+      [class.flex-col]="!!family()?.banner"
+      [class.justify-between]="!!family()?.banner"
       [style.backgroundImage]="family()?.banner ? 'url(' + family()?.banner + ')' : ''" [class.has-banner]="!!family()?.banner">
 
       <!-- Overlay for readability when banner exists -->
@@ -47,29 +54,29 @@
         <div class="flex items-center gap-4">
           <!-- Family Avatar -->
           <div
-            class="w-16 h-16 mt-[-12px] rounded-2xl overflow-hidden  flex items-center justify-center shadow-inner border border-primary-100  shrink-0">
+            class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center shadow-inner border border-primary-100 dark:border-primary-900/40 shrink-0">
             @if (family()?.icon?.startsWith('data:')) {
               <img [src]="family()?.icon" alt="group icon"
                 class="w-full h-full object-cover" />
             }
             @if (!family()?.icon?.startsWith('data:')) {
               <mat-icon
-              class="!text-[32px] !w-8 !h-8 text-primary-600 dark:text-primary-400">{{ family()?.icon || 'roofing' }}</mat-icon>
+              class="!text-[32px] !w-8 !h-8 text-primary-600 dark:text-primary-400 flex items-center justify-center">{{ family()?.icon || 'roofing' }}</mat-icon>
             }
           </div>
-          <div>
-            <p class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight mb-1">{{ family()?.name }}</p>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 opacity-90">
-              <span class="flex items-center gap-1" (click)="openMembersSheet()">
-                <mat-icon class="!text-[16px] !w-4 !h-4 opacity-70">group</mat-icon>
-                {{ members().length }} 
+          <div class="min-w-0">
+            <p class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight mb-1 truncate">{{ family()?.name }}</p>
+            <div class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 opacity-90 flex-wrap">
+              <span class="inline-flex items-center gap-1 cursor-pointer" (click)="openMembersSheet()">
+                <mat-icon class="!text-[16px] !w-4 !h-4 opacity-70 flex-shrink-0">group</mat-icon>
+                <span>{{ members().length }}</span>
               </span>
-              <span class="text-gray-300 dark:text-gray-600">|</span>
-              <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-primary-500 text-primary-600 dark:text-primary-400 border border-gray-200/50 dark:border-gray-700/50 text-[11px] font-bold tracking-tight capitalize cursor-pointer hover:bg-white dark:hover:bg-gray-700 hover:border-primary-500/30 transition-all duration-200 active:scale-95 shadow-sm shadow-black/5" (click)="openModeInfo()">
-                <mat-icon class="!text-[14px] !w-3.5 !h-3.5">{{ family()?.mode === 'split' ? 'call_split' : 'account_balance_wallet' }}</mat-icon>
-                {{ family()?.mode || 'Common' }}
+              <span class="text-gray-300 dark:text-gray-600">•</span>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 border border-primary-200/50 dark:border-primary-800/50 text-[11px] font-bold tracking-tight capitalize cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-all duration-200 active:scale-95 shadow-xs" (click)="openModeInfo()">
+                <mat-icon class="!text-[14px] !w-3.5 !h-3.5 flex-shrink-0">{{ family()?.mode === 'split' ? 'call_split' : 'account_balance_wallet' }}</mat-icon>
+                <span>{{ family()?.mode || 'Common' }}</span>
               </span>
-            </p>
+            </div>
           </div>
         </div>
 
@@ -466,3 +473,4 @@
 
 
 </div>
+}

@@ -1,3 +1,6 @@
+@if (breakpointService.isDesktopLayout()) {
+  <app-add-transaction-desktop [c]="this"></app-add-transaction-desktop>
+} @else {
 <!-- Mobile Header -->
 <app-common-header [title]="viewMode() ? 'View' : (adjustmentMode() ? 'Adjust' : (dialogData?.id ? 'Edit' : 'Add')) + ' Transaction'"
   [showAddButton]="!viewMode()" [showEditButton]="viewMode()" [isSubmitting]="isSubmitting()"
@@ -830,3 +833,4 @@
               <div class="h-20"></div>
             </form>
           </app-common-body-content>
+}
