@@ -817,27 +817,33 @@ export class FirebaseMessagingService {
     await this.initializeMessaging();
   }
 
-  // Method to send test notification
-  public async sendTestNotification(): Promise<void> {
+  // Method to send test notification matching native transaction notification style
+  public async sendTestNotification(options?: {
+    userName?: string;
+    groupName?: string;
+    amount?: string;
+    category?: string;
+    icon?: string;
+  }): Promise<void> {
+    const userName = options?.userName || 'Prashil Wadkar';
+    const groupName = options?.groupName || 'Testing Group';
+    const amount = options?.amount || '₹32.00';
+    const category = options?.category || 'Bills & Utilities';
+    const appIcon = environment.baseUrl + '/assets/icon/app-icon/icon-192x192.png';
+    const icon = options?.icon || appIcon;
+
     const testNotification: NotificationPayload = {
-      title: 'Test Notification',
-      body: 'This is a test notification from Money Manager',
-      icon: environment.baseUrl + '/assets/icons/icon-192x192.png',
-      badge: environment.baseUrl + '/assets/icons/icon-72x72.png',
+      title: `New expense · ${groupName}`,
+      body: `${userName} added ${amount} for ${category}.`,
+      icon: icon,
+      badge: environment.baseUrl + '/assets/icon/app-icon/icon-72x72.png',
       data: {
         type: 'test',
-        timestamp: Date.now().toString()
+        timestamp: Date.now().toString(),
+        url: '#/dashboard/transactions',
+        creatorPhoto: icon
       },
-      actions: [
-        {
-          action: 'view',
-          title: 'View'
-        },
-        {
-          action: 'dismiss',
-          title: 'Dismiss'
-        }
-      ]
+      actions: []
     };
 
     await this.showNotification(testNotification);

@@ -79,10 +79,7 @@ function getNotificationOptions(payload, customOptions = {}) {
     requireInteraction: payload.notification?.requireInteraction || false,
     silent: payload.notification?.silent || false,
     timestamp: payload.notification?.timestamp || Date.now(),
-    actions: payload.notification?.actions || [
-      { action: 'view', title: 'View' },
-      { action: 'dismiss', title: 'Dismiss' }
-    ]
+    actions: payload.notification?.actions || []
   };
 
   // Profile image or banner image if provided

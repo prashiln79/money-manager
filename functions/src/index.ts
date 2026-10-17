@@ -136,10 +136,10 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         }
       }
 
-      // 8. Format notification message
+      // 8. Format notification message (e.g. "New expense · Testing Group")
+      // e.g. "Prashil Wadkar added ₹32.00 for Bills & Utilities."
       const txType = (tx.type || "expense").toLowerCase();
-      const typeLabel = txType === "income" ? "Income" : "Expense";
-      const article = typeLabel === "Income" ? "an" : "a";
+      const typeLabel = txType === "income" ? "income" : (txType === "transfer" ? "transfer" : "expense");
       const currency = tx.currency || familyData.currency || "INR";
       const amountValue = typeof tx.amount === "number" ? tx.amount : parseFloat(tx.amount || "0");
       const formattedAmount = isNaN(amountValue) ?
@@ -153,9 +153,8 @@ export const onFamilyTransactionCreated = onDocumentCreated(
       const category = tx.category || tx._categoryName || "General";
       const description = tx.notes || tx.note || tx.description || "";
 
-      const notificationTitle = groupName || "New Group Transaction";
-      const notificationBody =
-        `${creatorName} added ${article} ${typeLabel} of ${formattedAmount} in ${category}`;
+      const notificationTitle = groupName ? `New ${typeLabel} · ${groupName}` : `New ${typeLabel}`;
+      const notificationBody = `${creatorName} added ${formattedAmount} for ${category}.`;
 
       // 9. Fetch FCM tokens for each recipient user
       const userDocs = await db.getAll(
@@ -216,7 +215,6 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         notification: {
           title: notificationTitle,
           body: notificationBody,
-          ...(creatorPhoto ? { imageUrl: creatorPhoto } : {}),
         },
         data: {
           familyId,
@@ -241,7 +239,6 @@ export const onFamilyTransactionCreated = onDocumentCreated(
             title: notificationTitle,
             body: notificationBody,
             tag: `tx-${transactionId}`,
-            ...(creatorPhoto ? { imageUrl: creatorPhoto } : {}),
             clickAction: "FLUTTER_NOTIFICATION_CLICK",
           },
         },
@@ -256,11 +253,6 @@ export const onFamilyTransactionCreated = onDocumentCreated(
               sound: "default",
             },
           },
-          ...(creatorPhoto ? {
-            fcmOptions: {
-              imageUrl: creatorPhoto,
-            },
-          } : {}),
         },
         webpush: {
           notification: {
