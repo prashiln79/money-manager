@@ -89,23 +89,9 @@ export class FamilyNotificationService {
             isDeleted
           });
 
-          // In production: only notify for other members' transactions
-          // In development: notify for ANY addition (including yours) to verify it works
-          const shouldNotify = !isDeleted && creatorId && (isOtherUser || !environment.production);
-
-          if (shouldNotify) {
-            console.log(`[FamilyNotificationService] Triggering notification for transaction ${change.doc.id}`);
-            
-            // Trigger the shared notification manager (push notification)
-            this.notificationManager.sendTransactionAlert({
-              id: change.doc.id,
-              description: tx.notes || tx.category || 'New Transaction',
-              amount: tx.amount,
-              userDisplayName: tx.userDisplayName || 'Family Member'
-            });
-          } else {
-            console.log(`[FamilyNotificationService] Notification skipped: isDeleted=${isDeleted}, isOtherUser=${isOtherUser}`);
-          }
+          // Push notifications are handled authoritatively by the Firebase Cloud Function (onFamilyTransactionCreated).
+          // We intentionally do not send a duplicate local notification here to prevent redundant/multiple alerts.
+          console.log(`[FamilyNotificationService] Transaction detected in real-time. Handled via FCM Cloud Function.`);
         }
       });
     }, (error) => {

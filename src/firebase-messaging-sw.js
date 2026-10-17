@@ -88,7 +88,10 @@ function getNotificationOptions(payload, customOptions = {}) {
   // Profile image or banner image if provided
   const imageUrl = payload.notification?.image || payload.data?.image;
   if (imageUrl !== undefined) defaultOptions.image = imageUrl;
-  if (payload.notification?.tag !== undefined) defaultOptions.tag = payload.notification.tag;
+  // Stable tag for deduplication (collapses multiple pushes for same transaction)
+  const txId = payload.data?.transactionId || payload.data?.id;
+  const tag = txId ? `tx-${txId}` : (payload.notification?.tag || payload.data?.tag || undefined);
+  if (tag !== undefined) defaultOptions.tag = tag;
   if (payload.notification?.vibrate !== undefined) defaultOptions.vibrate = payload.notification.vibrate;
 
   // Platform-specific adjustments

@@ -162,7 +162,7 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         ...recipientUserIds.map((uid) => db.collection("users").doc(uid))
       );
 
-      const validTokens: string[] = [];
+      const validTokensSet = new Set<string>();
       const tokenToUserMap = new Map<string, string>();
 
       for (const userDoc of userDocs) {
@@ -175,13 +175,13 @@ export const onFamilyTransactionCreated = onDocumentCreated(
           continue;
         }
 
-        const userTokens = new Set<string>();
-
         // Support multiple devices via fcmTokens array
         if (Array.isArray(userData.fcmTokens)) {
           for (const token of userData.fcmTokens) {
             if (typeof token === "string" && token.trim().length > 0) {
-              userTokens.add(token.trim());
+              const cleanToken = token.trim();
+              validTokensSet.add(cleanToken);
+              tokenToUserMap.set(cleanToken, userDoc.id);
             }
           }
         }
@@ -191,14 +191,13 @@ export const onFamilyTransactionCreated = onDocumentCreated(
           typeof userData.fcmToken === "string" &&
           userData.fcmToken.trim().length > 0
         ) {
-          userTokens.add(userData.fcmToken.trim());
+          const cleanToken = userData.fcmToken.trim();
+          validTokensSet.add(cleanToken);
+          tokenToUserMap.set(cleanToken, userDoc.id);
         }
-
-        userTokens.forEach((token) => {
-          validTokens.push(token);
-          tokenToUserMap.set(token, userDoc.id);
-        });
       }
+
+      const validTokens = Array.from(validTokensSet);
 
       if (validTokens.length === 0) {
         logger.info("No valid FCM tokens found for recipients", {
@@ -234,12 +233,14 @@ export const onFamilyTransactionCreated = onDocumentCreated(
           creatorPhoto: creatorPhoto || "",
           icon: creatorPhoto || "/assets/icon/app-icon/icon-192x192.png",
           url: "#/dashboard/transactions",
+          tag: `tx-${transactionId}`,
         },
         android: {
           priority: "high",
           notification: {
             title: notificationTitle,
             body: notificationBody,
+            tag: `tx-${transactionId}`,
             ...(creatorPhoto ? { imageUrl: creatorPhoto } : {}),
             clickAction: "FLUTTER_NOTIFICATION_CLICK",
           },
