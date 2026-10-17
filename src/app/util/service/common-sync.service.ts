@@ -567,8 +567,6 @@ export class CommonSyncService implements OnDestroy {
           //subscriptionService.pullFromFirestore(userId),
           this.userService.pullFromFirestore(userId),
           this.familyService.pullFromFirestore(userId),
-          feedbackService.pullFromFirestore(),
-          contactService.pullFromFirestore(),
           this.googleSheetsService.pullFromFirestore(userId),
           notesService.pullFromFirestore(userId)
         ]).pipe(
@@ -647,10 +645,7 @@ export class CommonSyncService implements OnDestroy {
         const listeners$ = merge(
             transactionsService.listenToTransactions(user.uid).pipe(catchError(() => of(null))),
             accountsService.listenToAccounts(user.uid).pipe(catchError(() => of(null))),
-            categoryService.listenToCategories(user.uid).pipe(catchError(() => of(null))),
-            // budgetsService.listenToBudgets(user.uid).pipe(catchError(() => of(null))),
-            // goalsService.listenToGoals(user.uid).pipe(catchError(() => of(null)))
-            notesService.listenToNotes(user.uid).pipe(catchError(() => of(null)))
+            categoryService.listenToCategories(user.uid).pipe(catchError(() => of(null)))
         );
 
         return merge(initialSync$, listeners$);

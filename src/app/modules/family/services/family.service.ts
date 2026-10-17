@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, OnDestroy, Injector } from '@angular/core';
 import { QuickAction, QuickActionsFabConfig } from 'src/app/util/components/floating-action-buttons/quick-actions-fab/quick-actions-fab.component';
 import { Observable, from, of, firstValueFrom, Subject, forkJoin } from 'rxjs';
-import { map, catchError, filter, take, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { map, catchError, filter, take, switchMap, takeUntil, tap, shareReplay } from 'rxjs/operators';
 import {
   Firestore,
   collection,
@@ -81,6 +81,11 @@ export class FamilyService implements OnDestroy {
 
   readonly activeFamilyId = signal<string | null>(null);
   readonly sharedSelectedGroup = signal<any | null>(null);
+
+  private myFamiliesStream$: Observable<Family[]> | null = null;
+  private myFamiliesUserId: string | null = null;
+  private membersStreamMap = new Map<string, Observable<FamilyMember[]>>();
+  private settlementsStreamMap = new Map<string, Observable<Settlement[]>>();
 
   constructor(
     private firestore: Firestore,
@@ -454,16 +459,32 @@ export class FamilyService implements OnDestroy {
   getMyFamilies(): Observable<Family[]> {
     const syncUser = this.store.selectSignal(fromProfile.selectProfile)();
     
-    // If we have a user now, start the stream immediately
+    // If we have a user now, start or return the cached stream immediately
     if (syncUser) {
-      return this._getFamiliesStream(syncUser);
+      if (this.myFamiliesStream$ && this.myFamiliesUserId === syncUser.uid) {
+        return this.myFamiliesStream$;
+      }
+      this.myFamiliesUserId = syncUser.uid;
+      this.myFamiliesStream$ = this._getFamiliesStream(syncUser).pipe(
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+      return this.myFamiliesStream$;
     }
 
     // Otherwise wait for the profile to be loaded
     return this.store.select(fromProfile.selectProfile).pipe(
       filter(profile => !!profile),
       take(1),
-      switchMap(user => this._getFamiliesStream(user!))
+      switchMap(user => {
+        if (this.myFamiliesStream$ && this.myFamiliesUserId === user!.uid) {
+          return this.myFamiliesStream$;
+        }
+        this.myFamiliesUserId = user!.uid;
+        this.myFamiliesStream$ = this._getFamiliesStream(user!).pipe(
+          shareReplay({ bufferSize: 1, refCount: true })
+        );
+        return this.myFamiliesStream$;
+      })
     );
   }
 
@@ -531,28 +552,25 @@ export class FamilyService implements OnDestroy {
   /**
    * Returns an Observable of families where the current user is a member
    * but the group has been deleted (isActive === false) by the admin.
-   * Members can still VIEW these groups but cannot perform any actions.
+   * Uses a one-time read rather than a continuous listener to save Firestore reads.
    */
   getDeletedFamilies(): Observable<Family[]> {
     const user = this.store.selectSignal(fromProfile.selectProfile)();
     if (!user) return of([]);
 
-    return new Observable<Family[]>(observer => {
-      const q = query(
-        collection(this.firestore, this.FAMILIES_COL),
-        where('memberIds', 'array-contains', user.uid),
-        where('isActive', '==', false)
-      );
+    const q = query(
+      collection(this.firestore, this.FAMILIES_COL),
+      where('memberIds', 'array-contains', user.uid),
+      where('isActive', '==', false)
+    );
 
-      const unsubscribe = onSnapshot(q, (snap) => {
-        const families = snap.docs.map(d => ({ id: d.id, ...d.data() as Omit<Family, 'id'> }));
-        observer.next(families);
-      }, (err) => {
-        this.error('Error in deleted families listener:', err);
-        observer.next([]);
-      });
-      return () => unsubscribe();
-    });
+    return from(getDocs(q)).pipe(
+      map(snap => snap.docs.map(d => ({ id: d.id, ...d.data() as Omit<Family, 'id'> }))),
+      catchError(err => {
+        this.error('Error in deleted families fetch:', err);
+        return of([]);
+      })
+    );
   }
 
   private getInitialActiveFamilyId(): string | null {
@@ -694,7 +712,12 @@ export class FamilyService implements OnDestroy {
   // ─── Members ──────────────────────────────────────────────────────────────
 
   getMembers(familyId: string): Observable<FamilyMember[]> {
-    return this.storageService.isReady$.pipe(
+    const cachedStream = this.membersStreamMap.get(familyId);
+    if (cachedStream) {
+      return cachedStream;
+    }
+
+    const stream$ = this.storageService.isReady$.pipe(
       switchMap(() => {
         const cacheKey = LocalStorageKeyHelper.getMembersCacheKey(familyId);
         
@@ -727,8 +750,12 @@ export class FamilyService implements OnDestroy {
           });
           return () => unsubscribe();
         });
-      })
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    this.membersStreamMap.set(familyId, stream$);
+    return stream$;
   }
 
   getCachedMembersSync(familyId: string): FamilyMember[] {
@@ -955,7 +982,12 @@ export class FamilyService implements OnDestroy {
   // ─── Settlements ────────────────────────────────────────────────────────────────────
 
   getSettlements(familyId: string): Observable<Settlement[]> {
-    return this.storageService.isReady$.pipe(
+    const cachedStream = this.settlementsStreamMap.get(familyId);
+    if (cachedStream) {
+      return cachedStream;
+    }
+
+    const stream$ = this.storageService.isReady$.pipe(
       switchMap(() => {
         const cacheKey = LocalStorageKeyHelper.getSettlementsCacheKey(familyId);
 
@@ -988,8 +1020,12 @@ export class FamilyService implements OnDestroy {
           });
           return () => unsubscribe();
         });
-      })
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    this.settlementsStreamMap.set(familyId, stream$);
+    return stream$;
   }
 
   getCachedSettlementsSync(familyId: string): Settlement[] {

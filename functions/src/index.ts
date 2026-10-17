@@ -14,6 +14,9 @@ export const onFamilyTransactionCreated = onDocumentCreated(
   {
     document: "family-groups/{familyId}/transactions/{transactionId}",
     maxInstances: 10,
+    concurrency: 80,
+    memory: "256MiB",
+    timeoutSeconds: 30,
   },
   async (event) => {
     const snap = event.data;
@@ -75,32 +78,31 @@ export const onFamilyTransactionCreated = onDocumentCreated(
       const familyData = familyDoc.data() || {};
       const groupName = familyData.name || "Family Group";
 
-      // 6. Fetch members: support BOTH familyData.memberIds (array) AND members subcollection
+      // 6. Fetch members: use memberIds array if present; fall back to subcollection only if empty
       const recipientUserIdsSet = new Set<string>();
 
-      // A. Check memberIds array directly on the family group document (as in transactionListener.js)
-      if (Array.isArray(familyData.memberIds)) {
+      if (Array.isArray(familyData.memberIds) && familyData.memberIds.length > 0) {
         for (const mid of familyData.memberIds) {
           if (typeof mid === "string" && mid !== creatorId) {
             recipientUserIdsSet.add(mid);
           }
         }
-      }
-
-      // B. Also check members subcollection if present
-      try {
-        const membersSnapshot = await familyDocRef.collection("members").get();
-        if (!membersSnapshot.empty) {
-          for (const doc of membersSnapshot.docs) {
-            const mData = doc.data();
-            const uId = mData.userId || doc.id;
-            if (uId && uId !== creatorId && mData.isActive !== false) {
-              recipientUserIdsSet.add(uId);
+      } else {
+        // Fall back to members subcollection only if memberIds array is absent or empty
+        try {
+          const membersSnapshot = await familyDocRef.collection("members").get();
+          if (!membersSnapshot.empty) {
+            for (const doc of membersSnapshot.docs) {
+              const mData = doc.data();
+              const uId = mData.userId || doc.id;
+              if (uId && uId !== creatorId && mData.isActive !== false) {
+                recipientUserIdsSet.add(uId);
+              }
             }
           }
+        } catch (err) {
+          logger.warn("Could not query members subcollection:", err);
         }
-      } catch (err) {
-        logger.warn("Could not query members subcollection:", err);
       }
 
       const recipientUserIds = Array.from(recipientUserIdsSet);
@@ -117,22 +119,20 @@ export const onFamilyTransactionCreated = onDocumentCreated(
         return;
       }
 
-      // 7. Determine creator display name and avatar
+      // 7. Determine creator display name and avatar (skip Firestore read if already on transaction)
       let creatorName = tx.userDisplayName;
       let creatorPhoto = tx.userPhotoURL || tx.photoURL || "";
 
-      if (!creatorName || !creatorPhoto) {
+      if (!creatorName) {
         const creatorUserDoc = await db.collection("users").doc(creatorId).get();
         if (creatorUserDoc.exists) {
           const u = creatorUserDoc.data() || {};
-          if (!creatorName) {
-            creatorName = u.displayName || u.firstName || "A family member";
-          }
+          creatorName = u.displayName || u.firstName || "A family member";
           if (!creatorPhoto) {
             creatorPhoto = u.photoURL || u.profilePicture || "";
           }
         } else {
-          if (!creatorName) creatorName = "A family member";
+          creatorName = "A family member";
         }
       }
 

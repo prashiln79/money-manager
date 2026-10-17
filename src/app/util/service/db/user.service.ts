@@ -1743,10 +1743,15 @@ export class UserService implements OnDestroy {
    */
   async updateFcmToken(token: string): Promise<void> {
     const uid = this.getCurrentUserId();
-    if (!uid || this.isGuestUser()) return;
+    if (!uid || this.isGuestUser() || !token || !token.trim()) return;
 
-    // 1. Update local state/cache (Internal preferences)
+    // 1. Avoid redundant write if token is unchanged
     const currentUser = this.getCurrentUserSnapshot();
+    if (currentUser?.fcmToken === token) {
+      console.log('✅ FCM token already up to date, skipping redundant write');
+      return;
+    }
+
     if (currentUser) {
       const updatedUser = {
         ...currentUser,

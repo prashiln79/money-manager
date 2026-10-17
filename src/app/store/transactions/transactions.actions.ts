@@ -88,7 +88,7 @@ export const clearTransactions = createAction('[Transactions] Clear Transactions
 // Load Recurring Templates
 export const loadRecurringTemplates = createAction(
   '[Transactions] Load Recurring Templates',
-  props<{ userId: string }>()
+  props<{ userId: string; force?: boolean }>()
 );
 
 export const loadRecurringTemplatesSuccess = createAction(

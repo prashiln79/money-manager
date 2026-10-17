@@ -64,13 +64,19 @@ export class FamilyTransactionsService extends TransactionsService {
     }
 
     /**
-     * Override createTransaction to ensure familyId is always set
+     * Override createTransaction to ensure familyId and creator profile data are always set
      */
     override createTransaction(userId: string, transaction: Transaction): Observable<void> {
         const familyId = transaction.familyId || this.getFamilyId();
+        const currentUser = this.userService.getCurrentUserSnapshot();
+        const userDisplayName = transaction.userDisplayName || currentUser?.displayName || currentUser?.firstName || undefined;
+        const userPhotoURL = transaction.userPhotoURL || currentUser?.photoURL || undefined;
+
         const transactionWithFamily = { 
             ...transaction, 
-            familyId 
+            familyId,
+            ...(userDisplayName ? { userDisplayName } : {}),
+            ...(userPhotoURL ? { userPhotoURL } : {})
         } as Transaction;
         
         return super.createTransaction(userId, transactionWithFamily);

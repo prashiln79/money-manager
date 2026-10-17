@@ -138,6 +138,7 @@ export class FamilyDashboardComponent implements OnInit {
 
   // ─── Private State ───────────────────────────────────────────────────────────
   private isInstanceLoading = false;
+  private lastLoadedSettlementFamId: string | null = null;
 
   // ─── Store Signals (raw) ─────────────────────────────────────────────────────
   private readonly storeFamily  = toSignal(this.store.select(FamilySelectors.selectFamily).pipe(distinctUntilChanged((a, b) => a?.id === b?.id && (a as any)?.updatedAt === (b as any)?.updatedAt)), { initialValue: null });
@@ -198,7 +199,8 @@ export class FamilyDashboardComponent implements OnInit {
       const famId = this.family()?.id;
       const isLoading = this.loading() && !famId;
 
-      if (famId) {
+      if (famId && famId !== this.lastLoadedSettlementFamId) {
+        this.lastLoadedSettlementFamId = famId;
         untracked(() => {
           this.store.dispatch(FamilyActions.loadSettlements({ familyId: famId }));
         });

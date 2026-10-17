@@ -108,7 +108,16 @@ export class TransactionsEffects {
 
   loadRecurringTemplates$ = createEffect(() => this.actions$.pipe(
     ofType(TransactionsActions.loadRecurringTemplates),
-    switchMap(({ userId }) => this.recurringService.getRecurringTemplates(userId)
+    withLatestFrom(
+      this.store.select(TransactionsSelectors.selectRecurringTemplates),
+      this.store.select(TransactionsSelectors.selectTransactionsLastLoaded)
+    ),
+    filter(([action, templates, lastLoaded]) => {
+      if (action.force) return true;
+      const isCacheValid = !!lastLoaded && (Date.now() - lastLoaded < 300000); // 5 minutes TTL
+      return !isCacheValid || templates.length === 0;
+    }),
+    switchMap(([action]) => this.recurringService.getRecurringTemplates(action.userId)
       .pipe(
         map(templates => TransactionsActions.loadRecurringTemplatesSuccess({ templates })),
         catchError(error => of(TransactionsActions.loadRecurringTemplatesFailure({ error })))
