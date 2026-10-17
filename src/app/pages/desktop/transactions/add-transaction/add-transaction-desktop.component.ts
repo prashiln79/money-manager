@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,7 +47,6 @@ import { MobileAddTransactionComponent } from 'src/app/component/dashboard/trans
     NgxMatSelectSearchModule,
     TranslateModule,
     CurrencyPipe,
-    DatePipe,
     ImageFallbackDirective
   ]
 })

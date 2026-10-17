@@ -28,6 +28,7 @@ import { PerformanceDashboardComponent } from './component/dashboard/header/perf
 import { PerformanceMetricsService } from './util/service/performance-metrics.service';
 import { BreakpointService } from './util/service/breakpoint.service';
 import { inject } from '@angular/core';
+import { SeoService } from './util/service/seo.service';
 
 
 @Component({
@@ -76,6 +77,8 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   };
 
+  private seoService = inject(SeoService);
+
   constructor(
     private location: Location,
     private loaderService: LoaderService,
@@ -107,25 +110,25 @@ export class AppComponent implements OnInit, OnDestroy {
       isMobile: false
     };
 
-    // Track page views
+    // Track page views and update SEO
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntil(this.destroy$)
       )
       .subscribe((event) => {
-        const pageTitle = this.getDeepestTitle(this.route) || document.title || 'Unknown';
+        const deepestSnapshot = this.getDeepestSnapshot(this.route);
+        const seoData = deepestSnapshot?.data?.['seo'];
+        this.seoService.updateSeoForRoute(seoData, event.urlAfterRedirects);
       });
   }
 
-
-
- private getDeepestTitle(route: ActivatedRoute): string | null {
+  private getDeepestSnapshot(route: ActivatedRoute): any {
     let current = route;
     while (current.firstChild) {
       current = current.firstChild;
     }
-    return current.snapshot.data?.['title'] || null;
+    return current.snapshot;
   }
 
 

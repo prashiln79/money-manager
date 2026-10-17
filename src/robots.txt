@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard/
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /register
+Disallow: /offline
 
-Sitemap: https://prashiln79.github.io/money-manager/#/landing
+Sitemap: https://prashiln79.github.io/money-manager/sitemap.xml
