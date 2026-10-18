@@ -111,7 +111,7 @@ export class LandingComponent implements OnInit {
     {
       name: 'Sarah Johnson',
       role: 'Freelance Designer',
-      content: 'Money Manager helped me save $5,000 in just 6 months! The goal tracking feature is incredible.',
+      content: 'Family Expense Tracker helped me save $5,000 in just 6 months! The goal tracking feature is incredible.',
       avatar: '👩‍🎨',
       rating: 5,
       location: 'San Francisco, CA'
@@ -241,7 +241,7 @@ export class LandingComponent implements OnInit {
 
   onPwaInstallClicked(): void {
     console.log('PWA install clicked from prompt component');
-    this.notificationService.success('Installing Money Manager...');
+    this.notificationService.success('Installing Family Expense Tracker...');
   }
 
   onPwaInstallDismissed(): void {

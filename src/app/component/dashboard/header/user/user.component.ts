@@ -351,8 +351,8 @@ export class UserComponent {
     const playStoreUrl = 'https://play.google.com/store/apps/details?id=io.github.prashiln79.twa';
     if (navigator.share) {
       navigator.share({
-        title: 'Money Manager',
-        text: 'Track your finances with Money Manager!',
+        title: APP_CONFIG.APP_NAME,
+        text: 'Track your finances with ' + APP_CONFIG.APP_NAME + '!',
         url: playStoreUrl,
       }).catch(() => {});
     } else {

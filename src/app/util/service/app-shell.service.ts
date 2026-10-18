@@ -49,7 +49,7 @@ export class AppShellService {
 
   // Predefined loading scenarios
   showInitialLoad() {
-    this.show('Loading Money Manager', 'Initializing your financial dashboard...');
+    this.show('Loading ' + APP_CONFIG.APP_NAME, 'Initializing your financial dashboard...');
   }
 
   showDataSync() {

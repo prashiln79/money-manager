@@ -6,9 +6,13 @@
       <!-- Header / Logo -->
       <div class="flex items-center justify-between p-6 pb-2">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 dark:shadow-none transition-transform hover:scale-105 active:scale-95 cursor-pointer" routerLink="/dashboard" (click)="closeDrawer()">
-            <mat-icon class="text-white !text-[1.8rem] !w-[30px] !h-[30px]">account_balance_wallet</mat-icon>
-          </div>
+          <img src="assets/icon/app-icon/icon-192x192.png"
+               alt="Family Expense Tracker"
+               width="40"
+               height="40"
+               class="w-10 h-10 object-contain rounded-xl transition-transform hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0"
+               routerLink="/dashboard"
+               (click)="closeDrawer()" />
           <div class="flex flex-col">
             <span class="text-base font-bold text-gray-900 dark:text-white leading-tight tracking-tight">{{ 'COMMON.MONEY_MANAGER' | translate }}</span>
             <!-- <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest opacity-80">Portfolio</span> -->

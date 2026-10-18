@@ -10,14 +10,16 @@
          [class.justify-between]="!isSidebarCollapsed()"
          [class.justify-center]="isSidebarCollapsed()">
       <a routerLink="/dashboard" class="flex items-center gap-3 overflow-hidden group cursor-pointer no-underline"
-         [matTooltip]="isSidebarCollapsed() ? 'Money Manager' : ''"
+         [matTooltip]="isSidebarCollapsed() ? 'Family Expense Tracker' : ''"
          matTooltipPosition="right">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-primary-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
-          <mat-icon class="!w-5 !h-5 !text-xl">account_balance_wallet</mat-icon>
-        </div>
+        <img src="assets/icon/app-icon/icon-192x192.png"
+             alt="Family Expense Tracker"
+             width="40"
+             height="40"
+             class="w-10 h-10 object-contain rounded-xl flex-shrink-0 transition-transform group-hover:scale-105" />
         @if (!isSidebarCollapsed()) {
           <div class="flex flex-col truncate">
-            <span class="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">Money Manager</span>
+            <span class="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">FET</span>
             <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none">Smart Finances</span>
           </div>
         }

@@ -17,7 +17,7 @@ export const routes: Routes = [
     title: 'App Shell',
     data: {
       seo: {
-        title: 'MoneyManager Shell',
+        title: 'Family Expense Tracker Shell',
         robots: 'noindex, nofollow'
       }
     }
@@ -28,8 +28,8 @@ export const routes: Routes = [
     title: 'Feedback',
     data: {
       seo: {
-        title: 'Feedback & Support | MoneyManager',
-        description: 'Send feedback, ask questions, or request support for the MoneyManager family expense tracker and personal finance app.',
+        title: 'Feedback & Support | Family Expense Tracker',
+        description: 'Send feedback, ask questions, or request support for the Family Expense Tracker app.',
         robots: 'index, follow',
         canonicalPath: 'feedback'
       }
@@ -41,9 +41,9 @@ export const routes: Routes = [
     title: 'Welcome',
     data: {
       seo: {
-        title: 'MoneyManager - Family Expense Tracker & Budget Planner',
+        title: 'Family Expense Tracker - Personal Finance & Budget Planner',
         description: 'Free, privacy-focused family expense tracker and personal finance manager. Track daily expenses, plan budgets, analyze spending trends, and organize accounts offline and online.',
-        keywords: 'family expense tracker, personal finance app, budget planner, money manager, financial analytics, offline finance app, PWA expense tracker',
+        keywords: 'family expense tracker, personal finance app, budget planner, expense manager, financial analytics, offline finance app, PWA expense tracker',
         robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         canonicalPath: 'landing'
       }
@@ -55,8 +55,8 @@ export const routes: Routes = [
     title: 'Privacy Policy',
     data: {
       seo: {
-        title: 'Privacy Policy | MoneyManager',
-        description: 'Learn how MoneyManager protects your personal financial data. Transparent privacy practices, local-first storage, and secure encryption.',
+        title: 'Privacy Policy | Family Expense Tracker',
+        description: 'Learn how Family Expense Tracker protects your personal financial data. Transparent privacy practices, local-first storage, and secure encryption.',
         robots: 'index, follow',
         canonicalPath: 'privacy-policy'
       }
@@ -68,8 +68,8 @@ export const routes: Routes = [
     title: 'Terms & Conditions',
     data: {
       seo: {
-        title: 'Terms & Conditions | MoneyManager',
-        description: 'Review the terms and conditions for using MoneyManager family expense tracker and personal finance web application.',
+        title: 'Terms & Conditions | Family Expense Tracker',
+        description: 'Review the terms and conditions for using Family Expense Tracker app.',
         robots: 'index, follow',
         canonicalPath: 'terms-conditions'
       }
@@ -81,7 +81,7 @@ export const routes: Routes = [
     title: 'Offline',
     data: {
       seo: {
-        title: 'Offline | MoneyManager',
+        title: 'Offline | Family Expense Tracker',
         robots: 'noindex, nofollow'
       }
     }
@@ -92,8 +92,8 @@ export const routes: Routes = [
     title: 'Data Deletion',
     data: {
       seo: {
-        title: 'Data Deletion Instructions | MoneyManager',
-        description: 'Instructions for requesting permanent account and financial data deletion from MoneyManager in compliance with privacy regulations.',
+        title: 'Data Deletion Instructions | Family Expense Tracker',
+        description: 'Instructions for requesting permanent account and financial data deletion from Family Expense Tracker in compliance with privacy regulations.',
         robots: 'index, follow',
         canonicalPath: 'data-deletion'
       }
@@ -105,7 +105,7 @@ export const routes: Routes = [
     title: 'Sign In',
     data: {
       seo: {
-        title: 'Sign In | MoneyManager',
+        title: 'Sign In | Family Expense Tracker',
         robots: 'noindex, nofollow'
       }
     }
@@ -116,7 +116,7 @@ export const routes: Routes = [
     title: 'Sign Up',
     data: {
       seo: {
-        title: 'Sign Up | MoneyManager',
+        title: 'Sign Up | Family Expense Tracker',
         robots: 'noindex, nofollow'
       }
     }
@@ -127,7 +127,7 @@ export const routes: Routes = [
     title: 'Register',
     data: {
       seo: {
-        title: 'Create Account | MoneyManager',
+        title: 'Create Account | Family Expense Tracker',
         robots: 'noindex, nofollow'
       }
     }

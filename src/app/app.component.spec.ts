@@ -50,10 +50,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'Money Manager'`, () => {
+  it(`should have as title 'Family Expense Tracker'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('Money Manager');
+    expect(app.title).toEqual('Family Expense Tracker');
   });
 
   it('should initialize PWA features', () => {

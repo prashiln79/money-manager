@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/assets/images/screenshot/banner.png" alt="Money Manager Banner" width="100%">
+  <img src="src/assets/images/screenshot/banner.png" alt="Family Expense Tracker Banner" width="100%">
 </p>
 
 <p align="center">
@@ -18,65 +18,71 @@
   <a href="https://play.google.com/store/apps/details?id=io.github.prashiln79.twa" target="_blank">
     <img src="https://img.shields.io/badge/Google_Play-414141?style=flat&logo=googleplay&logoColor=white" alt="Google Play" />
   </a>
-  <img src="https://img.shields.io/badge/Angular-18-red" alt="Angular 18" />
+  <img src="https://img.shields.io/badge/Angular-21-red" alt="Angular 21" />
   <img src="https://img.shields.io/badge/PWA-Ready-green" alt="PWA Ready" />
-  <img src="https://img.shields.io/badge/Tests-80%25-success" alt="Tests" />
+  <img src="https://img.shields.io/badge/SEO-Optimized-blue" alt="SEO Optimized" />
   <img src="https://img.shields.io/badge/License-MIT-blue" alt="License" />
 </p>
 
-# Money Manager
+# Family Expense Tracker
 
-**Money Manager** is a production-grade personal finance application designed to help users track, analyze, and optimize their financial life. Built with modern web technologies and a focus on user experience, it offers a seamless, cross-platform experience with offline capabilities and advanced AI-powered interactions.
+**Family Expense Tracker** is a production-grade personal and household finance application designed to help individuals and families track, analyze, and optimize their financial life. Built with modern web technologies and a focus on privacy and user experience, it offers a seamless cross-platform experience with offline PWA support, advanced AI-powered transaction parsing, multi-currency tracking, and automated SEO prerendering for search visibility.
 
 ## 🌟 Key Features
 
 ### 🤖 AI Financial Assistant
-- **Natural Language Processing**: Simply type or say "Spent 500 on groceries" to instantly record transactions.
-- **Voice Commands**: Integrated mic support for hands-free interaction using OpenAI Whisper.
-- **Smart Insights**: Ask questions like "How much did I spend on food last month?" to get instant answers.
+- **Natural Language Processing**: Simply type or speak (e.g., "Spent 500 on groceries") to record transactions automatically.
+- **Voice Commands**: Integrated microphone support for hands-free entry using OpenAI Whisper.
+- **Smart Insights**: Ask conversational queries like "How much did our family spend on food last month?" for instant summaries.
 
-### 💰 Comprehensive Financial Tools
-- **Multi-Account Tracking**: Manage savings, credit cards, and loans in one unified dashboard.
-- **Smart Budgeting**: Set monthly spending limits and receive visual alerts when nearing thresholds.
-- **Custom Categories**: Organize transactions with flexible, user-defined categories.
+### 💰 Comprehensive Financial & Family Budgeting Tools
+- **Multi-Account & Wallet Tracking**: Manage cash, bank accounts, credit cards, and family budgets in a unified dashboard.
+- **Smart Budget Alerts**: Establish monthly category thresholds and receive real-time visual progress warnings.
+- **Custom Categories & Subcategories**: Organize income and expenses tailored to household needs.
+- **Multi-Currency & Internationalization (i18n)**: Seamless language localization powered by `@ngx-translate`.
 
-### 📊 Analytics & Visualization
-- **Dynamic Reports**: Visualize spending habits with interactive ECharts and AmCharts.
-- **Cash Flow Analysis**: Track income vs. expenses trends over time.
+### 📊 Analytics & Data Visualization
+- **Interactive Visual Reports**: Visualize spending habits with rich charts powered by ECharts and AmCharts.
+- **Cash Flow Trends**: Track income vs. expense balance, category breakdowns, and long-term trends.
+- **Export & Backup**: Export transaction histories for accounting and record-keeping.
 
-### 🛠 Technical Excellence
-- **Offline-First PWA**: Fully functional offline mode with data synchronization when online.
-- **Responsive Design**: Optimized for Desktop, Tablet, and Mobile (iOS/Android).
-- **Dark/Light Themes**: Modern UI with Tailwind CSS.
+### 🛠 Technical Excellence & Modern SEO
+- **Offline-First PWA**: Installable Progressive Web App with service worker caching and background sync.
+- **Android TWA (Trusted Web Activity)**: Distributed on the Google Play Store.
+- **Static SEO Prerendering**: Pre-generated static landing, privacy, terms, feedback, and data-deletion pages for 100% crawlability by Google and search engines on GitHub Pages.
+- **Dynamic SEO Metadata**: Real-time Open Graph, Twitter Cards, canonical links, and Schema.org JSON-LD structured data (`SoftwareApplication` & `WebSite`).
+- **Responsive Design**: Designed for mobile, tablet, and desktop viewports with dark and light theme support.
 
 ## 🏗 Tech Stack
 
 | Category | Technologies |
 |----------|--------------|
-| **Frontend Framework** | Angular 18, TypeScript |
-| **State Management** | NgRx (Store, Effects, Entity) |
+| **Frontend Framework** | Angular 21, TypeScript |
+| **State Management** | NgRx 21 (Store, Effects, Entity, DevTools) |
 | **UI & Styling** | Angular Material, Tailwind CSS, SCSS |
-| **Backend & Auth** | Firebase (Firestore, Auth, Hosting) |
+| **Backend & Cloud** | Firebase (Cloud Firestore, Authentication, Analytics, Cloud Messaging) |
 | **AI Integration** | OpenAI GPT-4o API, OpenAI Whisper |
-| **Data Visualization** | ECharts, AmCharts |
-| **Testing** | Jasmine, Karma |
+| **Charts & Visuals** | Apache ECharts, AmCharts |
+| **Testing** | Jasmine, Karma, Playwright (E2E) |
+| **Deployment & SEO** | GitHub Pages, Automated Static Prerendering, PWA Service Worker |
 
 ## 📐 Architecture
 
-The application follows a modular, scalable architecture emphasizing separation of concerns:
+The application follows a scalable modular architecture emphasizing strict separation of concerns:
 
-- **Facade Pattern**: Acts as an abstraction layer between components and state management, keeping components "dumb" and focused on presentation.
-- **Feature Modules**: Logic is split into lazy-loaded modules (`Dashboard`, `Auth`, `Settings`) for optimal performance.
-- **Smart vs. Dumb Components**:
-    - **Smart Components**: Handle data fetching and business logic (via Facades).
-    - **Dumb Components**: Purely presentational, receiving data via `@Input` and emitting events.
+- **Facade Pattern**: Abstraction layer between UI components and NgRx state management, keeping components focused purely on presentation.
+- **Feature Modules**: Lazy-loaded feature routes (`Dashboard`, `Transactions`, `Analytics`, `Settings`, `Auth`) for optimal bundle sizes and quick initial loads.
+- **Smart & Presentational Components**:
+    - **Smart Components**: Manage state subscriptions and business actions via Facade services.
+    - **Presentational Components**: Receive inputs and emit output events without direct state coupling.
+- **Static SEO Builder**: Post-build script (`scripts/generate-static-seo-pages.js`) builds clean static directory structures for public routes (`/landing`, `/privacy-policy`, etc.) and a SPA `404.html` redirection engine for GitHub Pages.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- npm or yarn
+- npm (v9 or higher)
 - Angular CLI (`npm install -g @angular/cli`)
 
 ### Installation
@@ -93,50 +99,70 @@ The application follows a modular, scalable architecture emphasizing separation 
    ```
 
 3. **Environment Setup**
-    - Create `src/environments/environment.ts` (copy from example if available).
-    - Configure your Firebase and OpenAI API keys.
+   - Run configuration script to populate environment variables:
+     ```bash
+     npm run config
+     ```
+   - Configure your Firebase credentials and OpenAI API keys in `src/environments/environment.ts`.
 
 4. **Start the development server**
    ```bash
    npm start
+   # Application opens at http://localhost:4200
    ```
+
+## 🏗 Building & Deployment
+
+```bash
+# Build production bundle and automatically run postbuild static SEO generation
+npm run build
+
+# Run build with cache busting
+npm run build:cache-bust
+
+# Run full deployment preparation
+npm run deploy
+```
+
+The build output is generated in `dist/money-manager/` ready for GitHub Pages hosting.
 
 ## ✅ Testing
 
-This project includes comprehensive test coverage (~80%) for all major components.
-
-### Running Tests
-
 ```bash
-# Run tests in watch mode (development)
+# Run unit tests
 npm test
 
-# Run tests once with coverage (CI/CD)
+# Run unit tests in headless mode with code coverage
 npm run test:ci
 
-# Run tests with detailed coverage report
-npm run test:coverage
-```
+# Run Playwright End-to-End (E2E) tests
+npm run test:e2e
 
-### Test Coverage Goals
-- **Statements**: 80%
-- **Branches**: 80%
-- **Functions**: 80%
-- **Lines**: 80%
+# Run Playwright E2E interactive UI mode
+npm run test:e2e:ui
+```
 
 ## 📂 Project Structure
 
 ```
 src/
 ├── app/
-│   ├── component/dashboard/     # Feature components (Dashboard, Transactions)
-│   ├── modules/                 # Lazy-loaded modules and shared modules
-│   ├── store/                   # NgRx State (Actions, Reducers, Selectors, Effects)
-│   ├── util/                    # Utilities, Services, Guards, Interceptors
-│   │   └── service/ai-chat/     # AI Logic (OpenAI, Intent Parsers)
-│   └── app.module.ts            # Root module
-├── assets/                      # Images, Icons, i18n files
-└── environments/                # App configuration variables
+│   ├── component/             # Feature components (Dashboard, Landing, Settings, etc.)
+│   ├── layouts/               # Responsive Desktop & Mobile layout containers
+│   ├── modules/               # Lazy-loaded feature modules
+│   ├── pages/                 # Route page components
+│   ├── store/                 # NgRx State (Actions, Reducers, Selectors, Effects)
+│   ├── util/                  # Services (SEO, AI Chat, Auth, Notifications, Guards)
+│   └── app-routing.module.ts  # Route definitions with SEO metadata & guards
+├── assets/                    # Images, icons, screenshots, and i18n translation JSONs
+├── environments/              # Environment configurations
+├── index.html                 # Main SPA template with Schema.org JSON-LD
+├── robots.txt                 # Search engine crawler policies
+└── sitemap.xml                # Sitemap with clean canonical URLs
+scripts/
+├── generate-static-seo-pages.js # Prerenders static HTML pages & 404 SPA fallback
+├── set-env.js                 # Injects environment variables at build time
+└── sync-i18n.js               # Synchronizes internationalization translation keys
 ```
 
 ## 📸 Screenshots
@@ -160,3 +186,4 @@ src/
 ## 📄 License
 
 This project is licensed under the MIT License.
+

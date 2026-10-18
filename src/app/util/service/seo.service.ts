@@ -18,7 +18,7 @@ export interface RouteSeoData {
 })
 export class SeoService {
   private readonly defaultBaseUrl = environment.baseUrl?.replace(/\/$/, '') || 'https://prashiln79.github.io/money-manager';
-  private readonly defaultTitle = 'MoneyManager - Family Expense Tracker & Budget Planner';
+  private readonly defaultTitle = 'Family Expense Tracker - Personal Finance & Budget Planner';
   private readonly defaultDescription = 'Free, privacy-focused family expense tracker and personal finance manager. Track daily expenses, plan budgets, analyze spending trends, and organize accounts offline and online.';
   private readonly defaultOgImage = `${this.defaultBaseUrl}/assets/icon/app-icon/icon-512x512.png`;
 
@@ -62,7 +62,7 @@ export class SeoService {
     this.metaService.updateTag({ property: 'og:url', content: canonicalUrl });
     this.metaService.updateTag({ property: 'og:type', content: seoData.ogType || 'website' });
     this.metaService.updateTag({ property: 'og:image', content: ogImage });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'MoneyManager' });
+    this.metaService.updateTag({ property: 'og:site_name', content: 'Family Expense Tracker' });
 
     // 4. Twitter Card Tags
     this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });

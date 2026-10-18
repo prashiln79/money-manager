@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Static SEO Generator for MoneyManager on GitHub Pages
+ * Static SEO Generator for Family Expense Tracker on GitHub Pages
  *
  * Generates static HTML entry points with pre-populated metadata,
  * Open Graph, Twitter cards, canonical tags, JSON-LD structured data,
@@ -34,14 +34,14 @@ const baseHtml = fs.readFileSync(baseHtmlPath, 'utf-8');
 const publicPages = [
   {
     path: 'landing',
-    title: 'MoneyManager - Family Expense Tracker & Budget Planner',
+    title: 'Family Expense Tracker - Personal Finance & Budget Planner',
     description: 'Free, privacy-focused family expense tracker and personal finance manager. Track daily expenses, plan budgets, analyze spending trends, and organize accounts offline and online.',
     canonicalUrl: `${BASE_URL}/landing`,
     heading: 'Take Control of Your Personal & Family Finances',
     semanticContent: `
       <section style="padding: 2rem; max-width: 900px; margin: 0 auto; font-family: sans-serif;">
         <h1>Take Control of Your Personal & Family Finances</h1>
-        <p>MoneyManager is a comprehensive personal finance and family expense tracker progressive web application. Built for simplicity, security, and power.</p>
+        <p>Family Expense Tracker is a comprehensive personal finance and family budgeting progressive web application. Built for simplicity, security, and power.</p>
         <h2>Key Features</h2>
         <ul>
           <li><strong>Family Collaboration:</strong> Synchronize shared expenses and family budgets in real-time.</li>
@@ -55,14 +55,14 @@ const publicPages = [
   },
   {
     path: 'privacy-policy',
-    title: 'Privacy Policy | MoneyManager',
-    description: 'Learn how MoneyManager protects your personal financial data. Transparent privacy practices, local-first storage, and secure encryption.',
+    title: 'Privacy Policy | Family Expense Tracker',
+    description: 'Learn how Family Expense Tracker protects your personal financial data. Transparent privacy practices, local-first storage, and secure encryption.',
     canonicalUrl: `${BASE_URL}/privacy-policy`,
     heading: 'Privacy Policy',
     semanticContent: `
       <section style="padding: 2rem; max-width: 900px; margin: 0 auto; font-family: sans-serif;">
         <h1>Privacy Policy</h1>
-        <p>At MoneyManager, your privacy is our top priority. We are committed to transparency in how your personal and financial information is handled.</p>
+        <p>At Family Expense Tracker, your privacy is our top priority. We are committed to transparency in how your personal and financial information is handled.</p>
         <h2>Information We Collect</h2>
         <p>We only collect the data necessary to provide expense tracking and budgeting services, including account credentials (if signed in) and financial records you choose to input.</p>
         <h2>Data Storage & Security</h2>
@@ -74,16 +74,16 @@ const publicPages = [
   },
   {
     path: 'terms-conditions',
-    title: 'Terms & Conditions | MoneyManager',
-    description: 'Review the terms and conditions for using MoneyManager family expense tracker and personal finance web application.',
+    title: 'Terms & Conditions | Family Expense Tracker',
+    description: 'Review the terms and conditions for using Family Expense Tracker app.',
     canonicalUrl: `${BASE_URL}/terms-conditions`,
     heading: 'Terms & Conditions',
     semanticContent: `
       <section style="padding: 2rem; max-width: 900px; margin: 0 auto; font-family: sans-serif;">
         <h1>Terms & Conditions</h1>
-        <p>By using MoneyManager, you agree to these Terms and Conditions. Please review them carefully.</p>
+        <p>By using Family Expense Tracker, you agree to these Terms and Conditions. Please review them carefully.</p>
         <h2>Service Use</h2>
-        <p>MoneyManager is provided as a personal finance management and expense tracking tool for informational and personal budgeting purposes.</p>
+        <p>Family Expense Tracker is provided as a personal finance management and expense tracking tool for informational and personal budgeting purposes.</p>
         <h2>Account Responsibility</h2>
         <p>Users are responsible for maintaining the confidentiality of their account credentials and pin codes.</p>
       </section>
@@ -91,21 +91,21 @@ const publicPages = [
   },
   {
     path: 'feedback',
-    title: 'Feedback & Support | MoneyManager',
-    description: 'Send feedback, ask questions, or request support for the MoneyManager family expense tracker and personal finance app.',
+    title: 'Feedback & Support | Family Expense Tracker',
+    description: 'Send feedback, ask questions, or request support for the Family Expense Tracker app.',
     canonicalUrl: `${BASE_URL}/feedback`,
     heading: 'Feedback & Support',
     semanticContent: `
       <section style="padding: 2rem; max-width: 900px; margin: 0 auto; font-family: sans-serif;">
         <h1>Feedback & Support</h1>
-        <p>We welcome your questions, feature suggestions, and bug reports. Contact the MoneyManager team to help improve your expense tracking experience.</p>
+        <p>We welcome your questions, feature suggestions, and bug reports. Contact the Family Expense Tracker team to help improve your expense tracking experience.</p>
       </section>
     `
   },
   {
     path: 'data-deletion',
-    title: 'Data Deletion Instructions | MoneyManager',
-    description: 'Instructions for requesting permanent account and financial data deletion from MoneyManager in compliance with privacy regulations.',
+    title: 'Data Deletion Instructions | Family Expense Tracker',
+    description: 'Instructions for requesting permanent account and financial data deletion from Family Expense Tracker in compliance with privacy regulations.',
     canonicalUrl: `${BASE_URL}/data-deletion`,
     heading: 'Data Deletion Instructions',
     semanticContent: `
@@ -195,7 +195,7 @@ const spa404Html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>MoneyManager - Redirecting...</title>
+  <title>Family Expense Tracker - Redirecting...</title>
   <meta name="robots" content="noindex, nofollow">
   <script>
     // GitHub Pages SPA Single-Page-App deep link redirector
@@ -211,7 +211,7 @@ const spa404Html = `<!DOCTYPE html>
   </script>
 </head>
 <body>
-  <p>Redirecting to <a href="${BASE_URL}/">MoneyManager</a>...</p>
+  <p>Redirecting to <a href="${BASE_URL}/">Family Expense Tracker</a>...</p>
 </body>
 </html>
 `;
