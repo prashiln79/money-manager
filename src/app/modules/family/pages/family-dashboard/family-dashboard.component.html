@@ -66,14 +66,14 @@
           </div>
           <div class="min-w-0">
             <p class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight mb-1 truncate">{{ family()?.name }}</p>
-            <div class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 opacity-90 flex-wrap">
-              <span class="inline-flex items-center gap-1 cursor-pointer" (click)="openMembersSheet()">
-                <mat-icon class="!text-[16px] !w-4 !h-4 opacity-70 flex-shrink-0">group</mat-icon>
+            <div class="text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center gap-2 flex-wrap">
+              <span class="inline-flex items-center gap-1.5 cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors" (click)="openMembersSheet()">
+                <mat-icon class="!text-[16px] !w-4 !h-4 text-gray-400 dark:text-gray-500 flex-shrink-0">group</mat-icon>
                 <span>{{ members().length }}</span>
               </span>
               <span class="text-gray-300 dark:text-gray-600">•</span>
-              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 border border-primary-200/50 dark:border-primary-800/50 text-[11px] font-bold tracking-tight capitalize cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-all duration-200 active:scale-95 shadow-xs" (click)="openModeInfo()">
-                <mat-icon class="!text-[14px] !w-3.5 !h-3.5 flex-shrink-0">{{ family()?.mode === 'split' ? 'call_split' : 'account_balance_wallet' }}</mat-icon>
+              <span class="mode-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold capitalize cursor-pointer transition-all duration-200 active:scale-95 shadow-xs" (click)="openModeInfo()">
+                <mat-icon class="!text-[15px] !w-[15px] !h-[15px] flex-shrink-0">{{ family()?.mode === 'split' ? 'call_split' : 'account_balance_wallet' }}</mat-icon>
                 <span>{{ family()?.mode || 'Common' }}</span>
               </span>
             </div>
@@ -95,6 +95,16 @@
             <div class="flex items-center">
               <mat-icon class="!mr-3 text-primary-500">insights</mat-icon>
               <span class="font-medium">View Report</span>
+            </div>
+          </button>
+
+          <button mat-menu-item (click)="createFamily()">
+            <div class="flex items-center">
+              <mat-icon class="!mr-3 text-primary-500">group_add</mat-icon>
+              <div class="flex flex-col">
+                <span class="font-medium">Create New Group</span>
+                <span class="text-[10px] text-gray-500 -mt-0.5">Start a new shared space</span>
+              </div>
             </div>
           </button>
 

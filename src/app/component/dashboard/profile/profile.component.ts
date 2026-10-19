@@ -63,8 +63,8 @@ import { QuickActionsFabComponent } from 'src/app/util/components/floating-actio
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
 import { ThemeToggleComponent } from 'src/app/util/components/theme-toggle/theme-toggle.component';
 import { SsrService } from 'src/app/util/service/ssr.service';
-import { of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { of, firstValueFrom } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 import { DestroyRef } from '@angular/core';
 
 import { CommonSyncService } from 'src/app/util/service/common-sync.service';
@@ -296,12 +296,12 @@ export class ProfileComponent {
     });
 
 
-    // Dispatch profile load
-    const uid = this.userService.isGuestUser()
-      ? 'offline-guest'
-      : (this.store.selectSignal(ProfileSelectors.selectProfile)()?.uid ?? null);
-    if (uid) {
-      this.store.dispatch(ProfileActions.loadProfile({ userId: uid }));
+    // Dispatch profile load for authenticated users
+    if (!this.userService.isGuestUser()) {
+      const uid = this.store.selectSignal(ProfileSelectors.selectProfile)()?.uid ?? null;
+      if (uid) {
+        this.store.dispatch(ProfileActions.loadProfile({ userId: uid }));
+      }
     }
 
     // Effect for store profile updates
@@ -776,8 +776,19 @@ export class ProfileComponent {
       this.isGoogleLoading.set(true);
       this.isActionLoading.set(true);
       await this.userService.signInWithGoogle();
-      this.notificationService.info('Successfully signed in with Google');
-      window.location.reload();
+      this.notificationService.info('Signed in with Google! Syncing data...');
+
+      // Wait for all sync operations to complete before refreshing
+      try {
+        await firstValueFrom(this.syncService.syncAll().pipe(catchError(() => of(null))));
+      } catch (syncError) {
+        console.warn('Sync completed with warning or error:', syncError);
+      }
+
+      this.notificationService.success('Sync complete. Refreshing...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error('Error signing in with Google:', error);
       this.notificationService.error(ERROR_MESSAGES.NETWORK.SERVER_ERROR);

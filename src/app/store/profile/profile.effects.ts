@@ -13,18 +13,22 @@ export class ProfileEffects {
   loadProfile$ = createEffect(() => this.actions$.pipe(
     ofType(ProfileActions.loadProfile),
     withLatestFrom(this.store.select(ProfileSelectors.selectProfile)),
-    filter(([action, profile]) => !profile),
-    mergeMap(([{ userId }]) => from(this.userService.getCurrentUser())
-      .pipe(
-        map(profile => {
-          if (profile) {
-            return ProfileActions.loadProfileSuccess({ profile });
-          } else {
-            throw new Error('Profile not found');
-          }
-        }),
-        catchError(error => of(ProfileActions.loadProfileFailure({ error })))
-      ))
+    mergeMap(([{ userId }, profile]) => {
+      if (profile && (profile.uid === userId || userId === 'offline-guest')) {
+        return of(ProfileActions.loadProfileSuccess({ profile }));
+      }
+      return from(this.userService.getCurrentUser())
+        .pipe(
+          map(user => {
+            if (user) {
+              return ProfileActions.loadProfileSuccess({ profile: user });
+            } else {
+              throw new Error('Profile not found');
+            }
+          }),
+          catchError(error => of(ProfileActions.loadProfileFailure({ error })))
+        );
+    })
   ));
 
   updateProfile$ = createEffect(() => this.actions$.pipe(

@@ -428,7 +428,7 @@ export class UserService implements OnDestroy {
    * Reads from the synchronous _currentUser snapshot.
    */
   public isGuestUser(): boolean {
-    return this._currentUser?.uid === 'offline-guest';
+    return this._currentUser?.uid === 'offline-guest' || this.isGuestModeEnabled();
   }
 
   /**
@@ -1062,6 +1062,8 @@ export class UserService implements OnDestroy {
         console.log('✅ Google Access Token captured');
       }
 
+      this.storageService.removeItem(LocalStorageKey.GUEST_MODE);
+      this.storageService.removeItem('guest-data-initialized');
       this.storageService.setItem(LocalStorageKey.LAST_ACTIVE_UID, result.user.uid);
       await this.handleGoogleSignInResult(result);
 

@@ -129,6 +129,10 @@
                 <mat-icon class="flex-shrink-0">edit</mat-icon>
                 <span>Edit Family Details</span>
               </button>
+              <button mat-menu-item (click)="c.createFamily()">
+                <mat-icon class="flex-shrink-0">group_add</mat-icon>
+                <span>Create New Group</span>
+              </button>
               <mat-divider></mat-divider>
               <button mat-menu-item (click)="c.deleteFamily()" class="!text-red-600">
                 <mat-icon class="!text-red-600 flex-shrink-0">
