@@ -167,13 +167,28 @@ scripts/
 
 ## 📸 Screenshots
 
-### Dashboard Overview • Budget & Categories • Reports & Analytics
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-  <img src="src/assets/images/screenshot/img1.png" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-  <img src="src/assets/images/screenshot/img2.png" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-  <img src="src/assets/images/screenshot/img3.png" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
+<table width="100%">
+  <thead>
+    <tr>
+      <th align="center" width="33%">📊 Dashboard Overview</th>
+      <th align="center" width="33%">💰 Budget & Categories</th>
+      <th align="center" width="33%">📈 Reports & Analytics</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center">
+        <img src="src/assets/images/screenshot/img1.png" alt="Dashboard Overview" width="100%">
+      </td>
+      <td align="center">
+        <img src="src/assets/images/screenshot/img2.png" alt="Budget & Categories" width="100%">
+      </td>
+      <td align="center">
+        <img src="src/assets/images/screenshot/img3.png" alt="Reports & Analytics" width="100%">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## 🤝 Contributing
 
