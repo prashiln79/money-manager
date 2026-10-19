@@ -11,16 +11,23 @@ importScripts('https://www.gstatic.com/firebasejs/11.5.0/firebase-messaging-comp
 importScripts('https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/11.5.0/firebase-auth-compat.js');
 
-// Firebase configuration (single source of truth)
-const firebaseConfig = {
-  apiKey: "AIzaSyCbi9w0M2U4jtO6tkf78SHvXrgvL4TbyqI",
-  authDomain: "money-manager-b394e.firebaseapp.com",
-  projectId: "money-manager-b394e",
-  storageBucket: "money-manager-b394e.firebasestorage.app",
-  messagingSenderId: "844099376199",
-  appId: "1:844099376199:web:d778d53279e65258b48d62",
-  measurementId: "G-G75KP504VD"
+// Firebase configuration
+try {
+  importScripts('./firebase-config.js');
+} catch (e) {
+  // If running in development without firebase-config.js
+}
+
+const firebaseConfig = (typeof self !== 'undefined' && self.firebaseConfig) ? self.firebaseConfig : {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
 };
+
 
 // Initialize Firebase and messaging
 let messaging;

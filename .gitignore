@@ -88,3 +88,7 @@ dist
 .env
 .env.*
 !.env.example
+
+# Generated service worker credentials
+/src/firebase-config.js
+

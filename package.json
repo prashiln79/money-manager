@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "ng": "ng",
+    "prestart": "npm run config",
     "start": "ng serve --host 0.0.0.0 --port 4200",
     "config": "node scripts/set-env.js",
     "build": "npm run config && ng build --configuration production",
