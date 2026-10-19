@@ -395,21 +395,29 @@ export class UserService implements OnDestroy {
   }
 
   /**
+   * Exit guest mode and clean up guest session
+   */
+  public async exitGuestMode(navigate: boolean = true): Promise<void> {
+    this.storageService.removeItem(LocalStorageKey.GUEST_MODE);
+    this.storageService.removeItem('guest-data-initialized');
+    this.storageService.removeItem(LocalStorageKey.LAST_ACTIVE_UID);
+    this._currentUser = null;
+    this.store.dispatch(ProfileActions.clearProfile());
+
+    if (navigate) {
+      await this.router.navigate(['/sign-in']);
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    }
+  }
+
+  /**
    * Logout from the application (Firebase or Guest)
    */
   public async logout(): Promise<void> {
     if (this.isGuestUser()) {
-      this.storageService.removeItem(LocalStorageKey.GUEST_MODE);
-      this.storageService.removeItem('guest-data-initialized');
-      this.storageService.removeItem(LocalStorageKey.LAST_ACTIVE_UID);
-      this.store.dispatch(ProfileActions.clearProfile());
-      
-      // Navigate to sign-in and reload for clean state (matching signOut behavior)
-      this.router.navigate(['/sign-in']);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      await this.exitGuestMode(true);
     } else {
       await this.signOut();
     }

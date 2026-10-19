@@ -70,12 +70,12 @@
     align-items: center;
 
     &.active-nav-link {
-      background: rgba(37, 99, 235, 0.1);
-      color: #2563eb;
+      background: color-mix(in srgb, var(--primary-500) 12%, transparent);
+      color: var(--primary-600);
       font-weight: 600;
 
       .nav-icon {
-        color: #2563eb;
+        color: var(--primary-600);
       }
     }
   }
@@ -84,11 +84,11 @@
 :host-context(.dark-theme) {
   .desktop-sidebar {
     .nav-link.active-nav-link {
-      background: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
+      background: color-mix(in srgb, var(--primary-400) 18%, transparent);
+      color: var(--primary-400);
 
       .nav-icon {
-        color: #60a5fa;
+        color: var(--primary-400);
       }
     }
   }
@@ -142,12 +142,12 @@
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
     &.active-header-link {
-      background: rgba(37, 99, 235, 0.08);
-      color: #2563eb;
+      background: color-mix(in srgb, var(--primary-500) 10%, transparent);
+      color: var(--primary-600);
       font-weight: 600;
 
       .nav-header-icon {
-        color: #2563eb !important;
+        color: var(--primary-600) !important;
       }
     }
   }
@@ -156,11 +156,11 @@
 :host-context(.dark-theme) {
   .desktop-top-header {
     .nav-header-item.active-header-link {
-      background: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
+      background: color-mix(in srgb, var(--primary-400) 18%, transparent);
+      color: var(--primary-400);
 
       .nav-header-icon {
-        color: #60a5fa !important;
+        color: var(--primary-400) !important;
       }
     }
   }

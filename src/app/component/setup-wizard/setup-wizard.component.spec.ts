@@ -8,6 +8,7 @@ import { NotificationService } from 'src/app/util/service/notification.service';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { AccountType } from 'src/app/util/config/enums';
+import { UserService } from 'src/app/util/service/db/user.service';
 
 describe('SetupWizardComponent', () => {
   let component: SetupWizardComponent;
@@ -16,10 +17,14 @@ describe('SetupWizardComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockSetupService: jasmine.SpyObj<SetupWizardService>;
   let mockNotificationService: jasmine.SpyObj<NotificationService>;
+  let mockUserService: jasmine.SpyObj<UserService>;
 
   beforeEach(async () => {
     mockStore = jasmine.createSpyObj('Store', ['dispatch', 'select', 'selectSignal']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+    mockUserService = jasmine.createSpyObj('UserService', ['isGuestUser', 'exitGuestMode']);
+    mockUserService.isGuestUser.and.returnValue(false);
+    mockUserService.exitGuestMode.and.resolveTo();
     mockSetupService = jasmine.createSpyObj('SetupWizardService', [
       'getDefaultState',
       'loadSavedState',
@@ -31,7 +36,7 @@ describe('SetupWizardComponent', () => {
       'createGroup',
       'completeWizard'
     ]);
-    mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']);
+    mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error', 'info', 'warning']);
 
     mockStore.select.and.returnValue(of(null));
     mockStore.selectSignal.and.returnValue(signal({
@@ -63,6 +68,7 @@ describe('SetupWizardComponent', () => {
         { provide: Router, useValue: mockRouter },
         { provide: SetupWizardService, useValue: mockSetupService },
         { provide: NotificationService, useValue: mockNotificationService },
+        { provide: UserService, useValue: mockUserService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -85,6 +91,13 @@ describe('SetupWizardComponent', () => {
     expect(component).toBeTruthy();
     expect(component.currentStep()).toBe(1);
     expect(component.selectedMode()).toBe('personal');
+  });
+
+  it('should not allow family mode selection if user is a guest', () => {
+    mockUserService.isGuestUser.and.returnValue(true);
+    component.selectMode('family');
+    expect(component.selectedMode()).toBe('personal');
+    expect(mockNotificationService.warning).toHaveBeenCalled();
   });
 
   it('should navigate through steps on nextStep and prevStep', () => {
@@ -209,6 +222,26 @@ describe('SetupWizardComponent', () => {
 
     component.handleKeyboardNav(event);
     expect(component.currentStep()).toBe(2);
+  });
+
+  it('should call exitGuestMode when guest user clicks goToSignIn', async () => {
+    mockUserService.isGuestUser.and.returnValue(true);
+    const mockEvent = jasmine.createSpyObj('Event', ['stopPropagation']);
+
+    await component.goToSignIn(mockEvent);
+
+    expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    expect(mockUserService.exitGuestMode).toHaveBeenCalled();
+  });
+
+  it('should navigate to /sign-in when non-guest user clicks goToSignIn', async () => {
+    mockUserService.isGuestUser.and.returnValue(false);
+    const mockEvent = jasmine.createSpyObj('Event', ['stopPropagation']);
+
+    await component.goToSignIn(mockEvent);
+
+    expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/sign-in']);
   });
 });
 

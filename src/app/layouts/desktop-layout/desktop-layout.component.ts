@@ -20,6 +20,7 @@ import { UserComponent } from '../../component/dashboard/header/user/user.compon
 import { MatDialog } from '@angular/material/dialog';
 import { MobileAddTransactionComponent } from '../../component/dashboard/transaction-list/add-transaction/mobile-add-transaction/mobile-add-transaction.component';
 import { LocalStorageKey } from '../../util/models/local-storage.model';
+import { APP_CONFIG } from '../../util/config/config';
 
 export interface DesktopHeaderItem {
   id: string;
@@ -54,6 +55,7 @@ export class DesktopLayoutComponent implements OnInit {
   @Output() refreshApp = new EventEmitter<void>();
   @Output() dismissUpdate = new EventEmitter<void>();
 
+  readonly appName = APP_CONFIG.APP_NAME;
   public readonly userService = inject(UserService);
   private readonly store = inject(Store<AppState>);
   private readonly router = inject(Router);

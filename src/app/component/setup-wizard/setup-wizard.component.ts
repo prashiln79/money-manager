@@ -19,6 +19,8 @@ import { User } from 'src/app/util/models';
 import { AccountType, TransactionType } from 'src/app/util/config/enums';
 import { NotificationService } from 'src/app/util/service/notification.service';
 import { BreakpointService } from 'src/app/util/service/breakpoint.service';
+import { UserService } from 'src/app/util/service/db/user.service';
+import { APP_CONFIG } from 'src/app/util/config/config';
 import {
   SetupWizardService,
   SetupWizardState,
@@ -62,11 +64,16 @@ export class SetupWizardComponent implements OnInit {
   private readonly store = inject(Store<AppState>);
   private readonly setupService = inject(SetupWizardService);
   private readonly notificationService = inject(NotificationService);
+  private readonly userService = inject(UserService);
   readonly breakpointService = inject(BreakpointService);
 
+  readonly appName = APP_CONFIG.APP_NAME;
   readonly isDesktopLayout = this.breakpointService.isDesktopLayout;
   readonly isMobile = this.breakpointService.isMobile;
   readonly isMobileOrTablet = this.breakpointService.isMobileOrTablet;
+  isGuestUser(): boolean {
+    return this.userService.isGuestUser();
+  }
 
   readonly userProfile = this.store.selectSignal(selectProfile);
 
@@ -185,7 +192,7 @@ export class SetupWizardComponent implements OnInit {
 
   private hydrateFromState(state: SetupWizardState): void {
     this.currentStep.set(state.currentStep || 1);
-    this.selectedMode.set(state.selectedMode || 'personal');
+    this.selectedMode.set(this.isGuestUser() ? 'personal' : (state.selectedMode || 'personal'));
     this.groupOption.set(state.groupOption || 'create');
 
     if (state.group) {
@@ -369,8 +376,25 @@ export class SetupWizardComponent implements OnInit {
 
   // Screen 1: Welcome Mode Selection
   selectMode(mode: SetupMode): void {
+    if (mode === 'family' && this.isGuestUser()) {
+      this.notificationService.warning(
+        'Family / Group mode is only available for registered accounts. Please sign in to create or join a family group.'
+      );
+      return;
+    }
     this.selectedMode.set(mode);
     this.persistCurrentState();
+  }
+
+  async goToSignIn(event?: Event): Promise<void> {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (this.isGuestUser()) {
+      await this.userService.exitGuestMode();
+    } else {
+      await this.router.navigate(['/sign-in']);
+    }
   }
 
   // Screen 2: Group Workspace Options
@@ -534,12 +558,12 @@ export class SetupWizardComponent implements OnInit {
   async shareInvitation(): Promise<void> {
     const code = this.inviteCode();
     const link = this.shareableInviteLink();
-    const text = `Join my family workspace on MoneyManager to track and share expenses easily! Code: ${code}\nLink: ${link}`;
+    const text = `Join my family workspace on ${this.appName} to track and share expenses easily! Code: ${code}\nLink: ${link}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'MoneyManager Family Invitation',
+          title: `${this.appName} Family Invitation`,
           text,
           url: link
         });

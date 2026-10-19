@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/assets/images/screenshot/banner.png" alt="Family Expense Tracker Banner" width="100%">
+  <img src="src/assets/images/banner.png" alt="Family Expense Tracker Banner" width="100%">
 </p>
 
 <p align="center">
