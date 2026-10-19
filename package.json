@@ -5,9 +5,9 @@
   "scripts": {
     "ng": "ng",
     "prestart": "npm run config",
-    "start": "ng serve --host 0.0.0.0 --port 4200",
+    "start": "node api.js && ng serve --host 0.0.0.0 --port 4200",
     "config": "node scripts/set-env.js",
-    "build": "npm run config && ng build --configuration production",
+    "build": "node api.js && npm run config && ng build --configuration production",
     "build:cache-bust": "npm run config && node deploy-cache-bust.js && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --watch=false && npx playwright test -c playwright.e2e.config.ts",
