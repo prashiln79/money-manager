@@ -147,23 +147,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       take(1)
     ).subscribe(user => {
       if (user && user.preferences && !user.preferences.hasSeenWelcome) {
-        this.notificationService.confirm({
-          title: APP_CONFIG.APP_NAME,
-          message: APP_CONFIG.WELCOME_MESSAGE,
-          confirmText: 'Get Started',
-          type: 'info',
-          imageUrl: 'assets/images/logo.svg',
-          design: 'welcome'
-        }).subscribe(confirmed => {
-          const updatedUser: any = {
-            ...user,
-            preferences: {
-              ...user.preferences,
-              hasSeenWelcome: true
-            }
-          };
-          this.userService.createOrUpdateUser(updatedUser);
-        });
+        this.router.navigate(['/setup']);
       }
     });
   }

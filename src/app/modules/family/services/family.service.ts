@@ -280,10 +280,11 @@ export class FamilyService implements OnDestroy {
       memberIds: [user.uid]
     };
 
-    await setDoc(familyRef, familyData);
+    // 2. Atomic Batch: write family doc, admin member, and initial defaults together
+    const batch = writeBatch(this.firestore);
+    batch.set(familyRef, familyData);
 
-    // 2. Add creator as admin member
-    await setDoc(this.getMemberDoc(familyId, user.uid), {
+    batch.set(this.getMemberDoc(familyId, user.uid), {
       familyId: familyId,
       userId: user.uid,
       email: user.email || '',
@@ -294,8 +295,8 @@ export class FamilyService implements OnDestroy {
       isActive: true,
     } as Omit<FamilyMember, 'id'>);
 
-    // 3. Initialize defaults (categories/accounts)
-    await this.initializeFamilyDefaults(familyId, user.uid, request.mode ?? 'common', request.icon);
+    this.populateFamilyDefaultsInBatch(batch, familyId, user.uid, request.mode ?? 'common', request.icon);
+    await batch.commit();
 
     // 4. Finally, update user's preferences with familyId
     // This completes the "Group Created" state transition for the user
@@ -341,9 +342,7 @@ export class FamilyService implements OnDestroy {
     } catch (e) {}
   }
 
-  private async initializeFamilyDefaults(familyId: string, userId: string, mode: 'common' | 'split' = 'common', groupIcon?: string): Promise<void> {
-    const batch = writeBatch(this.firestore);
-
+  private populateFamilyDefaultsInBatch(batch: any, familyId: string, userId: string, mode: 'common' | 'split' = 'common', groupIcon?: string): void {
     // 1. Create Default Account
     const accountsColRef = collection(this.firestore, `family-groups/${familyId}/accounts`);
     const accountId = doc(accountsColRef).id;
@@ -365,7 +364,6 @@ export class FamilyService implements OnDestroy {
     batch.set(accountRef, accountData);
 
     // 2. Create Group-Specific Categories
-    // Use curated categories for the selected group type, falling back to defaults.
     const categoriesColRef = collection(this.firestore, `family-groups/${familyId}/categories`);
     const groupSpecific = groupIcon ? GROUP_CATEGORIES_MAP[groupIcon] : null;
     let categoriesToCreate: Pick<Category, 'name' | 'type' | 'icon' | 'color' | 'isSystem' | 'familyId' | 'userId' | 'createdAt'>[] =
@@ -391,10 +389,51 @@ export class FamilyService implements OnDestroy {
       const catRef = doc(this.firestore, `family-groups/${familyId}/categories/${catId}`);
       batch.set(catRef, catData);
     }
+  }
 
+  private async initializeFamilyDefaults(familyId: string, userId: string, mode: 'common' | 'split' = 'common', groupIcon?: string): Promise<void> {
+    const batch = writeBatch(this.firestore);
+    this.populateFamilyDefaultsInBatch(batch, familyId, userId, mode, groupIcon);
     await batch.commit();
   }
 
+
+  /**
+   * Preview a group by its invite code before joining.
+   * Returns group metadata (id, name, icon, mode, memberCount) or null if invalid/not found.
+   */
+  async lookupGroupByCode(inviteCode: string): Promise<{ family: Family; memberCount: number } | null> {
+    if (!inviteCode) return null;
+    const normalizedCode = inviteCode.trim().toUpperCase();
+    const familiesRef = collection(this.firestore, this.FAMILIES_COL);
+    const q = query(familiesRef, where('inviteCode', '==', normalizedCode), where('isActive', '==', true));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      return null;
+    }
+    const familyDoc = snap.docs[0];
+    const data = familyDoc.data();
+    const family: Family = { id: familyDoc.id, ...data as Omit<Family, 'id'> };
+    const memberCount = Array.isArray(family.memberIds) ? family.memberIds.length : 1;
+    return { family, memberCount };
+  }
+
+  /**
+   * Check if a user is already an active member of a family group.
+   */
+  async checkUserMembership(familyId: string, userId: string): Promise<{ isMember: boolean; isActive: boolean; role?: string }> {
+    try {
+      const snap = await getDoc(this.getMemberDoc(familyId, userId));
+      if (!snap.exists()) {
+        return { isMember: false, isActive: false };
+      }
+      const data = snap.data() as FamilyMember;
+      return { isMember: true, isActive: data.isActive !== false, role: data.role };
+    } catch (e) {
+      this.error('Error checking user membership:', e);
+      return { isMember: false, isActive: false };
+    }
+  }
 
   async joinByCode(inviteCode: string): Promise<Family> {
     const user = this.currentUser;

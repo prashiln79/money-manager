@@ -436,6 +436,15 @@ export class SignInComponent implements OnInit, OnDestroy {
           take(1)
         )
       );
+      if (!profile?.preferences?.hasSeenWelcome) {
+        const code = this.route.snapshot.queryParamMap.get('code');
+        if (code) {
+          this.router.navigate(['/setup'], { queryParams: { code } });
+        } else {
+          this.router.navigate(['/setup']);
+        }
+        return;
+      }
 
       const isFamilyMode = profile?.preferences?.isFamilyMode ?? false;
       const activeFamilyId = profile?.preferences?.activeFamilyId;

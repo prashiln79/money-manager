@@ -134,6 +134,18 @@ export const routes: Routes = [
   },
 
   {
+    path: 'setup',
+    loadComponent: () => import('./component/setup-wizard/setup-wizard.component').then(m => m.SetupWizardComponent),
+    title: 'Setup Wizard',
+    canActivate: [authGuard],
+    data: {
+      seo: {
+        title: 'Setup Wizard | Family Expense Tracker',
+        robots: 'noindex, nofollow'
+      }
+    }
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./component/dashboard/dashboard.component').then(m => m.DashboardComponent),
     title: 'Dashboard',

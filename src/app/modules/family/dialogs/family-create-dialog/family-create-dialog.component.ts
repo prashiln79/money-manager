@@ -54,7 +54,7 @@ export class FamilyCreateDialogComponent implements OnInit, OnDestroy {
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    mode: ['common', Validators.required],
+    mode: ['split', Validators.required],
   });
 
   isDuplicateName = computed(() => {
@@ -76,7 +76,7 @@ export class FamilyCreateDialogComponent implements OnInit, OnDestroy {
       const family = this.data.family;
       this.form.patchValue({
         name: family.name,
-        mode: family.mode || 'common'
+        mode: family.mode || 'split'
       });
       if (family.icon) {
         this.selectedIcon.set(family.icon);

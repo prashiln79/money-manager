@@ -11,6 +11,7 @@ footer {
 	border-top: 1px solid var(--surface-300);
 	position: relative;
 	z-index: 50;
+	padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
 }
 
 .active-icon-box {

@@ -1,0 +1,1264 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between font-sans selection:bg-primary-500 selection:text-white transition-colors duration-200 antialiased">
+
+  <!-- ======================================================== -->
+  <!-- 1. TOP HEADER (BRAND & PROGRESS)                         -->
+  <!-- ======================================================== -->
+  <header class="border-b border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-primary-500 flex items-center justify-center shadow-md shadow-primary-500/20 text-white font-bold text-xl flex-shrink-0">
+        <mat-icon class="!w-6 !h-6 !text-2xl flex items-center justify-center leading-none">account_balance_wallet</mat-icon>
+      </div>
+      <div>
+        <h1 class="font-heading font-bold text-base sm:text-lg leading-tight tracking-tight text-slate-900 dark:text-white">MoneyManager</h1>
+        <p class="text-[11px] sm:text-xs text-primary-600 dark:text-primary-400 font-semibold tracking-wide">Setup Wizard</p>
+      </div>
+    </div>
+
+    <!-- Stepper indicator pill in header -->
+    @if (!setupSuccess()) {
+      <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/70 px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300">
+        <span>Step {{ currentStep() }} of {{ totalSteps() }}</span>
+        <span class="text-slate-300 dark:text-slate-600 hidden sm:inline">•</span>
+        <span class="text-primary-600 dark:text-primary-400 font-semibold hidden sm:inline">{{ stepTitles()[currentStep() - 1] }}</span>
+      </div>
+    }
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- 2. MAIN WIZARD BODY                                      -->
+  <!-- ======================================================== -->
+  <main class="flex-1 w-full px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-center">
+
+    @if (!setupSuccess()) {
+
+      <!-- **************************************************** -->
+      <!-- DESKTOP EXPERIENCE (Split 2-Column Rail & Canvas)    -->
+      <!-- **************************************************** -->
+      @if (isDesktopLayout()) {
+        <div class="desktop-wizard-grid grid grid-cols-12 gap-8 max-w-6xl mx-auto w-full items-start animate-fadeIn">
+
+          <!-- LEFT COLUMN: Stepper Rail & Contextual Guidance (Col 4) -->
+          <aside class="col-span-4 space-y-6 sticky top-20">
+            <!-- Stepper Progress List -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+              <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Setup Progress</span>
+                <span class="text-xs font-bold text-primary-600 dark:text-primary-400">
+                  {{ Math.round((currentStep() / totalSteps()) * 100) }}% Complete
+                </span>
+              </div>
+
+              <!-- Stepper Timeline Items -->
+              <div class="space-y-2.5">
+                @for (title of stepTitles(); track title; let idx = $index) {
+                  <div (click)="(idx + 1) < currentStep() ? goToStep(idx + 1) : null"
+                       [class.cursor-pointer]="(idx + 1) < currentStep()"
+                       class="flex items-center gap-3.5 p-2.5 rounded-2xl transition-all duration-200"
+                       [class.bg-primary-50/70]="currentStep() === (idx + 1)"
+                       [class.dark:bg-primary-950/40]="currentStep() === (idx + 1)"
+                       [class.step-active-glow]="currentStep() === (idx + 1)">
+
+                    <!-- Step Number / Status Icon -->
+                    <div class="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs transition-all flex-shrink-0"
+                         [ngClass]="{
+                           'bg-primary-600 text-white shadow-md shadow-primary-600/30': currentStep() === (idx + 1),
+                           'bg-emerald-500 text-white': (idx + 1) < currentStep(),
+                           'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500': (idx + 1) > currentStep()
+                         }">
+                      @if ((idx + 1) < currentStep()) {
+                        <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none">check</mat-icon>
+                      } @else {
+                        <span>{{ idx + 1 }}</span>
+                      }
+                    </div>
+
+                    <!-- Step Title -->
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold truncate leading-tight font-heading"
+                         [ngClass]="{
+                           'text-primary-600 dark:text-primary-400 font-bold': currentStep() === (idx + 1),
+                           'text-slate-700 dark:text-slate-300': (idx + 1) < currentStep(),
+                           'text-slate-400 dark:text-slate-500': (idx + 1) > currentStep()
+                         }">
+                        {{ title }}
+                      </p>
+                      <span class="text-[11px] text-slate-400">
+                        @if ((idx + 1) < currentStep()) { Completed }
+                        @else if (currentStep() === (idx + 1)) { In Progress }
+                        @else { Pending }
+                      </span>
+                    </div>
+
+                    @if ((idx + 1) < currentStep()) {
+                      <mat-icon class="!w-4 !h-4 !text-base text-slate-400 dark:text-slate-500 hover:text-primary-600 flex items-center justify-center leading-none">edit</mat-icon>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Dynamic Contextual Guidance Card -->
+            <div class="bg-gradient-to-br from-primary-500/10 via-primary-500/5 to-emerald-500/10 dark:from-primary-950/40 dark:via-slate-900/40 dark:to-emerald-950/30 rounded-3xl p-6 border border-primary-200/50 dark:border-primary-800/50">
+              <div class="flex items-center gap-2 mb-2 text-primary-600 dark:text-primary-400 font-bold text-sm font-heading">
+                <mat-icon class="!w-5 !h-5 !text-xl flex items-center justify-center leading-none flex-shrink-0">{{ getStepGuidance(currentStep()).icon }}</mat-icon>
+                <span>{{ getStepGuidance(currentStep()).title }}</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
+                {{ getStepGuidance(currentStep()).desc }}
+              </p>
+              <div class="flex items-start gap-2 p-3 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-primary-100 dark:border-primary-900/60 text-xs text-slate-500 dark:text-slate-400">
+                <mat-icon class="!w-4 !h-4 !text-base text-amber-500 flex items-center justify-center leading-none flex-shrink-0 mt-0.5">tips_and_updates</mat-icon>
+                <span class="leading-relaxed">{{ getStepGuidance(currentStep()).tip }}</span>
+              </div>
+            </div>
+
+            <!-- Keyboard shortcut hint -->
+            <div class="flex items-center justify-between text-xs text-slate-400 px-2 font-medium">
+              <span>Press <kbd class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono text-[10px]">Esc</kbd> to step back</span>
+              <span class="text-slate-400">•</span>
+              <span>Local-First & Encrypted</span>
+            </div>
+          </aside>
+
+          <!-- RIGHT COLUMN: Interactive Step Canvas (Col 8) -->
+          <div class="col-span-8 bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between min-h-[580px]">
+
+            <!-- Canvas Header & Progress Bar -->
+            <div class="mb-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400">
+                  Step {{ currentStep() }} of {{ totalSteps() }}: {{ stepTitles()[currentStep() - 1] }}
+                </span>
+                <span class="text-xs text-slate-400 font-semibold">
+                  {{ Math.round((currentStep() / totalSteps()) * 100) }}% Completed
+                </span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-primary-500 via-primary-600 to-emerald-500 h-full transition-all duration-300 ease-out rounded-full"
+                     [style.width.%]="(currentStep() / totalSteps()) * 100"></div>
+              </div>
+            </div>
+
+            <!-- Dynamic Desktop Canvas Body -->
+            <div class="flex-1">
+
+              <!-- ========================================== -->
+              <!-- STEP 1: WELCOME MODE SELECTION (DESKTOP)   -->
+              <!-- ========================================== -->
+              @if (currentStep() === 1) {
+                <div class="animate-fadeIn">
+                  <div class="text-left mb-6">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 mb-2.5">
+                      <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none">auto_awesome</mat-icon>
+                      <span>Welcome to MoneyManager</span>
+                    </span>
+                    <h2 class="text-2xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                      How would you like to track your finances?
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                      Choose your primary workspace mode. You can toggle between Personal and Shared workspaces anytime without losing data.
+                    </p>
+                  </div>
+
+                  <!-- 2-Column Mode Selector -->
+                  <div class="grid grid-cols-2 gap-6 my-6">
+                    <!-- Option 1: Personal Use -->
+                    <div (click)="selectMode('personal')"
+                         [class.border-primary-600]="selectedMode() === 'personal'"
+                         [class.bg-primary-50/40]="selectedMode() === 'personal'"
+                         [class.dark:bg-primary-950/30]="selectedMode() === 'personal'"
+                         [class.dark:border-primary-500]="selectedMode() === 'personal'"
+                         class="relative p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all duration-200 flex flex-col justify-between group">
+                      <div>
+                        <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform flex-shrink-0">
+                          <mat-icon class="!w-7 !h-7 !text-3xl flex items-center justify-center leading-none">person</mat-icon>
+                        </div>
+                        <h3 class="text-lg font-bold font-heading text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                          <span>Personal Use</span>
+                          @if (selectedMode() === 'personal') {
+                            <mat-icon class="text-primary-600 dark:text-primary-400 !w-5 !h-5 !text-xl flex items-center justify-center leading-none">check_circle</mat-icon>
+                          }
+                        </h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                          Track individual expenses, plan daily budgets, and monitor your personal savings and accounts privately.
+                        </p>
+                      </div>
+
+                      <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <mat-icon class="!w-4 !h-4 !text-base text-emerald-500 flex items-center justify-center leading-none">lock</mat-icon>
+                        <span>100% Private to you</span>
+                      </div>
+                    </div>
+
+                    <!-- Option 2: Family / Group Use -->
+                    <div (click)="selectMode('family')"
+                         [class.border-primary-600]="selectedMode() === 'family'"
+                         [class.bg-primary-50/40]="selectedMode() === 'family'"
+                         [class.dark:bg-primary-950/30]="selectedMode() === 'family'"
+                         [class.dark:border-primary-500]="selectedMode() === 'family'"
+                         class="relative p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all duration-200 flex flex-col justify-between group">
+                      <div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform flex-shrink-0">
+                          <mat-icon class="!w-7 !h-7 !text-3xl flex items-center justify-center leading-none">groups</mat-icon>
+                        </div>
+                        <h3 class="text-lg font-bold font-heading text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                          <span>Family / Group Use</span>
+                          @if (selectedMode() === 'family') {
+                            <mat-icon class="text-primary-600 dark:text-primary-400 !w-5 !h-5 !text-xl flex items-center justify-center leading-none">check_circle</mat-icon>
+                          }
+                        </h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                          Collaborate with family members or flatmates. Share accounts, split bills, and view real-time group balances.
+                        </p>
+                      </div>
+
+                      <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <mat-icon class="!w-4 !h-4 !text-base text-primary-500 flex items-center justify-center leading-none">share</mat-icon>
+                        <span>Shared with group members</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- ========================================== -->
+              <!-- STEP 2: GROUP WORKSPACE (DESKTOP)          -->
+              <!-- ========================================== -->
+              @if (currentStep() === 2 && selectedMode() === 'family') {
+                <div class="animate-fadeIn">
+                  <div class="text-left mb-6">
+                    <h2 class="text-2xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                      {{ groupOption() === 'create' ? 'Create a Family Workspace' : 'Join an Existing Group' }}
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                      {{ groupOption() === 'create' ? 'Configure a shared workspace to collaborate, split bills, and view group spending.' : 'Enter your 8-character invitation code to join your family or household.' }}
+                    </p>
+                  </div>
+
+                  <!-- Create vs Join Mode Toggle -->
+                  <div class="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl max-w-sm mb-6">
+                    <button type="button"
+                            (click)="selectGroupOption('create')"
+                            [class.bg-white]="groupOption() === 'create'"
+                            [class.dark:bg-slate-900]="groupOption() === 'create'"
+                            [class.shadow-sm]="groupOption() === 'create'"
+                            [class.text-primary-600]="groupOption() === 'create'"
+                            [class.dark:text-primary-400]="groupOption() === 'create'"
+                            class="flex-1 py-2 px-4 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all flex items-center justify-center gap-1.5">
+                      <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none">add_circle</mat-icon>
+                      <span>Create Group</span>
+                    </button>
+                    <button type="button"
+                            (click)="selectGroupOption('join')"
+                            [class.bg-white]="groupOption() === 'join'"
+                            [class.dark:bg-slate-900]="groupOption() === 'join'"
+                            [class.shadow-sm]="groupOption() === 'join'"
+                            [class.text-primary-600]="groupOption() === 'join'"
+                            [class.dark:text-primary-400]="groupOption() === 'join'"
+                            class="flex-1 py-2 px-4 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all flex items-center justify-center gap-1.5">
+                      <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none">group_add</mat-icon>
+                      <span>Join Existing</span>
+                    </button>
+                  </div>
+
+                  <!-- Create Group Mode Form -->
+                  @if (groupOption() === 'create') {
+                    <div class="space-y-5">
+                      <div class="grid grid-cols-2 gap-4">
+                        <div>
+                          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                            Group Workspace Name *
+                          </label>
+                          <input type="text"
+                                 [value]="groupName()"
+                                 (input)="groupName.set($any($event.target).value)"
+                                 placeholder="e.g., Wadkar Family or Our Home"
+                                 class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                        </div>
+                        <div>
+                          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                            Currency
+                          </label>
+                          <div class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 text-sm font-semibold flex items-center justify-between">
+                            <span>Indian Rupee (INR ₹)</span>
+                            <span class="text-xs text-slate-400 font-medium">Default</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Group Type Selector -->
+                      <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 tracking-wide">
+                          Workspace Type
+                        </label>
+                        <div class="grid grid-cols-4 gap-3">
+                          @for (opt of groupTypeOptions; track opt.value) {
+                            <div (click)="selectGroupType(opt.value)"
+                                 [class.border-primary-600]="groupType() === opt.value"
+                                 [class.bg-primary-50/50]="groupType() === opt.value"
+                                 [class.dark:bg-primary-950/40]="groupType() === opt.value"
+                                 class="p-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex flex-col items-center justify-center text-center">
+                              <mat-icon class="text-primary-600 dark:text-primary-400 !w-6 !h-6 !text-2xl mb-1 flex items-center justify-center leading-none mx-auto">{{ opt.icon }}</mat-icon>
+                              <div class="text-xs font-bold font-heading text-slate-900 dark:text-white">{{ opt.label }}</div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+                        <div class="flex items-center gap-2">
+                          <mat-icon class="!w-4 !h-4 !text-base text-emerald-500 flex items-center justify-center leading-none">verified_user</mat-icon>
+                          <span>You will be designated as the <strong>Admin & Creator</strong> of this group workspace.</span>
+                        </div>
+                        <button (click)="skipGroupSetup()" class="text-xs text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+                          Skip for now
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <!-- Join Group Mode Form -->
+                    <div class="space-y-4">
+                      <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                          Enter 8-Character Invitation Code *
+                        </label>
+                        <div class="flex gap-2">
+                          <input type="text"
+                                 [value]="joinInviteCodeInput()"
+                                 (input)="joinInviteCodeInput.set($any($event.target).value.toUpperCase())"
+                                 (keyup.enter)="lookupGroup()"
+                                 placeholder="e.g. A1B2C3D4"
+                                 maxlength="12"
+                                 class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base tracking-widest font-mono uppercase focus:outline-none focus:ring-2 focus:ring-primary-500 font-semibold" />
+                          <button mat-flat-button color="primary"
+                                  (click)="lookupGroup()"
+                                  [disabled]="isLookingUpGroup()"
+                                  class="!px-5 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm">
+                            @if (isLookingUpGroup()) {
+                              <mat-spinner diameter="18" class="inline-block"></mat-spinner>
+                            } @else {
+                              <span>Verify Code</span>
+                            }
+                          </button>
+                        </div>
+                      </div>
+
+                      @if (joinError()) {
+                        <div class="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
+                          <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none flex-shrink-0">error_outline</mat-icon>
+                          <span class="font-medium">{{ joinError() }}</span>
+                        </div>
+                      }
+
+                      @if (groupPreview()) {
+                        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between">
+                          <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                              <mat-icon class="!w-6 !h-6 !text-2xl flex items-center justify-center leading-none">{{ groupPreview()!.family.icon || 'groups' }}</mat-icon>
+                            </div>
+                            <div>
+                              <h4 class="font-bold font-heading text-slate-900 dark:text-white text-base">{{ groupPreview()!.family.name }}</h4>
+                              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                {{ groupPreview()!.memberCount }} current member(s) • Currency: {{ groupPreview()!.family.currency || 'INR' }}
+                              </p>
+                            </div>
+                          </div>
+                          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-200 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">
+                            Valid Workspace
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- ========================================== -->
+              <!-- STEP 3: INITIAL ACCOUNT (DESKTOP)          -->
+              <!-- ========================================== -->
+              @if ((selectedMode() === 'family' && currentStep() === 3) || (selectedMode() === 'personal' && currentStep() === 2)) {
+                <div class="animate-fadeIn space-y-5">
+                  <div class="text-left mb-4">
+                    <h2 class="text-2xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                      Connect Your Starting Account
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                      Set up your primary bank account, digital UPI wallet, or cash fund with its starting balance.
+                    </p>
+                  </div>
+
+                  <!-- Account Types Grid -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 tracking-wide">
+                      Account Type
+                    </label>
+                    <div class="grid grid-cols-5 gap-3">
+                      @for (acc of accountTypeOptions; track acc.value) {
+                        <div (click)="selectAccountType(acc.value)"
+                             [class.border-primary-600]="accountType() === acc.value"
+                             [class.bg-primary-50/50]="accountType() === acc.value"
+                             [class.dark:bg-primary-950/40]="accountType() === acc.value"
+                             class="p-3 rounded-xl border-2 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex flex-col items-center justify-center text-center">
+                          <mat-icon class="text-primary-600 dark:text-primary-400 !w-6 !h-6 !text-2xl mb-1 flex items-center justify-center leading-none mx-auto">{{ acc.icon }}</mat-icon>
+                          <div class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate w-full">{{ acc.label }}</div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- 2-Column Form: Account Name & Balance -->
+                  <div class="grid grid-cols-2 gap-5 pt-2">
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                        Account Nickname *
+                      </label>
+                      <input type="text"
+                             [value]="accountName()"
+                             (input)="accountName.set($any($event.target).value)"
+                             placeholder="e.g. HDFC Bank or Salary Account"
+                             class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                        Opening Balance (INR ₹)
+                      </label>
+                      <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold text-sm">₹</span>
+                        <input type="number"
+                               [value]="accountBalance()"
+                               (input)="accountBalance.set(+$any($event.target).value)"
+                               placeholder="0.00"
+                               class="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Visual Card Preview -->
+                  <div class="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-primary-950 text-white shadow-md flex items-center justify-between">
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-widest text-primary-300">Live Preview</span>
+                      <h4 class="text-base font-bold text-white mt-1 font-heading">{{ accountName() || 'Primary Account' }}</h4>
+                      <p class="text-xl font-mono font-bold text-white mt-1.5 tracking-tight">₹ {{ accountBalance() | number:'1.2-2' }}</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0">
+                      <mat-icon class="text-white !w-6 !h-6 !text-2xl flex items-center justify-center leading-none">credit_card</mat-icon>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- ========================================== -->
+              <!-- STEP 4: CATEGORIES (DESKTOP SIDE-BY-SIDE)  -->
+              <!-- ========================================== -->
+              @if ((selectedMode() === 'family' && currentStep() === 4) || (selectedMode() === 'personal' && currentStep() === 3)) {
+                <div class="animate-fadeIn space-y-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <div>
+                      <h2 class="text-2xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                        Select Categories
+                      </h2>
+                      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                        Pick standard categories for daily expense and income classification.
+                      </p>
+                    </div>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800">
+                      {{ getSelectedExpenseCount() }} Expenses • {{ getSelectedIncomeCount() }} Incomes
+                    </span>
+                  </div>
+
+                  <!-- 2 Side-by-Side Columns for Desktop -->
+                  <div class="grid grid-cols-2 gap-5 items-start">
+                    <!-- Column 1: Expense Categories -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
+                      <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 font-heading">
+                          <mat-icon class="!w-4 !h-4 !text-base text-rose-500 flex items-center justify-center leading-none">trending_down</mat-icon>
+                          <span>Expense Categories ({{ getSelectedExpenseCount() }})</span>
+                        </span>
+                        <button type="button"
+                                (click)="getSelectedExpenseCount() === expenseCategories().length ? toggleAllExpense(false) : toggleAllExpense(true)"
+                                class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+                          {{ getSelectedExpenseCount() === expenseCategories().length ? 'Deselect All' : 'Select All' }}
+                        </button>
+                      </div>
+
+                      <div class="flex flex-wrap gap-2 max-h-64 overflow-y-auto custom-wizard-scrollbar pr-1">
+                        @for (cat of expenseCategories(); track cat.name) {
+                          <button type="button"
+                                  (click)="toggleExpenseCategory(cat.name)"
+                                  [class.bg-rose-500]="cat.selected"
+                                  [class.text-white]="cat.selected"
+                                  [class.shadow-sm]="cat.selected"
+                                  [class.bg-white]="!cat.selected"
+                                  [class.dark:bg-slate-800]="!cat.selected"
+                                  [class.text-slate-700]="!cat.selected"
+                                  [class.dark:text-slate-300]="!cat.selected"
+                                  class="chip-item px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium inline-flex items-center gap-1.5">
+                            <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none flex-shrink-0">{{ cat.icon }}</mat-icon>
+                            <span class="leading-none">{{ cat.name }}</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Column 2: Income Categories -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
+                      <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 font-heading">
+                          <mat-icon class="!w-4 !h-4 !text-base text-emerald-500 flex items-center justify-center leading-none">trending_up</mat-icon>
+                          <span>Income Categories ({{ getSelectedIncomeCount() }})</span>
+                        </span>
+                        <button type="button"
+                                (click)="getSelectedIncomeCount() === incomeCategories().length ? toggleAllIncome(false) : toggleAllIncome(true)"
+                                class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+                          {{ getSelectedIncomeCount() === incomeCategories().length ? 'Deselect All' : 'Select All' }}
+                        </button>
+                      </div>
+
+                      <div class="flex flex-wrap gap-2 max-h-64 overflow-y-auto custom-wizard-scrollbar pr-1">
+                        @for (cat of incomeCategories(); track cat.name) {
+                          <button type="button"
+                                  (click)="toggleIncomeCategory(cat.name)"
+                                  [class.bg-emerald-600]="cat.selected"
+                                  [class.text-white]="cat.selected"
+                                  [class.shadow-sm]="cat.selected"
+                                  [class.bg-white]="!cat.selected"
+                                  [class.dark:bg-slate-800]="!cat.selected"
+                                  [class.text-slate-700]="!cat.selected"
+                                  [class.dark:text-slate-300]="!cat.selected"
+                                  class="chip-item px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium inline-flex items-center gap-1.5">
+                            <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none flex-shrink-0">{{ cat.icon }}</mat-icon>
+                            <span class="leading-none">{{ cat.name }}</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- ========================================== -->
+              <!-- STEP 5: INVITE MEMBERS (DESKTOP)           -->
+              <!-- ========================================== -->
+              @if (selectedMode() === 'family' && currentStep() === 5) {
+                <div class="animate-fadeIn space-y-6">
+                  <div class="text-left">
+                    <h2 class="text-2xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                      Invite Family Members
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                      Share your workspace invite code so your family or roommates can join and track expenses together.
+                    </p>
+                  </div>
+
+                  <!-- Invite Code Display Box -->
+                  <div class="p-8 rounded-3xl bg-gradient-to-br from-primary-50 to-slate-100 dark:from-slate-800 dark:to-primary-950/40 border border-primary-200 dark:border-primary-800/60 text-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400">
+                      Your Group Invitation Code
+                    </span>
+                    <div class="my-4 font-mono text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-[0.25em] selection:bg-primary-500">
+                      {{ inviteCode() || 'MMGR2026' }}
+                    </div>
+                    <div class="flex items-center justify-center gap-3">
+                      <button mat-flat-button color="primary"
+                              (click)="copyInviteCode()"
+                              class="!rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm !px-5 !py-2.5 inline-flex items-center">
+                        <mat-icon class="!w-4 !h-4 !text-base mr-1.5 flex items-center justify-center leading-none">content_copy</mat-icon>
+                        <span>Copy Code</span>
+                      </button>
+                      <button mat-stroked-button
+                              (click)="shareInvitation()"
+                              class="!rounded-xl !border-primary-600 !text-primary-600 dark:!text-primary-400 !font-semibold text-sm !px-5 !py-2.5 inline-flex items-center">
+                        <mat-icon class="!w-4 !h-4 !text-base mr-1.5 flex items-center justify-center leading-none">share</mat-icon>
+                        <span>Share Invite</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800/60 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                    <span>You can also invite members at any time later from Group Settings.</span>
+                    <button (click)="nextStep()" class="text-xs text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+                      Skip for now
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- ========================================== -->
+              <!-- STEP 6: REVIEW & SUMMARY (DESKTOP)         -->
+              <!-- ========================================== -->
+              @if ((selectedMode() === 'family' && currentStep() === 6) || (selectedMode() === 'personal' && currentStep() === 4)) {
+                <div class="animate-fadeIn space-y-5">
+                  <div class="text-left">
+                    <h2 class="text-2xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                      Review & Confirm Setup
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                      Verify your configured preferences before launching your workspace.
+                    </p>
+                  </div>
+
+                  <!-- 2x2 Summary Cards Grid -->
+                  <div class="grid grid-cols-2 gap-4">
+                    <!-- Card 1: Mode & Workspace -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 flex items-center justify-center flex-shrink-0">
+                          <mat-icon class="!w-5 !h-5 !text-xl flex items-center justify-center leading-none">{{ selectedMode() === 'family' ? 'groups' : 'person' }}</mat-icon>
+                        </div>
+                        <div>
+                          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Workspace</span>
+                          <h4 class="font-bold font-heading text-slate-900 dark:text-white text-sm">
+                            {{ getEffectiveGroupName() }}
+                          </h4>
+                          <span class="text-xs text-slate-500">Role: {{ getEffectiveRole() }}</span>
+                        </div>
+                      </div>
+                      <button (click)="goToStep(1)" class="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">Edit</button>
+                    </div>
+
+                    <!-- Card 2: Primary Account -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
+                          <mat-icon class="!w-5 !h-5 !text-xl flex items-center justify-center leading-none">account_balance</mat-icon>
+                        </div>
+                        <div>
+                          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Primary Account</span>
+                          <h4 class="font-bold font-heading text-slate-900 dark:text-white text-sm">
+                            {{ accountName() }}
+                          </h4>
+                          <span class="text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400">Opening: ₹ {{ accountBalance() }}</span>
+                        </div>
+                      </div>
+                      <button (click)="goToStep(selectedMode() === 'family' ? 3 : 2)" class="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">Edit</button>
+                    </div>
+
+                    <!-- Card 3: Categories -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+                          <mat-icon class="!w-5 !h-5 !text-xl flex items-center justify-center leading-none">category</mat-icon>
+                        </div>
+                        <div>
+                          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Categories</span>
+                          <h4 class="font-bold font-heading text-slate-900 dark:text-white text-sm">
+                            {{ getSelectedExpenseCount() }} Expense / {{ getSelectedIncomeCount() }} Income
+                          </h4>
+                          <span class="text-xs text-slate-500">Configured and ready</span>
+                        </div>
+                      </div>
+                      <button (click)="goToStep(selectedMode() === 'family' ? 4 : 3)" class="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">Edit</button>
+                    </div>
+
+                    <!-- Card 4: Currency & Cloud -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                          <mat-icon class="!w-5 !h-5 !text-xl flex items-center justify-center leading-none">cloud_done</mat-icon>
+                        </div>
+                        <div>
+                          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Sync & Security</span>
+                          <h4 class="font-bold font-heading text-slate-900 dark:text-white text-sm">
+                            INR ₹ (Indian Rupee)
+                          </h4>
+                          <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Local-first + Firestore sync</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+            </div>
+
+            <!-- Desktop Bottom Actions Footer -->
+            <div class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800 mt-6">
+              <button mat-button
+                      (click)="prevStep()"
+                      [disabled]="currentStep() === 1 || isFinishing()"
+                      class="!text-slate-600 dark:!text-slate-400 !font-semibold text-sm">
+                Back
+              </button>
+
+              <div class="flex items-center gap-3">
+                @if (currentStep() < totalSteps()) {
+                  @if (currentStep() === 2 && selectedMode() === 'family' && groupOption() === 'create') {
+                    <button mat-flat-button color="primary"
+                            [disabled]="isLoading()"
+                            (click)="handleCreateGroup()"
+                            class="!px-6 !py-2.5 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm inline-flex items-center">
+                      <span>
+                        @if (isLoading()) {
+                          <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+                          Creating Group...
+                        } @else {
+                          <span>Create & Continue</span>
+                          <mat-icon class="!w-4 !h-4 !text-base ml-1.5 inline-flex items-center justify-center leading-none align-middle">arrow_forward</mat-icon>
+                        }
+                      </span>
+                    </button>
+                  } @else if (currentStep() === 2 && selectedMode() === 'family' && groupOption() === 'join') {
+                    <button mat-flat-button color="primary"
+                            [disabled]="isLoading() || !groupPreview() || groupPreview()!.alreadyMember"
+                            (click)="handleJoinGroup()"
+                            class="!px-6 !py-2.5 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm inline-flex items-center">
+                      <span>
+                        @if (isLoading()) {
+                          <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+                          Joining Group...
+                        } @else {
+                          <span>Join & Continue</span>
+                          <mat-icon class="!w-4 !h-4 !text-base ml-1.5 inline-flex items-center justify-center leading-none align-middle">arrow_forward</mat-icon>
+                        }
+                      </span>
+                    </button>
+                  } @else {
+                    <button mat-flat-button color="primary"
+                            (click)="nextStep()"
+                            class="!px-6 !py-2.5 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm shadow-md shadow-primary-600/20 inline-flex items-center">
+                      <span>Continue</span>
+                      <mat-icon class="!w-4 !h-4 !text-base ml-1.5 inline-flex items-center justify-center leading-none align-middle">arrow_forward</mat-icon>
+                    </button>
+                  }
+                } @else {
+                  <button mat-flat-button color="primary"
+                          [disabled]="isFinishing()"
+                          (click)="finishSetup()"
+                          class="!px-8 !py-3 !rounded-xl !bg-gradient-to-r !from-primary-600 !to-emerald-600 hover:!opacity-95 !text-white !font-semibold text-sm shadow-lg shadow-primary-600/30 inline-flex items-center">
+                    <span>
+                      @if (isFinishing()) {
+                        <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+                        Finalizing Setup...
+                      } @else {
+                        <span>Finish Setup & Start</span>
+                        <mat-icon class="!w-5 !h-5 !text-lg ml-1.5 inline-flex items-center justify-center leading-none align-middle">rocket_launch</mat-icon>
+                      }
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+
+          </div>
+        </div>
+      }
+
+      <!-- **************************************************** -->
+      <!-- MOBILE EXPERIENCE (One-Handed Thumb-Friendly Flow)   -->
+      <!-- **************************************************** -->
+      @else {
+        <div class="mobile-wizard-container max-w-lg mx-auto w-full pb-28 animate-fadeIn">
+
+          <!-- Mobile Compact Progress Header -->
+          <div class="mb-5">
+            <div class="flex items-center justify-between text-xs mb-1.5 font-medium">
+              <span class="font-bold text-primary-600 dark:text-primary-400">
+                Step {{ currentStep() }} of {{ totalSteps() }}: {{ stepTitles()[currentStep() - 1] }}
+              </span>
+              <span class="text-slate-400 font-semibold">
+                {{ Math.round((currentStep() / totalSteps()) * 100) }}%
+              </span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div class="bg-gradient-to-r from-primary-500 via-primary-600 to-emerald-500 h-full transition-all duration-300 ease-out rounded-full"
+                   [style.width.%]="(currentStep() / totalSteps()) * 100"></div>
+            </div>
+          </div>
+
+          <!-- ========================================== -->
+          <!-- SCREEN 1: WELCOME MODE (MOBILE)            -->
+          <!-- ========================================== -->
+          @if (currentStep() === 1) {
+            <div class="space-y-4">
+              <div class="text-center mb-5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 mb-2">
+                  <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none">auto_awesome</mat-icon>
+                  <span>Welcome</span>
+                </span>
+                <h2 class="text-xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+                  Choose Your Tracking Mode
+                </h2>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                  You can switch or add workspaces anytime in settings.
+                </p>
+              </div>
+
+              <!-- Stacked Full-Width Touch Cards -->
+              <div (click)="selectMode('personal')"
+                   [class.border-primary-600]="selectedMode() === 'personal'"
+                   [class.bg-primary-50/50]="selectedMode() === 'personal'"
+                   [class.dark:bg-primary-950/40]="selectedMode() === 'personal'"
+                   class="touch-target p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-between">
+                <div class="flex items-center gap-3.5">
+                  <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 flex items-center justify-center flex-shrink-0">
+                    <mat-icon class="!w-6 !h-6 !text-2xl flex items-center justify-center leading-none">person</mat-icon>
+                  </div>
+                  <div>
+                    <h3 class="font-bold font-heading text-slate-900 dark:text-white text-base">Personal Use</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Track private individual expenses</p>
+                  </div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                     [ngClass]="selectedMode() === 'personal' ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-300 dark:border-slate-600'">
+                  @if (selectedMode() === 'personal') {
+                    <mat-icon class="!w-3.5 !h-3.5 !text-sm flex items-center justify-center leading-none">check</mat-icon>
+                  }
+                </div>
+              </div>
+
+              <div (click)="selectMode('family')"
+                   [class.border-primary-600]="selectedMode() === 'family'"
+                   [class.bg-primary-50/50]="selectedMode() === 'family'"
+                   [class.dark:bg-primary-950/40]="selectedMode() === 'family'"
+                   class="touch-target p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-between">
+                <div class="flex items-center gap-3.5">
+                  <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 flex items-center justify-center flex-shrink-0">
+                    <mat-icon class="!w-6 !h-6 !text-2xl flex items-center justify-center leading-none">groups</mat-icon>
+                  </div>
+                  <div>
+                    <h3 class="font-bold font-heading text-slate-900 dark:text-white text-base">Family / Group Use</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Share & split expenses with others</p>
+                  </div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                     [ngClass]="selectedMode() === 'family' ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-300 dark:border-slate-600'">
+                  @if (selectedMode() === 'family') {
+                    <mat-icon class="!w-3.5 !h-3.5 !text-sm flex items-center justify-center leading-none">check</mat-icon>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ========================================== -->
+          <!-- SCREEN 2: GROUP SETUP (MOBILE)             -->
+          <!-- ========================================== -->
+          @if (currentStep() === 2 && selectedMode() === 'family') {
+            <div class="space-y-4">
+              <!-- Segmented Toggle -->
+              <div class="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-xl">
+                <button type="button"
+                        (click)="selectGroupOption('create')"
+                        [class.bg-white]="groupOption() === 'create'"
+                        [class.dark:bg-slate-900]="groupOption() === 'create'"
+                        [class.text-primary-600]="groupOption() === 'create'"
+                        [class.shadow-sm]="groupOption() === 'create'"
+                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-300 flex items-center justify-center gap-1.5">
+                  <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none">add_circle</mat-icon>
+                  <span>Create Group</span>
+                </button>
+                <button type="button"
+                        (click)="selectGroupOption('join')"
+                        [class.bg-white]="groupOption() === 'join'"
+                        [class.dark:bg-slate-900]="groupOption() === 'join'"
+                        [class.text-primary-600]="groupOption() === 'join'"
+                        [class.shadow-sm]="groupOption() === 'join'"
+                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-300 flex items-center justify-center gap-1.5">
+                  <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none">group_add</mat-icon>
+                  <span>Join Group</span>
+                </button>
+              </div>
+
+              @if (groupOption() === 'create') {
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                      Group Workspace Name *
+                    </label>
+                    <input type="text"
+                           [value]="groupName()"
+                           (input)="groupName.set($any($event.target).value)"
+                           placeholder="e.g. Wadkar Family"
+                           class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                  </div>
+
+                  <!-- Group Types horizontal chips -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                      Type
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                      @for (opt of groupTypeOptions; track opt.value) {
+                        <button type="button"
+                                (click)="selectGroupType(opt.value)"
+                                [class.border-primary-600]="groupType() === opt.value"
+                                [class.bg-primary-50/60]="groupType() === opt.value"
+                                [class.dark:bg-primary-950/40]="groupType() === opt.value"
+                                class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-left flex items-center gap-2">
+                          <mat-icon class="text-primary-600 dark:text-primary-400 !w-5 !h-5 !text-xl flex items-center justify-center leading-none flex-shrink-0">{{ opt.icon }}</mat-icon>
+                          <span class="text-xs font-bold font-heading text-slate-800 dark:text-slate-200">{{ opt.label }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="text-right">
+                    <button (click)="skipGroupSetup()" class="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">
+                      Skip for now
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                      8-Character Invite Code
+                    </label>
+                    <input type="text"
+                           [value]="joinInviteCodeInput()"
+                           (input)="joinInviteCodeInput.set($any($event.target).value.toUpperCase())"
+                           placeholder="ENTER CODE"
+                           maxlength="12"
+                           class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base tracking-widest font-mono uppercase focus:outline-none focus:ring-2 focus:ring-primary-500 font-semibold" />
+                  </div>
+
+                  <button mat-flat-button color="primary"
+                          (click)="lookupGroup()"
+                          [disabled]="isLookingUpGroup()"
+                          class="w-full !py-3 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm">
+                    @if (isLookingUpGroup()) {
+                      <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+                      Checking Code...
+                    } @else {
+                      <span>Verify & Preview Group</span>
+                    }
+                  </button>
+
+                  @if (joinError()) {
+                    <div class="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-xs text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                      <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none flex-shrink-0">error_outline</mat-icon>
+                      <span class="font-medium">{{ joinError() }}</span>
+                    </div>
+                  }
+
+                  @if (groupPreview()) {
+                    <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-left flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                        <mat-icon class="!w-5 !h-5 !text-xl flex items-center justify-center leading-none">{{ groupPreview()!.family.icon || 'groups' }}</mat-icon>
+                      </div>
+                      <div>
+                        <h4 class="font-bold font-heading text-slate-900 dark:text-white text-sm">{{ groupPreview()!.family.name }}</h4>
+                        <p class="text-xs text-slate-500">{{ groupPreview()!.memberCount }} active members</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- ========================================== -->
+          <!-- SCREEN 3: INITIAL ACCOUNT (MOBILE)         -->
+          <!-- ========================================== -->
+          @if ((selectedMode() === 'family' && currentStep() === 3) || (selectedMode() === 'personal' && currentStep() === 2)) {
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                  Account Type
+                </label>
+                <div class="grid grid-cols-2 gap-2">
+                  @for (acc of accountTypeOptions; track acc.value) {
+                    <button type="button"
+                            (click)="selectAccountType(acc.value)"
+                            [class.border-primary-600]="accountType() === acc.value"
+                            [class.bg-primary-50/60]="accountType() === acc.value"
+                            [class.dark:bg-primary-950/40]="accountType() === acc.value"
+                            class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left flex items-center gap-2">
+                      <mat-icon class="text-primary-600 dark:text-primary-400 !w-5 !h-5 !text-xl flex items-center justify-center leading-none flex-shrink-0">{{ acc.icon }}</mat-icon>
+                      <span class="text-xs font-bold font-heading text-slate-800 dark:text-slate-200 truncate">{{ acc.label }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                  Account Name *
+                </label>
+                <input type="text"
+                       [value]="accountName()"
+                       (input)="accountName.set($any($event.target).value)"
+                       placeholder="e.g. Salary Bank Account"
+                       class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-primary-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 tracking-wide">
+                  Opening Balance (₹)
+                </label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">₹</span>
+                  <input type="number"
+                         [value]="accountBalance()"
+                         (input)="accountBalance.set(+$any($event.target).value)"
+                         placeholder="0.00"
+                         class="w-full pl-8 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ========================================== -->
+          <!-- SCREEN 4: CATEGORIES (MOBILE TABS)         -->
+          <!-- ========================================== -->
+          @if ((selectedMode() === 'family' && currentStep() === 4) || (selectedMode() === 'personal' && currentStep() === 3)) {
+            <div class="space-y-3">
+              <!-- Mobile Segmented Tabs -->
+              <div class="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-xl">
+                <button type="button"
+                        (click)="mobileCategoryTab.set('expense')"
+                        [class.bg-white]="mobileCategoryTab() === 'expense'"
+                        [class.dark:bg-slate-900]="mobileCategoryTab() === 'expense'"
+                        [class.text-rose-600]="mobileCategoryTab() === 'expense'"
+                        [class.shadow-sm]="mobileCategoryTab() === 'expense'"
+                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-300">
+                  Expenses ({{ getSelectedExpenseCount() }})
+                </button>
+                <button type="button"
+                        (click)="mobileCategoryTab.set('income')"
+                        [class.bg-white]="mobileCategoryTab() === 'income'"
+                        [class.dark:bg-slate-900]="mobileCategoryTab() === 'income'"
+                        [class.text-emerald-600]="mobileCategoryTab() === 'income'"
+                        [class.shadow-sm]="mobileCategoryTab() === 'income'"
+                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-300">
+                  Income ({{ getSelectedIncomeCount() }})
+                </button>
+              </div>
+
+              <!-- Select All Toggle -->
+              <div class="flex justify-end">
+                @if (mobileCategoryTab() === 'expense') {
+                  <button type="button"
+                          (click)="getSelectedExpenseCount() === expenseCategories().length ? toggleAllExpense(false) : toggleAllExpense(true)"
+                          class="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                    {{ getSelectedExpenseCount() === expenseCategories().length ? 'Deselect All' : 'Select All' }}
+                  </button>
+                } @else {
+                  <button type="button"
+                          (click)="getSelectedIncomeCount() === incomeCategories().length ? toggleAllIncome(false) : toggleAllIncome(true)"
+                          class="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                    {{ getSelectedIncomeCount() === incomeCategories().length ? 'Deselect All' : 'Select All' }}
+                  </button>
+                }
+              </div>
+
+              <!-- Chips Cloud -->
+              <div class="flex flex-wrap gap-2 max-h-[380px] overflow-y-auto custom-wizard-scrollbar py-1">
+                @if (mobileCategoryTab() === 'expense') {
+                  @for (cat of expenseCategories(); track cat.name) {
+                    <button type="button"
+                            (click)="toggleExpenseCategory(cat.name)"
+                            [class.bg-rose-500]="cat.selected"
+                            [class.text-white]="cat.selected"
+                            [class.bg-white]="!cat.selected"
+                            [class.dark:bg-slate-800]="!cat.selected"
+                            [class.text-slate-700]="!cat.selected"
+                            [class.dark:text-slate-300]="!cat.selected"
+                            class="chip-item px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium inline-flex items-center gap-1.5 touch-target">
+                      <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none flex-shrink-0">{{ cat.icon }}</mat-icon>
+                      <span class="leading-none">{{ cat.name }}</span>
+                    </button>
+                  }
+                } @else {
+                  @for (cat of incomeCategories(); track cat.name) {
+                    <button type="button"
+                            (click)="toggleIncomeCategory(cat.name)"
+                            [class.bg-emerald-600]="cat.selected"
+                            [class.text-white]="cat.selected"
+                            [class.bg-white]="!cat.selected"
+                            [class.dark:bg-slate-800]="!cat.selected"
+                            [class.text-slate-700]="!cat.selected"
+                            [class.dark:text-slate-300]="!cat.selected"
+                            class="chip-item px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium inline-flex items-center gap-1.5 touch-target">
+                      <mat-icon class="!w-4 !h-4 !text-base flex items-center justify-center leading-none flex-shrink-0">{{ cat.icon }}</mat-icon>
+                      <span class="leading-none">{{ cat.name }}</span>
+                    </button>
+                  }
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ========================================== -->
+          <!-- SCREEN 5: INVITE MEMBERS (MOBILE)          -->
+          <!-- ========================================== -->
+          @if (selectedMode() === 'family' && currentStep() === 5) {
+            <div class="space-y-4 text-center">
+              <h2 class="text-xl font-bold font-heading text-slate-900 dark:text-white">Invite Family Members</h2>
+              <p class="text-xs text-slate-500">Share your invite code with members</p>
+
+              <div class="p-6 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <span class="text-xs uppercase font-bold text-slate-400">Invite Code</span>
+                <div class="my-2 font-mono text-2xl font-bold tracking-[0.2em] text-slate-900 dark:text-white">
+                  {{ inviteCode() || 'MMGR2026' }}
+                </div>
+                <div class="flex gap-2 mt-4">
+                  <button mat-flat-button color="primary"
+                          (click)="copyInviteCode()"
+                          class="flex-1 !py-2.5 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm inline-flex items-center justify-center">
+                    <mat-icon class="!w-4 !h-4 !text-base mr-1.5 flex items-center justify-center leading-none">content_copy</mat-icon>
+                    <span>Copy</span>
+                  </button>
+                  <button mat-stroked-button
+                          (click)="shareInvitation()"
+                          class="flex-1 !py-2.5 !rounded-xl !border-primary-600 !text-primary-600 dark:!text-primary-400 !font-semibold text-sm inline-flex items-center justify-center">
+                    <mat-icon class="!w-4 !h-4 !text-base mr-1.5 flex items-center justify-center leading-none">share</mat-icon>
+                    <span>Share</span>
+                  </button>
+                </div>
+              </div>
+
+              <button (click)="nextStep()" class="text-xs text-slate-500 underline">
+                Skip for now
+              </button>
+            </div>
+          }
+
+          <!-- ========================================== -->
+          <!-- SCREEN 6: REVIEW & SUMMARY (MOBILE)        -->
+          <!-- ========================================== -->
+          @if ((selectedMode() === 'family' && currentStep() === 6) || (selectedMode() === 'personal' && currentStep() === 4)) {
+            <div class="space-y-3">
+              <h2 class="text-lg font-bold font-heading text-slate-900 dark:text-white mb-2">Review Your Setup</h2>
+
+              <!-- Summary Item 1: Mode -->
+              <div class="p-3.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400">Workspace</span>
+                  <h4 class="font-bold font-heading text-sm text-slate-900 dark:text-white">{{ getEffectiveGroupName() }}</h4>
+                </div>
+                <button (click)="goToStep(1)" class="text-xs text-primary-600 dark:text-primary-400 font-semibold">Edit</button>
+              </div>
+
+              <!-- Summary Item 2: Account -->
+              <div class="p-3.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400">Primary Account</span>
+                  <h4 class="font-bold font-heading text-sm text-slate-900 dark:text-white">{{ accountName() }} (₹{{ accountBalance() }})</h4>
+                </div>
+                <button (click)="goToStep(selectedMode() === 'family' ? 3 : 2)" class="text-xs text-primary-600 dark:text-primary-400 font-semibold">Edit</button>
+              </div>
+
+              <!-- Summary Item 3: Categories -->
+              <div class="p-3.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400">Categories</span>
+                  <h4 class="font-bold font-heading text-sm text-slate-900 dark:text-white">{{ getSelectedExpenseCount() }} Expense / {{ getSelectedIncomeCount() }} Income</h4>
+                </div>
+                <button (click)="goToStep(selectedMode() === 'family' ? 4 : 3)" class="text-xs text-primary-600 dark:text-primary-400 font-semibold">Edit</button>
+              </div>
+            </div>
+          }
+
+          <!-- FIXED MOBILE BOTTOM ACTION BAR -->
+          <div class="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 safe-area-bottom z-30">
+            <div class="flex items-center gap-3 max-w-lg mx-auto">
+              @if (currentStep() > 1) {
+                <button mat-stroked-button
+                        (click)="prevStep()"
+                        [disabled]="isFinishing()"
+                        class="!py-3 !px-4 !rounded-xl !font-semibold text-sm !text-slate-700 dark:!text-slate-300">
+                  Back
+                </button>
+              }
+
+              @if (currentStep() < totalSteps()) {
+                @if (currentStep() === 2 && selectedMode() === 'family' && groupOption() === 'create') {
+                  <button mat-flat-button color="primary"
+                          [disabled]="isLoading()"
+                          (click)="handleCreateGroup()"
+                          class="flex-1 !py-3 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm touch-target inline-flex items-center justify-center">
+                    <span>
+                      @if (isLoading()) {
+                        <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+                        Creating...
+                      } @else {
+                        <span>Create Group</span>
+                      }
+                    </span>
+                  </button>
+                } @else if (currentStep() === 2 && selectedMode() === 'family' && groupOption() === 'join') {
+                  <button mat-flat-button color="primary"
+                          [disabled]="isLoading() || !groupPreview() || groupPreview()!.alreadyMember"
+                          (click)="handleJoinGroup()"
+                          class="flex-1 !py-3 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm touch-target inline-flex items-center justify-center">
+                    <span>
+                      @if (isLoading()) {
+                        <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+                        Joining...
+                      } @else {
+                        <span>Join Group</span>
+                      }
+                    </span>
+                  </button>
+                } @else {
+                  <button mat-flat-button color="primary"
+                          (click)="nextStep()"
+                          class="flex-1 !py-3 !rounded-xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold text-sm touch-target shadow-md shadow-primary-600/30 inline-flex items-center justify-center">
+                    <span>Continue</span>
+                    <mat-icon class="!w-4 !h-4 !text-base ml-1.5 inline-flex items-center justify-center leading-none align-middle">arrow_forward</mat-icon>
+                  </button>
+                }
+              } @else {
+                <button mat-flat-button color="primary"
+                        [disabled]="isFinishing()"
+                        (click)="finishSetup()"
+                        class="flex-1 !py-3.5 !rounded-xl !bg-gradient-to-r !from-primary-600 !to-emerald-600 hover:!opacity-95 !text-white !font-semibold text-sm touch-target shadow-lg shadow-primary-600/30 inline-flex items-center justify-center">
+                  <span>
+                    @if (isFinishing()) {
+                      <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+                      Saving...
+                    } @else {
+                      <span>Finish & Start 🚀</span>
+                    }
+                  </span>
+                </button>
+              }
+            </div>
+          </div>
+
+        </div>
+      }
+
+    } @else {
+
+      <!-- ========================================== -->
+      <!-- SCREEN 7: COMPLETION SUCCESS (SHARED)      -->
+      <!-- ========================================== -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-12 shadow-2xl shadow-primary-500/10 border border-slate-200/80 dark:border-slate-800 text-center max-w-lg mx-auto animate-scaleUp">
+        <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-emerald-500 to-primary-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-6">
+          <mat-icon class="!w-10 !h-10 !text-5xl flex items-center justify-center leading-none">check</mat-icon>
+        </div>
+
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 mb-3">
+          🎉 Setup Complete!
+        </span>
+
+        <h2 class="text-2xl sm:text-3xl font-bold font-heading text-slate-900 dark:text-white tracking-tight">
+          Welcome to MoneyManager
+        </h2>
+        <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 mb-8 leading-relaxed">
+          Your workspace has been successfully initialized. Start logging your expenses, tracking balances, and managing money seamlessly.
+        </p>
+
+        <button mat-flat-button color="primary"
+                (click)="navigateToDashboard()"
+                class="w-full !py-3.5 !rounded-2xl !bg-primary-600 hover:!bg-primary-700 !text-white !font-semibold !text-base shadow-lg shadow-primary-600/30 inline-flex items-center justify-center">
+          <span>Go to Dashboard</span>
+          <mat-icon class="!w-5 !h-5 !text-xl ml-1.5 inline-flex items-center justify-center leading-none align-middle">arrow_forward</mat-icon>
+        </button>
+      </div>
+
+    }
+
+  </main>
+
+  <!-- Desktop Footer -->
+  @if (isDesktopLayout()) {
+    <footer class="py-4 text-center text-xs text-slate-400 dark:text-slate-600 border-t border-slate-200/60 dark:border-slate-800/60 font-medium">
+      MoneyManager © 2026 • Secure & Local-First Expense Tracking
+    </footer>
+  }
+
+</div>

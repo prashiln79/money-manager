@@ -19,6 +19,9 @@ export const rootGuard: CanActivateFn = () => {
   const lastActiveUid = storageService.getItem<string>(LocalStorageKey.LAST_ACTIVE_UID);
 
   if (auth.currentUser || userService.isGuestUser() || cachedUser || lastActiveUid) {
+    if (cachedUser && cachedUser.preferences && !cachedUser.preferences.hasSeenWelcome) {
+      return router.createUrlTree(['/setup']);
+    }
     return router.createUrlTree(['/dashboard']);
   }
 
