@@ -1,0 +1,501 @@
+<div class="home-desktop-container w-full min-h-full flex flex-col gap-6 p-1 max-w-[1600px] mx-auto animate-fadeIn font-sans">
+
+  <!-- ======================================================== -->
+  <!-- 1. TOP HEADER & DASHBOARD CONTROLS                       -->
+  <!-- ======================================================== -->
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-1">
+    
+    <!-- Title & Inline Search Bar -->
+    <div class="flex items-center gap-6 flex-wrap flex-1">
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl lg:text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 tracking-tight m-0">
+          Dashboard
+        </h1>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+              [ngClass]="isFamilyMode()
+                ? 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900/40 dark:text-secondary-300 border border-secondary-300 dark:border-secondary-700'
+                : 'bg-primary-50 text-primary-800 dark:bg-primary-950/60 dark:text-primary-300 border border-primary-200 dark:border-primary-800'">
+          {{ isFamilyMode() ? 'Family Mode' : 'Personal' }}
+        </span>
+      </div>
+
+      <!-- Search Input using Angular Material Surface & Neutral tokens -->
+      <div class="relative w-72 max-w-full">
+        <mat-icon class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 !w-4 !h-4 !text-base">search</mat-icon>
+        <input type="text"
+               placeholder="Search transactions, accounts..."
+               [value]="transactionSearch()"
+               (input)="onSearchInput($event)"
+               class="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl bg-surface-50 border border-surface-300 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm" />
+      </div>
+    </div>
+
+    <!-- Right Controls: View Toggle, + Transaction Button, Reports/Notifications -->
+    <div class="flex items-center gap-3 flex-wrap">
+
+      <!-- View Switcher (Overview vs AI Copilot) -->
+      <div class="flex p-0.5 bg-surface-200 rounded-xl border border-surface-300">
+        <button type="button"
+                (click)="activeView.set('overview')"
+                [class.bg-surface-50]="activeView() === 'overview'"
+                [class.text-primary-700]="activeView() === 'overview'"
+                [class.dark:text-primary-400]="activeView() === 'overview'"
+                [class.shadow-sm]="activeView() === 'overview'"
+                [class.text-neutral-600]="activeView() !== 'overview'"
+                [class.dark:text-neutral-400]="activeView() !== 'overview'"
+                class="px-3 py-1 text-xs font-semibold rounded-lg transition-all inline-flex items-center gap-1.5 cursor-pointer border-0">
+          <mat-icon class="!w-3.5 !h-3.5 !text-sm">dashboard</mat-icon>
+          <span>Overview</span>
+        </button>
+        <button type="button"
+                (click)="activeView.set('copilot')"
+                [class.bg-surface-50]="activeView() === 'copilot'"
+                [class.text-primary-700]="activeView() === 'copilot'"
+                [class.dark:text-primary-400]="activeView() === 'copilot'"
+                [class.shadow-sm]="activeView() === 'copilot'"
+                [class.text-neutral-600]="activeView() !== 'copilot'"
+                [class.dark:text-neutral-400]="activeView() !== 'copilot'"
+                class="px-3 py-1 text-xs font-semibold rounded-lg transition-all inline-flex items-center gap-1.5 cursor-pointer border-0">
+          <mat-icon class="!w-3.5 !h-3.5 !text-sm">smart_toy</mat-icon>
+          <span>AI Copilot</span>
+        </button>
+      </div>
+
+      <!-- Primary Action: + Transaction Button using Material Primary -->
+      <button (click)="openAddTransaction()"
+              type="button"
+              class="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium text-xs shadow-md shadow-primary-600/20 hover:shadow-lg transition-all active:scale-95 inline-flex items-center gap-1.5 cursor-pointer border-0">
+        <mat-icon class="!w-4 !h-4 !text-base">add</mat-icon>
+        <span>Transaction</span>
+      </button>
+
+      <!-- Notifications / Reports Icon -->
+      <button type="button"
+              (click)="navigateTo('/dashboard/reports')"
+              matTooltip="Financial Reports & Notifications"
+              class="w-9 h-9 rounded-xl bg-surface-50 border border-surface-300 text-neutral-600 dark:text-neutral-300 hover:bg-surface-100 flex items-center justify-center transition-colors cursor-pointer">
+        <mat-icon class="!w-4 !h-4 !text-base text-neutral-600 dark:text-neutral-400">notifications_none</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- 2. MAIN VIEW CONTAINER                                   -->
+  <!-- ======================================================== -->
+  @if (activeView() === 'overview') {
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- ====================================================== -->
+      <!-- LEFT COLUMN (8 cols): HERO CARD, CHART, TRANSACTIONS   -->
+      <!-- ====================================================== -->
+      <div class="lg:col-span-8 flex flex-col gap-6">
+
+        <!-- A. HERO DARK CARD (USING MATERIAL NEUTRAL-900 & PRIMARY/SECONDARY) -->
+        <div class="rounded-[22px] bg-neutral-900 text-neutral-50 p-6 shadow-xl border border-neutral-800 relative overflow-hidden">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+
+            <!-- Donut Chart Segment -->
+            <div class="flex items-center gap-5">
+              <div class="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
+                <svg class="w-24 h-24 -rotate-90 transform" viewBox="0 0 80 80">
+                  <!-- Background Ring (Outflow) -->
+                  <circle cx="40" cy="40" r="34"
+                          fill="transparent"
+                          stroke="var(--neutral-700)"
+                          stroke-width="7" />
+                  <!-- Progress Ring (Inflow) using Material Primary -->
+                  <circle cx="40" cy="40" r="34"
+                          fill="transparent"
+                          stroke="var(--primary-400)"
+                          stroke-width="7"
+                          stroke-linecap="round"
+                          [style.strokeDasharray]="213.63"
+                          [style.strokeDashoffset]="donutMetrics().dashOffset"
+                          class="transition-all duration-1000 ease-out" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span class="text-xs font-extrabold text-white">{{ donutMetrics().incomePercent }}%</span>
+                  <span class="text-[9px] text-neutral-400 font-medium">Income</span>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-primary-400"></span>
+                  <span class="text-xs text-neutral-300 font-medium">{{ donutMetrics().incomePercent }}% Inflow</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-neutral-500"></span>
+                  <span class="text-xs text-neutral-400 font-medium">{{ donutMetrics().expensePercent }}% Outflow</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="hidden sm:block h-14 w-px bg-neutral-800"></div>
+
+            <!-- Total Income Metric -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 text-neutral-400 text-xs mb-1">
+                <mat-icon class="!w-4 !h-4 !text-base text-primary-400">credit_card</mat-icon>
+                <span class="font-medium tracking-wide">Total Income</span>
+                <mat-icon class="!w-3.5 !h-3.5 !text-sm text-neutral-500 cursor-pointer" matTooltip="Monthly incoming revenue and deposits">info_outline</mat-icon>
+              </div>
+              <div class="text-2xl xl:text-3xl font-extrabold tracking-tight text-white font-mono">
+                {{ currentMonthIncome() | currency }}
+              </div>
+              <div class="text-[11px] text-success-400 flex items-center gap-1 mt-0.5">
+                <span>↑ Net cash inflow</span>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="hidden sm:block h-14 w-px bg-neutral-800"></div>
+
+            <!-- Total Expenses Metric -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 text-neutral-400 text-xs mb-1">
+                <mat-icon class="!w-4 !h-4 !text-base text-error-400">receipt_long</mat-icon>
+                <span class="font-medium tracking-wide">Total Expenses</span>
+                <span class="w-4 h-4 rounded-full bg-error-500/20 text-error-400 flex items-center justify-center text-[10px] font-bold">↓</span>
+              </div>
+              <div class="text-2xl xl:text-3xl font-extrabold tracking-tight text-white font-mono">
+                {{ currentMonthExpenses() | currency }}
+              </div>
+              <div class="text-[11px] text-neutral-400 flex items-center gap-1 mt-0.5">
+                <span>{{ savingsRate() }}% savings rate</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- B. CASH FLOW & EXPENSES CHART (USING MATERIAL TOKENS) -->
+        <div class="p-6 rounded-[22px] bg-surface-50 border border-surface-300 shadow-sm">
+          <!-- Chart Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div class="flex items-center gap-6 flex-wrap">
+              <h2 class="text-lg font-bold text-neutral-900 dark:text-neutral-100 m-0">
+                Expenses & Cash Flow
+              </h2>
+              <!-- Chart Legends -->
+              <div class="flex items-center gap-4 text-xs font-semibold">
+                <div class="flex items-center gap-2 text-primary-600 dark:text-primary-400">
+                  <span class="w-3.5 h-0.5 bg-primary-600 dark:bg-primary-400 rounded-full"></span>
+                  <span>Income</span>
+                </div>
+                <div class="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+                  <span class="w-3.5 h-0.5 border-b-2 border-dotted border-neutral-600 dark:border-neutral-400"></span>
+                  <span>Expenses</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Time Period Filters: Year | Month | Day -->
+            <div class="flex p-0.5 bg-surface-200 rounded-lg border border-surface-300 self-start sm:self-auto">
+              <button type="button"
+                      (click)="timePeriod.set('Year')"
+                      [class.bg-primary-600]="timePeriod() === 'Year'"
+                      [class.text-white]="timePeriod() === 'Year'"
+                      [class.text-neutral-600]="timePeriod() !== 'Year'"
+                      [class.dark:text-neutral-300]="timePeriod() !== 'Year'"
+                      class="px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer border-0">
+                Year
+              </button>
+              <button type="button"
+                      (click)="timePeriod.set('Month')"
+                      [class.bg-primary-600]="timePeriod() === 'Month'"
+                      [class.text-white]="timePeriod() === 'Month'"
+                      [class.text-neutral-600]="timePeriod() !== 'Month'"
+                      [class.dark:text-neutral-300]="timePeriod() !== 'Month'"
+                      class="px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer border-0">
+                Month
+              </button>
+              <button type="button"
+                      (click)="timePeriod.set('Day')"
+                      [class.bg-primary-600]="timePeriod() === 'Day'"
+                      [class.text-white]="timePeriod() === 'Day'"
+                      [class.text-neutral-600]="timePeriod() !== 'Day'"
+                      [class.dark:text-neutral-300]="timePeriod() !== 'Day'"
+                      class="px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer border-0">
+                Day
+              </button>
+            </div>
+          </div>
+
+          <!-- SVG Chart Area (Smooth Curves with interactive tooltip) -->
+          <div class="relative w-full overflow-hidden select-none">
+            
+            <!-- Tooltip pill positioned over peak point -->
+            <div class="absolute bg-surface-50 border border-surface-300 rounded-xl px-2.5 py-1 shadow-lg text-[11px] font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5 pointer-events-none transition-all duration-300"
+                 [style.left.px]="chartData().activePoint.x - 45"
+                 [style.top.px]="chartData().activePoint.y - 38">
+              <span>{{ chartData().activePoint.val | currency }}</span>
+              <span class="w-3.5 h-3.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 flex items-center justify-center text-[9px]">↑</span>
+            </div>
+
+            <svg class="w-full h-56" viewBox="0 0 800 240" preserveAspectRatio="none">
+              <defs>
+                <!-- Soft primary gradient under Income curve -->
+                <linearGradient id="incomeFillGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--primary-500)" stop-opacity="0.22" />
+                  <stop offset="100%" stop-color="var(--primary-500)" stop-opacity="0.0" />
+                </linearGradient>
+              </defs>
+
+              <!-- Y-Axis Grid Lines & Reference Values -->
+              <g class="grid-lines text-[10px]">
+                <line x1="40" y1="35" x2="760" y2="35" stroke="var(--surface-300)" stroke-dasharray="4 4" stroke-opacity="0.8" />
+                <text x="15" y="38" fill="var(--neutral-400)" font-size="10">10 K</text>
+
+                <line x1="40" y1="75" x2="760" y2="75" stroke="var(--surface-300)" stroke-dasharray="4 4" stroke-opacity="0.8" />
+                <text x="15" y="78" fill="var(--neutral-400)" font-size="10">8 K</text>
+
+                <line x1="40" y1="115" x2="760" y2="115" stroke="var(--surface-300)" stroke-dasharray="4 4" stroke-opacity="0.8" />
+                <text x="15" y="118" fill="var(--neutral-400)" font-size="10">6 K</text>
+
+                <line x1="40" y1="155" x2="760" y2="155" stroke="var(--surface-300)" stroke-dasharray="4 4" stroke-opacity="0.8" />
+                <text x="15" y="158" fill="var(--neutral-400)" font-size="10">4 K</text>
+
+                <line x1="40" y1="205" x2="760" y2="205" stroke="var(--surface-300)" stroke-dasharray="4 4" stroke-opacity="0.8" />
+                <text x="15" y="208" fill="var(--neutral-400)" font-size="10">2 K</text>
+              </g>
+
+              <!-- Income Area Fill Under Curve -->
+              <path [attr.d]="chartData().incomeAreaPath"
+                    fill="url(#incomeFillGradient)" />
+
+              <!-- Expenses Dotted Curve -->
+              <path [attr.d]="chartData().expensePath"
+                    fill="none"
+                    stroke="var(--neutral-600)"
+                    stroke-width="2.5"
+                    stroke-dasharray="3 4"
+                    stroke-linecap="round" />
+
+              <!-- Income Solid Curve -->
+              <path [attr.d]="chartData().incomePath"
+                    fill="none"
+                    stroke="var(--primary-500)"
+                    stroke-width="3"
+                    stroke-linecap="round" />
+
+              <!-- Active Highlight Dot -->
+              <circle [attr.cx]="chartData().activePoint.x"
+                      [attr.cy]="chartData().activePoint.y"
+                      r="5"
+                      fill="var(--surface-50)"
+                      stroke="var(--primary-600)"
+                      stroke-width="3" />
+            </svg>
+
+            <!-- X-Axis Timeline Markers -->
+            <div class="flex justify-between px-10 text-[11px] font-medium text-neutral-400 mt-1">
+              @for (lbl of chartData().labels; track lbl) {
+                <span>{{ lbl }}</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- C. TRANSACTIONS DATA TABLE (USING MATERIAL TOKENS) -->
+        <div class="p-6 rounded-[22px] bg-surface-50 border border-surface-300 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-lg font-bold text-neutral-900 dark:text-neutral-100 m-0">Transactions</h2>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 m-0">Real-time ledger entries</p>
+            </div>
+            <button (click)="navigateTo('/dashboard/transactions')"
+                    class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline inline-flex items-center gap-1 cursor-pointer">
+              <span>View All</span>
+              <mat-icon class="!w-3.5 !h-3.5 !text-sm">arrow_forward</mat-icon>
+            </button>
+          </div>
+
+          <!-- Professional Data Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-surface-300 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                  <th class="py-3 px-3">Operation</th>
+                  <th class="py-3 px-3">Purpose</th>
+                  <th class="py-3 px-3">Number</th>
+                  <th class="py-3 px-3">Invoice</th>
+                  <th class="py-3 px-3">Status</th>
+                  <th class="py-3 px-3 text-right"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-200 text-xs">
+                @for (tx of desktopTransactions(); track tx.number + tx.operation) {
+                  <tr class="hover:bg-surface-100 transition-colors group cursor-pointer"
+                      (click)="navigateTo('/dashboard/transactions')">
+                    
+                    <!-- Operation with Brand / Category Icon -->
+                    <td class="py-3 px-3">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                             [ngClass]="tx.iconBg">
+                          <mat-icon class="!w-4 !h-4 !text-base">{{ tx.icon }}</mat-icon>
+                        </div>
+                        <span class="font-bold text-neutral-900 dark:text-neutral-100 truncate">
+                          {{ tx.operation }}
+                        </span>
+                      </div>
+                    </td>
+
+                    <!-- Purpose -->
+                    <td class="py-3 px-3 text-neutral-600 dark:text-neutral-400 font-medium">
+                      {{ tx.purpose }}
+                    </td>
+
+                    <!-- Number -->
+                    <td class="py-3 px-3 font-mono text-neutral-500 dark:text-neutral-400">
+                      {{ tx.number }}
+                    </td>
+
+                    <!-- Invoice / Amount -->
+                    <td class="py-3 px-3 font-mono font-bold"
+                        [ngClass]="tx.isIncome ? 'text-success-600 dark:text-success-400' : 'text-neutral-900 dark:text-neutral-100'">
+                      {{ tx.isIncome ? '+' : '' }}{{ tx.amount | currency }}
+                    </td>
+
+                    <!-- Status Badge -->
+                    <td class="py-3 px-3">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+                            [ngClass]="{
+                              'bg-warning-100 text-warning-800 dark:bg-warning-950/60 dark:text-warning-300': tx.statusType === 'pending',
+                              'bg-success-100 text-success-800 dark:bg-success-950/60 dark:text-success-300': tx.statusType === 'active',
+                              'bg-primary-100 text-primary-800 dark:bg-primary-950/60 dark:text-primary-300': tx.statusType === 'completed'
+                            }">
+                        <span class="w-1.5 h-1.5 rounded-full"
+                              [ngClass]="{
+                                'bg-warning-500': tx.statusType === 'pending',
+                                'bg-success-500': tx.statusType === 'active',
+                                'bg-primary-500': tx.statusType === 'completed'
+                              }"></span>
+                        <span>{{ tx.status }}</span>
+                      </span>
+                    </td>
+
+                    <!-- Action Menu -->
+                    <td class="py-3 px-3 text-right">
+                      <button type="button"
+                              (click)="$event.stopPropagation(); navigateTo('/dashboard/transactions')"
+                              class="w-7 h-7 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-surface-200 inline-flex items-center justify-center transition-colors cursor-pointer border-0">
+                        <mat-icon class="!w-4 !h-4 !text-base">more_horiz</mat-icon>
+                      </button>
+                    </td>
+
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- RIGHT COLUMN (4 cols): TILES, SAVINGS & REUSABLE CARDS -->
+      <!-- ====================================================== -->
+      <div class="lg:col-span-4 flex flex-col gap-6">
+
+        <!-- 1. CATEGORY SPENDING TILES (USING MATERIAL SURFACE & TOKENS) -->
+        <div class="grid grid-cols-2 gap-3.5">
+          @for (tile of categoryTiles(); track tile.id) {
+            <div (click)="navigateTo('/dashboard/category')"
+                 class="p-4 rounded-2xl bg-surface-50 border border-surface-300 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between">
+              <!-- Category Icon -->
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3 transition-transform group-hover:scale-105"
+                   [ngClass]="tile.bg">
+                <mat-icon class="!w-4 !h-4 !text-base" [ngClass]="tile.color">{{ tile.icon }}</mat-icon>
+              </div>
+
+              <!-- Amount & Title -->
+              <div>
+                <div class="text-sm xl:text-base font-extrabold text-neutral-900 dark:text-neutral-100 font-mono tracking-tight">
+                  {{ tile.amount | currency }}
+                </div>
+                <div class="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">
+                  {{ tile.name }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- See All Categories Link -->
+        <div class="flex justify-end -mt-2">
+          <button (click)="navigateTo('/dashboard/category')"
+                  class="text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 inline-flex items-center gap-1.5 cursor-pointer border-0 bg-transparent">
+            <span>See All</span>
+            <mat-icon class="!w-4 !h-4 !text-base">arrow_forward</mat-icon>
+          </button>
+        </div>
+
+        <!-- 2. SAVINGS WIDGET CARD (USING MATERIAL PRIMARY PALETTE) -->
+        <div class="p-6 rounded-[22px] bg-gradient-to-br from-primary-700 to-primary-900 text-white shadow-xl relative overflow-hidden">
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="text-base font-bold text-white m-0">Savings</h3>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/15 text-white text-xs font-semibold">
+              <mat-icon class="!w-3.5 !h-3.5 !text-sm">calendar_today</mat-icon>
+              <span>{{ currentYear }}</span>
+            </div>
+          </div>
+
+          <!-- Month-by-Month Horizontal Comparison Bars -->
+          <div class="space-y-3">
+            @for (row of savingsHistory(); track row.month) {
+              <div class="flex items-center gap-3 text-xs">
+                <div class="w-10 flex items-center justify-between text-white/80 font-medium">
+                  <span>{{ row.month }}</span>
+                  <span class="w-1 h-1 rounded-full bg-white/60"></span>
+                </div>
+                <div class="flex-1 h-2 rounded-full bg-white/20 overflow-hidden">
+                  <div class="h-full rounded-full bg-white transition-all duration-700 ease-out"
+                       [style.width.%]="row.percent"></div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- 3. REUSABLE CARD: ACCOUNT SUMMARY CARD FROM CARDS FOLDER -->
+        <app-account-summary-card></app-account-summary-card>
+
+        <!-- 4. REUSABLE CARD: BUDGET CARD FROM CARDS FOLDER -->
+        <app-budget-card [isHomeView]="true"></app-budget-card>
+
+      </div>
+
+    </div>
+  } @else {
+    <!-- ======================================================== -->
+    <!-- AI COPILOT INTERACTIVE ASSISTANT VIEW                     -->
+    <!-- ======================================================== -->
+    <div class="w-full h-[calc(100vh-170px)] bg-surface-50 rounded-[22px] border border-surface-300 shadow-md p-4 flex flex-col">
+      <div class="flex items-center justify-between pb-3 mb-2 border-b border-surface-200">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 flex items-center justify-center">
+            <mat-icon class="!w-4 !h-4 !text-base">smart_toy</mat-icon>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-100 m-0">Fintech AI Copilot</h3>
+            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 m-0">Conversational money management assistant</p>
+          </div>
+        </div>
+        <button (click)="activeView.set('overview')"
+                mat-stroked-button
+                class="!text-xs !rounded-xl cursor-pointer">
+          <mat-icon class="!w-4 !h-4 !text-base mr-1">arrow_back</mat-icon>
+          <span>Back to Dashboard</span>
+        </button>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-hidden">
+        <app-chat></app-chat>
+      </div>
+    </div>
+  }
+
+</div>

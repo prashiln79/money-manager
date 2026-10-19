@@ -4,6 +4,8 @@ import { TestSetup } from '../../../util/testing/test-setup';
 import { TEST_IMPORTS } from '../../../util/testing/test-config';
 import { CalendarViewComponent } from '../calendar-view/calendar-view.component';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
@@ -11,7 +13,7 @@ describe('HomeComponent', () => {
   beforeEach(async () => {
     await TestSetup.configureTestingModule(
       [HomeComponent, CalendarViewComponent], // declarations
-      TEST_IMPORTS, // imports
+      [...TEST_IMPORTS, TranslateModule.forRoot()], // imports
       [] // additional providers
     ).compileComponents();
 

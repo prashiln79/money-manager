@@ -1,0 +1,45 @@
+.home-desktop-container {
+  /* Precise icon centering */
+  mat-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle;
+    line-height: 1 !important;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    flex-shrink: 0;
+    overflow: visible !important;
+    box-sizing: border-box;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.desktop-chat-workspace {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+
+  app-chat {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}

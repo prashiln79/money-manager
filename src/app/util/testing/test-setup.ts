@@ -143,16 +143,19 @@ export class TestSetup {
   }
 
   static getMockBreakpointService() {
-    return jasmine.createSpyObj('BreakpointService', ['isMobile', 'isTablet', 'isDesktop'], {
+    const mock = jasmine.createSpyObj('BreakpointService', ['isMobile', 'isTablet', 'isDesktop'], {
       device: {
         isMobile: false,
         isTablet: false,
-        isDesktop: true
+        isDesktop: true,
+        isDesktopLayout: false
       },
-      isMobile: false,
-      isTablet: false,
-      isDesktop: true
+      isMobile: signal(false),
+      isTablet: signal(false),
+      isDesktop: signal(true),
+      isDesktopLayout: signal(false)
     });
+    return mock;
   }
 
   static getMockTransactionsService() {
