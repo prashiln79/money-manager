@@ -121,10 +121,20 @@ describe('HomeDesktopComponent', () => {
     expect(component.greeting()).toContain('Alex');
   });
 
-  it('should switch between overview and copilot views', () => {
+  it('should switch between overview and copilot views and toggle chat window', () => {
     expect(component.activeView()).toBe('overview');
-    component.activeView.set('copilot');
+    expect(component.isCopilotOpen()).toBe(false);
+
+    component.openCopilotWindow();
+    expect(component.isCopilotOpen()).toBe(true);
     expect(component.activeView()).toBe('copilot');
+
+    component.closeCopilotWindow();
+    expect(component.isCopilotOpen()).toBe(false);
+    expect(component.activeView()).toBe('overview');
+
+    component.toggleCopilotWindow();
+    expect(component.isCopilotOpen()).toBe(true);
   });
 
   it('should filter transactions by tab', () => {

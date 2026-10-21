@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, ChangeDetectorRef, OnInit, OnDestroy, ChangeDetectionStrategy, inject, effect, untracked } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectorRef, OnInit, OnDestroy, ChangeDetectionStrategy, inject, effect, untracked, Input } from '@angular/core';
 import { TransactionType } from 'src/app/util/config/enums';
 import { Category } from 'src/app/util/models';
 import { ChatFacadeService } from 'src/app/util/service/ai-chat/chat-facade-service';
@@ -83,6 +83,13 @@ import * as ProfileSelectors from 'src/app/store/profile/profile.selectors';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatComponent implements OnInit, OnDestroy {
+  @Input() hideCards: boolean = false;
+  @Input() isWindowMode: boolean = false;
+
+  get shouldHideCards(): boolean {
+    return this.hideCards || this.isWindowMode || this.breakpointService.isDesktopLayout() || this.breakpointService.device.isDesktop;
+  }
+
   public readonly chatFacadeService = inject(ChatFacadeService);
   public readonly breakpointService = inject(BreakpointService);
   private readonly audioRecordingService = inject(AudioRecordingService);

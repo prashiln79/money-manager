@@ -126,17 +126,12 @@ export class ChatFacadeService implements OnDestroy {
 
 
     private initWelcomeMessage() {
-        if (this.breakpointService.device.isMobile || this.breakpointService.device.isLaptop) {
-
+        const isDesktop = this.breakpointService.device.isDesktopLayout || this.breakpointService.device.isDesktop || this.breakpointService.device.isLaptop;
+        if (!isDesktop && this.breakpointService.device.isMobile) {
             this.pushBot(ResponseBuilder.create().uiElement(INTENTS.ACCOUNT_SUMMARY_CARD).build(), false, 0);
-
-
-        } else {
-            this.pushBot(ResponseBuilder.create().uiElement(INTENTS.ACCOUNT_SUMMARY_CARD).build(), false, 0);
-            // this.pushBot(ResponseBuilder.create().uiElement(INTENTS.RECENT_ACTIVITY_CARD).build(), false, 0);
-            const greeting = this.greetingFacade.getPersonalizedGreeting();
-            this.pushBot(ResponseBuilder.create().html(`🙂 ${greeting} I am your financial assistant. How can I help you today?`).build(), false, 0);
         }
+        const greeting = this.greetingFacade.getPersonalizedGreeting();
+        this.pushBot(ResponseBuilder.create().html(`🙂 ${greeting} I am your financial assistant. How can I help you today?`).build(), false, 0);
     }
 
     public pushUser(text: string, type: 'text' | 'html' = 'html') {

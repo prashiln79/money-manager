@@ -60,6 +60,11 @@ export class HomeDesktopComponent {
   // Active view toggle between Dashboard Overview and AI Copilot
   readonly activeView = signal<'overview' | 'copilot'>('overview');
 
+  // AI Copilot Floating Window State
+  readonly isCopilotOpen = signal<boolean>(false);
+  readonly isCopilotMinimized = signal<boolean>(false);
+  readonly isCopilotMaximized = signal<boolean>(false);
+
   // Time-frame period selector for dashboard trends: 'Day' | 'Month' | 'Year'
   readonly timePeriod = signal<'Day' | 'Month' | 'Year'>('Month');
 
@@ -464,5 +469,38 @@ export class HomeDesktopComponent {
     if (typeof val.toDate === 'function') return val.toDate();
     if (val.seconds) return new Date(val.seconds * 1000);
     return new Date(val);
+  }
+
+  // AI Copilot Window Actions
+  toggleCopilotWindow(): void {
+    if (this.isCopilotOpen() && this.isCopilotMinimized()) {
+      this.isCopilotMinimized.set(false);
+    } else {
+      const nextState = !this.isCopilotOpen();
+      this.isCopilotOpen.set(nextState);
+      this.activeView.set(nextState ? 'copilot' : 'overview');
+      if (nextState) {
+        this.isCopilotMinimized.set(false);
+      }
+    }
+  }
+
+  openCopilotWindow(): void {
+    this.isCopilotOpen.set(true);
+    this.isCopilotMinimized.set(false);
+    this.activeView.set('copilot');
+  }
+
+  closeCopilotWindow(): void {
+    this.isCopilotOpen.set(false);
+    this.activeView.set('overview');
+  }
+
+  minimizeCopilotWindow(): void {
+    this.isCopilotMinimized.update(v => !v);
+  }
+
+  toggleMaximizeCopilotWindow(): void {
+    this.isCopilotMaximized.update(v => !v);
   }
 }

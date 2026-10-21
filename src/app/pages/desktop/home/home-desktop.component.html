@@ -5,20 +5,21 @@
   <!-- ======================================================== -->
   <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-1">
     
-    <!-- Title & Inline Search Bar -->
-    <div class="flex items-center gap-6 flex-wrap flex-1">
-      <div class="flex items-center gap-3">
-        <h1 class="text-2xl lg:text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 tracking-tight m-0">
-          Dashboard
-        </h1>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
-              [ngClass]="isFamilyMode()
-                ? 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900/40 dark:text-secondary-300 border border-secondary-300 dark:border-secondary-700'
-                : 'bg-primary-50 text-primary-800 dark:bg-primary-950/60 dark:text-primary-300 border border-primary-200 dark:border-primary-800'">
-          {{ isFamilyMode() ? 'Family Mode' : 'Personal' }}
-        </span>
-      </div>
+    <!-- Title & Mode Badge -->
+    <div class="flex items-center gap-3">
+      <h1 class="text-2xl lg:text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 tracking-tight m-0">
+        Dashboard
+      </h1>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+            [ngClass]="isFamilyMode()
+              ? 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900/40 dark:text-secondary-300 border border-secondary-300 dark:border-secondary-700'
+              : 'bg-primary-50 text-primary-800 dark:bg-primary-950/60 dark:text-primary-300 border border-primary-200 dark:border-primary-800'">
+        {{ isFamilyMode() ? 'Family Mode' : 'Personal' }}
+      </span>
+    </div>
 
+    <!-- Right Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
       <!-- Search Input using Angular Material Surface & Neutral tokens -->
       <div class="relative w-72 max-w-full">
         <mat-icon class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 !w-4 !h-4 !text-base">search</mat-icon>
@@ -28,62 +29,60 @@
                (input)="onSearchInput($event)"
                class="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl bg-surface-50 border border-surface-300 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm" />
       </div>
-    </div>
 
-    <!-- Right Controls: View Toggle, + Transaction Button, Reports/Notifications -->
-    <div class="flex items-center gap-3 flex-wrap">
-
-      <!-- View Switcher (Overview vs AI Copilot) -->
-      <div class="flex p-0.5 bg-surface-200 rounded-xl border border-surface-300">
+      <!-- View Switcher (Overview vs AI Copilot Window Toggle) -->
+      <!-- <div class="flex p-0.5 bg-surface-200 rounded-xl border border-surface-300">
         <button type="button"
                 (click)="activeView.set('overview')"
-                [class.bg-surface-50]="activeView() === 'overview'"
-                [class.text-primary-700]="activeView() === 'overview'"
-                [class.dark:text-primary-400]="activeView() === 'overview'"
-                [class.shadow-sm]="activeView() === 'overview'"
-                [class.text-neutral-600]="activeView() !== 'overview'"
-                [class.dark:text-neutral-400]="activeView() !== 'overview'"
+                [class.bg-surface-50]="!isCopilotOpen()"
+                [class.text-primary-700]="!isCopilotOpen()"
+                [class.dark:text-primary-400]="!isCopilotOpen()"
+                [class.shadow-sm]="!isCopilotOpen()"
+                [class.text-neutral-600]="isCopilotOpen()"
+                [class.dark:text-neutral-400]="isCopilotOpen()"
                 class="px-3 py-1 text-xs font-semibold rounded-lg transition-all inline-flex items-center gap-1.5 cursor-pointer border-0">
           <mat-icon class="!w-3.5 !h-3.5 !text-sm">dashboard</mat-icon>
           <span>Overview</span>
         </button>
         <button type="button"
-                (click)="activeView.set('copilot')"
-                [class.bg-surface-50]="activeView() === 'copilot'"
-                [class.text-primary-700]="activeView() === 'copilot'"
-                [class.dark:text-primary-400]="activeView() === 'copilot'"
-                [class.shadow-sm]="activeView() === 'copilot'"
-                [class.text-neutral-600]="activeView() !== 'copilot'"
-                [class.dark:text-neutral-400]="activeView() !== 'copilot'"
+                (click)="toggleCopilotWindow()"
+                [class.bg-surface-50]="isCopilotOpen()"
+                [class.text-primary-700]="isCopilotOpen()"
+                [class.dark:text-primary-400]="isCopilotOpen()"
+                [class.shadow-sm]="isCopilotOpen()"
+                [class.text-neutral-600]="!isCopilotOpen()"
+                [class.dark:text-neutral-400]="!isCopilotOpen()"
                 class="px-3 py-1 text-xs font-semibold rounded-lg transition-all inline-flex items-center gap-1.5 cursor-pointer border-0">
           <mat-icon class="!w-3.5 !h-3.5 !text-sm">smart_toy</mat-icon>
           <span>AI Copilot</span>
+          @if (isCopilotOpen()) {
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          }
         </button>
-      </div>
+      </div> -->
 
       <!-- Primary Action: + Transaction Button using Material Primary -->
-      <button (click)="openAddTransaction()"
+      <!-- <button (click)="openAddTransaction()"
               type="button"
               class="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium text-xs shadow-md shadow-primary-600/20 hover:shadow-lg transition-all active:scale-95 inline-flex items-center gap-1.5 cursor-pointer border-0">
         <mat-icon class="!w-4 !h-4 !text-base">add</mat-icon>
         <span>Transaction</span>
-      </button>
+      </button> -->
 
       <!-- Notifications / Reports Icon -->
-      <button type="button"
+      <!-- <button type="button"
               (click)="navigateTo('/dashboard/reports')"
               matTooltip="Financial Reports & Notifications"
               class="w-9 h-9 rounded-xl bg-surface-50 border border-surface-300 text-neutral-600 dark:text-neutral-300 hover:bg-surface-100 flex items-center justify-center transition-colors cursor-pointer">
         <mat-icon class="!w-4 !h-4 !text-base text-neutral-600 dark:text-neutral-400">notifications_none</mat-icon>
-      </button>
+      </button> -->
     </div>
   </header>
 
   <!-- ======================================================== -->
   <!-- 2. MAIN VIEW CONTAINER                                   -->
   <!-- ======================================================== -->
-  @if (activeView() === 'overview') {
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
       <!-- ====================================================== -->
       <!-- LEFT COLUMN (8 cols): HERO CARD, CHART, TRANSACTIONS   -->
@@ -468,34 +467,45 @@
 
       </div>
 
-    </div>
-  } @else {
-    <!-- ======================================================== -->
-    <!-- AI COPILOT INTERACTIVE ASSISTANT VIEW                     -->
-    <!-- ======================================================== -->
-    <div class="w-full h-[calc(100vh-170px)] bg-surface-50 rounded-[22px] border border-surface-300 shadow-md p-4 flex flex-col">
-      <div class="flex items-center justify-between pb-3 mb-2 border-b border-surface-200">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300 flex items-center justify-center">
-            <mat-icon class="!w-4 !h-4 !text-base">smart_toy</mat-icon>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-100 m-0">Fintech AI Copilot</h3>
-            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 m-0">Conversational money management assistant</p>
-          </div>
-        </div>
-        <button (click)="activeView.set('overview')"
-                mat-stroked-button
-                class="!text-xs !rounded-xl cursor-pointer">
-          <mat-icon class="!w-4 !h-4 !text-base mr-1">arrow_back</mat-icon>
-          <span>Back to Dashboard</span>
-        </button>
-      </div>
-
-      <div class="flex-1 min-h-0 overflow-hidden">
-        <app-chat></app-chat>
-      </div>
-    </div>
-  }
+  </div>
 
 </div>
+
+<!-- ======================================================== -->
+<!-- 3. BOTTOM-RIGHT FLOATING CHAT WIDGET & WINDOW             -->
+<!-- ======================================================== -->
+
+<!-- Floating "Chat" Pill Button (when closed, matching user's design) -->
+@if (!isCopilotOpen()) {
+  <button type="button"
+          (click)="openCopilotWindow()"
+          class="!fixed !bottom-6 !right-6 !z-[9999] px-6 py-3 rounded-full bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer border-0">
+    <mat-icon class="!w-5 !h-5 !text-lg">chat</mat-icon>
+    <span class="tracking-wide font-semibold">Chat</span>
+  </button>
+}
+
+<!-- Floating "Chat Window" (when open, matching user's design) -->
+@if (isCopilotOpen()) {
+  <div class="!fixed !bottom-6 !right-6 !z-[9999] w-[380px] xl:w-[400px] h-[550px] max-h-[85vh] flex flex-col rounded-2xl shadow-2xl bg-white dark:bg-surface-100 border border-surface-300 dark:border-surface-200 overflow-hidden transition-all duration-200">
+    
+    <!-- Top Colored Header Bar with 'Chat Window' & Close 'X' button -->
+    <div class="h-14 px-4 bg-primary-600 dark:bg-primary-700 text-white flex items-center justify-between rounded-t-2xl select-none shadow-sm shrink-0">
+      <div class="flex items-center gap-2.5">
+        <mat-icon class="!w-5 !h-5 !text-xl">chat</mat-icon>
+        <span class="text-sm font-semibold tracking-wide">Chat Window</span>
+      </div>
+      <button type="button"
+              (click)="closeCopilotWindow()"
+              aria-label="Close Chat Window"
+              class="w-8 h-8 rounded-full flex items-center justify-center text-white/90 hover:text-white hover:bg-white/20 transition cursor-pointer border-0 bg-transparent">
+        <mat-icon class="!w-5 !h-5 !text-xl">close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Chat Conversation Body without summary cards -->
+    <div class="flex-1 min-h-0 relative overflow-hidden bg-white dark:bg-surface-100">
+      <app-chat [hideCards]="true" [isWindowMode]="true" class="h-full block"></app-chat>
+    </div>
+  </div>
+}

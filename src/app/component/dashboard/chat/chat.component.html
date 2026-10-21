@@ -2,8 +2,8 @@
   <div class="flex flex-col h-full">
 
 
-    <div #scrollContainer class="flex-1 chat-container px-4 space-y-2 pt-4 pb-28 md:pb-4 flex no-scrollbar"
-      [ngStyle]="{'max-height': breakpointService.device.isMobile ? 'calc(78dvh - 100px)' : '70vh'}">
+    <div #scrollContainer class="flex-1 chat-container px-4 space-y-2 pt-4 pb-32 flex no-scrollbar overflow-y-auto"
+      [ngStyle]="{'max-height': isWindowMode ? 'calc(100% - 10px)' : (breakpointService.device.isMobile ? 'calc(78dvh - 100px)' : '70vh')}">
       <div class="max-w-screen-xl mx-auto w-full">
         @for (msg of chatFacadeService.messages(); track msg.id) {
           <div class="flex fade-in"
@@ -16,34 +16,35 @@
                 style="-webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;">
               </div>
             }
-            <!-- Account Summary Card -->
-            @if(msg.type === 'UI-ELEMENT' && msg.text === 'ACCOUNT_SUMMARY_CARD') {
+            <!-- Account Summary Card (hidden on desktop / window mode) -->
+            @if(msg.type === 'UI-ELEMENT' && msg.text === 'ACCOUNT_SUMMARY_CARD' && !shouldHideCards) {
               <div class="relative top-0 z-10 w-full my-2">
                 <app-account-summary-card></app-account-summary-card>
               </div>
             }
-            @if(msg.type === 'UI-ELEMENT' && msg.text === 'LOAN_SUMMARY_CARD') {
+            @if(msg.type === 'UI-ELEMENT' && msg.text === 'LOAN_SUMMARY_CARD' && !shouldHideCards) {
               <div class="relative top-0 z-10 w-full my-2">
                 <app-loan-summary-card></app-loan-summary-card>
               </div>
             }
-            @if(msg.type === 'UI-ELEMENT' && msg.text === 'MONTHLY_EXPENDITURE_CARD') {
+            @if(msg.type === 'UI-ELEMENT' && msg.text === 'MONTHLY_EXPENDITURE_CARD' && !shouldHideCards) {
               <div class="relative top-0 z-10 w-full my-2">
                 <app-monthly-expenditure-card></app-monthly-expenditure-card>
               </div>
             }
-            <!-- Recent Activity Card -->
-            @if(msg.type === 'UI-ELEMENT' && msg.text === 'RECENT_ACTIVITY_CARD') {
+            <!-- Recent Activity Card (hidden on desktop / window mode) -->
+            @if(msg.type === 'UI-ELEMENT' && msg.text === 'RECENT_ACTIVITY_CARD' && !shouldHideCards) {
               <div class="relative top-0 z-10 w-full my-2">
                 <app-recent-activity-card [config]="msg.data || {}"></app-recent-activity-card>
               </div>
             }
-            <!-- Chat Category Dropdown -->
+            <!-- Chat Category Dropdown (interactive selection kept) -->
             @if(msg.type === 'UI-ELEMENT' && msg.text === 'categoryDropdown') {
               <app-chat-category-dropdown [placeholder]="msg?.data?.placeholder" [amount]="msg?.data?.amount"
               [txType]="msg?.data?.type" (submitSelection)="onChatCategorySelected($event)"></app-chat-category-dropdown>
             }
-            @if(msg.type === 'UI-ELEMENT' && msg.text === 'BUDGET_CARD') {
+            <!-- Budget Card (hidden on desktop / window mode) -->
+            @if(msg.type === 'UI-ELEMENT' && msg.text === 'BUDGET_CARD' && !shouldHideCards) {
               <div class="relative top-0 z-10 w-full my-2">
                 <app-budget-card></app-budget-card>
               </div>
@@ -67,7 +68,8 @@
   </div>
 
   <!-- Input Bar -->
-  <div class="p-4 mt-auto z-10 absolute bottom-0 left-0 w-full flex flex-col gap-3 input-bar-container lg:px-20">
+  <div class="p-3 mt-auto z-10 absolute bottom-0 left-0 w-full flex flex-col gap-2 input-bar-container"
+       [class.lg:px-20]="!isWindowMode && !hideCards">
 
 
     <!-- Input Container -->
@@ -165,8 +167,8 @@
       }
     </div>
 
-    <!-- Quick Actions -->
-    @if (!breakpointService.device.isMobile) {
+    <!-- Quick Actions (Hidden in compact window mode) -->
+    @if (!breakpointService.device.isMobile && !isWindowMode) {
       <div class="flex gap-2 px-4 overflow-x-auto no-scrollbar justify-center mb-2"
         >
         <mat-chip (click)="setQuickAction('Expense', ChatInput)"
