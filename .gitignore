@@ -92,3 +92,14 @@ dist
 # Generated service worker credentials
 /src/firebase-config.js
 
+# Android TWA Build and Secrets
+android/.gradle/
+android/build/
+android/app/build/
+android/*.apk
+android/*.aab
+android/*.idsig
+android/**/*.keystore
+android/**/*.jks
+android/keys/
+

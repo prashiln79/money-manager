@@ -1,0 +1,89 @@
+{
+  "packageId": "io.github.prashiln79.twa",
+  "host": "prashiln79.github.io",
+  "name": "Family Expense Tracker",
+  "launcherName": "Family Money",
+  "display": "standalone",
+  "themeColor": "#F7FAF5",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#F7FAF5",
+  "enableNotifications": true,
+  "startUrl": "/money-manager/",
+  "iconUrl": "https://prashiln79.github.io/money-manager/icons/icon-512x512.png?v=1787895186961",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "/Users/prashilwadkar/Documents/Project/money-manager/android/keys/signing.keystore",
+    "alias": "my-key-alias"
+  },
+  "appVersionName": "35",
+  "appVersionCode": 35,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://prashiln79.github.io/money-manager/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://prashiln79.github.io/money-manager/",
+  "minSdkVersion": 24,
+  "shareTarget": {
+    "action": "https://prashiln79.github.io/money-manager/?action=share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "receipts",
+          "accept": [
+            "image/*",
+            "application/pdf",
+            "text/csv"
+          ]
+        }
+      ]
+    }
+  },
+  "orientation": "portrait-primary",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [
+    {
+      "protocol": "web+money",
+      "url": "https://prashiln79.github.io/money-manager/?protocol=%s"
+    },
+    {
+      "protocol": "web+transaction",
+      "url": "https://prashiln79.github.io/money-manager/?action=add-transaction&data=%s"
+    },
+    {
+      "protocol": "web+budget",
+      "url": "https://prashiln79.github.io/money-manager/?action=budget&id=%s"
+    }
+  ],
+  "fileHandlers": [
+    {
+      "actionUrl": "https://prashiln79.github.io/money-manager/",
+      "mimeTypes": [
+        "text/csv",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "text/plain"
+      ]
+    }
+  ],
+  "launchHandlerClientMode": "",
+  "appVersion": "35"
+}

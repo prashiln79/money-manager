@@ -21,7 +21,10 @@
     "postbuild": "node scripts/generate-static-seo-pages.js && cp README.md dist/money-manager/README.md",
     "prepare": "husky",
     "i18n:check": "node scripts/check-i18n.js",
-    "i18n:sync": "node scripts/sync-i18n.js"
+    "i18n:sync": "node scripts/sync-i18n.js",
+    "android:check": "npm --prefix android run android:check",
+    "android:build": "npm --prefix android run android:build",
+    "android:aab": "npm --prefix android run android:aab"
   },
   "dependencies": {
     "@angular/animations": "^21.2.0",
