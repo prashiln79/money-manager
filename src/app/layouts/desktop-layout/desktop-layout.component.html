@@ -6,28 +6,28 @@
          [class.w-20]="isSidebarCollapsed()">
 
     <!-- Sidebar Brand & Toggle -->
-    <div class="sidebar-header flex items-center px-3.5 h-16 border-b border-slate-100 dark:border-slate-800"
+    <div class="sidebar-header flex items-center pl-3.5 pr-2 h-16 border-b border-slate-100 dark:border-slate-800"
          [class.justify-between]="!isSidebarCollapsed()"
          [class.justify-center]="isSidebarCollapsed()">
-      <a routerLink="/dashboard" class="flex items-center gap-3 overflow-hidden group cursor-pointer no-underline"
+      <a routerLink="/dashboard" class="flex items-center gap-2.5 group cursor-pointer no-underline min-w-0"
          [matTooltip]="isSidebarCollapsed() ? appName : ''"
          matTooltipPosition="right">
         <img src="assets/icon/app-icon/icon-192x192.png"
              [alt]="appName"
-             width="40"
-             height="40"
-             class="w-10 h-10 object-contain rounded-xl flex-shrink-0 transition-transform group-hover:scale-105" />
+             width="36"
+             height="36"
+             class="w-9 h-9 object-contain rounded-xl flex-shrink-0 transition-transform group-hover:scale-105" />
         @if (!isSidebarCollapsed()) {
-          <div class="flex flex-col truncate">
-            <span class="text-base font-bold text-sm text-slate-900 dark:text-white tracking-tight leading-snug">{{ appName }}</span>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none">Smart Finances</span>
+          <div class="flex flex-col justify-center min-w-0">
+            <span class="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-snug whitespace-nowrap" [title]="appName">{{ appName }}</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-normal leading-none whitespace-nowrap mt-0.5">Smart Finances</span>
           </div>
         }
       </a>
 
       @if (!isSidebarCollapsed()) {
-        <button type="button" (click)="toggleSidebar()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" matTooltip="Collapse sidebar">
-          <mat-icon class="!w-5 !h-5 !text-xl">chevron_left</mat-icon>
+        <button type="button" (click)="toggleSidebar()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex-shrink-0" matTooltip="Collapse sidebar">
+          <mat-icon class="!w-4 !h-4 !text-lg">chevron_left</mat-icon>
         </button>
       }
     </div>

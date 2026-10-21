@@ -479,9 +479,9 @@
 @if (!isCopilotOpen()) {
   <button type="button"
           (click)="openCopilotWindow()"
-          class="!fixed !bottom-6 !right-6 !z-[9999] px-6 py-3 rounded-full bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer border-0">
-    <mat-icon class="!w-5 !h-5 !text-lg">chat</mat-icon>
-    <span class="tracking-wide font-semibold">Chat</span>
+          class="!fixed !bottom-6 !right-6 !z-[9999] h-12 px-6 rounded-full bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all inline-flex items-center justify-center gap-2.5 cursor-pointer border-0 select-none">
+    <mat-icon class="!w-5 !h-5 !text-[20px] !leading-none flex items-center justify-center">chat</mat-icon>
+    <span class="tracking-wide font-semibold leading-none">Chat</span>
   </button>
 }
 
@@ -492,14 +492,14 @@
     <!-- Top Colored Header Bar with 'Chat Window' & Close 'X' button -->
     <div class="h-14 px-4 bg-primary-600 dark:bg-primary-700 text-white flex items-center justify-between rounded-t-2xl select-none shadow-sm shrink-0">
       <div class="flex items-center gap-2.5">
-        <mat-icon class="!w-5 !h-5 !text-xl">chat</mat-icon>
-        <span class="text-sm font-semibold tracking-wide">Chat Window</span>
+        <mat-icon class="!w-5 !h-5 !text-[20px] !leading-none flex items-center justify-center">chat</mat-icon>
+        <span class="text-sm font-semibold tracking-wide leading-none">Chat Window</span>
       </div>
       <button type="button"
               (click)="closeCopilotWindow()"
               aria-label="Close Chat Window"
               class="w-8 h-8 rounded-full flex items-center justify-center text-white/90 hover:text-white hover:bg-white/20 transition cursor-pointer border-0 bg-transparent">
-        <mat-icon class="!w-5 !h-5 !text-xl">close</mat-icon>
+        <mat-icon class="!w-5 !h-5 !text-[20px] !leading-none flex items-center justify-center">close</mat-icon>
       </button>
     </div>
 

@@ -1,9 +1,7 @@
 :host {
   display: block;
-}
 
-.home-desktop-container {
-  /* Precise icon centering */
+  /* Precise icon centering across the component including floating widgets */
   mat-icon {
     display: inline-flex !important;
     align-items: center !important;
