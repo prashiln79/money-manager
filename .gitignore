@@ -44,7 +44,6 @@ yarn-error.log
 *.sublime-workspace
 
 # Visual Studio Code
-.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -85,8 +84,6 @@ temp_interactive_push.bat
 dist
 
 # Environment variables
-.env
-.env.*
 !.env.example
 
 # Generated service worker credentials
@@ -103,3 +100,4 @@ android/**/*.keystore
 android/**/*.jks
 android/keys/
 
+config.bat

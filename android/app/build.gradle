@@ -24,8 +24,8 @@ def twaManifest = [
     applicationId: 'io.github.prashiln79.twa',
     hostName: 'prashiln79.github.io', // The domain being opened in the TWA.
     launchUrl: '/money-manager/', // The start path for the TWA. Must be relative to the domain.
-    name: 'Family Expense Tracker', // The application name.
-    launcherName: 'Family Money', // The name shown on the Android Launcher.
+    name: 'Finza', // The application name.
+    launcherName: 'Finza', // The name shown on the Android Launcher.
     themeColor: '#F7FAF5', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
     navigationColor: '#000000', // The color used for the navigation bar.
@@ -57,8 +57,8 @@ android {
         applicationId "io.github.prashiln79.twa"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 35
-        versionName "35"
+        versionCode 46
+        versionName "46"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
