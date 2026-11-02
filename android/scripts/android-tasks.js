@@ -35,7 +35,28 @@ function getSha256(filePath) {
   return crypto.createHash('sha256').update(fileBuffer).digest('hex');
 }
 
+function ensureTargetSdkAndChecksum() {
+  const buildGradlePath = path.join(PROJECT_ROOT, 'app', 'build.gradle');
+  if (fs.existsSync(buildGradlePath)) {
+    let content = fs.readFileSync(buildGradlePath, 'utf8');
+    if (/targetSdkVersion\s+35/.test(content)) {
+      content = content.replace(/targetSdkVersion\s+35/g, 'targetSdkVersion 36');
+      fs.writeFileSync(buildGradlePath, content, 'utf8');
+      console.log('⚡ Enforced targetSdkVersion 36 in app/build.gradle');
+    }
+  }
+
+  const manifestPath = path.join(PROJECT_ROOT, 'twa-manifest.json');
+  const checksumPath = path.join(PROJECT_ROOT, 'manifest-checksum.txt');
+  if (fs.existsSync(manifestPath)) {
+    const content = fs.readFileSync(manifestPath);
+    const sha1 = crypto.createHash('sha1').update(content).digest('hex');
+    fs.writeFileSync(checksumPath, sha1, 'utf8');
+  }
+}
+
 function runCheck(isPrebuild = false) {
+  ensureTargetSdkAndChecksum();
   console.log('='.repeat(64));
   console.log(isPrebuild ? '🔍 Verifying Android Project Configuration Before Build...' : '🔍 Android Project Configuration Check');
   console.log('='.repeat(64));
@@ -224,12 +245,28 @@ function locateAndReportAab() {
   const stats = fs.statSync(foundPath);
   const sha256 = getSha256(foundPath);
 
+  const aaptBin = '/Users/prashilwadkar/.bubblewrap/android_sdk/build-tools/36.0.0/aapt';
+  const apkPath = path.join(PROJECT_ROOT, 'app-release-signed.apk');
+  let targetSdkOutput = null;
+  if (fs.existsSync(aaptBin) && fs.existsSync(apkPath)) {
+    try {
+      const badging = require('child_process').execSync(`"${aaptBin}" dump badging "${apkPath}"`, { encoding: 'utf8' });
+      const sdkMatch = badging.match(/targetSdkVersion:'(\d+)'/);
+      if (sdkMatch) {
+        targetSdkOutput = sdkMatch[1];
+      }
+    } catch (_) {}
+  }
+
   console.log('\n' + '='.repeat(64));
   console.log('📦 ANDROID APP BUNDLE (AAB) DETAILS');
   console.log('='.repeat(64));
   console.log(`File:         ${path.basename(foundPath)}`);
   console.log(`Path:         ${foundPath}`);
   console.log(`Size:         ${formatBytes(stats.size)}`);
+  if (targetSdkOutput) {
+    console.log(`Target SDK:   ${targetSdkOutput} ${parseInt(targetSdkOutput, 10) >= 36 ? '✅ (API 36 Google Play compliant)' : '❌ (Must be >= 36)'}`);
+  }
   console.log(`Modified:     ${stats.mtime.toISOString()}`);
   console.log(`SHA-256:      ${sha256}`);
   console.log('='.repeat(64));
