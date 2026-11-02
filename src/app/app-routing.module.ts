@@ -17,7 +17,7 @@ export const routes: Routes = [
     title: 'App Shell',
     data: {
       seo: {
-        title: 'Family Expense Tracker Shell',
+        title: 'Finza Shell',
         robots: 'noindex, nofollow'
       }
     }
@@ -28,8 +28,8 @@ export const routes: Routes = [
     title: 'Feedback',
     data: {
       seo: {
-        title: 'Feedback & Support | Family Expense Tracker',
-        description: 'Send feedback, ask questions, or request support for the Family Expense Tracker app.',
+        title: 'Feedback & Support | Finza',
+        description: 'Send feedback, ask questions, or request support for the Finza app.',
         robots: 'index, follow',
         canonicalPath: 'feedback'
       }
@@ -41,7 +41,7 @@ export const routes: Routes = [
     title: 'Welcome',
     data: {
       seo: {
-        title: 'Family Expense Tracker - Personal Finance & Budget Planner',
+        title: 'Finza - Personal Finance & Budget Planner',
         description: 'Free, privacy-focused family expense tracker and personal finance manager. Track daily expenses, plan budgets, analyze spending trends, and organize accounts offline and online.',
         keywords: 'family expense tracker, personal finance app, budget planner, expense manager, financial analytics, offline finance app, PWA expense tracker',
         robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
@@ -55,8 +55,8 @@ export const routes: Routes = [
     title: 'Privacy Policy',
     data: {
       seo: {
-        title: 'Privacy Policy | Family Expense Tracker',
-        description: 'Learn how Family Expense Tracker protects your personal financial data. Transparent privacy practices, local-first storage, and secure encryption.',
+        title: 'Privacy Policy | Finza',
+        description: 'Learn how Finza protects your personal financial data. Transparent privacy practices, local-first storage, and secure encryption.',
         robots: 'index, follow',
         canonicalPath: 'privacy-policy'
       }
@@ -68,8 +68,8 @@ export const routes: Routes = [
     title: 'Terms & Conditions',
     data: {
       seo: {
-        title: 'Terms & Conditions | Family Expense Tracker',
-        description: 'Review the terms and conditions for using Family Expense Tracker app.',
+        title: 'Terms & Conditions | Finza',
+        description: 'Review the terms and conditions for using Finza app.',
         robots: 'index, follow',
         canonicalPath: 'terms-conditions'
       }
@@ -81,7 +81,7 @@ export const routes: Routes = [
     title: 'Offline',
     data: {
       seo: {
-        title: 'Offline | Family Expense Tracker',
+        title: 'Offline | Finza',
         robots: 'noindex, nofollow'
       }
     }
@@ -92,8 +92,8 @@ export const routes: Routes = [
     title: 'Data Deletion',
     data: {
       seo: {
-        title: 'Data Deletion Instructions | Family Expense Tracker',
-        description: 'Instructions for requesting permanent account and financial data deletion from Family Expense Tracker in compliance with privacy regulations.',
+        title: 'Data Deletion Instructions | Finza',
+        description: 'Instructions for requesting permanent account and financial data deletion from Finza in compliance with privacy regulations.',
         robots: 'index, follow',
         canonicalPath: 'data-deletion'
       }
@@ -105,7 +105,7 @@ export const routes: Routes = [
     title: 'Sign In',
     data: {
       seo: {
-        title: 'Sign In | Family Expense Tracker',
+        title: 'Sign In | Finza',
         robots: 'noindex, nofollow'
       }
     }
@@ -116,7 +116,7 @@ export const routes: Routes = [
     title: 'Sign Up',
     data: {
       seo: {
-        title: 'Sign Up | Family Expense Tracker',
+        title: 'Sign Up | Finza',
         robots: 'noindex, nofollow'
       }
     }
@@ -127,7 +127,7 @@ export const routes: Routes = [
     title: 'Register',
     data: {
       seo: {
-        title: 'Create Account | Family Expense Tracker',
+        title: 'Create Account | Finza',
         robots: 'noindex, nofollow'
       }
     }
@@ -140,7 +140,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: {
       seo: {
-        title: 'Setup Wizard | Family Expense Tracker',
+        title: 'Setup Wizard | Finza',
         robots: 'noindex, nofollow'
       }
     }

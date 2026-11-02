@@ -1,8 +1,8 @@
 {
   "packageId": "io.github.prashiln79.twa",
   "host": "prashiln79.github.io",
-  "name": "Family Expense Tracker",
-  "launcherName": "Family Money",
+  "name": "Finza",
+  "launcherName": "Finza",
   "display": "standalone",
   "themeColor": "#F7FAF5",
   "themeColorDark": "#000000",

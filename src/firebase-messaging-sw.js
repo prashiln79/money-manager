@@ -114,7 +114,7 @@ if (messaging) {
   messaging.onBackgroundMessage((payload) => {
     console.log('Background message received:', payload);
     
-    const notificationTitle = payload.notification?.title || payload.data?.title || 'Family Expense Tracker';
+    const notificationTitle = payload.notification?.title || payload.data?.title || 'Finza';
     const notificationOptions = getNotificationOptions(payload);
 
     return self.registration.showNotification(notificationTitle, notificationOptions)
@@ -625,7 +625,7 @@ self.addEventListener('message', (event) => {
 function showNotificationFromMessage(notificationData) {
   if (!notificationData) return;
 
-  const title = notificationData.title || 'Family Expense Tracker';
+  const title = notificationData.title || 'Finza';
   
   // Build a clean payload without undefined values
   const payload = {

@@ -36,6 +36,7 @@
                 "input": "public"
               },
               "src/assets",
+              "src/favicon.ico",
               {
                 "glob": "README.md",
                 "input": "./",

@@ -6,7 +6,7 @@ import { CurrencyCode, LanguageCode, ThemeType, DateRangePreset, TransactionType
  */
 export const APP_CONFIG = {
   // App metadata
-  APP_NAME: 'Family Expense Tracker',
+  APP_NAME: 'Finza',
   APP_VERSION: '1.0.0',
   APP_DESCRIPTION: 'Family expense management application',
   WELCOME_MESSAGE: 'Master your money, your way. Choose the mode that fits your needs to get started:',

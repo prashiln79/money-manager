@@ -1,6 +1,6 @@
 {
     "COMMON": {
-        "APP_NAME": "Family Expense Tracker",
+        "APP_NAME": "Finza",
         "LOADING": "Loading...",
         "ERROR": "Error",
         "SUCCESS": "Success",
@@ -14,7 +14,7 @@
         "LOGIN": "Login",
         "SAVE_CHANGES": "Save Changes",
         "CANCEL_EDIT": "Cancel Edit",
-        "MONEY_MANAGER": "Family Expense Tracker",
+        "MONEY_MANAGER": "Finza",
         "SETTINGS": "Settings",
         "SEARCH": "Search",
         "CONFIRM": "Confirm",

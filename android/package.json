@@ -2,7 +2,7 @@
   "name": "moneymanager-android",
   "version": "1.0.0",
   "private": true,
-  "description": "Bubblewrap Android TWA project for Family Expense Tracker",
+  "description": "Bubblewrap Android TWA project for Finza",
   "scripts": {
     "android:check": "node scripts/android-tasks.js check",
     "android:build": "node scripts/android-tasks.js build",
